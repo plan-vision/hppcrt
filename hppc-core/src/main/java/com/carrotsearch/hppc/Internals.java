@@ -9,7 +9,6 @@ import com.carrotsearch.hppc.hash.MurmurHash3;
  */
 final class Internals
 {
-
     final static int NB_OF_PROCESSORS = Runtime.getRuntime().availableProcessors();
 
     final static int BLANK_ARRAY_SIZE_IN_BIT_SHIFT = 10;
@@ -37,6 +36,14 @@ final class Internals
     static {
 
         Arrays.fill(Internals.BLANKING_INT_ARRAY_MINUS_ONE, -1);
+    }
+
+    static <T> int rehashKType(final T o, final int p) {
+        return o == null ? 0 : MurmurHash3.hash(o.hashCode() ^ p);
+    }
+
+    static <T> int rehashVType(final T o, final int p) {
+        return o == null ? 0 : MurmurHash3.hash(o.hashCode() ^ p);
     }
 
     static int rehash(final Object o, final int p) {
@@ -71,7 +78,19 @@ final class Internals
         return (int) MurmurHash3.hash(Double.doubleToLongBits(v) ^ p);
     }
 
+    static int rehash(final boolean b, final int p) {
+        return MurmurHash3.hash((b ? 1 : 0) ^ p);
+    }
+
     static int rehash(final Object o) {
+        return o == null ? 0 : MurmurHash3.hash(o.hashCode());
+    }
+
+    static <T> int rehashKType(final T o) {
+        return o == null ? 0 : MurmurHash3.hash(o.hashCode());
+    }
+
+    static <T> int rehashVType(final T o) {
         return o == null ? 0 : MurmurHash3.hash(o.hashCode());
     }
 
@@ -101,6 +120,10 @@ final class Internals
 
     static int rehash(final double v) {
         return (int) MurmurHash3.hash(Double.doubleToLongBits(v));
+    }
+
+    static int rehash(final boolean b) {
+        return (b ? MurmurHash3.BOOLEAN_TRUE_HASH : MurmurHash3.BOOLEAN_FALSE_HASH);
     }
 
     /**

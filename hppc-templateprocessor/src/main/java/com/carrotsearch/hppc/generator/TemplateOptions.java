@@ -297,7 +297,13 @@ public class TemplateOptions
      */
     private String reformatJavaArguments(String methodBodyStr, final String[] argsArray) {
 
+        int argPosition = 0;
+        boolean argumentIsFound = false;
+
+        //for each of the arguments
         for (int i = 0; i < argsArray.length; i++) {
+
+            argumentIsFound = false;
 
             final StringBuffer body = new StringBuffer();
 
@@ -313,8 +319,14 @@ public class TemplateOptions
                     //this java identifier is known, replace
                     if (m.group().equals(argsArray[i].trim())) {
 
+                        if (!argumentIsFound) {
+                            argPosition++;
+                            //first time this argument is encountered, increment postion count
+                            argumentIsFound = true;
+                        }
+
                         //append replacement
-                        body.append("%" + (i + 1) + "$s");
+                        body.append("%" + argPosition + "$s");
                     }
                     else {
 

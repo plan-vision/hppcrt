@@ -8,6 +8,10 @@ package com.carrotsearch.hppc.hash;
  */
 public final class MurmurHash3
 {
+
+    public static final int BOOLEAN_FALSE_HASH = 0;
+    public static final int BOOLEAN_TRUE_HASH = 1364076727;
+
     private MurmurHash3()
     {
         // no instances.

@@ -8,6 +8,7 @@ import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
 
 import static com.carrotsearch.hppc.Internals.*;
+import com.carrotsearch.hppc.hash.*;
 import static com.carrotsearch.hppc.HashContainerUtils.*;
 
 /**

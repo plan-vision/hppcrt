@@ -36,9 +36,9 @@ public final class HppcMapSyntheticBench
     private static final long RAND_SEED3 = 412316451315451545L;
     private static final long RAND_SEED4 = 2345613216796312185L;
 
-    public static final int NB_WARMUPS = 10;
+    public static final int NB_WARMUPS = 2;
 
-    public static final int NB_WARMUPS_ITERATION_BENCH = 50;
+    public static final int NB_WARMUPS_ITERATION_BENCH = 10;
 
     public Random prng = new XorShiftRandom();
 

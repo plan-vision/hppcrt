@@ -8,6 +8,7 @@ import com.carrotsearch.hppc.procedures.*;
 import com.carrotsearch.hppc.sorting.*;
 
 import static com.carrotsearch.hppc.Internals.*;
+import com.carrotsearch.hppc.hash.*;
 
 /**
  * An extension to {@link KTypeArrayList} adding stack-related utility methods. The top of

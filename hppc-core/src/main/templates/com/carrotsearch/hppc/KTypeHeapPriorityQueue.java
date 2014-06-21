@@ -6,6 +6,8 @@ import com.carrotsearch.hppc.cursors.*;
 import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
 import com.carrotsearch.hppc.sorting.*;
+import static com.carrotsearch.hppc.Internals.*;
+import com.carrotsearch.hppc.hash.*;
 
 /**
  * A Heap-based, min-priority queue of <code>KType</code>s.

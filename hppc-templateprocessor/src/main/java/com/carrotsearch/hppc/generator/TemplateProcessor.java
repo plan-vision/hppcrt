@@ -182,19 +182,27 @@ public final class TemplateProcessor
             String input = readFile(f.file);
             long t1, t0 = System.currentTimeMillis();
 
-            //Apply velocity : if TemplateOptions.isDoNotGenerateKType() or TemplateOptions.isDoNotGenerateVType() is true, do not
+            //0) Apply velocity : if TemplateOptions.isDoNotGenerateKType() or TemplateOptions.isDoNotGenerateVType() is true, do not
             //generate the final file.
             input = filterVelocity(f, input, templateOptions);
 
             if (!templateOptions.isDoNotGenerateKType() && !templateOptions.isDoNotGenerateVType())
             {
                 timeVelocity += (t1 = System.currentTimeMillis()) - t0;
-                input = filterIntrinsics(f, input, templateOptions);
-                timeIntrinsics += (t0 = System.currentTimeMillis()) - t1;
-                //Compute inlines
+
+                //1) Apply inlining
                 input = filterInlines(f, input, templateOptions);
 
-                //convert signatures
+                //2) Filter Internals
+
+                input = filterInternals(f, input, templateOptions);
+
+                //3) filter intrinsics last, low-level calls replacements
+                input = filterIntrinsics(f, input, templateOptions);
+
+                timeIntrinsics += (t0 = System.currentTimeMillis()) - t1;
+
+                //4) convert signatures
                 input = filterTypeClassRefs(f, input, templateOptions);
                 timeTypeClassRefs += (t1 = System.currentTimeMillis()) - t0;
                 input = filterComments(f, input, templateOptions);
@@ -524,10 +532,220 @@ public final class TemplateProcessor
         return sb.toString();
     }
 
-    private String filterInlines(final TemplateFile f, final String input,
+    /**
+     * Convert Internals.rehash() to their inlined form.
+     * @throws Exception 
+     */
+    private String filterInternals(final TemplateFile f, String input,
             final TemplateOptions templateOptions)
     {
-        String formattedInput = new String(input);
+        final Pattern p = Pattern.compile("(Internals.\\s*)(<[^>]+>\\s*)?([a-zA-Z]+)",
+                Pattern.MULTILINE | Pattern.DOTALL);
+
+        final StringBuffer sb = new StringBuffer();
+
+        while (true)
+        {
+            final Matcher m = p.matcher(input);
+
+            String unTransformedMethod = "";
+
+            if (m.find())
+            {
+                sb.append(input.substring(0, m.start()));
+
+                final String method = m.group(3);
+
+                int bracketCount = 0;
+                int last = m.end() + 1;
+                final ArrayList<String> params = new ArrayList<String>();
+                outer: for (int i = m.end(); i < input.length(); i++)
+                {
+                    switch (input.charAt(i))
+                    {
+                        case '(':
+                            bracketCount++;
+                            break;
+                        case ')':
+                            bracketCount--;
+                            if (bracketCount == 0)
+                            {
+                                params.add(input.substring(last, i).trim());
+                                unTransformedMethod = input.substring(m.start(), i + 1);
+                                input = input.substring(i + 1);
+                                break outer;
+                            }
+                            break;
+                        case ',':
+                            if (bracketCount == 1)
+                            {
+                                params.add(input.substring(last, i));
+                                last = i + 1;
+                            }
+                            break;
+                    }
+                }
+
+                //
+                //System.out.println(">>>>> found Internals = " + method + " , params = " + params.toString() + " length = " + params.toArray().length + ", for type "
+                //        + templateOptions.ktype);
+
+                //A) two argument rehash()
+                String replacementString = "";
+
+                if ("rehashKType".equals(method) && params.toArray().length == 2)
+                {
+                    if (templateOptions.isKTypeGeneric())
+                    {
+                        replacementString = String.format("( (%1$s) == null ? 0 : MurmurHash3.hash((%1$s).hashCode() ^ (%2$s)) )",
+                                params.toArray());
+                    }
+                    else if (templateOptions.ktype == Type.DOUBLE)
+                    {
+                        replacementString = String.format("( (int) MurmurHash3.hash(Double.doubleToLongBits(%1$s) ^ (%2$s)) )", params.toArray());
+                    }
+                    else if (templateOptions.ktype == Type.FLOAT)
+                    {
+                        replacementString = String.format("( MurmurHash3.hash(Float.floatToIntBits(%1$s) ^ (%2$s)) )", params.toArray());
+                    }
+                    else if (templateOptions.ktype == Type.LONG)
+                    {
+                        replacementString = String.format("( (int) MurmurHash3.hash((%1$s) ^ (%2$s)) )", params.toArray());
+                    }
+                    else if (templateOptions.ktype == Type.BOOLEAN)
+                    {
+                        replacementString = String.format("( MurmurHash3.hash((%1$s)?1:0) ^ (%2$s)) )", params.toArray());
+                    }
+                    else if (templateOptions.isKTypeNumeric())
+                    {
+                        replacementString = String.format("( MurmurHash3.hash((%1$s) ^ (%2$s)) )", params.toArray());
+                    }
+
+                    sb.append(replacementString);
+
+                    //
+                    //  System.out.println(">>>>> Internals.rehashKType(o,p) replacement = " + replacementString + ", for type " + templateOptions.ktype);
+
+                }
+                // B) 1 arg rehash()
+                else if ("rehashKType".equals(method) && params.toArray().length == 1) {
+
+                    if (templateOptions.isKTypeGeneric())
+                    {
+                        replacementString = String.format("( (%1$s) == null ? 0 : MurmurHash3.hash((%1$s).hashCode()) )",
+                                params.toArray());
+                    }
+                    else if (templateOptions.ktype == Type.DOUBLE)
+                    {
+                        replacementString = String.format("( (int) MurmurHash3.hash(Double.doubleToLongBits(%1$s)) )", params.toArray());
+                    }
+                    else if (templateOptions.ktype == Type.FLOAT)
+                    {
+                        replacementString = String.format("( MurmurHash3.hash(Float.floatToIntBits(%1$s)) )", params.toArray());
+                    }
+                    else if (templateOptions.ktype == Type.LONG)
+                    {
+                        replacementString = String.format("( (int) MurmurHash3.hash(%1$s) )", params.toArray());
+                    }
+                    else if (templateOptions.ktype == Type.BOOLEAN)
+                    {
+                        replacementString = String.format("((%1$s)?MurmurHash3.BOOLEAN_TRUE_HASH:MurmurHash3.BOOLEAN_FALSE_HASH)", params.toArray());
+                    }
+                    else if (templateOptions.isKTypeNumeric())
+                    {
+                        replacementString = String.format("( MurmurHash3.hash(%1$s) )", params.toArray());
+                    }
+
+                    sb.append(replacementString);
+
+                    //  System.out.println(">>>>> Internals.rehashKType(o) replacement = " + replacementString + ", for type " + templateOptions.ktype);
+                }
+                else if ("rehashVType".equals(method) && params.toArray().length == 2)
+                {
+                    if (templateOptions.isVTypeGeneric())
+                    {
+                        replacementString = String.format("( (%1$s) == null ? 0 : MurmurHash3.hash((%1$s).hashCode() ^ (%2$s)) )",
+                                params.toArray());
+                    }
+                    else if (templateOptions.vtype == Type.DOUBLE)
+                    {
+                        replacementString = String.format("( (int) MurmurHash3.hash(Double.doubleToLongBits(%1$s) ^ (%2$s)) )", params.toArray());
+                    }
+                    else if (templateOptions.vtype == Type.FLOAT)
+                    {
+                        replacementString = String.format("( MurmurHash3.hash(Float.floatToIntBits(%1$s) ^ (%2$s)) )", params.toArray());
+                    }
+                    else if (templateOptions.vtype == Type.LONG)
+                    {
+                        replacementString = String.format("( (int) MurmurHash3.hash((%1$s) ^ (%2$s)) )", params.toArray());
+                    }
+                    else if (templateOptions.vtype == Type.BOOLEAN)
+                    {
+                        replacementString = String.format("( MurmurHash3.hash((%1$s)?1:0) ^ (%2$s)) )", params.toArray());
+                    }
+                    else if (templateOptions.isVTypeNumeric())
+                    {
+                        replacementString = String.format("( MurmurHash3.hash((%1$s) ^ (%2$s)) )", params.toArray());
+                    }
+
+                    sb.append(replacementString);
+
+                    //  System.out.println(">>>>> Internals.rehashVType(o,p) replacement = " + replacementString + ", for type " + templateOptions.ktype);
+
+                }
+                // B) 1 arg rehash()
+                else if ("rehashVType".equals(method) && params.toArray().length == 1) {
+
+                    if (templateOptions.isVTypeGeneric())
+                    {
+                        replacementString = String.format("( (%1$s) == null ? 0 : MurmurHash3.hash((%1$s).hashCode()) )",
+                                params.toArray());
+                    }
+                    else if (templateOptions.vtype == Type.DOUBLE)
+                    {
+                        replacementString = String.format("( (int) MurmurHash3.hash(Double.doubleToLongBits(%1$s)) )", params.toArray());
+                    }
+                    else if (templateOptions.vtype == Type.FLOAT)
+                    {
+                        replacementString = String.format("( MurmurHash3.hash(Float.floatToIntBits(%1$s)) )", params.toArray());
+                    }
+                    else if (templateOptions.vtype == Type.LONG)
+                    {
+                        replacementString = String.format("( (int) MurmurHash3.hash(%1$s) )", params.toArray());
+                    }
+                    else if (templateOptions.vtype == Type.BOOLEAN)
+                    {
+                        replacementString = String.format("((%1$s)?MurmurHash3.BOOLEAN_TRUE_HASH:MurmurHash3.BOOLEAN_FALSE_HASH)", params.toArray());
+                    }
+                    else if (templateOptions.isVTypeNumeric())
+                    {
+                        replacementString = String.format("( MurmurHash3.hash(%1$s) )", params.toArray());
+                    }
+
+                    sb.append(replacementString);
+
+                    //  System.out.println(">>>>> Internals.rehashVType(o) replacement = " + replacementString + ", for type " + templateOptions.ktype);
+                }
+                else
+                {
+                    //not reworked Internals call, append directly, do not convert the call 
+                    sb.append(unTransformedMethod);
+                }
+            }
+            else
+            {
+                //not Internals call, append directly 
+                sb.append(input);
+                break;
+            }
+        }
+
+        return sb.toString();
+    }
+
+    private String filterInlines(final TemplateFile f, String input,
+            final TemplateOptions templateOptions)
+    {
         final StringBuffer sb = new StringBuffer();
 
         //Make 1 pass per call name of localInlinesMap
@@ -562,21 +780,21 @@ public final class TemplateProcessor
 
                 while (true)
                 {
-                    final Matcher m = p.matcher(formattedInput);
+                    final Matcher m = p.matcher(input);
 
                     //end if found matcher
                     if (m.find())
                     {
-                        sb.append(formattedInput.substring(0, m.start()));
+                        sb.append(input.substring(0, m.start()));
 
                         //parsing of the arguments
                         int bracketCount = 0;
                         int last = m.end() + 1;
                         final ArrayList<String> params = new ArrayList<String>();
 
-                        outer: for (int i = m.end(); i < formattedInput.length(); i++)
+                        outer: for (int i = m.end(); i < input.length(); i++)
                         {
-                            switch (formattedInput.charAt(i))
+                            switch (input.charAt(i))
                             {
                                 case '(':
                                     bracketCount++;
@@ -585,15 +803,15 @@ public final class TemplateProcessor
                                     bracketCount--;
                                     if (bracketCount == 0)
                                     {
-                                        params.add(formattedInput.substring(last, i).trim());
-                                        formattedInput = formattedInput.substring(i + 1);
+                                        params.add(input.substring(last, i).trim());
+                                        input = input.substring(i + 1);
                                         break outer;
                                     }
                                     break;
                                 case ',':
                                     if (bracketCount == 1)
                                     {
-                                        params.add(formattedInput.substring(last, i));
+                                        params.add(input.substring(last, i));
                                         last = i + 1;
                                     }
                                     break;
@@ -620,12 +838,12 @@ public final class TemplateProcessor
                             bodyPattern = templateOptions.localInlinesMap.get(callName).doubleBody;
                         }
                         else {
-
+                            //all integers : int, long, short, char, byte
                             bodyPattern = templateOptions.localInlinesMap.get(callName).integerBody;
                         }
 
                         //apply replacement, if not null
-                        if (bodyPattern != null) {
+                        if (!bodyPattern.isEmpty()) {
 
                             sb.append(String.format("(" + bodyPattern + ")", params.toArray()));
                         }
@@ -634,13 +852,13 @@ public final class TemplateProcessor
                     else
                     {
                         //not found, append the contents directly
-                        sb.append(formattedInput);
+                        sb.append(input);
                         break;
                     }
                 } //end while true
 
                 //re-process the same input for each method call
-                formattedInput = sb.toString();
+                input = sb.toString();
 
             }
             catch (final UnknownFormatConversionException e) {
@@ -649,7 +867,7 @@ public final class TemplateProcessor
 
         } //end for call names
 
-        return formattedInput.toString();
+        return input.toString();
     }
 
     private String filterComments(final TemplateFile f, final String input,
