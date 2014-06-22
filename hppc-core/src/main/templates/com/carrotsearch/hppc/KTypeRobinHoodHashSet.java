@@ -946,6 +946,7 @@ public class KTypeRobinHoodHashSet<KType>
      * Clone this object.
      * #if ($TemplateOptions.KTypeGeneric)
      * The returned clone will use the same HashingStrategy strategy.
+     * It also realizes a trim-to- this.size() in the process.
      * #end
      */
     @Override
@@ -954,7 +955,7 @@ public class KTypeRobinHoodHashSet<KType>
         /* #if ($TemplateOptions.KTypeGeneric) */
         @SuppressWarnings("unchecked")
         /* #end */
-        final KTypeRobinHoodHashSet<KType> cloned = new KTypeRobinHoodHashSet<KType>(this.keys.length, this.loadFactor
+        final KTypeRobinHoodHashSet<KType> cloned = new KTypeRobinHoodHashSet<KType>(this.size(), this.loadFactor
                 /* #if ($TemplateOptions.KTypeGeneric) */
                 , this.hashStrategy
                 /* #end */);

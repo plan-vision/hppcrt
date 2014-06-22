@@ -728,6 +728,7 @@ public class KTypeArrayDeque<KType>
 
     /**
      * Clone this object. The returned clone will reuse the same array resizing strategy.
+     * It also realizes a trim-to- this.size() in the process.
      */
     @Override
     public KTypeArrayDeque<KType> clone()
@@ -736,7 +737,7 @@ public class KTypeArrayDeque<KType>
         @SuppressWarnings("unchecked")
         /* #end */
         //real constructor call
-        final KTypeArrayDeque<KType> cloned = new KTypeArrayDeque<KType>(this.buffer.length, this.resizer);
+        final KTypeArrayDeque<KType> cloned = new KTypeArrayDeque<KType>(this.size(), this.resizer);
 
         cloned.defaultValue = this.defaultValue;
 

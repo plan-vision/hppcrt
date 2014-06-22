@@ -1790,6 +1790,7 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
      * Clone this object.
      * #if ($TemplateOptions.AnyGeneric)
      * The returned clone will use the same HashingStrategy strategy.
+     * It also realizes a trim-to- this.size() in the process.
      * #end
      */
     @Override
@@ -1799,7 +1800,7 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
         @SuppressWarnings("unchecked")
         final/* #end */
         KTypeVTypeRobinHoodHashMap<KType, VType> cloned =
-                new KTypeVTypeRobinHoodHashMap<KType, VType>(this.keys.length, this.loadFactor
+                new KTypeVTypeRobinHoodHashMap<KType, VType>(this.size(), this.loadFactor
                         /* #if ($TemplateOptions.KTypeGeneric) */
                         , this.hashStrategy
                 /* #end */);

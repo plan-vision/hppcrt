@@ -558,6 +558,7 @@ public class KTypeArrayList<KType>
 
     /**
      * Clone this object. The returned clone will use the same resizing strategy.
+     * It also realizes a trim-to- this.size() in the process.
      */
     @Override
     public KTypeArrayList<KType> clone()
@@ -565,7 +566,7 @@ public class KTypeArrayList<KType>
         /* #if ($TemplateOptions.KTypeGeneric) */
         @SuppressWarnings("unchecked")
         /* #end */
-        final KTypeArrayList<KType> cloned = new KTypeArrayList<KType>(this.buffer.length, this.resizer);
+        final KTypeArrayList<KType> cloned = new KTypeArrayList<KType>(this.size(), this.resizer);
 
         cloned.defaultValue = this.defaultValue;
         //add all in order, by construction.

@@ -831,11 +831,12 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
 
     /**
      * Clone this object. The returned clone will use the same comparator.
+     * It also realizes a trim-to- this.size() in the process.
      */
     @Override
     public KTypeIndexedHeapPriorityQueue<KType> clone()
     {
-        final KTypeIndexedHeapPriorityQueue<KType> cloned = new KTypeIndexedHeapPriorityQueue<KType>(this.comparator, this.buffer.length + 1);
+        final KTypeIndexedHeapPriorityQueue<KType> cloned = new KTypeIndexedHeapPriorityQueue<KType>(this.comparator, this.size());
 
         for (final KTypeCursor<KType> cursor : this)
         {

@@ -1501,6 +1501,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * Clone this object.
      * #if ($TemplateOptions.AnyGeneric)
      * The returned clone will use the same HashingStrategy strategy.
+     * It also realizes a trim-to- this.size() in the process.
      * #end
      */
     @Override
@@ -1510,7 +1511,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         @SuppressWarnings("unchecked")
         final/* #end */
         KTypeVTypeOpenHashMap<KType, VType> cloned =
-                new KTypeVTypeOpenHashMap<KType, VType>((int) (this.keys.length * this.loadFactor) + 1, this.loadFactor
+                new KTypeVTypeOpenHashMap<KType, VType>(this.size(), this.loadFactor
                         /* #if ($TemplateOptions.KTypeGeneric) */
                         , this.hashStrategy
                 /* #end */);

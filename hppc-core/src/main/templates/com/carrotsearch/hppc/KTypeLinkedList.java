@@ -643,6 +643,7 @@ public class KTypeLinkedList<KType>
 
     /**
      * Clone this object. The returned clone will use the same resizing strategy.
+     * It also realizes a trim-to- this.size() in the process.
      */
     @Override
     public KTypeLinkedList<KType> clone()
@@ -650,12 +651,10 @@ public class KTypeLinkedList<KType>
         /* #if ($TemplateOptions.KTypeGeneric) */
         @SuppressWarnings("unchecked")
         /* #end */
-        final KTypeLinkedList<KType> cloned = new KTypeLinkedList<KType>(this.buffer.length, this.resizer);
+        final KTypeLinkedList<KType> cloned = new KTypeLinkedList<KType>(this.size(), this.resizer);
 
-        // safe to clone, only "primitive" arrays
-        cloned.buffer = this.buffer.clone();
-        cloned.beforeAfterPointers = this.beforeAfterPointers.clone();
-        cloned.elementsCount = this.elementsCount;
+        cloned.addAll(this);
+
         cloned.defaultValue = this.defaultValue;
 
         return cloned;

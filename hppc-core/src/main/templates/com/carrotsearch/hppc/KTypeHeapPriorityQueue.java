@@ -556,12 +556,13 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
 
     /**
      * Clone this object. The returned clone will use the same resizing strategy and comparator.
+     * It also realizes a trim-to- this.size() in the process.
      */
     @Override
     public KTypeHeapPriorityQueue<KType> clone()
     {
         //real constructor call
-        final KTypeHeapPriorityQueue<KType> cloned = new KTypeHeapPriorityQueue<KType>(this.comparator, this.buffer.length + 1, this.resizer);
+        final KTypeHeapPriorityQueue<KType> cloned = new KTypeHeapPriorityQueue<KType>(this.comparator, this.size(), this.resizer);
 
         cloned.addAll(this);
 

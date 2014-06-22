@@ -798,6 +798,7 @@ public class KTypeOpenHashSet<KType>
 
     /**
      * Clone this object.
+     * It also realizes a trim-to- this.size() in the process.
      * #if ($TemplateOptions.KTypeGeneric)
      * The returned clone will use the same HashingStrategy strategy.
      * #end
@@ -808,7 +809,7 @@ public class KTypeOpenHashSet<KType>
         /* #if ($TemplateOptions.KTypeGeneric) */
         @SuppressWarnings("unchecked")
         /* #end */
-        final KTypeOpenHashSet<KType> cloned = new KTypeOpenHashSet<KType>((int) (this.keys.length * this.loadFactor) + 1, this.loadFactor
+        final KTypeOpenHashSet<KType> cloned = new KTypeOpenHashSet<KType>(this.size(), this.loadFactor
                 /* #if ($TemplateOptions.KTypeGeneric) */
                 , this.hashStrategy
                 /* #end */);
