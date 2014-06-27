@@ -38,16 +38,41 @@ final class Internals
         Arrays.fill(Internals.BLANKING_INT_ARRAY_MINUS_ONE, -1);
     }
 
+    /**
+     * rehash() with perturbation, version inlined for KType in generated code.
+     * @param o
+     * @param p
+     * @return
+     */
     static <T> int rehashKType(final T o, final int p) {
         return o == null ? 0 : MurmurHash3.hash(o.hashCode() ^ p);
     }
 
+    /**
+     * rehash() with perturbation, version inlined for VType in generated code.
+     * @param o
+     * @param p
+     * @return
+     */
     static <T> int rehashVType(final T o, final int p) {
         return o == null ? 0 : MurmurHash3.hash(o.hashCode() ^ p);
     }
 
     static int rehash(final Object o, final int p) {
         return o == null ? 0 : MurmurHash3.hash(o.hashCode() ^ p);
+    }
+
+    /**
+     * if specificHash == null, equivalent to rehash()
+     * The actual code is inlined in generated code. The primitive version strip down the strategy arg entirely.
+     * @param object
+     * @param p
+     * @param specificHash
+     * @return
+     */
+    static <T> int rehashSpecificHash(final T o, final int p, final HashingStrategy<? super T> specificHash)
+    {
+        return o == null ? 0 : (specificHash == null ? MurmurHash3.hash(o.hashCode() ^ p) : MurmurHash3.hash(specificHash.computeHashCode(o) ^ p));
     }
 
     static int rehash(final byte v, final int p) {
@@ -86,10 +111,20 @@ final class Internals
         return o == null ? 0 : MurmurHash3.hash(o.hashCode());
     }
 
+    /**
+     * rehash() version inlined for KType in generated code.
+     * @param o
+     * @return
+     */
     static <T> int rehashKType(final T o) {
         return o == null ? 0 : MurmurHash3.hash(o.hashCode());
     }
 
+    /**
+     * rehash() version inlined for VType in generated code.
+     * @param o
+     * @return
+     */
     static <T> int rehashVType(final T o) {
         return o == null ? 0 : MurmurHash3.hash(o.hashCode());
     }
@@ -194,7 +229,7 @@ final class Internals
     }
 
     /**
-     * Method to blank any int[] array to -1 
+     * Method to blank any int[] array to -1
      * from [startIndex; endIndex[, equivalent to {@link Arrays}.fill(intArray, startIndex, endIndex, -1)
      */
     static void blankIntArrayMinusOne(final int[] intArray, final int startIndex, final int endIndex) {

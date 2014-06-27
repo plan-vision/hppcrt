@@ -8,7 +8,9 @@ import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
 
 import static com.carrotsearch.hppc.Internals.*;
+
 import com.carrotsearch.hppc.hash.*;
+
 import static com.carrotsearch.hppc.HashContainerUtils.*;
 
 /**
@@ -65,8 +67,8 @@ import static com.carrotsearch.hppc.HashContainerUtils.*;
 /*! #set( $RH = (($TemplateOptions.KTypeGeneric && $ROBIN_HOOD_FOR_GENERICS) || ($TemplateOptions.KTypeNumeric && $ROBIN_HOOD_FOR_PRIMITIVES)) ) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeRobinHoodHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -410,9 +412,9 @@ public class KTypeRobinHoodHashSet<KType>
         // We have succeeded at allocating new data so insert the pending key/value at
         // the free slot in the old arrays before rehashing.
         lastSlot = -1;
-        assigned = 0;
+        assigned++;
 
-        //We don't care of the oldAllocated value, so long it means "allocated = true", since the whole set is rebuilt from scratch. 
+        //We don't care of the oldAllocated value, so long it means "allocated = true", since the whole set is rebuilt from scratch.
         /*! #if ($RH) !*/
         oldAllocated[freeSlot] = 1;
         /*!#else
@@ -421,12 +423,96 @@ public class KTypeRobinHoodHashSet<KType>
 
         oldKeys[freeSlot] = pendingKey;
 
+        //Variables for adding
+        final int mask = this.allocated.length - 1;
+
+        /*! #if ($TemplateOptions.KTypeGeneric) !*/
+        final HashingStrategy<? super KType> strategy = this.hashStrategy;
+        /*! #end !*/
+
+        KType e = Intrinsics.<KType> defaultKTypeValue();
+        //adding phase
+        int slot = -1;
+        final int perturbation = this.perturbation;
+        final KType[] keys = this.keys;
+
+        /*! #if ($RH) !*/
+        final int[] allocated = this.allocated;
+        /*! #else
+        final boolean[] allocated = this.allocated;
+        #end !*/
+
+        /*! #if ($RH) !*/
+        KType tmpKey = Intrinsics.<KType> defaultKTypeValue();
+        int tmpAllocated = -1;
+        int initial_slot = -1;
+        int dist = -1;
+        int existing_distance = -1;
+        /*! #end !*/
+
         //iterate all the old arrays to add in the newly allocated buffers
+        //It is important to iterate backwards to minimize the conflict chain length !
         for (int i = oldAllocated.length; --i >= 0;)
         {
             if (oldAllocated[i] /*! #if ($RH) !*/!= -1 /*! #end !*/)
             {
-                this.add(oldKeys[i]);
+                e = oldKeys[i];
+                slot = KTypeRobinHoodHashSet.rehashSpecificHash(e, perturbation, strategy) & mask;
+
+                /*! #if ($RH) !*/
+                initial_slot = slot;
+                dist = 0;
+                /*! #end !*/
+
+                while (allocated[slot] /*! #if ($RH) !*/!= -1 /*! #end !*/)
+                {
+                    /*! #if ($RH) !*/
+                    //re-shuffle keys to minimize variance
+                    existing_distance = probe_distance(slot, allocated);
+
+                    if (dist > existing_distance)
+                    {
+                        //swap current (key, value, initial_slot) with slot places
+                        tmpKey = keys[slot];
+                        keys[slot] = e;
+                        e = tmpKey;
+
+                        tmpAllocated = allocated[slot];
+                        allocated[slot] = initial_slot;
+                        initial_slot = tmpAllocated;
+
+                        /*! #if($DEBUG) !*/
+                        //Check invariants
+                        assert allocated[slot] == (KTypeRobinHoodHashSet.rehashSpecificHash(keys[slot], perturbation, strategy) & mask);
+                        assert initial_slot == (KTypeRobinHoodHashSet.rehashSpecificHash(e, perturbation, strategy) & mask);
+                        /*! #end !*/
+
+                        dist = existing_distance;
+                    } //endif
+                    /*! #end !*/
+
+                    slot = (slot + 1) & mask;
+
+                    /*! #if ($RH) !*/
+                    dist++;
+                    /*! #end !*/
+                } //end while
+
+                //place it at that position
+                /*! #if ($RH) !*/
+                allocated[slot] = initial_slot;
+                /*! #else
+                allocated[slot] = true;
+                #end !*/
+
+                keys[slot] = e;
+
+                /*! #if ($RH) !*/
+                /*! #if($DEBUG) !*/
+                //Check invariants
+                assert allocated[slot] == (KTypeRobinHoodHashSet.rehashSpecificHash(keys[slot], perturbation, strategy) & mask);
+                /*! #end !*/
+                /*! #end !*/
             }
         }
     }
@@ -574,8 +660,8 @@ public class KTypeRobinHoodHashSet<KType>
             }
 
             if (/*! #if ($RH) !*/
-            allocated[slotCurr] == -1
-            /*! #else
+                    allocated[slotCurr] == -1
+                    /*! #else
             !allocated[slotCurr]
             #end !*/)
             {
@@ -842,7 +928,7 @@ public class KTypeRobinHoodHashSet<KType>
             while (i < max &&
                     /*! #if ($RH) !*/
                     allocated[i] == -1
-            /*! #else
+                    /*! #else
             !allocated[i]
             #end  !*/)
 
@@ -1135,15 +1221,15 @@ public class KTypeRobinHoodHashSet<KType>
 /* #end */
 
 /*! #if ($TemplateOptions.inlineGenericAndPrimitive("KTypeRobinHoodHashSet.equalsKTypeHashStrategy",
-    "(e1,  e2, customEquals)", 
+    "(e1,  e2, customEquals)",
     "(e1 == null ? e2 == null : (customEquals == null ? e1.equals(e2) : customEquals.equals(e1, e2)))",
     "Intrinsics.equalsKType(e1 , e2)")) !*/
     /**
-    * Compare two Objects for equivalence, using a {@link HashingStrategy}. Null references return <code>true</code>.
-    * A null {@link HashingStrategy} is equivalent of calling {@link #equalsKType(Object e1, Object e2)}.
-    * This method is inlined in generated code.
-    * The primitive version strip down the strategy arg entirely.
-    */
+     * Compare two Objects for equivalence, using a {@link HashingStrategy}. Null references return <code>true</code>.
+     * A null {@link HashingStrategy} is equivalent of calling {@link #equalsKType(Object e1, Object e2)}.
+     * This method is inlined in generated code.
+     * The primitive version strip down the strategy arg entirely.
+     */
     private static <T> boolean equalsKTypeHashStrategy(final T e1, final T e2, final HashingStrategy<? super T> customEquals)
     {
         return (e1 == null ? e2 == null : (customEquals == null ? e1.equals(e2) : customEquals.equals(e1, e2)));
@@ -1152,17 +1238,17 @@ public class KTypeRobinHoodHashSet<KType>
 /*! #end !*/
 
 /*! #if ($TemplateOptions.inlineGenericAndPrimitive("KTypeRobinHoodHashSet.rehashSpecificHash",
-"( o,  p, specificHash)", 
+"( o,  p, specificHash)",
 "o == null ? 0 : (specificHash == null ?  MurmurHash3.hash(o.hashCode() ^ p) : MurmurHash3.hash(specificHash.computeHashCode(o) ^ p))",
 "Internals.rehashKType(o , p)")) !*/
     /**
-    * if specificHash == null, equivalent to rehash()
-    * The actual code is inlined in generated code. The primitive version strip down the strategy arg entirely.
-    * @param object
-    * @param p
-    * @param specificHash
-    * @return
-    */
+     * if specificHash == null, equivalent to rehash()
+     * The actual code is inlined in generated code. The primitive version strip down the strategy arg entirely.
+     * @param object
+     * @param p
+     * @param specificHash
+     * @return
+     */
     private static <T> int rehashSpecificHash(final T o, final int p, final HashingStrategy<? super T> specificHash)
     {
         return o == null ? 0 : (specificHash == null ? MurmurHash3.hash(o.hashCode() ^ p) : MurmurHash3.hash(specificHash.computeHashCode(o) ^ p));
