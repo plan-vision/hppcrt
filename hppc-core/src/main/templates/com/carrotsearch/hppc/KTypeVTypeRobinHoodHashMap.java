@@ -77,7 +77,7 @@ import static com.carrotsearch.hppc.HashContainerUtils.*;
 /*! #set( $RH = (($TemplateOptions.KTypeGeneric && $ROBIN_HOOD_FOR_GENERICS) || ($TemplateOptions.KTypeNumeric && $ROBIN_HOOD_FOR_PRIMITIVES)) ) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeRobinHoodHashMap<KType, VType>
-implements KTypeVTypeMap<KType, VType>, Cloneable
+        implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -855,8 +855,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             }
 
             if (/*! #if ($RH) !*/
-                    allocated[slotCurr] == -1
-                    /*! #else
+            allocated[slotCurr] == -1
+            /*! #else
             !allocated[slotCurr]
             #end !*/)
             {
@@ -1305,6 +1305,10 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             cursor.index = -2;
         }
 
+        /**
+         * Iterate backwards w.r.t the buffer, to
+         * minimize collision chains when filling another hash container (ex. with putAll())
+         */
         @Override
         protected KTypeVTypeCursor<KType, VType> fetch()
         {
@@ -1313,7 +1317,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     allocated[i] == -1
-            /*! #else
+                    /*! #else
             !allocated[i]
             #end  !*/)
             {
@@ -1435,7 +1439,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      * A view of the keys inside this hash map.
      */
     public final class KeysContainer
-    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeRobinHoodHashMap<KType, VType> owner =
                 KTypeVTypeRobinHoodHashMap.this;
@@ -1606,6 +1610,10 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             cursor.index = -2;
         }
 
+        /**
+         * Iterate backwards w.r.t the buffer, to
+         * minimize collision chains when filling another hash container (ex. with putAll())
+         */
         @Override
         protected KTypeCursor<KType> fetch()
         {
@@ -1614,7 +1622,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     allocated[i] == -1
-            /*! #else
+                    /*! #else
             !allocated[i]
             #end  !*/)
             {
@@ -1681,7 +1689,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             for (int slot = 0; slot < states.length; slot++)
             {
                 if (/*! #if ($RH) !*/
-                        states[slot] != -1
+                states[slot] != -1
                         /*! #else
                         states[slot]
                         #end  !*/
@@ -1707,8 +1715,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             for (int slot = 0; slot < states.length; slot++)
             {
                 if (/*! #if ($RH) !*/
-                        states[slot] != -1
-                        /*! #else
+                states[slot] != -1
+                /*! #else
                 states[slot]
                 #end  !*/) {
                     procedure.apply(values[slot]);
@@ -1732,8 +1740,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             for (int slot = 0; slot < states.length; slot++)
             {
                 if (/*! #if ($RH) !*/
-                        states[slot] != -1
-                        /*! #else
+                states[slot] != -1
+                /*! #else
                 states[slot]
                 #end  !*/)
                 {
@@ -1834,6 +1842,10 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             cursor.index = -2;
         }
 
+        /**
+         * Iterate backwards w.r.t the buffer, to
+         * minimize collision chains when filling another hash container (ex. with putAll())
+         */
         @Override
         protected KTypeCursor<VType> fetch()
         {
@@ -1842,7 +1854,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     allocated[i] == -1
-            /*! #else
+                    /*! #else
             !allocated[i]
             #end  !*/)
             {
@@ -1873,9 +1885,9 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         @SuppressWarnings("unchecked")
         final/* #end */
         KTypeVTypeRobinHoodHashMap<KType, VType> cloned =
-        new KTypeVTypeRobinHoodHashMap<KType, VType>(this.size(), this.loadFactor
-                /* #if ($TemplateOptions.KTypeGeneric) */
-                , this.hashStrategy
+                new KTypeVTypeRobinHoodHashMap<KType, VType>(this.size(), this.loadFactor
+                        /* #if ($TemplateOptions.KTypeGeneric) */
+                        , this.hashStrategy
                 /* #end */);
 
         cloned.putAll(this);
@@ -2002,7 +2014,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      */
     public static <KType, VType> KTypeVTypeRobinHoodHashMap<KType, VType> newInstanceWithoutPerturbations(final int initialCapacity, final float loadFactor,
             final HashingStrategy<? super KType> strategy)
-            {
+    {
         return new KTypeVTypeRobinHoodHashMap<KType, VType>(initialCapacity, loadFactor, strategy) {
             @Override
             protected final int computePerturbationValue(final int capacity)
@@ -2010,7 +2022,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                 return 0;
             }
         };
-            }
+    }
 
     /**
      * Return the current {@link HashingStrategy} in use, or {@code null} if none was set.

@@ -12,7 +12,7 @@ public class BenchmarkPerturbedVsHashedOnly extends SimpleBenchmark
 {
     @Param(
             {
-            "5000000"
+            "10000000"
             })
     public int size;
 

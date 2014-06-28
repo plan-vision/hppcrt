@@ -13,7 +13,7 @@ import com.carrotsearch.junitbenchmarks.annotation.BenchmarkMethodChart;
 
 @BenchmarkHistoryChart(filePrefix = "CLASSNAME.history", maxRuns = 10)
 @BenchmarkMethodChart(filePrefix = "CLASSNAME.methods")
-@BenchmarkOptions(callgc = false, warmupRounds = 5, benchmarkRounds = 5)
+@BenchmarkOptions(callgc = false, warmupRounds = 10, benchmarkRounds = 5)
 public class HashCollisionsCornerCaseTest extends AbstractBenchmark
 {
     private static int NB_ELEMENTS = (int) 10e6;
