@@ -233,7 +233,7 @@
               </excludes>
 
               <parallelism>auto</parallelism>
-              <maxMemory>750m</maxMemory>
+              <maxMemory>400m</maxMemory>
 
               <!-- Attach a simple listener. -->
               <listeners>
