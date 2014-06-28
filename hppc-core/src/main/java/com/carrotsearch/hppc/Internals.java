@@ -75,6 +75,19 @@ final class Internals
         return o == null ? 0 : (specificHash == null ? MurmurHash3.hash(o.hashCode() ^ p) : MurmurHash3.hash(specificHash.computeHashCode(o) ^ p));
     }
 
+    /**
+     * if specificHash == null, equivalent to rehash() with no perturbation
+     * The actual code is inlined in generated code. The primitive version strip down the strategy arg entirely.
+     * @param object
+     * @param p
+     * @param specificHash
+     * @return
+     */
+    static <T> int rehashSpecificHash(final T o, final HashingStrategy<? super T> specificHash)
+    {
+        return o == null ? 0 : (specificHash == null ? MurmurHash3.hash(o.hashCode()) : MurmurHash3.hash(specificHash.computeHashCode(o)));
+    }
+
     static int rehash(final byte v, final int p) {
         return MurmurHash3.hash(v ^ p);
     }

@@ -79,7 +79,7 @@ public class KTypeRobinHoodHashSetTest<KType> extends AbstractKTypeTest<KType>
                     /*! #if ($RH) !*/
                     //check hash cache consistency
                     /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                    Assert.assertEquals(Internals.rehashSpecificHash(set.keys[i], set.perturbation, set.strategy()) & mask, set.allocated[i]);
+                    Assert.assertEquals(Internals.rehashSpecificHash(set.keys[i], set.strategy()) & mask, set.allocated[i]);
                     /*! #else
                     Assert.assertEquals(Internals.rehash(set.keys[i], set.perturbation) & mask, set.allocated[i]);
                     #end !*/
@@ -525,37 +525,6 @@ public class KTypeRobinHoodHashSetTest<KType> extends AbstractKTypeTest<KType>
 
         Assert.assertEquals(l1.hashCode(), l2.hashCode());
         Assert.assertEquals(l1, l2);
-    }
-
-    /* */
-    @Test
-    public void testHashCodeEqualsDifferentPerturbance()
-    {
-        final KTypeOpenHashSet<KType> l0 = new KTypeOpenHashSet<KType>() {
-            @Override
-            protected int computePerturbationValue(final int capacity)
-            {
-                return 0xDEADBEEF;
-            }
-        };
-
-        final KTypeOpenHashSet<KType> l1 = new KTypeOpenHashSet<KType>() {
-            @Override
-            protected int computePerturbationValue(final int capacity)
-            {
-                return 0xCAFEBABE;
-            }
-        };
-
-        Assert.assertEquals(0, l0.hashCode());
-        Assert.assertEquals(l0.hashCode(), l1.hashCode());
-        Assert.assertEquals(l0, l1);
-
-        l0.add(newArray(k1, k2, k3));
-        l1.add(newArray(k1, k2, k3));
-
-        Assert.assertEquals(l0.hashCode(), l1.hashCode());
-        Assert.assertEquals(l0, l1);
     }
 
     /*! #if ($TemplateOptions.KTypeGeneric) !*/

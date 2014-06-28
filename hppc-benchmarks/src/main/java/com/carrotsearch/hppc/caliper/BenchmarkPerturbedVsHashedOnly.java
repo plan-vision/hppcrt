@@ -11,9 +11,9 @@ import com.google.caliper.SimpleBenchmark;
 public class BenchmarkPerturbedVsHashedOnly extends SimpleBenchmark
 {
     @Param(
-    {
-                "5000000"
-    })
+            {
+            "5000000"
+            })
     public int size;
 
     public int timePerturbed(int reps)
@@ -34,13 +34,7 @@ public class BenchmarkPerturbedVsHashedOnly extends SimpleBenchmark
     {
         int count = 0;
         while (reps-- > 0) {
-            final IntOpenHashSet set = new IntOpenHashSet() {
-                @Override
-                protected int computePerturbationValue(final int capacity)
-                {
-                    return 0;
-                }
-            };
+            final IntOpenHashSet set = new IntOpenHashSet();
             for (int i = size; --i >= 0;)
             {
                 set.add(i);

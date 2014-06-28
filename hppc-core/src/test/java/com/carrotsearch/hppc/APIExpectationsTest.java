@@ -2,6 +2,7 @@ package com.carrotsearch.hppc;
 
 import static com.carrotsearch.hppc.TestUtils.assertEquals2;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
@@ -11,7 +12,7 @@ import com.carrotsearch.randomizedtesting.RandomizedTest;
  */
 public class APIExpectationsTest extends RandomizedTest
 {
-    public volatile int [] t1;
+    public volatile int[] t1;
 
     @Test
     public void testPrimitiveToArray()
@@ -22,26 +23,26 @@ public class APIExpectationsTest extends RandomizedTest
         t1 = IntOpenHashSet.from(1, 2, 3).toArray();
 
         t1 = IntObjectOpenHashMap.from(
-            new int [] {1, 2}, new Long [] {1L, 2L}).keys().toArray();
+                new int[] { 1, 2 }, new Long[] { 1L, 2L }).keys().toArray();
     }
 
     @Test
     @RequiresLargeMemory
     public void testSizeLimitByteArrayList() {
-        ByteArrayList list = new ByteArrayList(0, new ArraySizingStrategy()
+        final ByteArrayList list = new ByteArrayList(0, new ArraySizingStrategy()
         {
             final BoundedProportionalArraySizingStrategy delegate = new BoundedProportionalArraySizingStrategy();
 
             @Override
-            public int round(int capacity)
+            public int round(final int capacity)
             {
                 return delegate.round(capacity);
             }
-            
+
             @Override
-            public int grow(int currentBufferLength, int elementsCount, int expectedAdditions)
+            public int grow(final int currentBufferLength, final int elementsCount, final int expectedAdditions)
             {
-                int grow = delegate.grow(currentBufferLength, elementsCount, expectedAdditions);
+                final int grow = delegate.grow(currentBufferLength, elementsCount, expectedAdditions);
                 // System.out.println("Resizing to: " + Integer.toHexString(grow) + " " + grow);
                 return grow;
             }
@@ -51,28 +52,29 @@ public class APIExpectationsTest extends RandomizedTest
             while (true) {
                 list.add((byte) 0);
             }
-        } catch (AssertionError e) {
-            assertEquals(0x7fffffff, list.size());
+        }
+        catch (final AssertionError e) {
+            Assert.assertEquals(0x7fffffff, list.size());
         }
     }
 
     @Test
     @RequiresLargeMemory
     public void testSizeLimitByteQueue() {
-        ByteArrayDeque queue = new ByteArrayDeque(1, new ArraySizingStrategy()
+        final ByteArrayDeque queue = new ByteArrayDeque(1, new ArraySizingStrategy()
         {
             final BoundedProportionalArraySizingStrategy delegate = new BoundedProportionalArraySizingStrategy();
 
             @Override
-            public int round(int capacity)
+            public int round(final int capacity)
             {
                 return delegate.round(capacity);
             }
-            
+
             @Override
-            public int grow(int currentBufferLength, int elementsCount, int expectedAdditions)
+            public int grow(final int currentBufferLength, final int elementsCount, final int expectedAdditions)
             {
-                int grow = delegate.grow(currentBufferLength, elementsCount, expectedAdditions);
+                final int grow = delegate.grow(currentBufferLength, elementsCount, expectedAdditions);
                 // System.out.println("Resizing to: " + Integer.toHexString(grow) + " " + grow);
                 return grow;
             }
@@ -82,8 +84,9 @@ public class APIExpectationsTest extends RandomizedTest
             while (true) {
                 queue.addLast((byte) 0);
             }
-        } catch (AssertionError e) {
-            assertEquals(0x7fffffff /* Account for an empty slot. */ - 1, queue.size());
+        }
+        catch (final AssertionError e) {
+            Assert.assertEquals(0x7fffffff /* Account for an empty slot. */- 1, queue.size());
         }
     }
 
@@ -91,25 +94,25 @@ public class APIExpectationsTest extends RandomizedTest
     @SuppressWarnings("unused")
     public void testNewInstance()
     {
-        IntArrayList v1 = IntArrayList.newInstance();
-        ObjectArrayList<Integer> v2 = ObjectArrayList.newInstance();
-        ObjectArrayList<Long> v3 = ObjectArrayList.newInstance();
-        
-        IntStack v4 = IntStack.newInstance();
-        ObjectStack<Integer> v5 = ObjectStack.newInstance();
-        ObjectStack<Long> v6 = ObjectStack.newInstance();
-        
-        IntOpenHashSet v7 = IntOpenHashSet.newInstance();
-        ObjectOpenHashSet<Integer> v8 = ObjectOpenHashSet.newInstance();
-        ObjectOpenHashSet<Long> v9 = ObjectOpenHashSet.newInstance();
-        
-        IntArrayDeque v10 = IntArrayDeque.newInstance();
-        ObjectArrayDeque<Integer> v11 = ObjectArrayDeque.newInstance();
-        ObjectArrayDeque<Long> v12 = ObjectArrayDeque.newInstance();
+        final IntArrayList v1 = IntArrayList.newInstance();
+        final ObjectArrayList<Integer> v2 = ObjectArrayList.newInstance();
+        final ObjectArrayList<Long> v3 = ObjectArrayList.newInstance();
 
-        IntIntOpenHashMap v13 = IntIntOpenHashMap.newInstance();
-        ObjectIntOpenHashMap<Integer> v14 = ObjectIntOpenHashMap.newInstance();
-        IntObjectOpenHashMap<Integer> v15 = IntObjectOpenHashMap.newInstance();
+        final IntStack v4 = IntStack.newInstance();
+        final ObjectStack<Integer> v5 = ObjectStack.newInstance();
+        final ObjectStack<Long> v6 = ObjectStack.newInstance();
+
+        final IntOpenHashSet v7 = IntOpenHashSet.newInstance();
+        final ObjectOpenHashSet<Integer> v8 = ObjectOpenHashSet.newInstance();
+        final ObjectOpenHashSet<Long> v9 = ObjectOpenHashSet.newInstance();
+
+        final IntArrayDeque v10 = IntArrayDeque.newInstance();
+        final ObjectArrayDeque<Integer> v11 = ObjectArrayDeque.newInstance();
+        final ObjectArrayDeque<Long> v12 = ObjectArrayDeque.newInstance();
+
+        final IntIntOpenHashMap v13 = IntIntOpenHashMap.newInstance();
+        final ObjectIntOpenHashMap<Integer> v14 = ObjectIntOpenHashMap.newInstance();
+        final IntObjectOpenHashMap<Integer> v15 = IntObjectOpenHashMap.newInstance();
     }
 
     @Test
@@ -121,7 +124,7 @@ public class APIExpectationsTest extends RandomizedTest
         isObjectArray(ObjectOpenHashSet.from(1, 2, 3).toArray());
 
         isObjectArray(ObjectObjectOpenHashMap.from(
-            new Integer [] {1, 2}, new Long [] {1L, 2L}).keys().toArray());
+                new Integer[] { 1, 2 }, new Long[] { 1L, 2L }).keys().toArray());
     }
 
     @Test
@@ -133,9 +136,9 @@ public class APIExpectationsTest extends RandomizedTest
         isIntegerArray(ObjectOpenHashSet.from(1, 2, 3).toArray(Integer.class));
 
         isIntegerArray(ObjectObjectOpenHashMap.from(
-            new Integer [] {1, 2}, new Long [] {1L, 2L}).keys().toArray(Integer.class));
+                new Integer[] { 1, 2 }, new Long[] { 1L, 2L }).keys().toArray(Integer.class));
     }
-    
+
     @Test
     public void testWildcards()
     {
@@ -149,66 +152,37 @@ public class APIExpectationsTest extends RandomizedTest
     @Test
     public void testPutOrAddOnEqualKeys()
     {
-    	ObjectIntOpenHashMap<Integer> map = ObjectIntOpenHashMap.newInstance();
+        final ObjectIntOpenHashMap<Integer> map = ObjectIntOpenHashMap.newInstance();
 
-    	Integer k1  = 1;
-    	Integer k1b = new Integer(k1.intValue()); 
+        final Integer k1 = 1;
+        final Integer k1b = new Integer(k1.intValue());
 
-    	assertTrue(k1 != k1b);
-        assertEquals2(1, map.putOrAdd(k1, 1, 2));
-        assertTrue(map.containsKey(k1b));
-        assertEquals2(3, map.putOrAdd(k1b, 1, 2));
-    }    
-
-    /* */
-    @Test
-    public void testHashCodeOverflowIdentical()
-    {
-        IntOpenHashSet l0 = new IntOpenHashSet() {
-            @Override
-            protected int computePerturbationValue(int capacity)
-            {
-                return 0xDEADBEEF;
-            }
-        };
-
-        IntOpenHashSet l1 = new IntOpenHashSet() {
-            @Override
-            protected int computePerturbationValue(int capacity)
-            {
-                return 0xCAFEBABE;
-            }
-        };
-
-        for (int i = 1000000 + randomIntBetween(0, 1000000); i-- > 0;) {
-            l0.add(i);
-            l1.add(i);
-        }
-
-        assertEquals(l0.hashCode(), l1.hashCode());
-        assertEquals(l0, l1);
+        Assert.assertTrue(k1 != k1b);
+        TestUtils.assertEquals2(1, map.putOrAdd(k1, 1, 2));
+        Assert.assertTrue(map.containsKey(k1b));
+        TestUtils.assertEquals2(3, map.putOrAdd(k1b, 1, 2));
     }
-    
+
     /**
      * Check if the array is indeed of Object component type.
      */
-    private void isObjectArray(Object [] array)
+    private void isObjectArray(final Object[] array)
     {
         isTypeArray(Object.class, array);
     }
-    
+
     /**
      * 
      */
-    private void isTypeArray(Class<?> clazz, Object [] array)
+    private void isTypeArray(final Class<?> clazz, final Object[] array)
     {
-        assertEquals(clazz, array.getClass().getComponentType());
+        Assert.assertEquals(clazz, array.getClass().getComponentType());
     }
 
     /**
      * Check if the array is indeed of Integer component type.
      */
-    private void isIntegerArray(Integer [] array)
+    private void isIntegerArray(final Integer[] array)
     {
         isTypeArray(Integer.class, array);
     }

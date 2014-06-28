@@ -77,7 +77,7 @@ import static com.carrotsearch.hppc.HashContainerUtils.*;
 /*! #set( $RH = (($TemplateOptions.KTypeGeneric && $ROBIN_HOOD_FOR_GENERICS) || ($TemplateOptions.KTypeNumeric && $ROBIN_HOOD_FOR_PRIMITIVES)) ) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeRobinHoodHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -154,14 +154,6 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
      */
     protected int lastSlot;
 
-    /**
-     * We perturb hashed values with the array size to avoid problems with
-     * nearly-sorted-by-hash values on iterations.
-     * 
-     * @see "http://issues.carrot2.org/browse/HPPC-80"
-     */
-    protected int perturbation;
-
     /* #if ($TemplateOptions.KTypeGeneric) */
     /**
      * Custom hashing strategy : if != null,
@@ -235,8 +227,6 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
         //allocate so that there is at least one slot that remains allocated = false
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (internalCapacity * loadFactor)) - 2;
-
-        this.perturbation = computePerturbationValue(internalCapacity);
     }
 
     /* #if ($TemplateOptions.KTypeGeneric) */
@@ -289,7 +279,7 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
         final HashingStrategy<? super KType> strategy = this.hashStrategy;
         /*!  #end !*/
 
-        int slot = KTypeVTypeRobinHoodHashMap.rehashSpecificHash(key, perturbation, strategy) & mask;
+        int slot = KTypeVTypeRobinHoodHashMap.rehashSpecificHash(key, strategy) & mask;
 
         final KType[] keys = this.keys;
         final VType[] values = this.values;
@@ -341,8 +331,8 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
                 /*! #if($DEBUG) !*/
                 //Check invariants
 
-                assert allocated[slot] == (KTypeVTypeRobinHoodHashMap.rehashSpecificHash(keys[slot], perturbation, strategy) & mask);
-                assert initial_slot == (KTypeVTypeRobinHoodHashMap.rehashSpecificHash(key, perturbation, strategy) & mask);
+                assert allocated[slot] == (KTypeVTypeRobinHoodHashMap.rehashSpecificHash(keys[slot], strategy) & mask);
+                assert initial_slot == (KTypeVTypeRobinHoodHashMap.rehashSpecificHash(key, strategy) & mask);
                 /*! #end !*/
 
                 dist = existing_distance;
@@ -377,7 +367,7 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
             /*! #if ($RH) !*/
             /*! #if($DEBUG) !*/
             //Check invariants
-            assert allocated[slot] == (KTypeVTypeRobinHoodHashMap.rehashSpecificHash(keys[slot], perturbation, strategy) & mask);
+            assert allocated[slot] == (KTypeVTypeRobinHoodHashMap.rehashSpecificHash(keys[slot], strategy) & mask);
 
             /*! #end !*/
             /*! #end !*/
@@ -473,7 +463,7 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
             final HashingStrategy<? super KType> strategy = this.hashStrategy;
          #end
 
-            int slot = KTypeVTypeRobinHoodHashMap.rehashSpecificHash(key, perturbation, strategy) & mask;
+            int slot = KTypeVTypeRobinHoodHashMap.rehashSpecificHash(key, strategy) & mask;
 
         #if ($RH)
         final int[] allocated = this.allocated;
@@ -629,8 +619,6 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
         final HashingStrategy<? super KType> strategy = this.hashStrategy;
         /*!  #end !*/
 
-        final int perturbation = this.perturbation;
-
         KType key = Intrinsics.<KType> defaultKTypeValue();
         VType value = Intrinsics.<VType> defaultVTypeValue();
 
@@ -663,7 +651,7 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
                 key = oldKeys[i];
                 value = oldValues[i];
 
-                slot = KTypeVTypeRobinHoodHashMap.rehashSpecificHash(key, perturbation, strategy) & mask;
+                slot = KTypeVTypeRobinHoodHashMap.rehashSpecificHash(key, strategy) & mask;
 
                 /*! #if ($RH) !*/
                 initial_slot = slot;
@@ -693,8 +681,8 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
 
                         /*! #if($DEBUG) !*/
                         //Check invariants
-                        assert allocated[slot] == (KTypeVTypeRobinHoodHashMap.rehashSpecificHash(keys[slot], perturbation, strategy) & mask);
-                        assert initial_slot == (KTypeVTypeRobinHoodHashMap.rehashSpecificHash(key, perturbation, strategy) & mask);
+                        assert allocated[slot] == (KTypeVTypeRobinHoodHashMap.rehashSpecificHash(keys[slot], strategy) & mask);
+                        assert initial_slot == (KTypeVTypeRobinHoodHashMap.rehashSpecificHash(key, strategy) & mask);
                         /*! #end !*/
 
                         dist = existing_distance;
@@ -720,7 +708,7 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
                 /*! #if ($RH) !*/
                 /*! #if($DEBUG) !*/
                 //Check invariants
-                assert allocated[slot] == (KTypeVTypeRobinHoodHashMap.rehashSpecificHash(keys[slot], perturbation, strategy) & mask);
+                assert allocated[slot] == (KTypeVTypeRobinHoodHashMap.rehashSpecificHash(keys[slot], strategy) & mask);
                 /*! #end !*/
                 /*! #end !*/
             }
@@ -753,7 +741,6 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (capacity * loadFactor)) - 2;
 
-        this.perturbation = computePerturbationValue(capacity);
     }
 
     /**
@@ -786,7 +773,7 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
         final HashingStrategy<? super KType> strategy = this.hashStrategy;
         /*! #end !*/
 
-        int slot = KTypeVTypeRobinHoodHashMap.rehashSpecificHash(key, perturbation, strategy) & mask;
+        int slot = KTypeVTypeRobinHoodHashMap.rehashSpecificHash(key, strategy) & mask;
 
         /*! #if ($RH) !*/
         int dist = 0;
@@ -844,15 +831,13 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
          final boolean[] allocated = this.allocated;
         #end !*/
 
-        final int perturbation = this.perturbation;
-
         while (true)
         {
             slotCurr = ((slotPrev = slotCurr) + 1) & mask;
 
             while (allocated[slotCurr] /*! #if ($RH) !*/!= -1 /*! #end !*/)
             {
-                slotOther = KTypeVTypeRobinHoodHashMap.rehashSpecificHash(keys[slotCurr], perturbation, strategy) & mask;
+                slotOther = KTypeVTypeRobinHoodHashMap.rehashSpecificHash(keys[slotCurr], strategy) & mask;
 
                 if (slotPrev <= slotCurr)
                 {
@@ -870,8 +855,8 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
             }
 
             if (/*! #if ($RH) !*/
-            allocated[slotCurr] == -1
-            /*! #else
+                    allocated[slotCurr] == -1
+                    /*! #else
             !allocated[slotCurr]
             #end !*/)
             {
@@ -881,8 +866,8 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
             /*! #if ($RH) !*/
             /*! #if($DEBUG) !*/
             //Check invariants
-            assert allocated[slotCurr] == (KTypeVTypeRobinHoodHashMap.rehashSpecificHash(keys[slotCurr], perturbation, strategy) & mask);
-            assert allocated[slotPrev] == (KTypeVTypeRobinHoodHashMap.rehashSpecificHash(keys[slotPrev], perturbation, strategy) & mask);
+            assert allocated[slotCurr] == (KTypeVTypeRobinHoodHashMap.rehashSpecificHash(keys[slotCurr], strategy) & mask);
+            assert allocated[slotPrev] == (KTypeVTypeRobinHoodHashMap.rehashSpecificHash(keys[slotPrev], strategy) & mask);
             /*! #end !*/
             /*! #end !*/
 
@@ -978,7 +963,7 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
         final HashingStrategy<? super KType> strategy = this.hashStrategy;
         /*! #end !*/
 
-        int slot = KTypeVTypeRobinHoodHashMap.rehashSpecificHash(key, perturbation, strategy) & mask;
+        int slot = KTypeVTypeRobinHoodHashMap.rehashSpecificHash(key, strategy) & mask;
 
         /*! #if ($RH) !*/
         int dist = 0;
@@ -1119,7 +1104,7 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
         final HashingStrategy<? super KType> strategy = this.hashStrategy;
 
         /*! #end !*/
-        int slot = KTypeVTypeRobinHoodHashMap.rehashSpecificHash(key, perturbation, strategy) & mask;
+        int slot = KTypeVTypeRobinHoodHashMap.rehashSpecificHash(key, strategy) & mask;
 
         /*! #if ($RH) !*/
         int dist = 0;
@@ -1317,27 +1302,25 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
         public EntryIterator()
         {
             cursor = new KTypeVTypeCursor<KType, VType>();
-            cursor.index = -1;
+            cursor.index = -2;
         }
 
         @Override
         protected KTypeVTypeCursor<KType, VType> fetch()
         {
-            int i = cursor.index + 1;
-            final int max = keys.length;
+            int i = cursor.index - 1;
 
-            while (i < max &&
+            while (i >= 0 &&
                     /*! #if ($RH) !*/
                     allocated[i] == -1
             /*! #else
             !allocated[i]
             #end  !*/)
-
             {
-                i++;
+                i--;
             }
 
-            if (i == max)
+            if (i == -1)
                 return done();
 
             cursor.index = i;
@@ -1364,7 +1347,7 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
                 @Override
                 public void initialize(final EntryIterator obj)
                 {
-                    obj.cursor.index = -1;
+                    obj.cursor.index = keys.length;
                 }
 
                 @Override
@@ -1452,7 +1435,7 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
      * A view of the keys inside this hash map.
      */
     public final class KeysContainer
-            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeRobinHoodHashMap<KType, VType> owner =
                 KTypeVTypeRobinHoodHashMap.this;
@@ -1575,7 +1558,7 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
                     @Override
                     public void initialize(final KeysIterator obj)
                     {
-                        obj.cursor.index = -1;
+                        obj.cursor.index = keys.length;
                     }
 
                     @Override
@@ -1620,27 +1603,25 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
         public KeysIterator()
         {
             cursor = new KTypeCursor<KType>();
-            cursor.index = -1;
+            cursor.index = -2;
         }
 
         @Override
         protected KTypeCursor<KType> fetch()
         {
-            int i = cursor.index + 1;
-            final int max = keys.length;
+            int i = cursor.index - 1;
 
-            while (i < max &&
+            while (i >= 0 &&
                     /*! #if ($RH) !*/
                     allocated[i] == -1
             /*! #else
             !allocated[i]
             #end  !*/)
-
             {
-                i++;
+                i--;
             }
 
-            if (i == max)
+            if (i == -1)
                 return done();
 
             cursor.index = i;
@@ -1700,7 +1681,7 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
             for (int slot = 0; slot < states.length; slot++)
             {
                 if (/*! #if ($RH) !*/
-                states[slot] != -1
+                        states[slot] != -1
                         /*! #else
                         states[slot]
                         #end  !*/
@@ -1726,8 +1707,8 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
             for (int slot = 0; slot < states.length; slot++)
             {
                 if (/*! #if ($RH) !*/
-                states[slot] != -1
-                /*! #else
+                        states[slot] != -1
+                        /*! #else
                 states[slot]
                 #end  !*/) {
                     procedure.apply(values[slot]);
@@ -1751,8 +1732,8 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
             for (int slot = 0; slot < states.length; slot++)
             {
                 if (/*! #if ($RH) !*/
-                states[slot] != -1
-                /*! #else
+                        states[slot] != -1
+                        /*! #else
                 states[slot]
                 #end  !*/)
                 {
@@ -1805,7 +1786,7 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
                     @Override
                     public void initialize(final ValuesIterator obj)
                     {
-                        obj.cursor.index = -1;
+                        obj.cursor.index = keys.length;
                     }
 
                     @Override
@@ -1850,27 +1831,25 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
         public ValuesIterator()
         {
             cursor = new KTypeCursor<VType>();
-            cursor.index = -1;
+            cursor.index = -2;
         }
 
         @Override
         protected KTypeCursor<VType> fetch()
         {
-            int i = cursor.index + 1;
-            final int max = keys.length;
+            int i = cursor.index - 1;
 
-            while (i < max &&
+            while (i >= 0 &&
                     /*! #if ($RH) !*/
                     allocated[i] == -1
             /*! #else
             !allocated[i]
             #end  !*/)
-
             {
-                i++;
+                i--;
             }
 
-            if (i == max)
+            if (i == -1)
                 return done();
 
             cursor.index = i;
@@ -1894,9 +1873,9 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
         @SuppressWarnings("unchecked")
         final/* #end */
         KTypeVTypeRobinHoodHashMap<KType, VType> cloned =
-                new KTypeVTypeRobinHoodHashMap<KType, VType>(this.size(), this.loadFactor
-                        /* #if ($TemplateOptions.KTypeGeneric) */
-                        , this.hashStrategy
+        new KTypeVTypeRobinHoodHashMap<KType, VType>(this.size(), this.loadFactor
+                /* #if ($TemplateOptions.KTypeGeneric) */
+                , this.hashStrategy
                 /* #end */);
 
         cloned.putAll(this);
@@ -2023,7 +2002,7 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
      */
     public static <KType, VType> KTypeVTypeRobinHoodHashMap<KType, VType> newInstanceWithoutPerturbations(final int initialCapacity, final float loadFactor,
             final HashingStrategy<? super KType> strategy)
-    {
+            {
         return new KTypeVTypeRobinHoodHashMap<KType, VType>(initialCapacity, loadFactor, strategy) {
             @Override
             protected final int computePerturbationValue(final int capacity)
@@ -2031,7 +2010,7 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
                 return 0;
             }
         };
-    }
+            }
 
     /**
      * Return the current {@link HashingStrategy} in use, or {@code null} if none was set.
@@ -2081,9 +2060,9 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
 /*! #end !*/
 
 /*! #if ($TemplateOptions.inlineGenericAndPrimitive("KTypeVTypeRobinHoodHashMap.rehashSpecificHash",
-"( o,  p, specificHash)",
-"o == null ? 0 : (specificHash == null ?  MurmurHash3.hash(o.hashCode() ^ p) : MurmurHash3.hash(specificHash.computeHashCode(o) ^ p))",
-"Internals.rehashKType(o , p)")) !*/
+"( o, specificHash)",
+"o == null ? 0 : (specificHash == null ?  MurmurHash3.hash(o.hashCode()) : MurmurHash3.hash(specificHash.computeHashCode(o)))",
+"Internals.rehashKType(o)")) !*/
     /**
      * if specificHash == null, equivalent to rehash()
      * The actual code is inlined in generated code. The primitive version strip down the strategy arg entirely.
@@ -2092,9 +2071,9 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
      * @param specificHash
      * @return
      */
-    private static <T> int rehashSpecificHash(final T o, final int p, final HashingStrategy<? super T> specificHash)
+    private static <T> int rehashSpecificHash(final T o, final HashingStrategy<? super T> specificHash)
     {
-        return o == null ? 0 : (specificHash == null ? MurmurHash3.hash(o.hashCode() ^ p) : MurmurHash3.hash(specificHash.computeHashCode(o) ^ p));
+        return o == null ? 0 : (specificHash == null ? MurmurHash3.hash(o.hashCode()) : MurmurHash3.hash(specificHash.computeHashCode(o)));
     }
 
 /*! #end !*/
@@ -2111,13 +2090,8 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
 
         /*! #if($DEBUG) !*/
         //Check : cached hashed slot is == computed value
-        /*! #if ($TemplateOptions.KTypeGeneric) !*/
         final int mask = alloc.length - 1;
-        assert rh == (KTypeVTypeRobinHoodHashMap.rehashSpecificHash(this.keys[slot], perturbation, this.hashStrategy) & mask);
-        /*! #else
-            final int mask = alloc.length - 1;
-        	assert rh == (rehash(this.keys[slot], perturbation) & mask);
-        #end !*/
+        assert rh == (KTypeVTypeRobinHoodHashMap.rehashSpecificHash(this.keys[slot], this.hashStrategy) & mask);
         /*! #end !*/
 
         if (slot < rh) {

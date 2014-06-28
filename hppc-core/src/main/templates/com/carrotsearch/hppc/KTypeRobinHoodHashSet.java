@@ -133,14 +133,6 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      */
     protected int lastSlot;
 
-    /**
-     * We perturb hashed values with the array size to avoid problems with
-     * nearly-sorted-by-hash values on iterations.
-     * 
-     * @see "http://issues.carrot2.org/browse/HPPC-80"
-     */
-    protected int perturbation;
-
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     /**
      * Custom hashing strategy : if != null,
@@ -199,7 +191,6 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (internalCapacity * loadFactor)) - 2;
 
-        this.perturbation = computePerturbationValue(internalCapacity);
     }
 
     /* #if ($TemplateOptions.KTypeGeneric) */
@@ -243,7 +234,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         final HashingStrategy<? super KType> strategy = this.hashStrategy;
         /*! #end !*/
 
-        int slot = KTypeRobinHoodHashSet.rehashSpecificHash(e, perturbation, strategy) & mask;
+        int slot = KTypeRobinHoodHashSet.rehashSpecificHash(e, strategy) & mask;
 
         final KType[] keys = this.keys;
 
@@ -285,8 +276,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
                 /*! #if($DEBUG) !*/
                 //Check invariants
-                assert allocated[slot] == (KTypeRobinHoodHashSet.rehashSpecificHash(keys[slot], perturbation, strategy) & mask);
-                assert initial_slot == (KTypeRobinHoodHashSet.rehashSpecificHash(e, perturbation, strategy) & mask);
+                assert allocated[slot] == (KTypeRobinHoodHashSet.rehashSpecificHash(keys[slot], strategy) & mask);
+                assert initial_slot == (KTypeRobinHoodHashSet.rehashSpecificHash(e, strategy) & mask);
                 /*! #end !*/
 
                 dist = existing_distance;
@@ -318,7 +309,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
             /*! #if ($RH) !*/
             /*! #if($DEBUG) !*/
             //Check invariants
-            assert allocated[slot] == (KTypeRobinHoodHashSet.rehashSpecificHash(keys[slot], perturbation, strategy) & mask);
+            assert allocated[slot] == (KTypeRobinHoodHashSet.rehashSpecificHash(keys[slot], strategy) & mask);
             /*! #end !*/
             /*! #end !*/
         }
@@ -433,7 +424,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         KType e = Intrinsics.<KType> defaultKTypeValue();
         //adding phase
         int slot = -1;
-        final int perturbation = this.perturbation;
+
         final KType[] keys = this.keys;
 
         /*! #if ($RH) !*/
@@ -457,7 +448,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
             if (oldAllocated[i] /*! #if ($RH) !*/!= -1 /*! #end !*/)
             {
                 e = oldKeys[i];
-                slot = KTypeRobinHoodHashSet.rehashSpecificHash(e, perturbation, strategy) & mask;
+                slot = KTypeRobinHoodHashSet.rehashSpecificHash(e, strategy) & mask;
 
                 /*! #if ($RH) !*/
                 initial_slot = slot;
@@ -483,8 +474,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
                         /*! #if($DEBUG) !*/
                         //Check invariants
-                        assert allocated[slot] == (KTypeRobinHoodHashSet.rehashSpecificHash(keys[slot], perturbation, strategy) & mask);
-                        assert initial_slot == (KTypeRobinHoodHashSet.rehashSpecificHash(e, perturbation, strategy) & mask);
+                        assert allocated[slot] == (KTypeRobinHoodHashSet.rehashSpecificHash(keys[slot], strategy) & mask);
+                        assert initial_slot == (KTypeRobinHoodHashSet.rehashSpecificHash(e, strategy) & mask);
                         /*! #end !*/
 
                         dist = existing_distance;
@@ -510,7 +501,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
                 /*! #if ($RH) !*/
                 /*! #if($DEBUG) !*/
                 //Check invariants
-                assert allocated[slot] == (KTypeRobinHoodHashSet.rehashSpecificHash(keys[slot], perturbation, strategy) & mask);
+                assert allocated[slot] == (KTypeRobinHoodHashSet.rehashSpecificHash(keys[slot], strategy) & mask);
                 /*! #end !*/
                 /*! #end !*/
             }
@@ -540,25 +531,6 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (capacity * loadFactor)) - 2;
 
-        this.perturbation = computePerturbationValue(capacity);
-    }
-
-    /**
-     * <p>Compute the key perturbation value applied before hashing. The returned value
-     * should be non-zero and ideally different for each capacity. This matters because
-     * keys are nearly-ordered by their hashed values so when adding one container's
-     * values to the other, the number of collisions can skyrocket into the worst case
-     * possible.
-     * 
-     * <p>If it is known that hash containers will not be added to each other
-     * (will be used for counting only, for example) then some speed can be gained by
-     * not perturbing keys before hashing and returning a value of zero for all possible
-     * capacities. The speed gain is a result of faster rehash operation (keys are mostly
-     * in order).
-     */
-    protected int computePerturbationValue(final int capacity)
-    {
-        return HashContainerUtils.PERTURBATIONS[Integer.numberOfLeadingZeros(capacity)];
     }
 
     /**
@@ -581,7 +553,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         final HashingStrategy<? super KType> strategy = this.hashStrategy;
         /*!  #end !*/
 
-        int slot = KTypeRobinHoodHashSet.rehashSpecificHash(key, perturbation, strategy) & mask;
+        int slot = KTypeRobinHoodHashSet.rehashSpecificHash(key, strategy) & mask;
 
         /*! #if ($RH) !*/
         int dist = 0;
@@ -634,15 +606,13 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
          final boolean[] allocated = this.allocated;
         #end !*/
 
-        final int perturbation = this.perturbation;
-
         while (true)
         {
             slotCurr = ((slotPrev = slotCurr) + 1) & mask;
 
             while (allocated[slotCurr] /*! #if ($RH) !*/!= -1 /*! #end !*/)
             {
-                slotOther = KTypeRobinHoodHashSet.rehashSpecificHash(keys[slotCurr], perturbation, strategy) & mask;
+                slotOther = KTypeRobinHoodHashSet.rehashSpecificHash(keys[slotCurr], strategy) & mask;
 
                 if (slotPrev <= slotCurr)
                 {
@@ -671,8 +641,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
             /*! #if ($RH) !*/
             /*! #if($DEBUG) !*/
             //Check invariants
-            assert allocated[slotCurr] == (KTypeRobinHoodHashSet.rehashSpecificHash(keys[slotCurr], perturbation, strategy) & mask);
-            assert allocated[slotPrev] == (KTypeRobinHoodHashSet.rehashSpecificHash(keys[slotPrev], perturbation, strategy) & mask);
+            assert allocated[slotCurr] == (KTypeRobinHoodHashSet.rehashSpecificHash(keys[slotCurr], strategy) & mask);
+            assert allocated[slotPrev] == (KTypeRobinHoodHashSet.rehashSpecificHash(keys[slotPrev], strategy) & mask);
             /*! #end !*/
             /*! #end !*/
 
@@ -745,7 +715,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         final HashingStrategy<? super KType> strategy = this.hashStrategy;
         /*! #end !*/
 
-        int slot = KTypeRobinHoodHashSet.rehashSpecificHash(key, perturbation, strategy) & mask;
+        int slot = KTypeRobinHoodHashSet.rehashSpecificHash(key, strategy) & mask;
 
         /*! #if ($RH) !*/
         int dist = 0;
@@ -915,28 +885,25 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         public EntryIterator()
         {
             cursor = new KTypeCursor<KType>();
-            cursor.index = -1;
+            cursor.index = -2;
         }
 
         @Override
         protected KTypeCursor<KType> fetch()
         {
-            final int max = keys.length;
+            int i = cursor.index - 1;
 
-            int i = cursor.index + 1;
-
-            while (i < max &&
+            while (i >= 0 &&
                     /*! #if ($RH) !*/
                     allocated[i] == -1
                     /*! #else
             !allocated[i]
             #end  !*/)
-
             {
-                i++;
+                i--;
             }
 
-            if (i == max)
+            if (i == -1)
                 return done();
 
             cursor.index = i;
@@ -959,7 +926,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
                 @Override
                 public void initialize(final EntryIterator obj) {
-                    obj.cursor.index = -1;
+                    obj.cursor.index = keys.length;
                 }
 
                 @Override
@@ -1147,13 +1114,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      */
     public static <KType> KTypeRobinHoodHashSet<KType> newInstanceWithoutPerturbations()
     {
-        return new KTypeRobinHoodHashSet<KType>() {
-            @Override
-            protected final int computePerturbationValue(final int capacity)
-            {
-                return 0;
-            }
-        };
+        return new KTypeRobinHoodHashSet<KType>();
     }
 
     /**
@@ -1172,13 +1133,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      */
     public static <KType> KTypeRobinHoodHashSet<KType> newInstanceWithoutPerturbations(final int initialCapacity, final float loadFactor)
     {
-        return new KTypeRobinHoodHashSet<KType>(initialCapacity, loadFactor) {
-            @Override
-            protected final int computePerturbationValue(final int capacity)
-            {
-                return 0;
-            }
-        };
+        return new KTypeRobinHoodHashSet<KType>(initialCapacity, loadFactor);
     }
 
 /* #if ($TemplateOptions.KTypeGeneric) */
@@ -1200,13 +1155,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      */
     public static <KType> KTypeRobinHoodHashSet<KType> newInstanceWithoutPerturbations(final int initialCapacity, final float loadFactor, final HashingStrategy<? super KType> strategy)
     {
-        return new KTypeRobinHoodHashSet<KType>(initialCapacity, loadFactor, strategy) {
-            @Override
-            protected final int computePerturbationValue(final int capacity)
-            {
-                return 0;
-            }
-        };
+        return new KTypeRobinHoodHashSet<KType>(initialCapacity, loadFactor, strategy);
     }
 
     /**
@@ -1238,9 +1187,9 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 /*! #end !*/
 
 /*! #if ($TemplateOptions.inlineGenericAndPrimitive("KTypeRobinHoodHashSet.rehashSpecificHash",
-"( o,  p, specificHash)",
-"o == null ? 0 : (specificHash == null ?  MurmurHash3.hash(o.hashCode() ^ p) : MurmurHash3.hash(specificHash.computeHashCode(o) ^ p))",
-"Internals.rehashKType(o , p)")) !*/
+"( o, specificHash)",
+"o == null ? 0 : (specificHash == null ?  MurmurHash3.hash(o.hashCode()) : MurmurHash3.hash(specificHash.computeHashCode(o)))",
+"Internals.rehashKType(o)")) !*/
     /**
      * if specificHash == null, equivalent to rehash()
      * The actual code is inlined in generated code. The primitive version strip down the strategy arg entirely.
@@ -1249,9 +1198,9 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      * @param specificHash
      * @return
      */
-    private static <T> int rehashSpecificHash(final T o, final int p, final HashingStrategy<? super T> specificHash)
+    private static <T> int rehashSpecificHash(final T o, final HashingStrategy<? super T> specificHash)
     {
-        return o == null ? 0 : (specificHash == null ? MurmurHash3.hash(o.hashCode() ^ p) : MurmurHash3.hash(specificHash.computeHashCode(o) ^ p));
+        return o == null ? 0 : (specificHash == null ? MurmurHash3.hash(o.hashCode()) : MurmurHash3.hash(specificHash.computeHashCode(o)));
     }
 
 /*! #end !*/
@@ -1269,7 +1218,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         /*! #if($DEBUG) !*/
         //Check : cached hashed slot is == computed value
         final int mask = alloc.length - 1;
-        assert rh == (KTypeRobinHoodHashSet.rehashSpecificHash(this.keys[slot], perturbation, this.hashStrategy) & mask);
+        assert rh == (KTypeRobinHoodHashSet.rehashSpecificHash(this.keys[slot], this.hashStrategy) & mask);
         /*! #end !*/
 
         if (slot < rh) {

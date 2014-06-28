@@ -119,14 +119,6 @@ public class KTypeOpenHashSet<KType>
      */
     protected int lastSlot;
 
-    /**
-     * We perturb hashed values with the array size to avoid problems with
-     * nearly-sorted-by-hash values on iterations.
-     * 
-     * @see "http://issues.carrot2.org/browse/HPPC-80"
-     */
-    protected int perturbation;
-
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     /**
      * Custom hashing strategy : if != null,
@@ -177,8 +169,6 @@ public class KTypeOpenHashSet<KType>
         //allocate so that there is at least one slot that remains allocated = false
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (internalCapacity * loadFactor)) - 2;
-
-        this.perturbation = computePerturbationValue(internalCapacity);
     }
 
     /* #if ($TemplateOptions.KTypeGeneric) */
@@ -220,9 +210,9 @@ public class KTypeOpenHashSet<KType>
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         final HashingStrategy<? super KType> strategy = this.hashStrategy;
-        int slot = KTypeOpenHashSet.rehashSpecificHash(e, perturbation, strategy) & mask;
+        int slot = KTypeOpenHashSet.rehashSpecificHash(e, strategy) & mask;
         /*! #else
-        int slot = rehash(e, perturbation) & mask;
+        int slot = rehash(e) & mask;
         #end !*/
 
         final KType[] keys = this.keys;
@@ -339,7 +329,6 @@ public class KTypeOpenHashSet<KType>
         // Rehash all stored keys into the new buffers.
         final KType[] keys = this.keys;
         final boolean[] allocated = this.allocated;
-        final int perturbation = this.perturbation;
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         final HashingStrategy<? super KType> strategy = this.hashStrategy;
@@ -353,9 +342,9 @@ public class KTypeOpenHashSet<KType>
                 final KType k = oldKeys[i];
 
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                int slot = KTypeOpenHashSet.rehashSpecificHash(k, perturbation, strategy) & mask;
+                int slot = KTypeOpenHashSet.rehashSpecificHash(k, strategy) & mask;
                 /*! #else
-                int slot = rehash(k, perturbation) & mask;
+                int slot = rehash(k) & mask;
                 #end !*/
                 while (allocated[slot])
                 {
@@ -384,26 +373,6 @@ public class KTypeOpenHashSet<KType>
         //allocate so that there is at least one slot that remains allocated = false
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (capacity * loadFactor)) - 2;
-
-        this.perturbation = computePerturbationValue(capacity);
-    }
-
-    /**
-     * <p>Compute the key perturbation value applied before hashing. The returned value
-     * should be non-zero and ideally different for each capacity. This matters because
-     * keys are nearly-ordered by their hashed values so when adding one container's
-     * values to the other, the number of collisions can skyrocket into the worst case
-     * possible.
-     * 
-     * <p>If it is known that hash containers will not be added to each other
-     * (will be used for counting only, for example) then some speed can be gained by
-     * not perturbing keys before hashing and returning a value of zero for all possible
-     * capacities. The speed gain is a result of faster rehash operation (keys are mostly
-     * in order).
-     */
-    protected int computePerturbationValue(final int capacity)
-    {
-        return HashContainerUtils.PERTURBATIONS[Integer.numberOfLeadingZeros(capacity)];
     }
 
     /**
@@ -424,9 +393,9 @@ public class KTypeOpenHashSet<KType>
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         final HashingStrategy<? super KType> strategy = this.hashStrategy;
-        int slot = KTypeOpenHashSet.rehashSpecificHash(key, perturbation, strategy) & mask;
+        int slot = KTypeOpenHashSet.rehashSpecificHash(key, strategy) & mask;
         /*! #else
-        int slot = rehash(key, perturbation) & mask;
+        int slot = rehash(key) & mask;
         #end !*/
 
         final KType[] keys = this.keys;
@@ -465,7 +434,6 @@ public class KTypeOpenHashSet<KType>
 
         final KType[] keys = this.keys;
         final boolean[] allocated = this.allocated;
-        final int perturbation = this.perturbation;
 
         while (true)
         {
@@ -474,9 +442,9 @@ public class KTypeOpenHashSet<KType>
             while (allocated[slotCurr])
             {
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                slotOther = KTypeOpenHashSet.rehashSpecificHash(keys[slotCurr], perturbation, strategy) & mask;
+                slotOther = KTypeOpenHashSet.rehashSpecificHash(keys[slotCurr], strategy) & mask;
                 /*! #else
-                slotOther = rehash(keys[slotCurr], perturbation) & mask;
+                slotOther = rehash(keys[slotCurr]) & mask;
                 #end !*/
 
                 if (slotPrev <= slotCurr)
@@ -550,9 +518,9 @@ public class KTypeOpenHashSet<KType>
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         final HashingStrategy<? super KType> strategy = this.hashStrategy;
-        int slot = KTypeOpenHashSet.rehashSpecificHash(key, perturbation, this.hashStrategy) & mask;
+        int slot = KTypeOpenHashSet.rehashSpecificHash(key, strategy) & mask;
         /*! #else
-        int slot = rehash(key, perturbation) & mask;
+        int slot = rehash(key) & mask;
         #end !*/
 
         final KType[] keys = this.keys;
@@ -694,6 +662,7 @@ public class KTypeOpenHashSet<KType>
 
     /**
      * An iterator implementation for {@link #iterator}.
+     * In practice, it iterates the container "backwards"
      */
     public final class EntryIterator extends AbstractIterator<KTypeCursor<KType>>
     {
@@ -702,21 +671,24 @@ public class KTypeOpenHashSet<KType>
         public EntryIterator()
         {
             cursor = new KTypeCursor<KType>();
-            cursor.index = -1;
+            cursor.index = -2;
         }
 
+        /**
+         * The inner array is iterated backwards on purpose
+         * to side-step the longest conflict chain when filling another hash container.
+         */
         @Override
         protected KTypeCursor<KType> fetch()
         {
-            final int max = keys.length;
+            int i = cursor.index - 1;
 
-            int i = cursor.index + 1;
-            while (i < keys.length && !allocated[i])
+            while (i >= 0 && !allocated[i])
             {
-                i++;
+                i--;
             }
 
-            if (i == max)
+            if (i == -1)
                 return done();
 
             cursor.index = i;
@@ -739,7 +711,7 @@ public class KTypeOpenHashSet<KType>
 
                 @Override
                 public void initialize(final EntryIterator obj) {
-                    obj.cursor.index = -1;
+                    obj.cursor.index = keys.length;
                 }
 
                 @Override
@@ -904,13 +876,8 @@ public class KTypeOpenHashSet<KType>
      */
     public static <KType> KTypeOpenHashSet<KType> newInstanceWithoutPerturbations()
     {
-        return new KTypeOpenHashSet<KType>() {
-            @Override
-            protected final int computePerturbationValue(final int capacity)
-            {
-                return 0;
-            }
-        };
+        //has no effect
+        return new KTypeOpenHashSet<KType>();
     }
 
     /**
@@ -929,13 +896,7 @@ public class KTypeOpenHashSet<KType>
      */
     public static <KType> KTypeOpenHashSet<KType> newInstanceWithoutPerturbations(final int initialCapacity, final float loadFactor)
     {
-        return new KTypeOpenHashSet<KType>(initialCapacity, loadFactor) {
-            @Override
-            protected final int computePerturbationValue(final int capacity)
-            {
-                return 0;
-            }
-        };
+        return new KTypeOpenHashSet<KType>(initialCapacity, loadFactor);
     }
 
     /* #if ($TemplateOptions.KTypeGeneric) */
@@ -957,13 +918,7 @@ public class KTypeOpenHashSet<KType>
      */
     public static <KType> KTypeOpenHashSet<KType> newInstanceWithoutPerturbations(final int initialCapacity, final float loadFactor, final HashingStrategy<? super KType> strategy)
     {
-        return new KTypeOpenHashSet<KType>(initialCapacity, loadFactor, strategy) {
-            @Override
-            protected final int computePerturbationValue(final int capacity)
-            {
-                return 0;
-            }
-        };
+        return new KTypeOpenHashSet<KType>(initialCapacity, loadFactor, strategy);
     }
 
     /**
@@ -978,7 +933,7 @@ public class KTypeOpenHashSet<KType>
     /* #end */
 
     /*! #if ($TemplateOptions.inlineGenericAndPrimitive("KTypeOpenHashSet.equalsKTypeHashStrategy",
-            "(e1,  e2, customEquals)", 
+            "(e1,  e2, customEquals)",
             "(e1 == null ? e2 == null : (customEquals == null ? e1.equals(e2) : customEquals.equals(e1, e2)))",
             "")) !*/
     /**
@@ -994,8 +949,8 @@ public class KTypeOpenHashSet<KType>
     /*! #end !*/
 
     /*! #if ($TemplateOptions.inlineGenericAndPrimitive("KTypeOpenHashSet.rehashSpecificHash",
-    "( o,  p, specificHash)", 
-    "o == null ? 0 : (specificHash == null? MurmurHash3.hash(o.hashCode() ^ p) :(MurmurHash3.hash(specificHash.computeHashCode(o) ^ p)))",
+    "( o, specificHash)",
+    "o == null ? 0 : (specificHash == null? MurmurHash3.hash(o.hashCode()) :(MurmurHash3.hash(specificHash.computeHashCode(o))))",
     "")) !*/
     /**
      * if specificHash == null, equivalent to rehash()
@@ -1005,9 +960,9 @@ public class KTypeOpenHashSet<KType>
      * @param specificHash
      * @return
      */
-    private static <T> int rehashSpecificHash(final T o, final int p, final HashingStrategy<? super T> specificHash)
+    private static <T> int rehashSpecificHash(final T o, final HashingStrategy<? super T> specificHash)
     {
-        return o == null ? 0 : (specificHash == null ? MurmurHash3.hash(o.hashCode() ^ p) : (MurmurHash3.hash(specificHash.computeHashCode(o) ^ p)));
+        return o == null ? 0 : (specificHash == null ? MurmurHash3.hash(o.hashCode()) : (MurmurHash3.hash(specificHash.computeHashCode(o))));
     }
     /*! #end !*/
 
