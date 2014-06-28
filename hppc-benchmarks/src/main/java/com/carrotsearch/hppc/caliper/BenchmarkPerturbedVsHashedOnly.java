@@ -11,9 +11,9 @@ import com.google.caliper.SimpleBenchmark;
 public class BenchmarkPerturbedVsHashedOnly extends SimpleBenchmark
 {
     @Param(
-    {
-                "5000000"
-    })
+            {
+            "10000000"
+            })
     public int size;
 
     public int timePerturbed(int reps)
