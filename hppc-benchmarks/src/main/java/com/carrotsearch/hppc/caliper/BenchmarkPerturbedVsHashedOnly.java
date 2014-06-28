@@ -12,7 +12,7 @@ public class BenchmarkPerturbedVsHashedOnly extends SimpleBenchmark
 {
     @Param(
     {
-        "1000000"
+                "5000000"
     })
     public int size;
 
@@ -20,7 +20,7 @@ public class BenchmarkPerturbedVsHashedOnly extends SimpleBenchmark
     {
         int count = 0;
         while (reps-- > 0) {
-            IntOpenHashSet set = new IntOpenHashSet();
+            final IntOpenHashSet set = new IntOpenHashSet();
             for (int i = size; --i >= 0;)
             {
                 set.add(i);
@@ -34,8 +34,9 @@ public class BenchmarkPerturbedVsHashedOnly extends SimpleBenchmark
     {
         int count = 0;
         while (reps-- > 0) {
-            IntOpenHashSet set = new IntOpenHashSet() {
-                protected int computePerturbationValue(int capacity)
+            final IntOpenHashSet set = new IntOpenHashSet() {
+                @Override
+                protected int computePerturbationValue(final int capacity)
                 {
                     return 0;
                 }
@@ -49,7 +50,7 @@ public class BenchmarkPerturbedVsHashedOnly extends SimpleBenchmark
         return count;
     }
 
-    public static void main(String [] args)
+    public static void main(final String[] args)
     {
         Runner.main(BenchmarkPerturbedVsHashedOnly.class, args);
     }

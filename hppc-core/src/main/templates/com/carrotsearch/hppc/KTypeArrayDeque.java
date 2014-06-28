@@ -1352,9 +1352,10 @@ public class KTypeArrayDeque<KType>
         return bufferIndex;
     }
 
-    /*! #if ($TemplateOptions.inline("KTypeArrayDeque.oneLeft","(index, modulus)", "(index >= 1) ? index - 1 : modulus - 1")) !*/
+    /*! #if ($TemplateOptions.inline("KTypeArrayDeque.oneLeft",
+     "(index, modulus)", "(index >= 1) ? index - 1 : modulus - 1")) !*/
     /**
-     * Move one index to the left, wrapping around buffer, wrapping around buffer of size modulus
+     * Move one index to the left, wrapping around buffer of size modulus.
      * Code is actually inlined in generated code
      */
     private static int oneLeft(final int index, final int modulus)
@@ -1364,7 +1365,8 @@ public class KTypeArrayDeque<KType>
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.inline("KTypeArrayDeque.oneRight","(index, modulus)", "(index + 1 == modulus) ? 0 : index + 1")) !*/
+    /*! #if ($TemplateOptions.inline("KTypeArrayDeque.oneRight","(index, modulus)",
+       "(index + 1 == modulus) ? 0 : index + 1")) !*/
     /**
      * Move one index to the right, wrapping around buffer of size modulus
      * Code is actually inlined in generated code

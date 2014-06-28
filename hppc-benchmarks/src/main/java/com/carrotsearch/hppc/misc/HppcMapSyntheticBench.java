@@ -26,7 +26,7 @@ import com.carrotsearch.hppc.procedures.LongProcedure;
 
 public final class HppcMapSyntheticBench
 {
-    public static final int COUNT = (int) 4e6;
+    public static final int COUNT = (int) 5e6;
 
     public static final int COUNT_BIG_OBJECTS = (int) 100e3;
 
@@ -49,6 +49,20 @@ public final class HppcMapSyntheticBench
         MOSTLY_TRUE,
         MOSTLY_FALSE,
         MIXED
+    }
+
+    enum HASH_QUALITY {
+
+        NORMAL(0),
+        BAD(6),
+        AWFUL(8);
+
+        public final int shift;
+
+        private HASH_QUALITY(final int bitshift) {
+            this.shift = bitshift;
+
+        }
     }
 
     //closure like
@@ -104,7 +118,7 @@ public final class HppcMapSyntheticBench
     }
 
     // create comparable type
-    public static final class ComparableLong implements Comparable<ComparableLong> {
+    public static class ComparableLong implements Comparable<ComparableLong> {
 
         public long value;
 
@@ -147,28 +161,66 @@ public final class HppcMapSyntheticBench
         }
     }
 
+    public static class ComparableInt implements Comparable<ComparableInt> {
+
+        public int value;
+        public final int bitshift;
+
+        public ComparableInt(final int initValue, final HASH_QUALITY quality) {
+
+            this.value = initValue;
+            this.bitshift = quality.shift;
+        }
+
+        @Override
+        public int compareTo(final ComparableInt other) {
+            int res = 0;
+
+            if (this.value < other.value) {
+                res = -1;
+            }
+
+            else if (this.value > other.value) {
+                res = 1;
+            }
+
+            return res;
+        }
+
+        @Override
+        public int hashCode() {
+
+            return this.value << this.bitshift;
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+
+            if (obj instanceof ComparableInt) {
+
+                return ((ComparableInt) obj).value == this.value;
+            }
+
+            return false;
+        }
+    }
+
     // create comparable type
-    public static final class ComparableAsciiString implements Comparable<ComparableAsciiString> {
+    public static class ComparableAsciiString implements Comparable<ComparableAsciiString> {
 
         public final byte[] value;
+        public final int bitshift;
 
         /**
          * Default constructor generates a random character content based on prng.
          */
-        public ComparableAsciiString(final int size, final Random prng) {
+        public ComparableAsciiString(final int size, final Random prng, final HASH_QUALITY quality) {
+
+            this.bitshift = quality.shift;
 
             this.value = new byte[size];
             //fill with random data
             prng.nextBytes(this.value);
-        }
-
-        /**
-         * Copy constructor
-         * @param src
-         */
-        public ComparableAsciiString(final ComparableAsciiString src) {
-
-            this.value = src.value.clone();
         }
 
         @Override
@@ -203,19 +255,12 @@ public final class HppcMapSyntheticBench
         }
 
         @Override
-        public Object clone() throws CloneNotSupportedException {
-
-            return new ComparableAsciiString(this);
-        }
-
-        @Override
         public boolean equals(final Object obj) {
 
             return Arrays.equals(this.value, ((ComparableAsciiString) obj).value);
         }
 
-        @Override
-        public int hashCode() {
+        public int goodHashCode() {
 
             int h = 31;
 
@@ -226,8 +271,48 @@ public final class HppcMapSyntheticBench
 
             return h;
         }
+
+        @Override
+        public int hashCode() {
+
+            return goodHashCode() << this.bitshift;
+        }
     }
 
+    /**
+     * Testing for strategies
+     */
+    private final HashingStrategy<ComparableInt> INTHOLDER_TRIVIAL_STRATEGY = new HashingStrategy<ComparableInt>() {
+
+        @Override
+        public int computeHashCode(final ComparableInt o)
+        {
+            return o.value;
+        }
+
+        @Override
+        public boolean equals(final ComparableInt o1, final ComparableInt o2)
+        {
+            return o1.value == o2.value;
+        }
+    };
+
+    private final HashingStrategy<ComparableAsciiString> ASCIISTRING_TRIVIAL_STRATEGY = new HashingStrategy<ComparableAsciiString>() {
+
+        @Override
+        public int computeHashCode(final ComparableAsciiString o)
+        {
+            return o.goodHashCode();
+        }
+
+        @Override
+        public boolean equals(final ComparableAsciiString o1, final ComparableAsciiString o2)
+        {
+            return o1.equals(o2);
+        }
+    };
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /**
      * Constructor
      */
@@ -267,7 +352,7 @@ public final class HppcMapSyntheticBench
 
         this.prng.setSeed(HppcMapSyntheticBench.RAND_SEED);
 
-        while (testMap.capacity() < minPushedElements || testMap.size() < testMap.capacity()) {
+        while (testMap.size() < minPushedElements || testMap.size() < testMap.capacity()) {
 
             final int K = this.prng.nextInt();
             final long V = this.prng.nextLong();
@@ -345,10 +430,10 @@ public final class HppcMapSyntheticBench
 
         } //end while
 
-        System.out.format(">>>> BENCH: HPPC Map (int, long), (%s),  initial capacity = %d, load factor = %f, %d elements pushed, actual final size = %d\n"
+        System.out.format(">>>> BENCH: HPPC Map (int, long), (%s) capacity = %d, load factor = %f, %d elements pushed, actual final size = %d\n"
                 + " Put = %f ms, Get (%s) = %f ms,  Remove (%s) = %f ms,  Clear =  %f ms (dummy = %d)\n\n",
                 additionalInfo,
-                initialCapacity,
+                testMap.capacity(),
                 loadFactor,
                 putSize,
                 finalSize,
@@ -392,7 +477,7 @@ public final class HppcMapSyntheticBench
 
         this.prng.setSeed(HppcMapSyntheticBench.RAND_SEED);
 
-        while (testMap.capacity() < minPushedElements || testMap.size() < testMap.capacity()) {
+        while (testMap.size() < minPushedElements || testMap.size() < testMap.capacity()) {
 
             final int K = this.prng.nextInt();
             final long V = this.prng.nextLong();
@@ -478,10 +563,10 @@ public final class HppcMapSyntheticBench
             throw new AssertionError(String.format("ERROR, (Iterator sum = %d) != (forEachSum = %d) != (directSum = %d)", sumIt, sumForeach, sumDirect));
         }
 
-        System.out.format(">>>> BENCH: HPPC Map (int, long), (%s) Iteration test,  initial capacity = %d, load factor = %f, %d elements summed,\n"
+        System.out.format(">>>> BENCH: HPPC Map (int, long), (%s) Iteration test, capacity = %d, load factor = %f, %d elements summed,\n"
                 + " Iterator= %f ms, foreach= %f ms, Direct= %f ms (result = %d)\n\n",
                 additionalInfo,
-                initialCapacity,
+                testMap.capacity(),
                 loadFactor,
                 testMap.size(),
                 tExecIteratorMs, tExecForEachMs, tExecDirectMs,
@@ -489,11 +574,11 @@ public final class HppcMapSyntheticBench
     }
 
     /**
-     * Bench for HPPC (Integer Object ==> long).
+     * Bench for HPPC (ComparableInt Object ==> long).
      *
      */
-    public void runMapIntegerObjectLong(final String additionalInfo, final ObjectLongMap<IntHolder> testMap,
-            final int minPushedElements, final float loadFactor, final int nbWarmupRuns, final MAP_LOOKUP_TEST getKind)
+    public void runMapIntegerObjectLong(final String additionalInfo, final ObjectLongMap<ComparableInt> testMap,
+            final int minPushedElements, final float loadFactor, final int nbWarmupRuns, final MAP_LOOKUP_TEST getKind, final HASH_QUALITY quality)
     {
 
         long sum = 0;
@@ -515,15 +600,15 @@ public final class HppcMapSyntheticBench
         final int initialCapacity = testMap.capacity();
 
         //Do a dry run for pre-boxing the values that are to be put in map :
-        final ObjectArrayList<IntHolder> Klist = new ObjectArrayList<IntHolder>();
+        final ObjectArrayList<ComparableInt> Klist = new ObjectArrayList<ComparableInt>();
         final LongArrayList Vlist = new LongArrayList();
 
         this.prng.setSeed(HppcMapSyntheticBench.RAND_SEED);
 
-        while (testMap.capacity() < minPushedElements || testMap.size() < testMap.capacity()) {
+        while (testMap.size() < minPushedElements || testMap.size() < testMap.capacity()) {
 
             //put all, then for even key number, delete by key
-            final IntHolder K = new IntHolder(this.prng.nextInt());
+            final ComparableInt K = new ComparableInt(this.prng.nextInt(), quality);
             final long V = this.prng.nextLong();
             Klist.add(K);
             Vlist.add(V);
@@ -557,7 +642,7 @@ public final class HppcMapSyntheticBench
             tBeforeGet = System.nanoTime();
 
             // B) Process by get/contains
-            final IntHolder tmpAbsentIntHolder = new IntHolder();
+            final ComparableInt tmpAbsentIntHolder = new ComparableInt(0, quality);
 
             //Rerun to compute a containsKey lget() pattern
             for (int ii = 0; ii < Klist.size(); ii++) {
@@ -608,10 +693,11 @@ public final class HppcMapSyntheticBench
 
         } //end while
 
-        System.out.format(">>>> BENCH: HPPC Map (IntHolder object, long), (%s),  initial capacity = %d, load factor = %f, %d elements pushed, actual final size = %d\n"
+        System.out.format(">>>> BENCH: HPPC Map (ComparableInt object with hash quality %s, long), (%s), capacity = %d, load factor = %f, %d elements pushed, actual final size = %d\n"
                 + " Put = %f ms, Get (%s) = %f ms, Remove (%s) = %f ms,  Clear =  %f ms (dummy = %d)\n\n",
+                quality,
                 additionalInfo,
-                initialCapacity,
+                testMap.capacity(),
                 loadFactor,
                 putSize,
                 finalSize,
@@ -629,7 +715,8 @@ public final class HppcMapSyntheticBench
      * @param testMap
      * @param nbWarmupRuns
      */
-    public void runMapJavaUtilInteger(final Map<IntHolder, Long> testMap, final int minPushedElements, final int nbWarmupRuns, final MAP_LOOKUP_TEST getKind) {
+    public void runMapJavaUtilInteger(final Map<ComparableInt, Long> testMap, final int minPushedElements,
+            final int nbWarmupRuns, final MAP_LOOKUP_TEST getKind, final HASH_QUALITY quality) {
 
         long sum = 0;
         long tBeforePut = 0;
@@ -648,7 +735,7 @@ public final class HppcMapSyntheticBench
         int putSize = 0;
 
         //Do a dry run for pre-boxing the values that are to be put in map :
-        final ObjectArrayList<IntHolder> Klist = new ObjectArrayList<IntHolder>();
+        final ObjectArrayList<ComparableInt> Klist = new ObjectArrayList<ComparableInt>();
         final ObjectArrayList<Long> Vlist = new ObjectArrayList<Long>();
 
         this.prng.setSeed(HppcMapSyntheticBench.RAND_SEED);
@@ -656,10 +743,10 @@ public final class HppcMapSyntheticBench
         //use a HPPC int set to determine the final size
         IntOpenHashSet testSet = new IntOpenHashSet(minPushedElements);
 
-        while (testSet.capacity() < minPushedElements || testSet.size() < testSet.capacity()) {
+        while (testSet.size() < minPushedElements || testSet.size() < testSet.capacity()) {
 
             //put all, then for even key number, delete by key
-            final IntHolder K = new IntHolder(this.prng.nextInt());
+            final ComparableInt K = new ComparableInt(this.prng.nextInt(), quality);
             final Long V = new Long(this.prng.nextLong());
             Klist.add(K);
             Vlist.add(V);
@@ -762,9 +849,10 @@ public final class HppcMapSyntheticBench
 
         } //end while
 
-        System.out.format(">>>> BENCH: java.util.Map of kind '%s', (IntHolder object, Long),  initial capacity = %d, %d elements pushed, actual final size = %d\n"
+        System.out.format(">>>> BENCH: java.util.Map of kind '%s', (ComparableInt object of hash quality %s, Long), capacity = %d, %d elements pushed, actual final size = %d\n"
                 + " Put = %f ms, Get (%s) = %f ms, Remove (%s) = %f ms,  Clear =  %f ms (dummy = %d)\n\n",
                 testMap.getClass().getCanonicalName(),
+                quality,
                 minPushedElements,
                 putSize,
                 finalSize,
@@ -782,7 +870,7 @@ public final class HppcMapSyntheticBench
      *
      */
     public void runMapAsciiStringObjectLong(final String additionalInfo, final ObjectLongMap<ComparableAsciiString> testMap,
-            final int minPushedElements, final float loadFactor, final int nbWarmupRuns, final MAP_LOOKUP_TEST getKind, final int stringSize)
+            final int minPushedElements, final float loadFactor, final int nbWarmupRuns, final MAP_LOOKUP_TEST getKind, final int stringSize, final HASH_QUALITY quality)
     {
 
         long sum = 0;
@@ -809,10 +897,10 @@ public final class HppcMapSyntheticBench
 
         this.prng.setSeed(HppcMapSyntheticBench.RAND_SEED);
 
-        while (testMap.capacity() < minPushedElements || testMap.size() < testMap.capacity()) {
+        while (testMap.size() < minPushedElements || testMap.size() < testMap.capacity()) {
 
             //put all, then for even key number, delete by key
-            final ComparableAsciiString K = new ComparableAsciiString(stringSize, this.prng);
+            final ComparableAsciiString K = new ComparableAsciiString(stringSize, this.prng, quality);
             final long V = this.prng.nextLong();
             Klist.add(K);
             Vlist.add(V);
@@ -824,7 +912,7 @@ public final class HppcMapSyntheticBench
 
         for (int ii = 0; ii < testMap.capacity() * 0.7; ii++) {
 
-            KlistNotFound.add(new ComparableAsciiString(stringSize, this.prng));
+            KlistNotFound.add(new ComparableAsciiString(stringSize, this.prng, quality));
         }
 
         testMap.clear();
@@ -901,11 +989,13 @@ public final class HppcMapSyntheticBench
 
         } //end while
 
-        System.out.format(">>>> BENCH: HPPC Map (ComparableAsciiString %d bytes long, long), (%s),  initial capacity = %d, load factor = %f, %d elements pushed, actual final size = %d\n"
-                + " Put = %f ms, Get (%s) = %f ms, Remove (%s) = %f ms, Clear =  %f ms (dummy = %d)\n\n",
+        System.out.format(
+                ">>>> BENCH: HPPC Map (ComparableAsciiString %d bytes long of hash quality %s, long), (%s),  initial capacity = %d, load factor = %f, %d elements pushed, actual final size = %d\n"
+                        + " Put = %f ms, Get (%s) = %f ms, Remove (%s) = %f ms, Clear =  %f ms (dummy = %d)\n\n",
                 stringSize,
+                quality,
                 additionalInfo,
-                initialCapacity,
+                testMap.capacity(),
                 loadFactor,
                 putSize,
                 finalSize,
@@ -934,131 +1024,236 @@ public final class HppcMapSyntheticBench
         System.gc();
     }
 
-    public void runMapSyntheticBenchObjects(final MAP_LOOKUP_TEST getKind, final int nbWarmups) {
+    public void runMapSyntheticBenchIntegers(final MAP_LOOKUP_TEST getKind, final int nbWarmups) {
 
         //Javolution comparison
-        runMapJavaUtilInteger(new FastMap<IntHolder, Long>(HppcMapSyntheticBench.COUNT), HppcMapSyntheticBench.COUNT, nbWarmups, getKind);
+        runMapJavaUtilInteger(new FastMap<ComparableInt, Long>(HppcMapSyntheticBench.COUNT), HppcMapSyntheticBench.COUNT, nbWarmups, getKind, HASH_QUALITY.NORMAL);
         System.gc();
 
         //Default java.util.HashMap
-        runMapJavaUtilInteger(new HashMap<IntHolder, Long>(HppcMapSyntheticBench.COUNT), HppcMapSyntheticBench.COUNT, nbWarmups, getKind);
+        runMapJavaUtilInteger(new HashMap<ComparableInt, Long>(HppcMapSyntheticBench.COUNT), HppcMapSyntheticBench.COUNT, nbWarmups, getKind, HASH_QUALITY.NORMAL);
         System.gc();
 
         runMapIntegerObjectLong("ObjectLongOpenHashMap",
-                ObjectLongOpenHashMap.<IntHolder> newInstance(HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
+                ObjectLongOpenHashMap.<ComparableInt> newInstance(HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
                 HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
-                nbWarmups, getKind);
+                nbWarmups, getKind, HASH_QUALITY.NORMAL);
         System.gc();
 
         runMapIntegerObjectLong("ObjectLongRobinHoodHashMap",
-                ObjectLongRobinHoodHashMap.<IntHolder> newInstance(HppcMapSyntheticBench.COUNT, ObjectLongRobinHoodHashMap.DEFAULT_LOAD_FACTOR),
+                ObjectLongRobinHoodHashMap.<ComparableInt> newInstance(HppcMapSyntheticBench.COUNT, ObjectLongRobinHoodHashMap.DEFAULT_LOAD_FACTOR),
                 HppcMapSyntheticBench.COUNT, ObjectLongRobinHoodHashMap.DEFAULT_LOAD_FACTOR,
-                nbWarmups, getKind);
+                nbWarmups, getKind, HASH_QUALITY.NORMAL);
+        System.gc();
+
+        runMapJavaUtilInteger(new FastMap<ComparableInt, Long>(HppcMapSyntheticBench.COUNT), HppcMapSyntheticBench.COUNT, nbWarmups, getKind, HASH_QUALITY.BAD);
+        System.gc();
+
+        runMapJavaUtilInteger(new HashMap<ComparableInt, Long>(HppcMapSyntheticBench.COUNT), HppcMapSyntheticBench.COUNT, nbWarmups, getKind, HASH_QUALITY.BAD);
+        System.gc();
+
+        runMapIntegerObjectLong("ObjectLongOpenHashMap",
+                ObjectLongOpenHashMap.<ComparableInt> newInstance(HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
+                HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                nbWarmups, getKind, HASH_QUALITY.BAD);
+        System.gc();
+
+        runMapIntegerObjectLong("ObjectLongRobinHoodHashMap",
+                ObjectLongRobinHoodHashMap.<ComparableInt> newInstance(HppcMapSyntheticBench.COUNT, ObjectLongRobinHoodHashMap.DEFAULT_LOAD_FACTOR),
+                HppcMapSyntheticBench.COUNT, ObjectLongRobinHoodHashMap.DEFAULT_LOAD_FACTOR,
+                nbWarmups, getKind, HASH_QUALITY.BAD);
+        System.gc();
+
+        runMapJavaUtilInteger(new FastMap<ComparableInt, Long>(HppcMapSyntheticBench.COUNT), HppcMapSyntheticBench.COUNT, nbWarmups, getKind, HASH_QUALITY.AWFUL);
+        System.gc();
+
+        runMapJavaUtilInteger(new HashMap<ComparableInt, Long>(HppcMapSyntheticBench.COUNT), HppcMapSyntheticBench.COUNT, nbWarmups, getKind, HASH_QUALITY.AWFUL);
+        System.gc();
+
+        runMapIntegerObjectLong("ObjectLongOpenHashMap",
+                ObjectLongOpenHashMap.<ComparableInt> newInstance(HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
+                HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                nbWarmups, getKind, HASH_QUALITY.AWFUL);
+        System.gc();
+
+        runMapIntegerObjectLong("ObjectLongRobinHoodHashMap",
+                ObjectLongRobinHoodHashMap.<ComparableInt> newInstance(HppcMapSyntheticBench.COUNT, ObjectLongRobinHoodHashMap.DEFAULT_LOAD_FACTOR),
+                HppcMapSyntheticBench.COUNT, ObjectLongRobinHoodHashMap.DEFAULT_LOAD_FACTOR,
+                nbWarmups, getKind, HASH_QUALITY.AWFUL);
         System.gc();
 
         // use specialized strategy
         runMapIntegerObjectLong("ObjectLongOpenHashMap with strategy",
-                ObjectLongOpenHashMap.<IntHolder> newInstance(
+                ObjectLongOpenHashMap.<ComparableInt> newInstance(
                         HppcMapSyntheticBench.COUNT, IntLongOpenHashMap.DEFAULT_LOAD_FACTOR,
-                        new HashingStrategy<IntHolder>() {
-
-                            @Override
-                            public int computeHashCode(final IntHolder o)
-                            {
-                                return o.value;
-                            }
-
-                            @Override
-                            public boolean equals(final IntHolder o1, final IntHolder o2)
-                            {
-                                return o1.value == o2.value;
-                            }
-
-                        }),
-                HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR, nbWarmups, getKind);
+                        INTHOLDER_TRIVIAL_STRATEGY),
+                        HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR, nbWarmups, getKind, HASH_QUALITY.AWFUL);
 
         System.gc();
 
         // use specialized strategy
         runMapIntegerObjectLong("ObjectLongRobinHoodHashMap with strategy",
-                ObjectLongRobinHoodHashMap.<IntHolder> newInstance(
+                ObjectLongRobinHoodHashMap.<ComparableInt> newInstance(
                         HppcMapSyntheticBench.COUNT, IntLongOpenHashMap.DEFAULT_LOAD_FACTOR,
-                        new HashingStrategy<IntHolder>() {
+                        INTHOLDER_TRIVIAL_STRATEGY),
+                        HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR, nbWarmups, getKind, HASH_QUALITY.AWFUL);
 
-                            @Override
-                            public int computeHashCode(final IntHolder o)
-                            {
-                                return o.value;
-                            }
+        System.gc();
+    }
 
-                            @Override
-                            public boolean equals(final IntHolder o1, final IntHolder o2)
-                            {
-                                return o1.value == o2.value;
-                            }
-                        }),
-                HppcMapSyntheticBench.COUNT, ObjectLongRobinHoodHashMap.DEFAULT_LOAD_FACTOR, nbWarmups, getKind);
+    public void runMapSyntheticBenchObjects(final MAP_LOOKUP_TEST getKind, final int nbWarmups) {
 
+        //48 byte objects
+        runMapAsciiStringObjectLong("ObjectLongOpenHashMap",
+                ObjectLongOpenHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
+                HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                nbWarmups, getKind, 48, HASH_QUALITY.NORMAL);
+        System.gc();
+
+        runMapAsciiStringObjectLong("ObjectLongRobinHoodHashMap",
+                ObjectLongRobinHoodHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
+                HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                nbWarmups, getKind, 48, HASH_QUALITY.NORMAL);
         System.gc();
 
         runMapAsciiStringObjectLong("ObjectLongOpenHashMap",
                 ObjectLongOpenHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
                 HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
-                nbWarmups, getKind, 16);
+                nbWarmups, getKind, 48, HASH_QUALITY.BAD);
         System.gc();
 
         runMapAsciiStringObjectLong("ObjectLongRobinHoodHashMap",
-                ObjectLongRobinHoodHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongRobinHoodHashMap.DEFAULT_LOAD_FACTOR),
-                HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongRobinHoodHashMap.DEFAULT_LOAD_FACTOR,
-                nbWarmups, getKind, 16);
+                ObjectLongRobinHoodHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
+                HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                nbWarmups, getKind, 48, HASH_QUALITY.BAD);
         System.gc();
 
         runMapAsciiStringObjectLong("ObjectLongOpenHashMap",
                 ObjectLongOpenHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
                 HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
-                nbWarmups, getKind, 32);
+                nbWarmups, getKind, 48, HASH_QUALITY.AWFUL);
         System.gc();
 
         runMapAsciiStringObjectLong("ObjectLongRobinHoodHashMap",
-                ObjectLongRobinHoodHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongRobinHoodHashMap.DEFAULT_LOAD_FACTOR),
-                HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongRobinHoodHashMap.DEFAULT_LOAD_FACTOR,
-                nbWarmups, getKind, 32);
+                ObjectLongRobinHoodHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
+                HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                nbWarmups, getKind, 48, HASH_QUALITY.AWFUL);
+        System.gc();
+
+        runMapAsciiStringObjectLong("ObjectLongOpenHashMap with strategy",
+                ObjectLongOpenHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                        ASCIISTRING_TRIVIAL_STRATEGY),
+                        HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                        nbWarmups, getKind, 48, HASH_QUALITY.AWFUL);
+        System.gc();
+
+        runMapAsciiStringObjectLong("ObjectLongRobinHoodHashMap with strategy",
+                ObjectLongRobinHoodHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                        ASCIISTRING_TRIVIAL_STRATEGY),
+                        HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                        nbWarmups, getKind, 48, HASH_QUALITY.AWFUL);
+        System.gc();
+
+        //72 byte objects
+        runMapAsciiStringObjectLong("ObjectLongOpenHashMap",
+                ObjectLongOpenHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
+                HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                nbWarmups, getKind, 72, HASH_QUALITY.NORMAL);
+        System.gc();
+
+        runMapAsciiStringObjectLong("ObjectLongRobinHoodHashMap",
+                ObjectLongRobinHoodHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
+                HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                nbWarmups, getKind, 72, HASH_QUALITY.NORMAL);
         System.gc();
 
         runMapAsciiStringObjectLong("ObjectLongOpenHashMap",
                 ObjectLongOpenHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
                 HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
-                nbWarmups, getKind, 64);
+                nbWarmups, getKind, 72, HASH_QUALITY.BAD);
         System.gc();
 
         runMapAsciiStringObjectLong("ObjectLongRobinHoodHashMap",
-                ObjectLongRobinHoodHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongRobinHoodHashMap.DEFAULT_LOAD_FACTOR),
-                HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongRobinHoodHashMap.DEFAULT_LOAD_FACTOR,
-                nbWarmups, getKind, 64);
+                ObjectLongRobinHoodHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
+                HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                nbWarmups, getKind, 72, HASH_QUALITY.BAD);
         System.gc();
 
         runMapAsciiStringObjectLong("ObjectLongOpenHashMap",
                 ObjectLongOpenHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
                 HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
-                nbWarmups, getKind, 128);
+                nbWarmups, getKind, 72, HASH_QUALITY.AWFUL);
         System.gc();
 
         runMapAsciiStringObjectLong("ObjectLongRobinHoodHashMap",
-                ObjectLongRobinHoodHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongRobinHoodHashMap.DEFAULT_LOAD_FACTOR),
-                HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongRobinHoodHashMap.DEFAULT_LOAD_FACTOR,
-                nbWarmups, getKind, 128);
+                ObjectLongRobinHoodHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
+                HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                nbWarmups, getKind, 72, HASH_QUALITY.AWFUL);
+        System.gc();
+
+        runMapAsciiStringObjectLong("ObjectLongOpenHashMap with strategy",
+                ObjectLongOpenHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                        ASCIISTRING_TRIVIAL_STRATEGY),
+                        HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                        nbWarmups, getKind, 72, HASH_QUALITY.AWFUL);
+        System.gc();
+
+        runMapAsciiStringObjectLong("ObjectLongRobinHoodHashMap with strategy",
+                ObjectLongRobinHoodHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                        ASCIISTRING_TRIVIAL_STRATEGY),
+                        HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                        nbWarmups, getKind, 72, HASH_QUALITY.AWFUL);
+        System.gc();
+
+        //192 byte objects
+        runMapAsciiStringObjectLong("ObjectLongOpenHashMap",
+                ObjectLongOpenHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
+                HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                nbWarmups, getKind, 192, HASH_QUALITY.NORMAL);
+        System.gc();
+
+        runMapAsciiStringObjectLong("ObjectLongRobinHoodHashMap",
+                ObjectLongRobinHoodHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
+                HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                nbWarmups, getKind, 192, HASH_QUALITY.NORMAL);
         System.gc();
 
         runMapAsciiStringObjectLong("ObjectLongOpenHashMap",
                 ObjectLongOpenHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
                 HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
-                nbWarmups, getKind, 256);
+                nbWarmups, getKind, 192, HASH_QUALITY.BAD);
         System.gc();
 
         runMapAsciiStringObjectLong("ObjectLongRobinHoodHashMap",
-                ObjectLongRobinHoodHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongRobinHoodHashMap.DEFAULT_LOAD_FACTOR),
-                HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongRobinHoodHashMap.DEFAULT_LOAD_FACTOR,
-                nbWarmups, getKind, 256);
+                ObjectLongRobinHoodHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
+                HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                nbWarmups, getKind, 192, HASH_QUALITY.BAD);
+        System.gc();
+
+        runMapAsciiStringObjectLong("ObjectLongOpenHashMap",
+                ObjectLongOpenHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
+                HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                nbWarmups, getKind, 192, HASH_QUALITY.AWFUL);
+        System.gc();
+
+        runMapAsciiStringObjectLong("ObjectLongRobinHoodHashMap",
+                ObjectLongRobinHoodHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
+                HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                nbWarmups, getKind, 192, HASH_QUALITY.AWFUL);
+        System.gc();
+
+        runMapAsciiStringObjectLong("ObjectLongOpenHashMap with strategy",
+                ObjectLongOpenHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                        ASCIISTRING_TRIVIAL_STRATEGY),
+                        HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                        nbWarmups, getKind, 192, HASH_QUALITY.AWFUL);
+        System.gc();
+
+        runMapAsciiStringObjectLong("ObjectLongRobinHoodHashMap with strategy",
+                ObjectLongRobinHoodHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                        ASCIISTRING_TRIVIAL_STRATEGY),
+                        HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                        nbWarmups, getKind, 192, HASH_QUALITY.AWFUL);
         System.gc();
     }
 
@@ -1095,6 +1290,18 @@ public final class HppcMapSyntheticBench
 
         testClass.runMapSyntheticBenchPrimitives(MAP_LOOKUP_TEST.MOSTLY_FALSE, HppcMapSyntheticBench.NB_WARMUPS);
         System.gc();
+
+        System.out.println("\n");
+        System.out.println("\n");
+
+        testClass.runMapSyntheticBenchIntegers(MAP_LOOKUP_TEST.MOSTLY_TRUE, HppcMapSyntheticBench.NB_WARMUPS);
+        System.gc();
+
+        System.out.println("\n");
+        testClass.runMapSyntheticBenchIntegers(MAP_LOOKUP_TEST.MIXED, HppcMapSyntheticBench.NB_WARMUPS);
+
+        System.out.println("\n");
+        testClass.runMapSyntheticBenchIntegers(MAP_LOOKUP_TEST.MOSTLY_FALSE, HppcMapSyntheticBench.NB_WARMUPS);
 
         System.out.println("\n");
         System.out.println("\n");
