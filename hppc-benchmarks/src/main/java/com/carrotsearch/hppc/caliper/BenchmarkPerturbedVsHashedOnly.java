@@ -20,7 +20,7 @@ public class BenchmarkPerturbedVsHashedOnly extends SimpleBenchmark
     {
         int count = 0;
         while (reps-- > 0) {
-            final IntOpenHashSet set = new IntOpenHashSet();
+            final IntOpenHashSet set = IntOpenHashSet.newInstance();
             for (int i = size; --i >= 0;)
             {
                 set.add(i);
@@ -34,13 +34,7 @@ public class BenchmarkPerturbedVsHashedOnly extends SimpleBenchmark
     {
         int count = 0;
         while (reps-- > 0) {
-            final IntOpenHashSet set = new IntOpenHashSet() {
-                @Override
-                protected int computePerturbationValue(final int capacity)
-                {
-                    return 0;
-                }
-            };
+            final IntOpenHashSet set = IntOpenHashSet.newInstanceWithoutPerturbations();
             for (int i = size; --i >= 0;)
             {
                 set.add(i);

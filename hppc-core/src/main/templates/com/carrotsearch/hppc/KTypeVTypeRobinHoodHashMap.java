@@ -415,16 +415,7 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
     }
 
     /**
-     * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. An equivalent
-     * of the following code:
-     * <pre>
-     * if (!map.containsKey(key)) map.put(value);
-     * </pre>
-     * 
-     * @param key The key of the value to check.
-     * @param value The value to put if <code>key</code> does not exist.
-     * @return <code>true</code> if <code>key</code> did not exist and <code>value</code>
-     * was placed in the map.
+     * {@inheritDoc}
      */
     @Override
     public boolean putIfAbsent(final KType key, final VType value)
@@ -870,8 +861,8 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
             }
 
             if (/*! #if ($RH) !*/
-            allocated[slotCurr] == -1
-            /*! #else
+                    allocated[slotCurr] == -1
+                    /*! #else
             !allocated[slotCurr]
             #end !*/)
             {
@@ -1193,8 +1184,8 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
      * {@inheritDoc}
      */
     @Override
-    public int capacity()
-    {
+    public int capacity() {
+
         return resizeAt - 1;
     }
 
@@ -2111,13 +2102,8 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
 
         /*! #if($DEBUG) !*/
         //Check : cached hashed slot is == computed value
-        /*! #if ($TemplateOptions.KTypeGeneric) !*/
         final int mask = alloc.length - 1;
-        assert rh == (KTypeVTypeRobinHoodHashMap.rehashSpecificHash(this.keys[slot], perturbation, this.hashStrategy) & mask);
-        /*! #else
-            final int mask = alloc.length - 1;
-        	assert rh == (rehash(this.keys[slot], perturbation) & mask);
-        #end !*/
+        assert rh == (KTypeVTypeRobinHoodHashMap.rehashSpecificHash(this.keys[slot], this.perturbation, this.hashStrategy) & mask);
         /*! #end !*/
 
         if (slot < rh) {

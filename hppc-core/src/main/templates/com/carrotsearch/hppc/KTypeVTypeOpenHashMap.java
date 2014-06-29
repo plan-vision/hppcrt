@@ -1180,6 +1180,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             return predicate;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public KeysIterator iterator()
         {
@@ -1187,6 +1190,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             return this.keyIteratorPool.borrow();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public int size()
         {
@@ -1657,6 +1663,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         return this.hashStrategy;
     }
 
+    /* #end */
+
     /**
      * Returns the "default value" value used
      * in containers methods returning "default value"
@@ -1677,17 +1685,15 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         this.defaultValue = defaultValue;
     }
 
-    /* #end */
-
     /*! #if ($TemplateOptions.inlineGenericAndPrimitive("KTypeVTypeOpenHashMap.equalsKTypeHashStrategy",
-    "(e1,  e2, customEquals)", 
+    "(e1,  e2, customEquals)",
     "(e1 == null ? e2 == null : (customEquals == null ? e1.equals(e2) : customEquals.equals(e1, e2)))",
-    "")) !*/
+    "Intrinsics.equalsKType(e1 , e2)")) !*/
     /**
-    * Compare two Objects for equivalence, using a {@link HashingStrategy}. Null references return <code>true</code>.
-    * A null {@link HashingStrategy} is equivalent of calling {@link #equalsKType(Object e1, Object e2)}.
-    * This method is inlined in generated code
-    */
+     * Compare two Objects for equivalence, using a {@link HashingStrategy}. Null references return <code>true</code>.
+     * A null {@link HashingStrategy} is equivalent of calling {@link #equalsKType(Object e1, Object e2)}.
+     * This method is inlined in generated code
+     */
     private static <T> boolean equalsKTypeHashStrategy(final T e1, final T e2, final HashingStrategy<? super T> customEquals)
     {
         return (e1 == null ? e2 == null : (customEquals == null ? e1.equals(e2) : customEquals.equals(e1, e2)));
@@ -1698,10 +1704,10 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     /*! #if ($TemplateOptions.inlineGenericAndPrimitive("KTypeVTypeOpenHashMap.rehashSpecificHash",
     "( o,  p, specificHash)", 
     "o == null ? 0 : ( specificHash == null ? MurmurHash3.hash( o.hashCode() ^ p ) :(MurmurHash3.hash(specificHash.computeHashCode(o) ^ p )))",
-    "")) !*/
+    "Internals.rehashKType(o, p)")) !*/
     /**
      * if specificHash == null, equivalent to rehash()
-     * The actual code is inlined in generated code
+     * The actual code is inlined in generated code. The primitive version strip down the strategy arg entirely.
      * @param object
      * @param p
      * @param specificHash
