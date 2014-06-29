@@ -8,7 +8,9 @@ import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
 
 import static com.carrotsearch.hppc.Internals.*;
+
 import com.carrotsearch.hppc.hash.*;
+
 import static com.carrotsearch.hppc.HashContainerUtils.*;
 
 /**
@@ -58,10 +60,15 @@ import static com.carrotsearch.hppc.HashContainerUtils.*;
  *         href="http://fastutil.dsi.unimi.it/">fastutil</a> project.
  */
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
+/*! #set( $ROBIN_HOOD_FOR_PRIMITIVES = false) !*/
+/*! #set( $ROBIN_HOOD_FOR_GENERICS = true) !*/
+/*! #set( $DEBUG = false) !*/
+// If RH is defined, RobinHood Hashing is in effect :
+/*! #set( $RH = (($TemplateOptions.KTypeGeneric && $ROBIN_HOOD_FOR_GENERICS) || ($TemplateOptions.KTypeNumeric && $ROBIN_HOOD_FOR_PRIMITIVES)) ) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -88,12 +95,19 @@ public class KTypeOpenHashSet<KType>
     public KType[] keys;
 
     /**
-     * Information if an entry (slot) in the {@link #keys} table is allocated
+     * Information if an entry (slot) in the {@link #values} table is allocated
      * or empty.
-     * 
+     * #if ($RH)
+     * In addition it caches hash value :  If = -1, it means not allocated, else = HASH(keys[i]) & mask
+     * for every index i.
+     * #end
      * @see #assigned
      */
+    /*! #if ($RH) !*/
+    public int[] allocated;
+    /*! #else
     public boolean[] allocated;
+    #end !*/
 
     /**
      * Cached number of assigned slots in {@link #allocated}.
@@ -163,12 +177,20 @@ public class KTypeOpenHashSet<KType>
         internalCapacity = HashContainerUtils.roundCapacity(internalCapacity);
 
         this.keys = Intrinsics.newKTypeArray(internalCapacity);
+
+        //fill with "not allocated" value
+        /*! #if ($RH) !*/
+        this.allocated = new int[internalCapacity];
+        Internals.blankIntArrayMinusOne(this.allocated, 0, this.allocated.length);
+        /*! #else
         this.allocated = new boolean[internalCapacity];
+        #end !*/
 
         //Take advantage of the rounding so that the resize occur a bit later than expected.
         //allocate so that there is at least one slot that remains allocated = false
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (internalCapacity * loadFactor)) - 2;
+
     }
 
     /* #if ($TemplateOptions.KTypeGeneric) */
@@ -202,7 +224,7 @@ public class KTypeOpenHashSet<KType>
      * {@inheritDoc}
      */
     @Override
-    public boolean add(final KType e)
+    public boolean add(KType e)
     {
         assert assigned < allocated.length;
 
@@ -210,37 +232,86 @@ public class KTypeOpenHashSet<KType>
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         final HashingStrategy<? super KType> strategy = this.hashStrategy;
+        /*! #end !*/
+
         int slot = KTypeOpenHashSet.rehashSpecificHash(e, strategy) & mask;
-        /*! #else
-        int slot = rehash(e) & mask;
-        #end !*/
 
         final KType[] keys = this.keys;
-        final boolean[] allocated = this.allocated;
 
-        while (allocated[slot])
+        /*! #if ($RH) !*/
+        final int[] allocated = this.allocated;
+        /*! #else
+        final boolean[] allocated = this.allocated;
+        #end !*/
+
+        /*! #if ($RH) !*/
+        KType tmpKey;
+        int tmpAllocated;
+        int initial_slot = slot;
+        int dist = 0;
+        int existing_distance = 0;
+        /*! #end !*/
+
+        while (allocated[slot] /*! #if ($RH) !*/!= -1 /*! #end !*/)
         {
-            if (/*! #if ($TemplateOptions.KTypeGeneric) !*/
-            KTypeOpenHashSet.equalsKTypeHashStrategy(e, keys[slot], strategy)
-            /*! #else
-            Intrinsics.equalsKType(e, keys[slot])
-            #end !*/)
+            if (KTypeOpenHashSet.equalsKTypeHashStrategy(e, keys[slot], strategy))
             {
                 return false;
             }
 
+            /*! #if ($RH) !*/
+            //re-shuffle keys to minimize variance
+            existing_distance = probe_distance(slot, allocated);
+
+            if (dist > existing_distance)
+            {
+                //swap current (key, value, initial_slot) with slot places
+                tmpKey = keys[slot];
+                keys[slot] = e;
+                e = tmpKey;
+
+                tmpAllocated = allocated[slot];
+                allocated[slot] = initial_slot;
+                initial_slot = tmpAllocated;
+
+                /*! #if($DEBUG) !*/
+                //Check invariants
+                assert allocated[slot] == (KTypeOpenHashSet.rehashSpecificHash(keys[slot], strategy) & mask);
+                assert initial_slot == (KTypeOpenHashSet.rehashSpecificHash(e, strategy) & mask);
+                /*! #end !*/
+
+                dist = existing_distance;
+            }
+            /*! #end !*/
+
             slot = (slot + 1) & mask;
+            /*! #if ($RH) !*/
+            dist++;
+            /*! #end !*/
         }
 
         // Check if we need to grow. If so, reallocate new data,
         // fill in the last element and rehash.
         if (assigned == resizeAt) {
+
             expandAndAdd(e, slot);
         }
         else {
             assigned++;
+            /*! #if ($RH) !*/
+            allocated[slot] = initial_slot;
+            /*! #else
             allocated[slot] = true;
+            #end !*/
+
             keys[slot] = e;
+
+            /*! #if ($RH) !*/
+            /*! #if($DEBUG) !*/
+            //Check invariants
+            assert allocated[slot] == (KTypeOpenHashSet.rehashSpecificHash(keys[slot], strategy) & mask);
+            /*! #end !*/
+            /*! #end !*/
         }
         return true;
     }
@@ -310,12 +381,22 @@ public class KTypeOpenHashSet<KType>
     private void expandAndAdd(final KType pendingKey, final int freeSlot)
     {
         assert assigned == resizeAt;
+
+        /*! #if ($RH) !*/
+        assert allocated[freeSlot] == -1;
+        /*! #else
         assert !allocated[freeSlot];
+         #end !*/
 
         // Try to allocate new buffers first. If we OOM, it'll be now without
         // leaving the data structure in an inconsistent state.
         final KType[] oldKeys = this.keys;
+
+        /*! #if ($RH) !*/
+        final int[] oldAllocated = this.allocated;
+        /*! #else
         final boolean[] oldAllocated = this.allocated;
+        #end !*/
 
         allocateBuffers(HashContainerUtils.nextCapacity(keys.length));
 
@@ -323,36 +404,106 @@ public class KTypeOpenHashSet<KType>
         // the free slot in the old arrays before rehashing.
         lastSlot = -1;
         assigned++;
+
+        //We don't care of the oldAllocated value, so long it means "allocated = true", since the whole set is rebuilt from scratch.
+        /*! #if ($RH) !*/
+        oldAllocated[freeSlot] = 1;
+        /*!#else
         oldAllocated[freeSlot] = true;
+        #end !*/
+
         oldKeys[freeSlot] = pendingKey;
 
-        // Rehash all stored keys into the new buffers.
-        final KType[] keys = this.keys;
-        final boolean[] allocated = this.allocated;
+        //Variables for adding
+        final int mask = this.allocated.length - 1;
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         final HashingStrategy<? super KType> strategy = this.hashStrategy;
         /*! #end !*/
-        final int mask = allocated.length - 1;
 
+        KType e = Intrinsics.<KType> defaultKTypeValue();
+        //adding phase
+        int slot = -1;
+
+        final KType[] keys = this.keys;
+
+        /*! #if ($RH) !*/
+        final int[] allocated = this.allocated;
+        /*! #else
+        final boolean[] allocated = this.allocated;
+        #end !*/
+
+        /*! #if ($RH) !*/
+        KType tmpKey = Intrinsics.<KType> defaultKTypeValue();
+        int tmpAllocated = -1;
+        int initial_slot = -1;
+        int dist = -1;
+        int existing_distance = -1;
+        /*! #end !*/
+
+        //iterate all the old arrays to add in the newly allocated buffers
+        //It is important to iterate backwards to minimize the conflict chain length !
         for (int i = oldAllocated.length; --i >= 0;)
         {
-            if (oldAllocated[i])
+            if (oldAllocated[i] /*! #if ($RH) !*/!= -1 /*! #end !*/)
             {
-                final KType k = oldKeys[i];
+                e = oldKeys[i];
+                slot = KTypeOpenHashSet.rehashSpecificHash(e, strategy) & mask;
 
-                /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                int slot = KTypeOpenHashSet.rehashSpecificHash(k, strategy) & mask;
-                /*! #else
-                int slot = rehash(k) & mask;
-                #end !*/
-                while (allocated[slot])
+                /*! #if ($RH) !*/
+                initial_slot = slot;
+                dist = 0;
+                /*! #end !*/
+
+                while (allocated[slot] /*! #if ($RH) !*/!= -1 /*! #end !*/)
                 {
-                    slot = (slot + 1) & mask;
-                }
+                    /*! #if ($RH) !*/
+                    //re-shuffle keys to minimize variance
+                    existing_distance = probe_distance(slot, allocated);
 
+                    if (dist > existing_distance)
+                    {
+                        //swap current (key, value, initial_slot) with slot places
+                        tmpKey = keys[slot];
+                        keys[slot] = e;
+                        e = tmpKey;
+
+                        tmpAllocated = allocated[slot];
+                        allocated[slot] = initial_slot;
+                        initial_slot = tmpAllocated;
+
+                        /*! #if($DEBUG) !*/
+                        //Check invariants
+                        assert allocated[slot] == (KTypeOpenHashSet.rehashSpecificHash(keys[slot], strategy) & mask);
+                        assert initial_slot == (KTypeOpenHashSet.rehashSpecificHash(e, strategy) & mask);
+                        /*! #end !*/
+
+                        dist = existing_distance;
+                    } //endif
+                    /*! #end !*/
+
+                    slot = (slot + 1) & mask;
+
+                    /*! #if ($RH) !*/
+                    dist++;
+                    /*! #end !*/
+                } //end while
+
+                //place it at that position
+                /*! #if ($RH) !*/
+                allocated[slot] = initial_slot;
+                /*! #else
                 allocated[slot] = true;
-                keys[slot] = k;
+                #end !*/
+
+                keys[slot] = e;
+
+                /*! #if ($RH) !*/
+                /*! #if($DEBUG) !*/
+                //Check invariants
+                assert allocated[slot] == (KTypeOpenHashSet.rehashSpecificHash(keys[slot], strategy) & mask);
+                /*! #end !*/
+                /*! #end !*/
             }
         }
     }
@@ -365,7 +516,13 @@ public class KTypeOpenHashSet<KType>
     private void allocateBuffers(final int capacity)
     {
         final KType[] keys = Intrinsics.newKTypeArray(capacity);
-        final boolean[] allocated = new boolean[capacity];
+
+        /*! #if ($RH) !*/
+        final int[] allocated = new int[capacity];
+        Internals.blankIntArrayMinusOne(allocated, 0, allocated.length);
+        /*! #else
+         final boolean[] allocated = new boolean[capacity];
+        #end !*/
 
         this.keys = keys;
         this.allocated = allocated;
@@ -373,6 +530,7 @@ public class KTypeOpenHashSet<KType>
         //allocate so that there is at least one slot that remains allocated = false
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (capacity * loadFactor)) - 2;
+
     }
 
     /**
@@ -393,28 +551,37 @@ public class KTypeOpenHashSet<KType>
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         final HashingStrategy<? super KType> strategy = this.hashStrategy;
+        /*!  #end !*/
+
         int slot = KTypeOpenHashSet.rehashSpecificHash(key, strategy) & mask;
-        /*! #else
-        int slot = rehash(key) & mask;
-        #end !*/
+
+        /*! #if ($RH) !*/
+        int dist = 0;
+        /*! #end !*/
 
         final KType[] keys = this.keys;
-        final boolean[] allocated = this.allocated;
 
-        while (allocated[slot])
+        /*! #if ($RH) !*/
+        final int[] states = this.allocated;
+        /*! #else
+        final boolean[] states = this.allocated;
+        #end !*/
+
+        while (states[slot] /*! #if ($RH) !*/!= -1 /*! #end !*/
+                /*! #if ($RH) !*/&& dist <= probe_distance(slot, states) /*! #end !*/)
         {
-            if (/*! #if ($TemplateOptions.KTypeGeneric) !*/
-            KTypeOpenHashSet.equalsKTypeHashStrategy(key, keys[slot], strategy)
-            /*! #else
-            Intrinsics.equalsKType(key, keys[slot])
-            #end !*/)
+            if (KTypeOpenHashSet.equalsKTypeHashStrategy(key, keys[slot], strategy))
             {
-                assigned--;
+                this.assigned--;
                 shiftConflictingKeys(slot);
                 return true;
             }
             slot = (slot + 1) & mask;
-        }
+
+            /*! #if ($RH) !*/
+            dist++;
+            /*! #end !*/
+        } //end while true
 
         return false;
     }
@@ -433,19 +600,19 @@ public class KTypeOpenHashSet<KType>
         /*! #end !*/
 
         final KType[] keys = this.keys;
-        final boolean[] allocated = this.allocated;
+        /*! #if ($RH) !*/
+        final int[] allocated = this.allocated;
+        /*! #else
+         final boolean[] allocated = this.allocated;
+        #end !*/
 
         while (true)
         {
             slotCurr = ((slotPrev = slotCurr) + 1) & mask;
 
-            while (allocated[slotCurr])
+            while (allocated[slotCurr] /*! #if ($RH) !*/!= -1 /*! #end !*/)
             {
-                /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 slotOther = KTypeOpenHashSet.rehashSpecificHash(keys[slotCurr], strategy) & mask;
-                /*! #else
-                slotOther = rehash(keys[slotCurr]) & mask;
-                #end !*/
 
                 if (slotPrev <= slotCurr)
                 {
@@ -462,14 +629,37 @@ public class KTypeOpenHashSet<KType>
                 slotCurr = (slotCurr + 1) & mask;
             }
 
-            if (!allocated[slotCurr])
+            if (/*! #if ($RH) !*/
+                    allocated[slotCurr] == -1
+                    /*! #else
+            !allocated[slotCurr]
+            #end !*/)
+            {
                 break;
+            }
 
-            // Shift key/value pair.
+            /*! #if ($RH) !*/
+            /*! #if($DEBUG) !*/
+            //Check invariants
+            assert allocated[slotCurr] == (KTypeOpenHashSet.rehashSpecificHash(keys[slotCurr], strategy) & mask);
+            assert allocated[slotPrev] == (KTypeOpenHashSet.rehashSpecificHash(keys[slotPrev], strategy) & mask);
+            /*! #end !*/
+            /*! #end !*/
+
+            // Shift key/allocated pair.
             keys[slotPrev] = keys[slotCurr];
+
+            /*! #if ($RH) !*/
+            allocated[slotPrev] = allocated[slotCurr];
+            /*! #end !*/
         }
 
-        allocated[slotPrev] = false;
+        //means not allocated
+        /*! #if ($RH) !*/
+        allocated[slotPrev] = -1;
+        /*! #else
+         allocated[slotPrev] = false;
+        #end !*/
 
         /* #if ($TemplateOptions.KTypeGeneric) */
         keys[slotPrev] = Intrinsics.<KType> defaultKTypeValue();
@@ -484,7 +674,12 @@ public class KTypeOpenHashSet<KType>
     public KType lkey()
     {
         assert lastSlot >= 0 : "Call contains() first.";
-        assert allocated[lastSlot] : "Last call to exists did not have any associated value.";
+
+        /*! #if ($RH) !*/
+        assert allocated[lastSlot] != -1 : "Last call to exists did not have any associated value.";
+        /*! #else
+         assert allocated[lastSlot] : "Last call to exists did not have any associated value.";
+        #end !*/
 
         return keys[lastSlot];
     }
@@ -518,28 +713,37 @@ public class KTypeOpenHashSet<KType>
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         final HashingStrategy<? super KType> strategy = this.hashStrategy;
+        /*! #end !*/
+
         int slot = KTypeOpenHashSet.rehashSpecificHash(key, strategy) & mask;
-        /*! #else
-        int slot = rehash(key) & mask;
-        #end !*/
+
+        /*! #if ($RH) !*/
+        int dist = 0;
+        /*! #end !*/
 
         final KType[] keys = this.keys;
-        final boolean[] allocated = this.allocated;
 
-        while (allocated[slot])
+        /*! #if ($RH) !*/
+        final int[] states = this.allocated;
+        /*! #else
+        final boolean[] states = this.allocated;
+        #end !*/
+
+        while (states[slot] /*! #if ($RH) !*/!= -1 /*! #end !*/
+                /*! #if ($RH) !*/&& dist <= probe_distance(slot, states) /*! #end !*/)
         {
-            if (/*! #if ($TemplateOptions.KTypeGeneric) !*/
-            KTypeOpenHashSet.equalsKTypeHashStrategy(key, keys[slot], strategy)
-            /*! #else
-            Intrinsics.equalsKType(key, keys[slot])
-            #end !*/)
+            if (KTypeOpenHashSet.equalsKTypeHashStrategy(key, keys[slot], strategy))
             {
-                lastSlot = slot;
+                this.lastSlot = slot;
                 return true;
             }
             slot = (slot + 1) & mask;
-        }
-        lastSlot = -1;
+
+            /*! #if ($RH) !*/
+            dist++;
+            /*! #end !*/
+        } //end while true
+
         return false;
     }
 
@@ -551,9 +755,15 @@ public class KTypeOpenHashSet<KType>
     @Override
     public void clear()
     {
-        assigned = 0;
-        lastSlot = -1;
-        Internals.blankBooleanArray(allocated, 0, allocated.length);
+        this.assigned = 0;
+        this.lastSlot = -1;
+
+        // States are always cleared.
+        /*! #if ($RH) !*/
+        Internals.blankIntArrayMinusOne(allocated, 0, allocated.length);
+        /*! #else
+         Internals.blankBooleanArray(allocated, 0, allocated.length);
+        #end !*/
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         //Faster than Arrays.fill(keys, null); // Help the GC.
@@ -588,17 +798,22 @@ public class KTypeOpenHashSet<KType>
         int h = 0;
 
         final KType[] keys = this.keys;
+
+        /*! #if ($RH) !*/
+        final int[] states = this.allocated;
+        /*! #else
         final boolean[] states = this.allocated;
+        #end !*/
 
         for (int i = states.length; --i >= 0;)
         {
-            if (states[i])
+            if (states[i]/*! #if ($RH) !*/!= -1 /*! #end !*/)
             {
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 //This hash is an intrinsic property of the container contents,
                 //consequently is independent from the HashStrategy, so do not use it !
                 /*! #end !*/
-                h += Internals.rehash(keys[i]);
+                h += Internals.rehashKType(keys[i]);
             }
         }
 
@@ -682,7 +897,12 @@ public class KTypeOpenHashSet<KType>
         {
             int i = cursor.index - 1;
 
-            while (i >= 0 && !allocated[i])
+            while (i >= 0 &&
+                    /*! #if ($RH) !*/
+                    allocated[i] == -1
+                    /*! #else
+            !allocated[i]
+            #end  !*/)
             {
                 i--;
             }
@@ -738,11 +958,16 @@ public class KTypeOpenHashSet<KType>
     public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure)
     {
         final KType[] keys = this.keys;
+
+        /*! #if ($RH) !*/
+        final int[] states = this.allocated;
+        /*! #else
         final boolean[] states = this.allocated;
+        #end !*/
 
         for (int i = 0; i < states.length; i++)
         {
-            if (states[i])
+            if (states[i] /*! #if ($RH) !*/!= -1 /*! #end !*/)
                 procedure.apply(keys[i]);
         }
 
@@ -756,12 +981,19 @@ public class KTypeOpenHashSet<KType>
     public KType[] toArray(final KType[] target)
     {
         final KType[] keys = this.keys;
-        final boolean[] allocated = this.allocated;
+
+        /*! #if ($RH) !*/
+        final int[] states = this.allocated;
+        /*! #else
+        final boolean[] states = this.allocated;
+        #end !*/
 
         for (int i = 0, j = 0; i < keys.length; i++) {
 
-            if (allocated[i])
+            if (states[i] /*! #if ($RH) !*/!= -1 /*! #end !*/)
+            {
                 target[j++] = keys[i];
+            }
         }
 
         return target;
@@ -769,9 +1001,9 @@ public class KTypeOpenHashSet<KType>
 
     /**
      * Clone this object.
-     * It also realizes a trim-to- this.size() in the process.
      * #if ($TemplateOptions.KTypeGeneric)
      * The returned clone will use the same HashingStrategy strategy.
+     * It also realizes a trim-to- this.size() in the process.
      * #end
      */
     @Override
@@ -799,11 +1031,16 @@ public class KTypeOpenHashSet<KType>
     public <T extends KTypePredicate<? super KType>> T forEach(final T predicate)
     {
         final KType[] keys = this.keys;
+
+        /*! #if ($RH) !*/
+        final int[] states = this.allocated;
+        /*! #else
         final boolean[] states = this.allocated;
+        #end !*/
 
         for (int i = 0; i < states.length; i++)
         {
-            if (states[i])
+            if (states[i]/*! #if ($RH) !*/!= -1 /*! #end !*/)
             {
                 if (!predicate.apply(keys[i]))
                     break;
@@ -820,12 +1057,18 @@ public class KTypeOpenHashSet<KType>
     public int removeAll(final KTypePredicate<? super KType> predicate)
     {
         final KType[] keys = this.keys;
-        final boolean[] allocated = this.allocated;
+
+        /*! #if ($RH) !*/
+        final int[] states = this.allocated;
+        /*! #else
+        final boolean[] states = this.allocated;
+        #end !*/
 
         final int before = assigned;
-        for (int i = 0; i < allocated.length;)
+
+        for (int i = 0; i < states.length;)
         {
-            if (allocated[i])
+            if (states[i] /*! #if ($RH) !*/!= -1 /*! #end !*/)
             {
                 if (predicate.apply(keys[i]))
                 {
@@ -897,7 +1140,7 @@ public class KTypeOpenHashSet<KType>
         return new KTypeOpenHashSet<KType>(initialCapacity, loadFactor);
     }
 
-    /* #if ($TemplateOptions.KTypeGeneric) */
+/* #if ($TemplateOptions.KTypeGeneric) */
     /**
      * Create a new hash set with full parameter control, using a specific hash strategy.
      * A strategy = null is equivalent at providing no strategy at all.
@@ -926,7 +1169,7 @@ public class KTypeOpenHashSet<KType>
         return this.hashStrategy;
     }
 
-    /* #end */
+/* #end */
 
 /*! #if ($TemplateOptions.inlineGenericAndPrimitive("KTypeOpenHashSet.equalsKTypeHashStrategy",
     "(e1,  e2, customEquals)",
@@ -943,15 +1186,15 @@ public class KTypeOpenHashSet<KType>
         return (e1 == null ? e2 == null : (customEquals == null ? e1.equals(e2) : customEquals.equals(e1, e2)));
     }
 
-    /*! #end !*/
+/*! #end !*/
 
-    /*! #if ($TemplateOptions.inlineGenericAndPrimitive("KTypeOpenHashSet.rehashSpecificHash",
-    "( o, specificHash)",
-    "o == null ? 0 : (specificHash == null? MurmurHash3.hash(o.hashCode()) :(MurmurHash3.hash(specificHash.computeHashCode(o))))",
-    "")) !*/
+/*! #if ($TemplateOptions.inlineGenericAndPrimitive("KTypeOpenHashSet.rehashSpecificHash",
+"( o, specificHash)",
+"o == null ? 0 : (specificHash == null ?  MurmurHash3.hash(o.hashCode()) : MurmurHash3.hash(specificHash.computeHashCode(o)))",
+"Internals.rehashKType(o)")) !*/
     /**
      * if specificHash == null, equivalent to rehash()
-     * The actual code is inlined in generated code
+     * The actual code is inlined in generated code. The primitive version strip down the strategy arg entirely.
      * @param object
      * @param p
      * @param specificHash
@@ -959,7 +1202,33 @@ public class KTypeOpenHashSet<KType>
      */
     private static <T> int rehashSpecificHash(final T o, final HashingStrategy<? super T> specificHash)
     {
-        return o == null ? 0 : (specificHash == null ? MurmurHash3.hash(o.hashCode()) : (MurmurHash3.hash(specificHash.computeHashCode(o))));
+        return o == null ? 0 : (specificHash == null ? MurmurHash3.hash(o.hashCode()) : MurmurHash3.hash(specificHash.computeHashCode(o)));
+    }
+
+/*! #end !*/
+
+    /*! #if ($TemplateOptions.inline("probe_distance",
+    "(slot, alloc)",
+    "slot < alloc[slot] ? slot + alloc.length - alloc[slot] : slot - alloc[slot]")) !*/
+    /**
+     * Resulting code in inlined in generated code
+     */
+    private int probe_distance(final int slot, final int[] alloc) {
+
+        final int rh = alloc[slot];
+
+        /*! #if($DEBUG) !*/
+        //Check : cached hashed slot is == computed value
+        final int mask = alloc.length - 1;
+        assert rh == (KTypeOpenHashSet.rehashSpecificHash(this.keys[slot], this.hashStrategy) & mask);
+        /*! #end !*/
+
+        if (slot < rh) {
+            //wrap around
+            return slot + alloc.length - rh;
+        }
+
+        return slot - rh;
     }
     /*! #end !*/
 

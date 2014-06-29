@@ -18,7 +18,12 @@ import com.carrotsearch.hppc.procedures.KTypeProcedure;
 /**
  * Unit tests for {@link KTypeOpenHashSet}.
  */
-//${TemplateOptions.doNotGenerateKType("BOOLEAN")}
+/*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
+/*! #set( $ROBIN_HOOD_FOR_PRIMITIVES = false) !*/
+/*! #set( $ROBIN_HOOD_FOR_GENERICS = true) !*/
+/*! #set( $DEBUG = false) !*/
+// If RH is defined, RobinHood Hashing is in effect :
+/*! #set( $RH = (($TemplateOptions.KTypeGeneric && $ROBIN_HOOD_FOR_GENERICS) || ($TemplateOptions.KTypeNumeric && $ROBIN_HOOD_FOR_PRIMITIVES)) ) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
 {
@@ -54,9 +59,15 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         {
             int occupied = 0;
 
+            final int mask = set.allocated.length - 1;
+
             for (int i = 0; i < set.keys.length; i++)
             {
-                if (!set.allocated[i])
+                if (/*! #if ($RH) !*/
+                        set.allocated[i] == -1
+                        /*!#else
+                !set.allocated[i]
+                #end !*/)
                 {
                     //if not allocated, generic version if patched to null for GC sake
                     /*! #if ($TemplateOptions.KTypeGeneric) !*/
@@ -65,6 +76,15 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
                 }
                 else
                 {
+                    /*! #if ($RH) !*/
+                    //check hash cache consistency
+                    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+                    Assert.assertEquals(Internals.rehashSpecificHash(set.keys[i], set.strategy()) & mask, set.allocated[i]);
+                    /*! #else
+                    Assert.assertEquals(Internals.rehash(set.keys[i], set.perturbation) & mask, set.allocated[i]);
+                    #end !*/
+                    /*! #end !*/
+
                     //try to reach the key by contains()
                     Assert.assertTrue(set.contains(set.keys[i]));
 
