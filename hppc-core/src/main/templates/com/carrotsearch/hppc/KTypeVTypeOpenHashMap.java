@@ -8,7 +8,9 @@ import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
 
 import static com.carrotsearch.hppc.Internals.*;
+
 import com.carrotsearch.hppc.hash.*;
+
 import static com.carrotsearch.hppc.HashContainerUtils.*;
 
 /**
@@ -70,7 +72,7 @@ import static com.carrotsearch.hppc.HashContainerUtils.*;
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -270,8 +272,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         while (allocated[slot])
         {
             if (/*! #if ($TemplateOptions.KTypeGeneric) !*/
-            KTypeVTypeOpenHashMap.equalsKTypeHashStrategy(key, keys[slot], strategy)
-            /*! #else
+                    KTypeVTypeOpenHashMap.equalsKTypeHashStrategy(key, keys[slot], strategy)
+                    /*! #else
             Intrinsics.equalsKType(key, keys[slot])
             #end !*/)
             {
@@ -523,24 +525,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     }
 
     /**
-     * <p>Compute the key perturbation value applied before hashing. The returned value
-     * should be non-zero and ideally different for each capacity. This matters because
-     * keys are nearly-ordered by their hashed values so when adding one container's
-     * values to the other, the number of collisions can skyrocket into the worst case
-     * possible.
-     * 
-     * <p>If it is known that hash containers will not be added to each other
-     * (will be used for counting only, for example) then some speed can be gained by
-     * not perturbing keys before hashing and returning a value of zero for all possible
-     * capacities. The speed gain is a result of faster rehash operation (keys are mostly
-     * in order).
-     */
-    protected int computePerturbationValue(final int capacity)
-    {
-        return HashContainerUtils.PERTURBATIONS[Integer.numberOfLeadingZeros(capacity)];
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
@@ -562,8 +546,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         while (allocated[slot])
         {
             if (/*! #if ($TemplateOptions.KTypeGeneric) !*/
-            KTypeVTypeOpenHashMap.equalsKTypeHashStrategy(key, keys[slot], strategy)
-            /*! #else
+                    KTypeVTypeOpenHashMap.equalsKTypeHashStrategy(key, keys[slot], strategy)
+                    /*! #else
             Intrinsics.equalsKType(key, keys[slot])
             #end !*/)
             {
@@ -713,8 +697,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         while (allocated[slot])
         {
             if (/*! #if ($TemplateOptions.KTypeGeneric) !*/
-            KTypeVTypeOpenHashMap.equalsKTypeHashStrategy(key, keys[slot], strategy)
-            /*! #else
+                    KTypeVTypeOpenHashMap.equalsKTypeHashStrategy(key, keys[slot], strategy)
+                    /*! #else
             Intrinsics.equalsKType(key, keys[slot])
             #end !*/)
             {
@@ -832,8 +816,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         while (allocated[slot])
         {
             if (/*! #if ($TemplateOptions.KTypeGeneric) !*/
-            KTypeVTypeOpenHashMap.equalsKTypeHashStrategy(key, keys[slot], strategy)
-            /*! #else
+                    KTypeVTypeOpenHashMap.equalsKTypeHashStrategy(key, keys[slot], strategy)
+                    /*! #else
             Intrinsics.equalsKType(key, keys[slot])
             #end !*/)
             {
@@ -1006,6 +990,10 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             cursor.index = -2;
         }
 
+        /**
+         * Iterate backwards w.r.t the buffer, to
+         * minimize collision chains when filling another hash container (ex. with putAll())
+         */
         @Override
         protected KTypeVTypeCursor<KType, VType> fetch()
         {
@@ -1121,7 +1109,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * A view of the keys inside this hash map.
      */
     public final class KeysContainer
-            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenHashMap<KType, VType> owner =
                 KTypeVTypeOpenHashMap.this;
@@ -1165,6 +1153,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             return predicate;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public KeysIterator iterator()
         {
@@ -1172,6 +1163,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             return this.keyIteratorPool.borrow();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public int size()
         {
@@ -1271,6 +1265,10 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             cursor.index = -2;
         }
 
+        /**
+         * Iterate backwards w.r.t the buffer, to
+         * minimize collision chains when filling another hash container (ex. with putAll())
+         */
         @Override
         protected KTypeCursor<KType> fetch()
         {
@@ -1460,6 +1458,10 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             cursor.index = -2;
         }
 
+        /**
+         * Iterate backwards w.r.t the buffer, to
+         * minimize collision chains when filling another hash container (ex. with putAll())
+         */
         @Override
         protected KTypeCursor<VType> fetch()
         {
@@ -1494,9 +1496,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         @SuppressWarnings("unchecked")
         final/* #end */
         KTypeVTypeOpenHashMap<KType, VType> cloned =
-                new KTypeVTypeOpenHashMap<KType, VType>(this.size(), this.loadFactor
-                        /* #if ($TemplateOptions.KTypeGeneric) */
-                        , this.hashStrategy
+        new KTypeVTypeOpenHashMap<KType, VType>(this.size(), this.loadFactor
+                /* #if ($TemplateOptions.KTypeGeneric) */
+                , this.hashStrategy
                 /* #end */);
 
         cloned.putAll(this);
@@ -1564,19 +1566,13 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     }
 
     /**
-     * Create a new hash map with no key perturbations, and default parameters (see
-     * {@link #computePerturbationValue(int)}). This may lead to increased performance, but only use when sure the container will not
-     * be used for direct copying of keys to another hash container.
+     * DEPRECATED : has now the same effect as calling newInstance().
+     * @deprecated
      */
+    @Deprecated
     public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> newInstanceWithoutPerturbations()
     {
-        return new KTypeVTypeOpenHashMap<KType, VType>() {
-            @Override
-            protected final int computePerturbationValue(final int capacity)
-            {
-                return 0;
-            }
-        };
+        return new KTypeVTypeOpenHashMap<KType, VType>();
     }
 
     /**
@@ -1589,19 +1585,13 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     }
 
     /**
-     * Create a new hash map with initial capacity and load factor control, with no key perturbations. (see
-     * {@link #computePerturbationValue(int)}). This may lead to increased performance, but only use when sure the container will not
-     * be used for direct copying of keys to another hash container.
+     * DEPRECATED : has now the same effect as calling newInstance(final int initialCapacity, final float loadFactor).
+     * @deprecated
      */
+    @Deprecated
     public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> newInstanceWithoutPerturbations(final int initialCapacity, final float loadFactor)
     {
-        return new KTypeVTypeOpenHashMap<KType, VType>(initialCapacity, loadFactor) {
-            @Override
-            protected final int computePerturbationValue(final int capacity)
-            {
-                return 0;
-            }
-        };
+        return new KTypeVTypeOpenHashMap<KType, VType>(initialCapacity, loadFactor);
     }
 
     /* #if ($TemplateOptions.KTypeGeneric) */
@@ -1615,21 +1605,13 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     }
 
     /**
-     * Create a new hash map with full parameter control, using a specific hash strategy, with no key perturbations (see
-     * {@link #computePerturbationValue(int)}).
-     * A strategy = null is equivalent at providing no strategy at all.
-     * This may lead to increased performance, but only use when sure the container will not
-     * be used for direct copying of keys to another hash container.
+     * DEPRECATED : has now the same effect as calling newInstance(final int initialCapacity, final float loadFactor, final HashingStrategy<? super KType> strategy).
+     * @deprecated
      */
+    @Deprecated
     public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> newInstanceWithoutPerturbations(final int initialCapacity, final float loadFactor, final HashingStrategy<? super KType> strategy)
     {
-        return new KTypeVTypeOpenHashMap<KType, VType>(initialCapacity, loadFactor, strategy) {
-            @Override
-            protected final int computePerturbationValue(final int capacity)
-            {
-                return 0;
-            }
-        };
+        return new KTypeVTypeOpenHashMap<KType, VType>(initialCapacity, loadFactor, strategy);
     }
 
     /**
@@ -1639,6 +1621,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     {
         return this.hashStrategy;
     }
+
+    /* #end */
 
     /**
      * Returns the "default value" value used
@@ -1660,12 +1644,10 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         this.defaultValue = defaultValue;
     }
 
-    /* #end */
-
     /*! #if ($TemplateOptions.inlineGenericAndPrimitive("KTypeVTypeOpenHashMap.equalsKTypeHashStrategy",
     "(e1,  e2, customEquals)",
     "(e1 == null ? e2 == null : (customEquals == null ? e1.equals(e2) : customEquals.equals(e1, e2)))",
-    "")) !*/
+    "Intrinsics.equalsKType(e1 , e2)")) !*/
     /**
      * Compare two Objects for equivalence, using a {@link HashingStrategy}. Null references return <code>true</code>.
      * A null {@link HashingStrategy} is equivalent of calling {@link #equalsKType(Object e1, Object e2)}.
@@ -1676,15 +1658,15 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         return (e1 == null ? e2 == null : (customEquals == null ? e1.equals(e2) : customEquals.equals(e1, e2)));
     }
 
-    /*! #end !*/
+/*! #end !*/
 
-    /*! #if ($TemplateOptions.inlineGenericAndPrimitive("KTypeVTypeOpenHashMap.rehashSpecificHash",
-    "( o, specificHash)",
-    "o == null ? 0 : ( specificHash == null ? MurmurHash3.hash( o.hashCode() ) :(MurmurHash3.hash(specificHash.computeHashCode(o) )))",
-    "")) !*/
+/*! #if ($TemplateOptions.inlineGenericAndPrimitive("KTypeVTypeOpenHashMap.rehashSpecificHash",
+"( o, specificHash)",
+"o == null ? 0 : (specificHash == null ?  MurmurHash3.hash(o.hashCode()) : MurmurHash3.hash(specificHash.computeHashCode(o)))",
+"Internals.rehashKType(o)")) !*/
     /**
      * if specificHash == null, equivalent to rehash()
-     * The actual code is inlined in generated code
+     * The actual code is inlined in generated code. The primitive version strip down the strategy arg entirely.
      * @param object
      * @param specificHash
      * @return

@@ -77,7 +77,7 @@ import static com.carrotsearch.hppc.HashContainerUtils.*;
 /*! #set( $RH = (($TemplateOptions.KTypeGeneric && $ROBIN_HOOD_FOR_GENERICS) || ($TemplateOptions.KTypeNumeric && $ROBIN_HOOD_FOR_PRIMITIVES)) ) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeRobinHoodHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -405,16 +405,7 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
     }
 
     /**
-     * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. An equivalent
-     * of the following code:
-     * <pre>
-     * if (!map.containsKey(key)) map.put(value);
-     * </pre>
-     * 
-     * @param key The key of the value to check.
-     * @param value The value to put if <code>key</code> does not exist.
-     * @return <code>true</code> if <code>key</code> did not exist and <code>value</code>
-     * was placed in the map.
+     * {@inheritDoc}
      */
     @Override
     public boolean putIfAbsent(final KType key, final VType value)
@@ -744,24 +735,6 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
     }
 
     /**
-     * <p>Compute the key perturbation value applied before hashing. The returned value
-     * should be non-zero and ideally different for each capacity. This matters because
-     * keys are nearly-ordered by their hashed values so when adding one container's
-     * values to the other, the number of collisions can skyrocket into the worst case
-     * possible.
-     * 
-     * <p>If it is known that hash containers will not be added to each other
-     * (will be used for counting only, for example) then some speed can be gained by
-     * not perturbing keys before hashing and returning a value of zero for all possible
-     * capacities. The speed gain is a result of faster rehash operation (keys are mostly
-     * in order).
-     */
-    protected int computePerturbationValue(final int capacity)
-    {
-        return HashContainerUtils.PERTURBATIONS[Integer.numberOfLeadingZeros(capacity)];
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
@@ -855,8 +828,8 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
             }
 
             if (/*! #if ($RH) !*/
-            allocated[slotCurr] == -1
-            /*! #else
+                    allocated[slotCurr] == -1
+                    /*! #else
             !allocated[slotCurr]
             #end !*/)
             {
@@ -1178,8 +1151,8 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
      * {@inheritDoc}
      */
     @Override
-    public int capacity()
-    {
+    public int capacity() {
+
         return resizeAt - 1;
     }
 
@@ -1317,7 +1290,7 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     allocated[i] == -1
-                    /*! #else
+            /*! #else
             !allocated[i]
             #end  !*/)
             {
@@ -1439,7 +1412,7 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
      * A view of the keys inside this hash map.
      */
     public final class KeysContainer
-            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeRobinHoodHashMap<KType, VType> owner =
                 KTypeVTypeRobinHoodHashMap.this;
@@ -1622,7 +1595,7 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     allocated[i] == -1
-                    /*! #else
+            /*! #else
             !allocated[i]
             #end  !*/)
             {
@@ -1689,7 +1662,7 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
             for (int slot = 0; slot < states.length; slot++)
             {
                 if (/*! #if ($RH) !*/
-                states[slot] != -1
+                        states[slot] != -1
                         /*! #else
                         states[slot]
                         #end  !*/
@@ -1715,8 +1688,8 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
             for (int slot = 0; slot < states.length; slot++)
             {
                 if (/*! #if ($RH) !*/
-                states[slot] != -1
-                /*! #else
+                        states[slot] != -1
+                        /*! #else
                 states[slot]
                 #end  !*/) {
                     procedure.apply(values[slot]);
@@ -1740,8 +1713,8 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
             for (int slot = 0; slot < states.length; slot++)
             {
                 if (/*! #if ($RH) !*/
-                states[slot] != -1
-                /*! #else
+                        states[slot] != -1
+                        /*! #else
                 states[slot]
                 #end  !*/)
                 {
@@ -1854,7 +1827,7 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     allocated[i] == -1
-                    /*! #else
+            /*! #else
             !allocated[i]
             #end  !*/)
             {
@@ -1885,9 +1858,9 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
         @SuppressWarnings("unchecked")
         final/* #end */
         KTypeVTypeRobinHoodHashMap<KType, VType> cloned =
-                new KTypeVTypeRobinHoodHashMap<KType, VType>(this.size(), this.loadFactor
-                        /* #if ($TemplateOptions.KTypeGeneric) */
-                        , this.hashStrategy
+        new KTypeVTypeRobinHoodHashMap<KType, VType>(this.size(), this.loadFactor
+                /* #if ($TemplateOptions.KTypeGeneric) */
+                , this.hashStrategy
                 /* #end */);
 
         cloned.putAll(this);
@@ -1955,19 +1928,13 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
     }
 
     /**
-     * Create a new hash map with no key perturbations, and default parameters (see
-     * {@link #computePerturbationValue(int)}). This may lead to increased performance, but only use when sure the container will not
-     * be used for direct copying of keys to another hash container.
+     * DEPRECATED : has now the same effect as calling newInstance().
+     * @deprecated
      */
+    @Deprecated
     public static <KType, VType> KTypeVTypeRobinHoodHashMap<KType, VType> newInstanceWithoutPerturbations()
     {
-        return new KTypeVTypeRobinHoodHashMap<KType, VType>() {
-            @Override
-            protected final int computePerturbationValue(final int capacity)
-            {
-                return 0;
-            }
-        };
+        return new KTypeVTypeRobinHoodHashMap<KType, VType>();
     }
 
     /**
@@ -1980,19 +1947,13 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
     }
 
     /**
-     * Create a new hash map with initial capacity and load factor control, with no key perturbations. (see
-     * {@link #computePerturbationValue(int)}). This may lead to increased performance, but only use when sure the container will not
-     * be used for direct copying of keys to another hash container.
+     * DEPRECATED : has now the same effect as calling newInstance(final int initialCapacity, final float loadFactor).
+     * @deprecated
      */
+    @Deprecated
     public static <KType, VType> KTypeVTypeRobinHoodHashMap<KType, VType> newInstanceWithoutPerturbations(final int initialCapacity, final float loadFactor)
     {
-        return new KTypeVTypeRobinHoodHashMap<KType, VType>(initialCapacity, loadFactor) {
-            @Override
-            protected final int computePerturbationValue(final int capacity)
-            {
-                return 0;
-            }
-        };
+        return new KTypeVTypeRobinHoodHashMap<KType, VType>(initialCapacity, loadFactor);
     }
 
     /* #if ($TemplateOptions.KTypeGeneric) */
@@ -2006,23 +1967,15 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
     }
 
     /**
-     * Create a new hash map with full parameter control, using a specific hash strategy, with no key perturbations (see
-     * {@link #computePerturbationValue(int)}).
-     * A strategy = null is equivalent at providing no strategy at all.
-     * This may lead to increased performance, but only use when sure the container will not
-     * be used for direct copying of keys to another hash container.
+     * DEPRECATED : has now the same effect as calling newInstance(final int initialCapacity, final float loadFactor, final HashingStrategy<? super KType> strategy).
+     * @deprecated
      */
+    @Deprecated
     public static <KType, VType> KTypeVTypeRobinHoodHashMap<KType, VType> newInstanceWithoutPerturbations(final int initialCapacity, final float loadFactor,
             final HashingStrategy<? super KType> strategy)
-    {
-        return new KTypeVTypeRobinHoodHashMap<KType, VType>(initialCapacity, loadFactor, strategy) {
-            @Override
-            protected final int computePerturbationValue(final int capacity)
             {
-                return 0;
+        return new KTypeVTypeRobinHoodHashMap<KType, VType>(initialCapacity, loadFactor, strategy);
             }
-        };
-    }
 
     /**
      * Return the current {@link HashingStrategy} in use, or {@code null} if none was set.
@@ -2061,8 +2014,7 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
     /**
      * Compare two Objects for equivalence, using a {@link HashingStrategy}. Null references return <code>true</code>.
      * A null {@link HashingStrategy} is equivalent of calling {@link #equalsKType(Object e1, Object e2)}.
-     * This method is inlined in generated code.
-     * The primitive version strip down the strategy arg entirely.
+     * This method is inlined in generated code
      */
     private static <T> boolean equalsKTypeHashStrategy(final T e1, final T e2, final HashingStrategy<? super T> customEquals)
     {
@@ -2079,7 +2031,6 @@ public class KTypeVTypeRobinHoodHashMap<KType, VType>
      * if specificHash == null, equivalent to rehash()
      * The actual code is inlined in generated code. The primitive version strip down the strategy arg entirely.
      * @param object
-     * @param p
      * @param specificHash
      * @return
      */

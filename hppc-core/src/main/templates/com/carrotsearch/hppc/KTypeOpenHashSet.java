@@ -662,7 +662,6 @@ public class KTypeOpenHashSet<KType>
 
     /**
      * An iterator implementation for {@link #iterator}.
-     * In practice, it iterates the container "backwards"
      */
     public final class EntryIterator extends AbstractIterator<KTypeCursor<KType>>
     {
@@ -675,8 +674,8 @@ public class KTypeOpenHashSet<KType>
         }
 
         /**
-         * The inner array is iterated backwards on purpose
-         * to side-step the longest conflict chain when filling another hash container.
+         * Iterate backwards w.r.t the buffer, to
+         * minimize collision chains when filling another hash container (ex. with putAll())
          */
         @Override
         protected KTypeCursor<KType> fetch()
@@ -870,13 +869,12 @@ public class KTypeOpenHashSet<KType>
     }
 
     /**
-     * Create a new hash set with no key perturbations, and default parameters (see
-     * {@link #computePerturbationValue(int)}). This may lead to increased performance, but only use when sure the container will not
-     * be used for direct copying of keys to another hash container.
+     * DEPRECATED : has now the same effect as calling newInstance().
+     * @deprecated
      */
+    @Deprecated
     public static <KType> KTypeOpenHashSet<KType> newInstanceWithoutPerturbations()
     {
-        //has no effect
         return new KTypeOpenHashSet<KType>();
     }
 
@@ -890,10 +888,10 @@ public class KTypeOpenHashSet<KType>
     }
 
     /**
-     * Create a new hash set with initial capacity and load factor control, with no key perturbations. (see
-     * {@link #computePerturbationValue(int)}). This may lead to increased performance, but only use when sure the container will not
-     * be used for direct copying of keys to another hash container.
+     * DEPRECATED : has now the same effect as calling newInstanceWithCapacity().
+     * @deprecated
      */
+    @Deprecated
     public static <KType> KTypeOpenHashSet<KType> newInstanceWithoutPerturbations(final int initialCapacity, final float loadFactor)
     {
         return new KTypeOpenHashSet<KType>(initialCapacity, loadFactor);
@@ -910,12 +908,10 @@ public class KTypeOpenHashSet<KType>
     }
 
     /**
-     * Create a new hash set with full parameter control, using a specific hash strategy, with no key perturbations (see
-     * {@link #computePerturbationValue(int)}).
-     * A strategy = null is equivalent at providing no strategy at all.
-     * This may lead to increased performance, but only use when sure the container will not
-     * be used for direct copying of keys to another hash container.
+     * DEPRECATED : has now the same effect as calling newInstance(final int initialCapacity, final float loadFactor, final HashingStrategy<? super KType> strategy).
+     * @deprecated
      */
+    @Deprecated
     public static <KType> KTypeOpenHashSet<KType> newInstanceWithoutPerturbations(final int initialCapacity, final float loadFactor, final HashingStrategy<? super KType> strategy)
     {
         return new KTypeOpenHashSet<KType>(initialCapacity, loadFactor, strategy);
@@ -932,14 +928,15 @@ public class KTypeOpenHashSet<KType>
 
     /* #end */
 
-    /*! #if ($TemplateOptions.inlineGenericAndPrimitive("KTypeOpenHashSet.equalsKTypeHashStrategy",
-            "(e1,  e2, customEquals)",
-            "(e1 == null ? e2 == null : (customEquals == null ? e1.equals(e2) : customEquals.equals(e1, e2)))",
-            "")) !*/
+/*! #if ($TemplateOptions.inlineGenericAndPrimitive("KTypeOpenHashSet.equalsKTypeHashStrategy",
+    "(e1,  e2, customEquals)",
+    "(e1 == null ? e2 == null : (customEquals == null ? e1.equals(e2) : customEquals.equals(e1, e2)))",
+    "Intrinsics.equalsKType(e1 , e2)")) !*/
     /**
      * Compare two Objects for equivalence, using a {@link HashingStrategy}. Null references return <code>true</code>.
      * A null {@link HashingStrategy} is equivalent of calling {@link #equalsKType(Object e1, Object e2)}.
-     * This method is inlined in generated code
+     * This method is inlined in generated code.
+     * The primitive version strip down the strategy arg entirely.
      */
     private static <T> boolean equalsKTypeHashStrategy(final T e1, final T e2, final HashingStrategy<? super T> customEquals)
     {

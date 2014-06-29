@@ -251,13 +251,13 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         map.put(key3, value1);
 
         map.removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType value)
             {
                 return value == key2 || value == key3;
             }
-        });
+                });
         Assert.assertEquals(1, map.size());
         Assert.assertTrue(map.containsKey(key1));
     }
@@ -282,7 +282,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size + 1
             Assert.assertEquals(10, map.removeAll(new KTypePredicate<KType>()
-            {
+                    {
                 @Override
                 public boolean apply(final KType key)
                 {
@@ -290,7 +290,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
                         throw t;
                     return key == key2 || key == key9 || key == key5;
                 };
-            }));
+                    }));
 
             Assert.fail();
         }
@@ -317,13 +317,13 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         map.put(key3, value1);
 
         map.keys().removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType value)
             {
                 return value == key2 || value == key3;
             }
-        });
+                });
         Assert.assertEquals(1, map.size());
         Assert.assertTrue(map.containsKey(key1));
     }
@@ -542,46 +542,6 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         Assert.assertFalse(l2.equals(l3));
     }
 
-    /* */
-    @Test
-    /*! #if ($TemplateOptions.VTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
-    /*! #end !*/
-    public void testHashCodeEqualsDifferentPerturbance()
-    {
-        final KTypeVTypeOpenHashMap<KType, VType> l0 =
-                new KTypeVTypeOpenHashMap<KType, VType>() {
-                    @Override
-                    protected int computePerturbationValue(final int capacity)
-                    {
-                        return 0xDEADBEEF;
-                    }
-                };
-
-        final KTypeVTypeOpenHashMap<KType, VType> l1 =
-                new KTypeVTypeOpenHashMap<KType, VType>() {
-                    @Override
-                    protected int computePerturbationValue(final int capacity)
-                    {
-                        return 0xCAFEBABE;
-                    }
-                };
-
-        Assert.assertEquals(0, l0.hashCode());
-        Assert.assertEquals(l0.hashCode(), l1.hashCode());
-        Assert.assertEquals(l0, l1);
-
-        final KTypeVTypeOpenHashMap<KType, VType> l2 = KTypeVTypeOpenHashMap.from(
-                newArray(key1, key2, key3),
-                newvArray(value1, value2, value3));
-
-        l0.putAll(l2);
-        l1.putAll(l2);
-
-        Assert.assertEquals(l0.hashCode(), l1.hashCode());
-        Assert.assertEquals(l0, l1);
-    }
-
     /*! #if ($TemplateOptions.VTypeGeneric) !*/
     @SuppressWarnings("unchecked")
     /*! #end !*/
@@ -741,7 +701,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
                                 byte[].class.isInstance(map.values) ||
                                 short[].class.isInstance(map.values) ||
                                 long[].class.isInstance(map.values) ||
-                        Object[].class.isInstance(map.values)));
+                                Object[].class.isInstance(map.values)));
 
         this.map.put(key1, value1);
         this.map.put(key2, value2);
@@ -759,8 +719,8 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         // This test is only applicable to selected key types.
         Assume.assumeTrue(
                 int[].class.isInstance(map.keys) ||
-                        long[].class.isInstance(map.keys) ||
-                        Object[].class.isInstance(map.keys));
+                long[].class.isInstance(map.keys) ||
+                Object[].class.isInstance(map.keys));
 
         final IntArrayList hashChain = TestUtils.generateMurmurHash3CollisionChain(0x1fff, 0x7e, 0x1fff / 3);
 
@@ -868,25 +828,25 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
 
         final KTypeArrayList<VType> values = new KTypeArrayList<VType>();
         map.values().forEach(new KTypeProcedure<VType>()
-        {
+                {
             @Override
             public void apply(final VType value)
             {
                 values.add(value);
             }
-        });
+                });
         TestUtils.assertSortedListEquals(map.values().toArray(), value1, value2, value2);
 
         values.clear();
         map.values().forEach(new KTypePredicate<VType>()
-        {
+                {
             @Override
             public boolean apply(final VType value)
             {
                 values.add(value);
                 return true;
             }
-        });
+                });
         TestUtils.assertSortedListEquals(map.values().toArray(), value1, value2, value2);
     }
 
@@ -932,18 +892,18 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         final KTypeVTypeOpenHashMap<KType, VType> refMap3 = createMapWithRandomData(TEST_SIZE,
                 new HashingStrategy<KType>() {
 
-                    @Override
-                    public int computeHashCode(final KType object) {
+            @Override
+            public int computeHashCode(final KType object) {
 
-                        return object.hashCode();
-                    }
+                return object.hashCode();
+            }
 
-                    @Override
-                    public boolean equals(final KType o1, final KType o2) {
+            @Override
+            public boolean equals(final KType o1, final KType o2) {
 
-                        return o1.equals(o2);
-                    }
-                }, TEST_SEED);
+                return o1.equals(o2);
+            }
+        }, TEST_SEED);
 
         //because they do the same thing as above, but with semantically different strategies, ref3 is != ref
         Assert.assertFalse(refMap.equals(refMap3));
@@ -959,46 +919,46 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         KTypeVTypeOpenHashMap<KType, VType> refMap4 = createMapWithRandomData(TEST_SIZE,
                 new HashingStrategy<KType>() {
 
-                    @Override
-                    public boolean equals(final Object obj) {
+            @Override
+            public boolean equals(final Object obj) {
 
-                        return true;
-                    }
+                return true;
+            }
 
-                    @Override
-                    public int computeHashCode(final KType object) {
+            @Override
+            public int computeHashCode(final KType object) {
 
-                        return object.hashCode();
-                    }
+                return object.hashCode();
+            }
 
-                    @Override
-                    public boolean equals(final KType o1, final KType o2) {
+            @Override
+            public boolean equals(final KType o1, final KType o2) {
 
-                        return o1.equals(o2);
-                    }
-                }, TEST_SEED);
+                return o1.equals(o2);
+            }
+        }, TEST_SEED);
 
         KTypeVTypeOpenHashMap<KType, VType> refMap4Image = createMapWithRandomData(TEST_SIZE,
                 new HashingStrategy<KType>() {
 
-                    @Override
-                    public boolean equals(final Object obj) {
+            @Override
+            public boolean equals(final Object obj) {
 
-                        return true;
-                    }
+                return true;
+            }
 
-                    @Override
-                    public int computeHashCode(final KType object) {
+            @Override
+            public int computeHashCode(final KType object) {
 
-                        return object.hashCode();
-                    }
+                return object.hashCode();
+            }
 
-                    @Override
-                    public boolean equals(final KType o1, final KType o2) {
+            @Override
+            public boolean equals(final KType o1, final KType o2) {
 
-                        return o1.equals(o2);
-                    }
-                }, TEST_SEED);
+                return o1.equals(o2);
+            }
+        }, TEST_SEED);
 
         Assert.assertEquals(refMap4, refMap4Image);
         //but strategy instances are indeed 2 different objects

@@ -1112,9 +1112,8 @@ public class KTypeRobinHoodHashSet<KType>
     }
 
     /**
-     * Create a new hash set with no key perturbations, and default parameters (see
-     * {@link #computePerturbationValue(int)}). This may lead to increased performance, but only use when sure the container will not
-     * be used for direct copying of keys to another hash container.
+     * DEPRECATED : has now the same effect as calling newInstance().
+     * @deprecated
      */
     public static <KType> KTypeRobinHoodHashSet<KType> newInstanceWithoutPerturbations()
     {
@@ -1131,9 +1130,8 @@ public class KTypeRobinHoodHashSet<KType>
     }
 
     /**
-     * Create a new hash set with initial capacity and load factor control, with no key perturbations. (see
-     * {@link #computePerturbationValue(int)}). This may lead to increased performance, but only use when sure the container will not
-     * be used for direct copying of keys to another hash container.
+     * DEPRECATED : has now the same effect as calling newInstanceWithCapacity().
+     * @deprecated
      */
     public static <KType> KTypeRobinHoodHashSet<KType> newInstanceWithoutPerturbations(final int initialCapacity, final float loadFactor)
     {
@@ -1151,11 +1149,8 @@ public class KTypeRobinHoodHashSet<KType>
     }
 
     /**
-     * Create a new hash set with full parameter control, using a specific hash strategy, with no key perturbations (see
-     * {@link #computePerturbationValue(int)}).
-     * A strategy = null is equivalent at providing no strategy at all.
-     * This may lead to increased performance, but only use when sure the container will not
-     * be used for direct copying of keys to another hash container.
+     * DEPRECATED : has now the same effect as calling newInstance(final int initialCapacity, final float loadFactor, final HashingStrategy<? super KType> strategy).
+     * @deprecated
      */
     public static <KType> KTypeRobinHoodHashSet<KType> newInstanceWithoutPerturbations(final int initialCapacity, final float loadFactor, final HashingStrategy<? super KType> strategy)
     {
