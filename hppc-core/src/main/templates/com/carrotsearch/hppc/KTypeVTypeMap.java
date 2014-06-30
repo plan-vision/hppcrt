@@ -8,7 +8,7 @@ import com.carrotsearch.hppc.cursors.KTypeVTypeCursor;
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public interface KTypeVTypeMap<KType, VType>
-        extends KTypeVTypeAssociativeContainer<KType, VType>
+extends KTypeVTypeAssociativeContainer<KType, VType>
 {
     /**
      * Place a given key and value in the container.
@@ -22,7 +22,7 @@ public interface KTypeVTypeMap<KType, VType>
      * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. An equivalent
      * of the following code:
      * <pre>
-     * if (!map.containsKey(key)) 
+     * if (!map.containsKey(key))
      *      map.put(key, value);
      * </pre>
      * 
@@ -51,7 +51,7 @@ public interface KTypeVTypeMap<KType, VType>
 
     /*! #if ($TemplateOptions.VTypeNumeric)!*/
     /**
-     * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. A logical 
+     * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. A logical
      * equivalent of the following code (but does not update {@link #lastSlot):
      * <pre>
      *  if (containsKey(key))
@@ -79,7 +79,7 @@ public interface KTypeVTypeMap<KType, VType>
 
     /**
      * @return Returns the value associated with the given key or the default value
-     * for the key type, if the key is not associated with any value.
+     * for the value type, if the key is not associated with any value.
      *
      */
     VType get(KType key);

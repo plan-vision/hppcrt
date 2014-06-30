@@ -64,7 +64,6 @@ final class Internals
 
     /**
      * if specificHash == null, equivalent to rehash()
-     * The actual code is inlined in generated code. The primitive version strip down the strategy arg entirely.
      * @param object
      * @param p
      * @param specificHash
@@ -77,7 +76,6 @@ final class Internals
 
     /**
      * if specificHash == null, equivalent to rehash() with no perturbation
-     * The actual code is inlined in generated code. The primitive version strip down the strategy arg entirely.
      * @param object
      * @param p
      * @param specificHash
