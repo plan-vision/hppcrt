@@ -536,13 +536,13 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
         deque.addLast(newArray(k0, k1, k2, k1, k4));
 
         Assert.assertEquals(3, deque.removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == key1 || v == key2;
             };
-        }));
+                }));
 
         TestUtils.assertListEquals(deque.toArray(), 0, 4);
     }
@@ -560,7 +560,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size
             Assert.assertEquals(5, deque.removeAll(new KTypePredicate<KType>()
-            {
+                    {
                 @Override
                 public boolean apply(final KType v)
                 {
@@ -568,7 +568,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
                         throw t;
                     return v == key1;
                 };
-            }));
+                    }));
             Assert.fail();
         }
         catch (final RuntimeException e)
@@ -882,7 +882,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     public void testPooledIteratorForEach()
     {
         // Unbroken for-each loop
-        final int TEST_SIZE = 10000;
+        final int TEST_SIZE = 5000;
         final long TEST_ROUNDS = 100;
 
         final KTypeArrayDeque<KType> testContainer = createDequeWithOrderedData(TEST_SIZE);
@@ -924,7 +924,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testPooledIteratorBrokenForEach()
     {
-        final int TEST_SIZE = 10000;
+        final int TEST_SIZE = 5000;
         final long TEST_ROUNDS = 100;
 
         final KTypeArrayDeque<KType> testContainer = createDequeWithOrderedData(TEST_SIZE);
@@ -966,7 +966,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testPooledIteratorFullIteratorLoop()
     {
-        final int TEST_SIZE = 10000;
+        final int TEST_SIZE = 5000;
         final long TEST_ROUNDS = 100;
 
         final KTypeArrayDeque<KType> testContainer = createDequeWithOrderedData(TEST_SIZE);
@@ -1037,7 +1037,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testPooledIteratorBrokenIteratorLoop()
     {
-        final int TEST_SIZE = 10000;
+        final int TEST_SIZE = 5000;
         final long TEST_ROUNDS = 100;
 
         final KTypeArrayDeque<KType> testContainer = createDequeWithOrderedData(TEST_SIZE);
@@ -1115,7 +1115,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testPooledIteratorExceptionIteratorLoop()
     {
-        final int TEST_SIZE = 10000;
+        final int TEST_SIZE = 5000;
         final long TEST_ROUNDS = 100;
 
         final KTypeArrayDeque<KType> testContainer = createDequeWithOrderedData(TEST_SIZE);

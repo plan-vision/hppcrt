@@ -211,13 +211,13 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         insertElements(prioq, 0, 1, 2, 1, 4);
 
         Assert.assertEquals(3, prioq.removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == key1 || v == key2;
             };
-        }));
+                }));
 
         assertPrioQueueEquals(prioq, 0, 4);
     }
@@ -229,13 +229,13 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         insertElements(prioq, 0, 1, 2, 1, 0);
 
         Assert.assertEquals(2, prioq.retainAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == key1 || v == key2;
             };
-        }));
+                }));
 
         assertPrioQueueEquals(prioq, 1, 1, 2);
     }
@@ -252,7 +252,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size
             Assert.assertEquals(5, prioq.removeAll(new KTypePredicate<KType>()
-            {
+                    {
                 @Override
                 public boolean apply(final KType v)
                 {
@@ -260,7 +260,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
                         throw t;
                     return v == key1;
                 };
-            }));
+                    }));
 
             Assert.fail();
         }
@@ -814,7 +814,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
     public void testPooledIteratorForEach()
     {
         // Unbroken for-each loop
-        final int TEST_SIZE = 10000;
+        final int TEST_SIZE = 5000;
         final long TEST_ROUNDS = 100;
 
         final KTypeHeapPriorityQueue<KType> testContainer = new KTypeHeapPriorityQueue<KType>(10);
@@ -920,7 +920,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
     {
         // for-each loop interrupted
 
-        final int TEST_SIZE = 10000;
+        final int TEST_SIZE = 5000;
         final long TEST_ROUNDS = 100;
 
         final KTypeHeapPriorityQueue<KType> testContainer = new KTypeHeapPriorityQueue<KType>(10);
@@ -1109,7 +1109,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testPooledIteratorExceptionSafe()
     {
-        final int TEST_SIZE = 224171;
+        final int TEST_SIZE = 114171;
         final long TEST_ROUNDS = 15;
 
         final KTypeHeapPriorityQueue<KType> testContainer = new KTypeHeapPriorityQueue<KType>(10);

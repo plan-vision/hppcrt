@@ -10,10 +10,10 @@ import static org.junit.Assert.*;
 import com.carrotsearch.hppc.cursors.*;
 import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
-import com.carrotsearch.hppc.strategies.KTypeHashingStrategy;
+import com.carrotsearch.hppc.strategies.*;
 
 /**
- * Tests for {@link KTypeVTypeOpenHashMap}.
+ * Tests for {@link KTypeVTypeOpenCustomHashMap}.
  */
 // ${TemplateOptions.doNotGenerateKType("BOOLEAN")}
 //${TemplateOptions.doNotGenerateVType("BOOLEAN")}
@@ -23,7 +23,7 @@ import com.carrotsearch.hppc.strategies.KTypeHashingStrategy;
 // If RH is defined, RobinHood Hashing is in effect :
 /*! #set( $RH = (($TemplateOptions.KTypeGeneric && $ROBIN_HOOD_FOR_GENERICS) || ($TemplateOptions.KTypeNumeric && $ROBIN_HOOD_FOR_PRIMITIVES)) ) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
-public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<KType, VType>
+public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<KType, VType>
 {
 
     @BeforeClass
@@ -35,7 +35,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
     /**
      * Per-test fresh initialized instance.
      */
-    public KTypeVTypeOpenHashMap<KType, VType> map = KTypeVTypeOpenHashMap.newInstance();
+    public KTypeVTypeOpenCustomHashMap<KType, VType> map = KTypeVTypeOpenCustomHashMap.newInstance(new KTypeStandardHash<KType>());
 
     /**
      * Check that the set is consistent, i.e all allocated slots are reachable by get(),
@@ -73,7 +73,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
                     /*! #if ($RH) !*/
                     //check hash cache consistency
                     /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                    Assert.assertEquals(Internals.rehash(map.keys[i]) & mask, map.allocated[i]);
+                    Assert.assertEquals(map.strategy().computeHashCode(map.keys[i]) & mask, map.allocated[i]);
                     /*! #else
                     Assert.assertEquals(Internals.rehash(map.keys[i], map.perturbation) & mask, map.allocated[i]);
                     #end !*/
@@ -107,8 +107,8 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         map.put(key2, value2);
         map.put(key3, value3);
 
-        assertSameMap(map, KTypeVTypeOpenHashMap.from(map));
-        assertSameMap(map, new KTypeVTypeOpenHashMap<KType, VType>(map));
+        assertSameMap(map, KTypeVTypeOpenCustomHashMap.from(map, new KTypeStandardHash<KType>()));
+        assertSameMap(map, new KTypeVTypeOpenCustomHashMap<KType, VType>(map, new KTypeStandardHash<KType>()));
     }
 
     /* */
@@ -122,9 +122,9 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         map.put(key2, value2);
         map.put(key3, value3);
 
-        final KTypeVTypeOpenHashMap<KType, VType> map2 = KTypeVTypeOpenHashMap.from(
+        final KTypeVTypeOpenCustomHashMap<KType, VType> map2 = KTypeVTypeOpenCustomHashMap.from(
                 newArray(key1, key2, key3),
-                newvArray(value1, value2, value3));
+                newvArray(value1, value2, value3), new KTypeStandardHash<KType>());
 
         assertSameMap(map, map2);
     }
@@ -190,8 +190,8 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         map.put(key1, value1);
         map.put(key2, value1);
 
-        final KTypeVTypeOpenHashMap<KType, VType> map2 =
-                new KTypeVTypeOpenHashMap<KType, VType>();
+        final KTypeVTypeOpenCustomHashMap<KType, VType> map2 =
+                new KTypeVTypeOpenCustomHashMap<KType, VType>(new KTypeStandardHash<KType>());
 
         map2.put(key2, value2);
         map2.put(key3, value1);
@@ -353,8 +353,8 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
     @Test
     public void testMapsIntersection()
     {
-        final KTypeVTypeOpenHashMap<KType, VType> map2 =
-                KTypeVTypeOpenHashMap.newInstance();
+        final KTypeVTypeOpenCustomHashMap<KType, VType> map2 =
+                KTypeVTypeOpenCustomHashMap.newInstance(new KTypeStandardHash<KType>());
 
         map.put(key1, value1);
         map.put(key2, value1);
@@ -420,8 +420,8 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         Assert.assertEquals(0x40000000, HashContainerUtils.roundCapacity(Integer.MAX_VALUE));
         Assert.assertEquals(0x40000000, HashContainerUtils.roundCapacity(Integer.MAX_VALUE / 2 + 1));
         Assert.assertEquals(0x40000000, HashContainerUtils.roundCapacity(Integer.MAX_VALUE / 2));
-        Assert.assertEquals(KTypeVTypeOpenHashMap.MIN_CAPACITY, HashContainerUtils.roundCapacity(0));
-        Assert.assertEquals(Math.max(4, KTypeVTypeOpenHashMap.MIN_CAPACITY), HashContainerUtils.roundCapacity(3));
+        Assert.assertEquals(KTypeVTypeOpenCustomHashMap.MIN_CAPACITY, HashContainerUtils.roundCapacity(0));
+        Assert.assertEquals(Math.max(4, KTypeVTypeOpenCustomHashMap.MIN_CAPACITY), HashContainerUtils.roundCapacity(3));
     }
 
     /* */
@@ -456,7 +456,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
     @Test
     public void testFullLoadFactor()
     {
-        map = new KTypeVTypeOpenHashMap<KType, VType>(1, 1f);
+        map = new KTypeVTypeOpenCustomHashMap<KType, VType>(1, 1f, new KTypeStandardHash<KType>());
 
         // Fit in the byte key range.
         final int capacity = 0x80;
@@ -481,7 +481,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
     @Test
     public void testBug_HPPC73_FullCapacityGet()
     {
-        map = new KTypeVTypeOpenHashMap<KType, VType>(1, 1f);
+        map = new KTypeVTypeOpenCustomHashMap<KType, VType>(1, 1f, new KTypeStandardHash<KType>());
         final int capacity = 0x80;
         final int max = capacity - 2;
         for (int i = 0; i < max; i++)
@@ -515,7 +515,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
     @Test
     public void testHalfLoadFactor()
     {
-        map = new KTypeVTypeOpenHashMap<KType, VType>(1, 0.5f);
+        map = new KTypeVTypeOpenCustomHashMap<KType, VType>(1, 0.5f, new KTypeStandardHash<KType>());
 
         final int capacity = 0x80;
         final int max = capacity - 2;
@@ -541,22 +541,22 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
     @Test
     public void testHashCodeEquals()
     {
-        final KTypeVTypeOpenHashMap<KType, VType> l0 =
-                new KTypeVTypeOpenHashMap<KType, VType>();
+        final KTypeVTypeOpenCustomHashMap<KType, VType> l0 =
+                new KTypeVTypeOpenCustomHashMap<KType, VType>(new KTypeStandardHash<KType>());
         Assert.assertEquals(0, l0.hashCode());
-        Assert.assertEquals(l0, new KTypeVTypeOpenHashMap<KType, VType>());
+        Assert.assertEquals(l0, new KTypeVTypeOpenCustomHashMap<KType, VType>(new KTypeStandardHash<KType>()));
 
-        final KTypeVTypeOpenHashMap<KType, VType> l1 = KTypeVTypeOpenHashMap.from(
+        final KTypeVTypeOpenCustomHashMap<KType, VType> l1 = KTypeVTypeOpenCustomHashMap.from(
                 newArray(key1, key2, key3),
-                newvArray(value1, value2, value3));
+                newvArray(value1, value2, value3), new KTypeStandardHash<KType>());
 
-        final KTypeVTypeOpenHashMap<KType, VType> l2 = KTypeVTypeOpenHashMap.from(
+        final KTypeVTypeOpenCustomHashMap<KType, VType> l2 = KTypeVTypeOpenCustomHashMap.from(
                 newArray(key2, key1, key3),
-                newvArray(value2, value1, value3));
+                newvArray(value2, value1, value3), new KTypeStandardHash<KType>());
 
-        final KTypeVTypeOpenHashMap<KType, VType> l3 = KTypeVTypeOpenHashMap.from(
+        final KTypeVTypeOpenCustomHashMap<KType, VType> l3 = KTypeVTypeOpenCustomHashMap.from(
                 newArray(key1, key2),
-                newvArray(value2, value1));
+                newvArray(value2, value1), new KTypeStandardHash<KType>());
 
         Assert.assertEquals(l1.hashCode(), l2.hashCode());
         Assert.assertEquals(l1, l2);
@@ -571,13 +571,13 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
     @Test
     public void testBug_HPPC37()
     {
-        final KTypeVTypeOpenHashMap<KType, VType> l1 = KTypeVTypeOpenHashMap.from(
+        final KTypeVTypeOpenCustomHashMap<KType, VType> l1 = KTypeVTypeOpenCustomHashMap.from(
                 newArray(key1),
-                newvArray(value1));
+                newvArray(value1), new KTypeStandardHash<KType>());
 
-        final KTypeVTypeOpenHashMap<KType, VType> l2 = KTypeVTypeOpenHashMap.from(
+        final KTypeVTypeOpenCustomHashMap<KType, VType> l2 = KTypeVTypeOpenCustomHashMap.from(
                 newArray(key2),
-                newvArray(value1));
+                newvArray(value1), new KTypeStandardHash<KType>());
 
         Assert.assertFalse(l1.equals(l2));
         Assert.assertFalse(l2.equals(l1));
@@ -701,7 +701,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         this.map.put(key2, value2);
         this.map.put(key3, value3);
 
-        final KTypeVTypeOpenHashMap<KType, VType> cloned = map.clone();
+        final KTypeVTypeOpenCustomHashMap<KType, VType> cloned = map.clone();
         cloned.remove(key1);
 
         TestUtils.assertSortedListEquals(map.keys().toArray(), key1, key2, key3);
@@ -874,6 +874,248 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
     }
 
     @Test
+    public void testHashingStrategyCloneEquals() {
+
+        //a) Check that 2 different sets filled the same way with same values and strategies = null
+        //are indeed equal.
+        final long TEST_SEED = 4987013210686416456L;
+        final int TEST_SIZE = (int) 500e3;
+        final KTypeVTypeOpenCustomHashMap<KType, VType> refMap = createMapWithRandomData(TEST_SIZE, new KTypeStandardHash<KType>(), TEST_SEED);
+        KTypeVTypeOpenCustomHashMap<KType, VType> refMap2 = createMapWithRandomData(TEST_SIZE, new KTypeStandardHash<KType>(), TEST_SEED);
+
+        Assert.assertEquals(refMap, refMap2);
+
+        //b) Clone the above. All maps are now identical.
+        KTypeVTypeOpenCustomHashMap<KType, VType> refMapclone = refMap.clone();
+        KTypeVTypeOpenCustomHashMap<KType, VType> refMap2clone = refMap2.clone();
+
+        //all strategies are equivalent
+        Assert.assertEquals(refMap.strategy(), refMap2.strategy());
+        Assert.assertEquals(refMap2.strategy(), refMapclone.strategy());
+        Assert.assertEquals(refMapclone.strategy(), refMap2clone.strategy());
+        Assert.assertEquals(refMap2clone.strategy(), new KTypeStandardHash<KType>());
+
+        Assert.assertEquals(refMap, refMapclone);
+        Assert.assertEquals(refMapclone, refMap2);
+        Assert.assertEquals(refMap2, refMap2clone);
+        Assert.assertEquals(refMap2clone, refMap);
+
+        //cleanup
+        refMapclone = null;
+        refMap2 = null;
+        refMap2clone = null;
+        System.gc();
+
+        //c) Create a set nb 3 with same integer content, but with a strategy mapping on equals.
+        final KTypeVTypeOpenCustomHashMap<KType, VType> refMap3 = createMapWithRandomData(TEST_SIZE,
+                new KTypeHashingStrategy<KType>() {
+
+            @Override
+            public int computeHashCode(final KType object) {
+
+                return Internals.rehash(object);
+            }
+
+            @Override
+            public boolean equals(final KType o1, final KType o2) {
+
+                return Intrinsics.equalsKType(o1, o2);
+            }
+        }, TEST_SEED);
+
+        //because they do the same thing as above, but with semantically different strategies, because ref3 strategy object is != ref strategy object
+        Assert.assertFalse(refMap.equals(refMap3));
+
+        //However, if we cloned refMap3
+        final KTypeVTypeOpenCustomHashMap<KType, VType> refMap3clone = refMap3.clone();
+        Assert.assertEquals(refMap3, refMap3clone);
+
+        //strategies are copied by reference only
+        Assert.assertTrue(refMap3.strategy() == refMap3clone.strategy());
+
+        //d) Create identical set with same different strategy instances, but which consider themselves equals()
+        KTypeVTypeOpenCustomHashMap<KType, VType> refMap4 = createMapWithRandomData(TEST_SIZE,
+                new KTypeHashingStrategy<KType>() {
+
+            @Override
+            public boolean equals(final Object obj) {
+
+                return true;
+            }
+
+            @Override
+            public int computeHashCode(final KType object) {
+
+                return Internals.rehash(object);
+            }
+
+            @Override
+            public boolean equals(final KType o1, final KType o2) {
+
+                return Intrinsics.equalsKType(o1, o2);
+            }
+        }, TEST_SEED);
+
+        KTypeVTypeOpenCustomHashMap<KType, VType> refMap4Image = createMapWithRandomData(TEST_SIZE,
+                new KTypeHashingStrategy<KType>() {
+
+            @Override
+            public boolean equals(final Object obj) {
+
+                return true;
+            }
+
+            @Override
+            public int computeHashCode(final KType object) {
+
+                return Internals.rehash(object);
+            }
+
+            @Override
+            public boolean equals(final KType o1, final KType o2) {
+
+                return Intrinsics.equalsKType(o1, o2);
+            }
+        }, TEST_SEED);
+
+        Assert.assertEquals(refMap4, refMap4Image);
+        //but strategy instances are indeed 2 different objects
+        Assert.assertFalse(refMap4.strategy() == refMap4Image.strategy());
+
+        //cleanup
+        refMap4 = null;
+        refMap4Image = null;
+        System.gc();
+
+        //e) Do contrary to 4), hashStrategies always != from each other by equals.
+        final KTypeHashingStrategy<KType> alwaysDifferentStrategy = new KTypeHashingStrategy<KType>() {
+
+            @Override
+            public boolean equals(final Object obj) {
+
+                //never equal !!!
+                return false;
+            }
+
+            @Override
+            public int computeHashCode(final KType object) {
+
+                return Internals.rehash(object);
+            }
+
+            @Override
+            public boolean equals(final KType o1, final KType o2) {
+
+                return Intrinsics.equalsKType(o1, o2);
+            }
+        };
+
+        final KTypeVTypeOpenCustomHashMap<KType, VType> refMap5 = createMapWithRandomData(TEST_SIZE, alwaysDifferentStrategy, TEST_SEED);
+        final KTypeVTypeOpenCustomHashMap<KType, VType> refMap5alwaysDifferent = createMapWithRandomData(TEST_SIZE, alwaysDifferentStrategy, TEST_SEED);
+
+        //both sets are NOT equal because their strategies said they are different
+        Assert.assertFalse(refMap5.equals(refMap5alwaysDifferent));
+    }
+
+    @Test
+    public void testHashingStrategyAddContainsGetRemove() {
+
+        final long TEST_SEED = 15249155965216185L;
+        final int TEST_SIZE = (int) 500e3;
+
+        //those following 3  maps behave indeed the same in the test context:
+        final KTypeVTypeOpenCustomHashMap<KType, VType> refMap = KTypeVTypeOpenCustomHashMap.newInstance(new KTypeStandardHash<KType>());
+
+        final KTypeVTypeOpenCustomHashMap<KType, VType> refMapIdenticalStrategy = KTypeVTypeOpenCustomHashMap.newInstance(
+                KTypeVTypeOpenCustomHashMap.DEFAULT_CAPACITY,
+                KTypeVTypeOpenCustomHashMap.DEFAULT_LOAD_FACTOR,
+                new KTypeHashingStrategy<KType>() {
+
+                    @Override
+                    public boolean equals(final Object obj) {
+
+                        //always
+                        return true;
+                    }
+
+                    @Override
+                    public int computeHashCode(final KType object) {
+
+                        return Internals.rehash(object);
+                    }
+
+                    @Override
+                    public boolean equals(final KType o1, final KType o2) {
+
+                        return Intrinsics.equalsKType(o1, o2);
+                    }
+                });
+
+        //compute the iterations doing multiple operations
+        final Random prng = new Random(TEST_SEED);
+
+        for (int i = 0; i < TEST_SIZE; i++) {
+
+            //a) generate a value to put
+            int putKey = prng.nextInt();
+            final int putValue = prng.nextInt();
+
+            refMap.put(cast(putKey), vcast(putValue));
+
+            refMapIdenticalStrategy.put(cast(putKey), vcast(putValue));
+
+            Assert.assertEquals(refMap.containsKey(cast(putKey)), refMapIdenticalStrategy.containsKey(cast(putKey)));
+
+            /*! #if ($TemplateOptions.VTypeGeneric) !*/
+            Assert.assertEquals(refMap.get(cast(putKey)), refMapIdenticalStrategy.get(cast(putKey)));
+            /*! #else
+            assertTrue(refMap.get(cast(putKey)) ==  refMapIdenticalStrategy.get(cast(putKey)));
+             #end !*/
+
+            final boolean isToBeRemoved = (prng.nextInt() % 3 == 0);
+            putKey = prng.nextInt();
+
+            if (isToBeRemoved) {
+
+                refMap.remove(cast(putKey));
+
+                refMapIdenticalStrategy.remove(cast(putKey));
+
+                Assert.assertFalse(refMap.containsKey(cast(putKey)));
+
+                Assert.assertFalse(refMapIdenticalStrategy.containsKey(cast(putKey)));
+            }
+
+            Assert.assertEquals(refMap.containsKey(cast(putKey)), refMapIdenticalStrategy.containsKey(cast(putKey)));
+
+            /*! #if ($TemplateOptions.VTypeGeneric) !*/
+            Assert.assertEquals(refMap.get(cast(putKey)), refMapIdenticalStrategy.get(cast(putKey)));
+            /*! #else
+            assertTrue(refMap.get(cast(putKey)) ==  refMapIdenticalStrategy.get(cast(putKey)));
+             #end !*/
+
+            //test size
+            Assert.assertEquals(refMap.size(), refMapIdenticalStrategy.size());
+        }
+    }
+
+    private KTypeVTypeOpenCustomHashMap<KType, VType> createMapWithRandomData(final int size, final KTypeHashingStrategy<? super KType> strategy, final long randomSeed)
+    {
+
+        final Random prng = new Random(randomSeed);
+
+        final KTypeVTypeOpenCustomHashMap<KType, VType> newMap = KTypeVTypeOpenCustomHashMap.newInstance(KTypeVTypeOpenCustomHashMap.DEFAULT_CAPACITY,
+                KTypeVTypeOpenCustomHashMap.DEFAULT_LOAD_FACTOR, strategy);
+
+        for (int i = 0; i < size; i++) {
+
+            newMap.put(cast(prng.nextInt()), vcast(prng.nextInt()));
+        }
+
+        return newMap;
+    }
+
+    @Test
     public void testPooledIteratorForEach()
     {
         //A) Unbroken for-each loop
@@ -882,9 +1124,9 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         final int TEST_SIZE = 126;
         final long TEST_ROUNDS = 5000;
 
-        final KTypeVTypeOpenHashMap<KType, VType> testContainer = createMapWithOrderedData(TEST_SIZE);
-        final KTypeVTypeOpenHashMap<KType, VType>.KeysContainer keyset = testContainer.keys();
-        final KTypeVTypeOpenHashMap<KType, VType>.ValuesContainer valueset = testContainer.values();
+        final KTypeVTypeOpenCustomHashMap<KType, VType> testContainer = createMapWithOrderedData(TEST_SIZE);
+        final KTypeVTypeOpenCustomHashMap<KType, VType>.KeysContainer keyset = testContainer.keys();
+        final KTypeVTypeOpenCustomHashMap<KType, VType>.ValuesContainer valueset = testContainer.values();
 
         final long checksum = testContainer.forEach(new KTypeVTypeProcedure<KType, VType>() {
 
@@ -970,9 +1212,9 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         final int TEST_SIZE = 126;
         final long TEST_ROUNDS = 5000;
 
-        final KTypeVTypeOpenHashMap<KType, VType> testContainer = createMapWithOrderedData(TEST_SIZE);
-        final KTypeVTypeOpenHashMap<KType, VType>.KeysContainer keyset = testContainer.keys();
-        final KTypeVTypeOpenHashMap<KType, VType>.ValuesContainer valueset = testContainer.values();
+        final KTypeVTypeOpenCustomHashMap<KType, VType> testContainer = createMapWithOrderedData(TEST_SIZE);
+        final KTypeVTypeOpenCustomHashMap<KType, VType>.KeysContainer keyset = testContainer.keys();
+        final KTypeVTypeOpenCustomHashMap<KType, VType>.ValuesContainer valueset = testContainer.values();
 
         int count = 0;
         for (int round = 0; round < TEST_ROUNDS; round++)
@@ -1067,9 +1309,9 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         final int TEST_SIZE = 126;
         final long TEST_ROUNDS = 5000;
 
-        final KTypeVTypeOpenHashMap<KType, VType> testContainer = createMapWithOrderedData(TEST_SIZE);
-        final KTypeVTypeOpenHashMap<KType, VType>.KeysContainer keyset = testContainer.keys();
-        final KTypeVTypeOpenHashMap<KType, VType>.ValuesContainer valueset = testContainer.values();
+        final KTypeVTypeOpenCustomHashMap<KType, VType> testContainer = createMapWithOrderedData(TEST_SIZE);
+        final KTypeVTypeOpenCustomHashMap<KType, VType>.KeysContainer keyset = testContainer.keys();
+        final KTypeVTypeOpenCustomHashMap<KType, VType>.ValuesContainer valueset = testContainer.values();
 
         final long checksum = testContainer.forEach(new KTypeVTypeProcedure<KType, VType>() {
 
@@ -1090,7 +1332,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             //A) Classical iterator loop, with manually allocated Iterator
             int initialPoolSize = testContainer.entryIteratorPool.size();
 
-            final KTypeVTypeOpenHashMap<KType, VType>.EntryIterator loopIterator = testContainer.iterator();
+            final KTypeVTypeOpenCustomHashMap<KType, VType>.EntryIterator loopIterator = testContainer.iterator();
 
             Assert.assertEquals(initialPoolSize - 1, testContainer.entryIteratorPool.size());
 
@@ -1109,7 +1351,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             //B) Loop on keys
             initialPoolSize = keyset.keyIteratorPool.size();
 
-            final KTypeVTypeOpenHashMap<KType, VType>.KeysIterator keyLoopIterator = keyset.iterator();
+            final KTypeVTypeOpenCustomHashMap<KType, VType>.KeysIterator keyLoopIterator = keyset.iterator();
 
             Assert.assertEquals(initialPoolSize - 1, keyset.keyIteratorPool.size());
 
@@ -1128,7 +1370,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             //C) Loop on values
             initialPoolSize = valueset.valuesIteratorPool.size();
 
-            final KTypeVTypeOpenHashMap<KType, VType>.ValuesIterator valueLoopIterator = valueset.iterator();
+            final KTypeVTypeOpenCustomHashMap<KType, VType>.ValuesIterator valueLoopIterator = valueset.iterator();
 
             Assert.assertEquals(initialPoolSize - 1, valueset.valuesIteratorPool.size());
 
@@ -1162,9 +1404,9 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         final int TEST_SIZE = 126;
         final long TEST_ROUNDS = 5000;
 
-        final KTypeVTypeOpenHashMap<KType, VType> testContainer = createMapWithOrderedData(TEST_SIZE);
-        final KTypeVTypeOpenHashMap<KType, VType>.KeysContainer keyset = testContainer.keys();
-        final KTypeVTypeOpenHashMap<KType, VType>.ValuesContainer valueset = testContainer.values();
+        final KTypeVTypeOpenCustomHashMap<KType, VType> testContainer = createMapWithOrderedData(TEST_SIZE);
+        final KTypeVTypeOpenCustomHashMap<KType, VType>.KeysContainer keyset = testContainer.keys();
+        final KTypeVTypeOpenCustomHashMap<KType, VType>.ValuesContainer valueset = testContainer.values();
 
         final int startingPoolSize = testContainer.entryIteratorPool.size();
 
@@ -1174,7 +1416,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             //A) Classical iterator loop, with manually allocated Iterator
             long initialPoolSize = testContainer.entryIteratorPool.size();
 
-            final KTypeVTypeOpenHashMap<KType, VType>.EntryIterator loopIterator = testContainer.iterator();
+            final KTypeVTypeOpenCustomHashMap<KType, VType>.EntryIterator loopIterator = testContainer.iterator();
 
             Assert.assertEquals(initialPoolSize - 1, testContainer.entryIteratorPool.size());
 
@@ -1203,7 +1445,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             //B) Iterate on keys
             initialPoolSize = keyset.keyIteratorPool.size();
 
-            final KTypeVTypeOpenHashMap<KType, VType>.KeysIterator keyLoopIterator = keyset.iterator();
+            final KTypeVTypeOpenCustomHashMap<KType, VType>.KeysIterator keyLoopIterator = keyset.iterator();
 
             Assert.assertEquals(initialPoolSize - 1, keyset.keyIteratorPool.size());
 
@@ -1232,7 +1474,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             //C) Iterate on values
             initialPoolSize = valueset.valuesIteratorPool.size();
 
-            final KTypeVTypeOpenHashMap<KType, VType>.ValuesIterator valueLoopIterator = valueset.iterator();
+            final KTypeVTypeOpenCustomHashMap<KType, VType>.ValuesIterator valueLoopIterator = valueset.iterator();
 
             Assert.assertEquals(initialPoolSize - 1, valueset.valuesIteratorPool.size());
 
@@ -1274,7 +1516,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         final int TEST_SIZE = 126;
         final long TEST_ROUNDS = 5000;
 
-        final KTypeVTypeOpenHashMap<KType, VType> testContainer = createMapWithOrderedData(TEST_SIZE);
+        final KTypeVTypeOpenCustomHashMap<KType, VType> testContainer = createMapWithOrderedData(TEST_SIZE);
 
         final long checksum = testContainer.forEach(new KTypeVTypeProcedure<KType, VType>() {
 
@@ -1290,7 +1532,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         final int startingPoolSize = testContainer.entryIteratorPool.size();
 
         int count = 0;
-        KTypeVTypeOpenHashMap<KType, VType>.EntryIterator loopIterator = null;
+        KTypeVTypeOpenCustomHashMap<KType, VType>.EntryIterator loopIterator = null;
 
         for (int round = 0; round < TEST_ROUNDS; round++)
         {
@@ -1357,8 +1599,8 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             #end !*/
 
             //2) Preallocate to PREALLOCATED_SIZE :
-            final KTypeVTypeOpenHashMap<KType, VType> newMap = KTypeVTypeOpenHashMap.newInstance(PREALLOCATED_SIZE,
-                    KTypeVTypeOpenHashMap.DEFAULT_LOAD_FACTOR);
+            final KTypeVTypeOpenCustomHashMap<KType, VType> newMap = KTypeVTypeOpenCustomHashMap.newInstance(PREALLOCATED_SIZE,
+                    KTypeVTypeOpenCustomHashMap.DEFAULT_LOAD_FACTOR, new KTypeStandardHash<KType>());
 
             //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
             //and internal buffer/allocated must not have changed of size
@@ -1399,7 +1641,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
               int NB_ELEMENTS = 126;
             #end !*/
 
-        final KTypeVTypeOpenHashMap<KType, VType> newMap = KTypeVTypeOpenHashMap.newInstance();
+        final KTypeVTypeOpenCustomHashMap<KType, VType> newMap = KTypeVTypeOpenCustomHashMap.newInstance(new KTypeStandardHash<KType>());
 
         //add a randomized number of key/values pairs
         for (int i = 0; i < NB_ELEMENTS; i++) {
@@ -1496,7 +1738,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
               int NB_ELEMENTS = 126;
             #end !*/
 
-        final KTypeVTypeOpenHashMap<KType, VType> newMap = KTypeVTypeOpenHashMap.newInstance();
+        final KTypeVTypeOpenCustomHashMap<KType, VType> newMap = KTypeVTypeOpenCustomHashMap.newInstance(new KTypeStandardHash<KType>());
 
         //add a randomized number of key/values pairs
         for (int i = 0; i < NB_ELEMENTS; i++) {
@@ -1564,10 +1806,10 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         } //end for each index
     }
 
-    private KTypeVTypeOpenHashMap<KType, VType> createMapWithOrderedData(final int size)
+    private KTypeVTypeOpenCustomHashMap<KType, VType> createMapWithOrderedData(final int size)
     {
-        final KTypeVTypeOpenHashMap<KType, VType> newMap = KTypeVTypeOpenHashMap.newInstance(KTypeVTypeOpenHashMap.DEFAULT_CAPACITY,
-                KTypeVTypeOpenHashMap.DEFAULT_LOAD_FACTOR);
+        final KTypeVTypeOpenCustomHashMap<KType, VType> newMap = KTypeVTypeOpenCustomHashMap.newInstance(KTypeVTypeOpenCustomHashMap.DEFAULT_CAPACITY,
+                KTypeVTypeOpenCustomHashMap.DEFAULT_LOAD_FACTOR, new KTypeStandardHash<KType>());
 
         for (int i = 0; i < size; i++)
         {

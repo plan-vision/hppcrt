@@ -30,7 +30,7 @@ public class BenchmarkContainsWithRemoved extends SimpleBenchmark
 
     @Param(
             {
-            "5000000"
+            "2000000"
             })
     public int size;
 
