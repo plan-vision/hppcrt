@@ -16,6 +16,12 @@ public enum Implementations
         {
             return new HppcMap(IntIntOpenHashMap.newInstance());
         }
+
+        @Override
+        public MapImplementation<?> getInstance(final int size)
+        {
+            return new HppcMap(IntIntOpenHashMap.newInstance(size, IntIntOpenHashMap.DEFAULT_LOAD_FACTOR));
+        }
     },
 
     HPPC_NOPERTURBS
@@ -24,6 +30,12 @@ public enum Implementations
         public MapImplementation<?> getInstance()
         {
             return new HppcMap(IntIntOpenHashMap.newInstanceWithoutPerturbations());
+        }
+
+        @Override
+        public MapImplementation<?> getInstance(final int size)
+        {
+            return new HppcMap(IntIntOpenHashMap.newInstanceWithoutPerturbations(size, IntIntOpenCustomHashMap.DEFAULT_LOAD_FACTOR));
         }
     },
 
@@ -34,6 +46,12 @@ public enum Implementations
         {
             return new HppcMap(IntIntOpenCustomHashMap.newInstance(new IntStandardHash()));
         }
+
+        @Override
+        public MapImplementation<?> getInstance(final int size)
+        {
+            return new HppcMap(IntIntOpenCustomHashMap.newInstance(size, IntIntOpenCustomHashMap.DEFAULT_LOAD_FACTOR, new IntStandardHash()));
+        }
     },
 
     FASTUTIL
@@ -42,6 +60,12 @@ public enum Implementations
         public MapImplementation<?> getInstance()
         {
             return new FastUtilMap();
+        }
+
+        @Override
+        public MapImplementation<?> getInstance(final int size)
+        {
+            return new FastUtilMap(size);
         }
     },
 
@@ -52,6 +76,12 @@ public enum Implementations
         {
             return new JavaMap();
         }
+
+        @Override
+        public MapImplementation<?> getInstance(final int size)
+        {
+            return new JavaMap(size);
+        }
     },
 
     TROVE
@@ -60,6 +90,12 @@ public enum Implementations
         public MapImplementation<?> getInstance()
         {
             return new TroveMap();
+        }
+
+        @Override
+        public MapImplementation<?> getInstance(final int size)
+        {
+            return new TroveMap(size);
         }
     },
 
@@ -70,7 +106,15 @@ public enum Implementations
         {
             return new MahoutMap();
         }
+
+        @Override
+        public MapImplementation<?> getInstance(final int size)
+        {
+            return new MahoutMap(size);
+        }
     };
 
     public abstract MapImplementation<?> getInstance();
+
+    public abstract MapImplementation<?> getInstance(int size);
 }
