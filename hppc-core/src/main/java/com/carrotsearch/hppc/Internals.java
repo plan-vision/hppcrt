@@ -7,31 +7,31 @@ import com.carrotsearch.hppc.hash.MurmurHash3;
 /**
  * Internal utilities.
  */
-final class Internals
+final public class Internals
 {
-    final static int NB_OF_PROCESSORS = Runtime.getRuntime().availableProcessors();
+    final public static int NB_OF_PROCESSORS = Runtime.getRuntime().availableProcessors();
 
-    final static int BLANK_ARRAY_SIZE_IN_BIT_SHIFT = 10;
+    final public static int BLANK_ARRAY_SIZE_IN_BIT_SHIFT = 10;
 
     /**
      * Batch blanking array size
      */
-    final static int BLANK_ARRAY_SIZE = 1 << Internals.BLANK_ARRAY_SIZE_IN_BIT_SHIFT;
+    final public static int BLANK_ARRAY_SIZE = 1 << Internals.BLANK_ARRAY_SIZE_IN_BIT_SHIFT;
 
     /**
      * Batch blanking array with Object nulls
      */
-    final static Object[] BLANKING_OBJECT_ARRAY = new Object[Internals.BLANK_ARRAY_SIZE];
+    final public static Object[] BLANKING_OBJECT_ARRAY = new Object[Internals.BLANK_ARRAY_SIZE];
 
     /**
      * Batch blanking array with boolean false
      */
-    final static boolean[] BLANKING_BOOLEAN_ARRAY = new boolean[Internals.BLANK_ARRAY_SIZE];
+    final public static boolean[] BLANKING_BOOLEAN_ARRAY = new boolean[Internals.BLANK_ARRAY_SIZE];
 
     /**
      * Batch blanking array with int == -1
      */
-    final static int[] BLANKING_INT_ARRAY_MINUS_ONE = new int[Internals.BLANK_ARRAY_SIZE];
+    final public static int[] BLANKING_INT_ARRAY_MINUS_ONE = new int[Internals.BLANK_ARRAY_SIZE];
 
     static {
 
@@ -44,7 +44,7 @@ final class Internals
      * @param p
      * @return
      */
-    static <T> int rehashKType(final T o, final int p) {
+    public static <T> int rehashKType(final T o, final int p) {
         return o == null ? 0 : MurmurHash3.hash(o.hashCode() ^ p);
     }
 
@@ -54,60 +54,47 @@ final class Internals
      * @param p
      * @return
      */
-    static <T> int rehashVType(final T o, final int p) {
+    public static <T> int rehashVType(final T o, final int p) {
         return o == null ? 0 : MurmurHash3.hash(o.hashCode() ^ p);
     }
 
-    static int rehash(final Object o, final int p) {
+    public static int rehash(final Object o, final int p) {
         return o == null ? 0 : MurmurHash3.hash(o.hashCode() ^ p);
     }
 
-    /**
-     * if specificHash == null, equivalent to rehash()
-     * The actual code is inlined in generated code. The primitive version strip down the strategy arg entirely.
-     * @param object
-     * @param p
-     * @param specificHash
-     * @return
-     */
-    static <T> int rehashSpecificHash(final T o, final int p, final HashingStrategy<? super T> specificHash)
-    {
-        return o == null ? 0 : (specificHash == null ? MurmurHash3.hash(o.hashCode() ^ p) : MurmurHash3.hash(specificHash.computeHashCode(o) ^ p));
-    }
-
-    static int rehash(final byte v, final int p) {
+    public static int rehash(final byte v, final int p) {
         return MurmurHash3.hash(v ^ p);
     }
 
-    static int rehash(final short v, final int p) {
+    public static int rehash(final short v, final int p) {
         return MurmurHash3.hash(v ^ p);
     }
 
-    static int rehash(final int v, final int p) {
+    public static int rehash(final int v, final int p) {
         return MurmurHash3.hash(v ^ p);
     }
 
-    static int rehash(final long v, final int p) {
+    public static int rehash(final long v, final int p) {
         return (int) MurmurHash3.hash(v ^ p);
     }
 
-    static int rehash(final char v, final int p) {
+    public static int rehash(final char v, final int p) {
         return MurmurHash3.hash(v ^ p);
     }
 
-    static int rehash(final float v, final int p) {
+    public static int rehash(final float v, final int p) {
         return MurmurHash3.hash(Float.floatToIntBits(v) ^ p);
     }
 
-    static int rehash(final double v, final int p) {
+    public static int rehash(final double v, final int p) {
         return (int) MurmurHash3.hash(Double.doubleToLongBits(v) ^ p);
     }
 
-    static int rehash(final boolean b, final int p) {
+    public static int rehash(final boolean b, final int p) {
         return MurmurHash3.hash((b ? 1 : 0) ^ p);
     }
 
-    static int rehash(final Object o) {
+    public static int rehash(final Object o) {
         return o == null ? 0 : MurmurHash3.hash(o.hashCode());
     }
 
@@ -116,7 +103,7 @@ final class Internals
      * @param o
      * @return
      */
-    static <T> int rehashKType(final T o) {
+    public static <T> int rehashKType(final T o) {
         return o == null ? 0 : MurmurHash3.hash(o.hashCode());
     }
 
@@ -125,39 +112,39 @@ final class Internals
      * @param o
      * @return
      */
-    static <T> int rehashVType(final T o) {
+    public static <T> int rehashVType(final T o) {
         return o == null ? 0 : MurmurHash3.hash(o.hashCode());
     }
 
-    static int rehash(final byte v) {
+    public static int rehash(final byte v) {
         return MurmurHash3.hash(v);
     }
 
-    static int rehash(final short v) {
+    public static int rehash(final short v) {
         return MurmurHash3.hash(v);
     }
 
-    static int rehash(final int v) {
+    public static int rehash(final int v) {
         return MurmurHash3.hash(v);
     }
 
-    static int rehash(final long v) {
+    public static int rehash(final long v) {
         return (int) MurmurHash3.hash(v);
     }
 
-    static int rehash(final char v) {
+    public static int rehash(final char v) {
         return MurmurHash3.hash(v);
     }
 
-    static int rehash(final float v) {
+    public static int rehash(final float v) {
         return MurmurHash3.hash(Float.floatToIntBits(v));
     }
 
-    static int rehash(final double v) {
+    public static int rehash(final double v) {
         return (int) MurmurHash3.hash(Double.doubleToLongBits(v));
     }
 
-    static int rehash(final boolean b) {
+    public static int rehash(final boolean b) {
         return (b ? MurmurHash3.BOOLEAN_TRUE_HASH : MurmurHash3.BOOLEAN_FALSE_HASH);
     }
 
@@ -168,7 +155,7 @@ final class Internals
      * @param arraySize The size of the array to return.
      */
     @SuppressWarnings("unchecked")
-    static <T> T newArray(final int arraySize)
+    public static <T> T newArray(final int arraySize)
     {
         return (T) new Object[arraySize];
     }
@@ -177,7 +164,7 @@ final class Internals
      * Method to blank any Object[] array to "null"
      * from [startIndex; endIndex[, equivalent to {@link Arrays}.fill(objectArray, startIndex, endIndex, null)
      */
-    static <T> void blankObjectArray(final T[] objectArray, final int startIndex, final int endIndex) {
+    public static <T> void blankObjectArray(final T[] objectArray, final int startIndex, final int endIndex) {
 
         assert startIndex <= endIndex;
 
@@ -204,7 +191,7 @@ final class Internals
      * Method to blank any boolean[] array to false
      * from [startIndex; endIndex[, equivalent to {@link Arrays}.fill(boolArray, startIndex, endIndex, false)
      */
-    static void blankBooleanArray(final boolean[] boolArray, final int startIndex, final int endIndex) {
+    public static void blankBooleanArray(final boolean[] boolArray, final int startIndex, final int endIndex) {
 
         assert startIndex <= endIndex;
 
@@ -232,7 +219,7 @@ final class Internals
      * Method to blank any int[] array to -1
      * from [startIndex; endIndex[, equivalent to {@link Arrays}.fill(intArray, startIndex, endIndex, -1)
      */
-    static void blankIntArrayMinusOne(final int[] intArray, final int startIndex, final int endIndex) {
+    public static void blankIntArrayMinusOne(final int[] intArray, final int startIndex, final int endIndex) {
 
         assert startIndex <= endIndex;
 

@@ -26,6 +26,7 @@ import com.carrotsearch.hppc.hash.*;
  * Important note: DO NOT USE java.util.Iterator methods ! They are here only for enhanced-loop syntax. Use
  * the specialized methods of  {@link ValueIterator} or {@link DescendingValueIterator} instead !
  * </b>
+ * @author <a href="https://github.com/vsonnier" >Vincent Sonnier</a>
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeLinkedList<KType>
@@ -2061,8 +2062,8 @@ public class KTypeLinkedList<KType>
     /*! #if ($TemplateOptions.inline("KTypeLinkedList.getLinkNodeValue","(beforeIndex, afterIndex)",
       "((long) beforeIndex << 32) | afterIndex")) !*/
     /**
-     * Builds a LinkList node value from its before an after links
-     * Code is actually inlined in generated code
+     * Builds a LinkList node value from its before an after links.
+     * Code is actually inlined in generated code.
      * @param beforeIndex
      * @param afterIndex
      * @return long

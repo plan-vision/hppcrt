@@ -17,12 +17,13 @@ import com.carrotsearch.hppc.hash.*;
  * and constant time to examine the first element.
  * As it is indexed, it also supports containsIndex() in constant time, deleteIndex()
  * and change priority in O(log2(N)) time.
+ * @author <a href="https://github.com/vsonnier" >Vincent Sonnier</a>
  */
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
 /*! #set( $DEBUG = false) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType>
-        implements KTypeIndexedPriorityQueue<KType>, Cloneable
+implements KTypeIndexedPriorityQueue<KType>, Cloneable
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -151,7 +152,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
      * @see BoundedProportionalArraySizingStrategy
      */
     public KTypeIndexedHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp
-    /*! #else
+            /*! #else
     KTypeComparator<? super KType> comp
     #end !*/)
     {
@@ -820,7 +821,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
                             return false;
                         }
                     }
-                } //end for 
+                } //end for
 
                 return true;
             } //end else comparator
@@ -1064,22 +1065,22 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
             //swap k and its parent
             parent = k >> 1;
 
-            //swap k and parent
-            tmp = buffer[k];
-            buffer[k] = buffer[parent];
-            buffer[parent] = tmp;
+        //swap k and parent
+        tmp = buffer[k];
+        buffer[k] = buffer[parent];
+        buffer[parent] = tmp;
 
-            //swap references
-            indexK = qp[k];
-            indexParent = qp[parent];
+        //swap references
+        indexK = qp[k];
+        indexParent = qp[parent];
 
-            pq[indexK] = parent;
-            pq[indexParent] = k;
+        pq[indexK] = parent;
+        pq[indexParent] = k;
 
-            qp[k] = indexParent;
-            qp[parent] = indexK;
+        qp[k] = indexParent;
+        qp[parent] = indexK;
 
-            k = parent;
+        k = parent;
         }
     }
 
@@ -1108,22 +1109,22 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
             //swap k and its parent
             parent = k >> 1;
 
-            //swap k and parent
-            tmp = buffer[k];
-            buffer[k] = buffer[parent];
-            buffer[parent] = tmp;
+        //swap k and parent
+        tmp = buffer[k];
+        buffer[k] = buffer[parent];
+        buffer[parent] = tmp;
 
-            //swap references
-            indexK = qp[k];
-            indexParent = qp[parent];
+        //swap references
+        indexK = qp[k];
+        indexParent = qp[parent];
 
-            pq[indexK] = parent;
-            pq[indexParent] = k;
+        pq[indexK] = parent;
+        pq[indexParent] = k;
 
-            qp[k] = indexParent;
-            qp[parent] = indexK;
+        qp[k] = indexParent;
+        qp[parent] = indexK;
 
-            k = parent;
+        k = parent;
         }
     }
 
