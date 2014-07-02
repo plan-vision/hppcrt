@@ -3,7 +3,6 @@ package com.carrotsearch.hppc;
 import java.util.Arrays;
 
 import com.carrotsearch.hppc.hash.MurmurHash3;
-import com.carrotsearch.hppc.strategies.KTypeHashingStrategy;
 
 /**
  * Internal utilities.
@@ -61,30 +60,6 @@ final public class Internals
 
     public static int rehash(final Object o, final int p) {
         return o == null ? 0 : MurmurHash3.hash(o.hashCode() ^ p);
-    }
-
-    /**
-     * if specificHash == null, equivalent to rehash()
-     * @param object
-     * @param p
-     * @param specificHash
-     * @return
-     */
-    public static <T> int rehashSpecificHash(final T o, final int p, final KTypeHashingStrategy<? super T> specificHash)
-    {
-        return o == null ? 0 : (specificHash == null ? MurmurHash3.hash(o.hashCode() ^ p) : MurmurHash3.hash(specificHash.computeHashCode(o) ^ p));
-    }
-
-    /**
-     * if specificHash == null, equivalent to rehash() with no perturbation
-     * @param object
-     * @param p
-     * @param specificHash
-     * @return
-     */
-    public static <T> int rehashSpecificHash(final T o, final KTypeHashingStrategy<? super T> specificHash)
-    {
-        return o == null ? 0 : (specificHash == null ? MurmurHash3.hash(o.hashCode()) : MurmurHash3.hash(specificHash.computeHashCode(o)));
     }
 
     public static int rehash(final byte v, final int p) {

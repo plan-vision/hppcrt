@@ -77,8 +77,8 @@ import static com.carrotsearch.hppc.HashContainerUtils.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenHashSet<KType>
-extends AbstractKTypeCollection<KType>
-implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+        extends AbstractKTypeCollection<KType>
+        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -596,8 +596,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
             }
 
             if (/*! #if ($RH) !*/
-                    allocated[slotCurr] == -1
-                    /*! #else
+            allocated[slotCurr] == -1
+            /*! #else
             !allocated[slotCurr]
             #end !*/)
             {
@@ -771,7 +771,6 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         {
             if (states[i]/*! #if ($RH) !*/!= -1 /*! #end !*/)
             {
-
                 //This hash is an intrinsic property of the container contents,
                 //consequently is independent from the HashStrategy, so do not use it !
                 h += Internals.rehash(keys[i]);
@@ -844,7 +843,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     allocated[i] == -1
-                    /*! #else
+            /*! #else
             !allocated[i]
             #end  !*/)
             {

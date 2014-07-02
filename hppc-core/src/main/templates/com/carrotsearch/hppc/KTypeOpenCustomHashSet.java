@@ -53,8 +53,8 @@ import static com.carrotsearch.hppc.HashContainerUtils.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenCustomHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -207,7 +207,7 @@ public class KTypeOpenCustomHashSet<KType>
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
-        int slot = strategy.computeHashCode(e) & mask;
+        int slot = Internals.rehash(strategy.computeHashCode(e)) & mask;
 
         final KType[] keys = this.keys;
 
@@ -249,8 +249,8 @@ public class KTypeOpenCustomHashSet<KType>
 
                 /*! #if($DEBUG) !*/
                 //Check invariants
-                assert allocated[slot] == (strategy.computeHashCode(keys[slot]) & mask);
-                assert initial_slot == (strategy.computeHashCode(e) & mask);
+                assert allocated[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
+                assert initial_slot == (Internals.rehash(strategy.computeHashCode(e)) & mask);
                 /*! #end !*/
 
                 dist = existing_distance;
@@ -282,7 +282,7 @@ public class KTypeOpenCustomHashSet<KType>
             /*! #if ($RH) !*/
             /*! #if($DEBUG) !*/
             //Check invariants
-            assert allocated[slot] == (strategy.computeHashCode(keys[slot]) & mask);
+            assert allocated[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
             /*! #end !*/
             /*! #end !*/
         }
@@ -419,7 +419,7 @@ public class KTypeOpenCustomHashSet<KType>
             if (oldAllocated[i] /*! #if ($RH) !*/!= -1 /*! #end !*/)
             {
                 e = oldKeys[i];
-                slot = strategy.computeHashCode(e) & mask;
+                slot = Internals.rehash(strategy.computeHashCode(e)) & mask;
 
                 /*! #if ($RH) !*/
                 initial_slot = slot;
@@ -445,8 +445,8 @@ public class KTypeOpenCustomHashSet<KType>
 
                         /*! #if($DEBUG) !*/
                         //Check invariants
-                        assert allocated[slot] == (strategy.computeHashCode(keys[slot]) & mask);
-                        assert initial_slot == (strategy.computeHashCode(e) & mask);
+                        assert allocated[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
+                        assert initial_slot == (Internals.rehash(strategy.computeHashCode(e)) & mask);
                         /*! #end !*/
 
                         dist = existing_distance;
@@ -472,7 +472,7 @@ public class KTypeOpenCustomHashSet<KType>
                 /*! #if ($RH) !*/
                 /*! #if($DEBUG) !*/
                 //Check invariants
-                assert allocated[slot] == (strategy.computeHashCode(keys[slot]) & mask);
+                assert allocated[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
                 /*! #end !*/
                 /*! #end !*/
             }
@@ -522,7 +522,7 @@ public class KTypeOpenCustomHashSet<KType>
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
-        int slot = strategy.computeHashCode(key) & mask;
+        int slot = Internals.rehash(strategy.computeHashCode(key)) & mask;
 
         /*! #if ($RH) !*/
         int dist = 0;
@@ -579,7 +579,7 @@ public class KTypeOpenCustomHashSet<KType>
 
             while (allocated[slotCurr] /*! #if ($RH) !*/!= -1 /*! #end !*/)
             {
-                slotOther = strategy.computeHashCode(keys[slotCurr]) & mask;
+                slotOther = Internals.rehash(strategy.computeHashCode(keys[slotCurr])) & mask;
 
                 if (slotPrev <= slotCurr)
                 {
@@ -597,8 +597,8 @@ public class KTypeOpenCustomHashSet<KType>
             }
 
             if (/*! #if ($RH) !*/
-            allocated[slotCurr] == -1
-            /*! #else
+                    allocated[slotCurr] == -1
+                    /*! #else
             !allocated[slotCurr]
             #end !*/)
             {
@@ -608,8 +608,8 @@ public class KTypeOpenCustomHashSet<KType>
             /*! #if ($RH) !*/
             /*! #if($DEBUG) !*/
             //Check invariants
-            assert allocated[slotCurr] == (strategy.computeHashCode(keys[slotCurr]) & mask);
-            assert allocated[slotPrev] == (strategy.computeHashCode(keys[slotPrev]) & mask);
+            assert allocated[slotCurr] == (Internals.rehash(strategy.computeHashCode(keys[slotCurr])) & mask);
+            assert allocated[slotPrev] == (Internals.rehash(strategy.computeHashCode(keys[slotPrev])) & mask);
             /*! #end !*/
             /*! #end !*/
 
@@ -680,7 +680,7 @@ public class KTypeOpenCustomHashSet<KType>
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
-        int slot = strategy.computeHashCode(key) & mask;
+        int slot = Internals.rehash(strategy.computeHashCode(key)) & mask;
 
         /*! #if ($RH) !*/
         int dist = 0;
@@ -770,13 +770,15 @@ public class KTypeOpenCustomHashSet<KType>
         final boolean[] states = this.allocated;
         #end !*/
 
+        final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
+
         for (int i = states.length; --i >= 0;)
         {
             if (states[i]/*! #if ($RH) !*/!= -1 /*! #end !*/)
             {
                 //This hash is an intrinsic property of the container contents,
                 //consequently is independent from the KTypeHashStrategy, so do not use it !
-                h += Internals.rehash(keys[i]);
+                h += Internals.rehash(strategy.computeHashCode(keys[i]));
             }
         }
 
@@ -855,7 +857,7 @@ public class KTypeOpenCustomHashSet<KType>
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     allocated[i] == -1
-            /*! #else
+                    /*! #else
             !allocated[i]
             #end  !*/)
             {
@@ -1095,7 +1097,7 @@ public class KTypeOpenCustomHashSet<KType>
         /*! #if($DEBUG) !*/
         //Check : cached hashed slot is == computed value
         final int mask = alloc.length - 1;
-        assert rh == (this.hashStrategy.computeHashCode(this.keys[slot]) & mask);
+        assert rh == (Internals.rehash(this.hashStrategy.computeHashCode(this.keys[slot])) & mask);
         /*! #end !*/
 
         if (slot < rh) {

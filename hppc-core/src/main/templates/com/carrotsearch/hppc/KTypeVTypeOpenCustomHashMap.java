@@ -230,7 +230,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
-        int slot = strategy.computeHashCode(key) & mask;
+        int slot = Internals.rehash(strategy.computeHashCode(key)) & mask;
 
         final KType[] keys = this.keys;
         final VType[] values = this.values;
@@ -282,8 +282,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                 /*! #if($DEBUG) !*/
                 //Check invariants
 
-                assert allocated[slot] == (strategy.computeHashCode(keys[slot]) & mask);
-                assert initial_slot == (strategy.computeHashCode(key) & mask);
+                assert allocated[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
+                assert initial_slot == (Internals.rehash(strategy.computeHashCode(key)) & mask);
                 /*! #end !*/
 
                 dist = existing_distance;
@@ -318,7 +318,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             /*! #if ($RH) !*/
             /*! #if($DEBUG) !*/
             //Check invariants
-            assert allocated[slot] == (strategy.computeHashCode(keys[slot]) & mask);
+            assert allocated[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
 
             /*! #end !*/
             /*! #end !*/
@@ -403,7 +403,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
-        int slot = strategy.computeHashCode(key) & mask;
+        int slot = Internals.rehash(strategy.computeHashCode(key)) & mask;
 
         #if ($RH)
         final int[] allocated = this.allocated;
@@ -589,7 +589,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                 key = oldKeys[i];
                 value = oldValues[i];
 
-                slot = strategy.computeHashCode(key) & mask;
+                slot = Internals.rehash(strategy.computeHashCode(key)) & mask;
 
                 /*! #if ($RH) !*/
                 initial_slot = slot;
@@ -619,8 +619,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
                         /*! #if($DEBUG) !*/
                         //Check invariants
-                        assert allocated[slot] == (strategy.computeHashCode(keys[slot]) & mask);
-                        assert initial_slot == (strategy.computeHashCode(key) & mask);
+                        assert allocated[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
+                        assert initial_slot == (Internals.rehash(strategy.computeHashCode(key)) & mask);
                         /*! #end !*/
 
                         dist = existing_distance;
@@ -646,7 +646,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                 /*! #if ($RH) !*/
                 /*! #if($DEBUG) !*/
                 //Check invariants
-                assert allocated[slot] == (strategy.computeHashCode(keys[slot]) & mask);
+                assert allocated[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
                 /*! #end !*/
                 /*! #end !*/
             }
@@ -691,7 +691,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
-        int slot = strategy.computeHashCode(key) & mask;
+        int slot = Internals.rehash(strategy.computeHashCode(key)) & mask;
 
         /*! #if ($RH) !*/
         int dist = 0;
@@ -753,7 +753,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
             while (allocated[slotCurr] /*! #if ($RH) !*/!= -1 /*! #end !*/)
             {
-                slotOther = strategy.computeHashCode(keys[slotCurr]) & mask;
+                slotOther = Internals.rehash(strategy.computeHashCode(keys[slotCurr])) & mask;
 
                 if (slotPrev <= slotCurr)
                 {
@@ -782,8 +782,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             /*! #if ($RH) !*/
             /*! #if($DEBUG) !*/
             //Check invariants
-            assert allocated[slotCurr] == (strategy.computeHashCode(keys[slotCurr]) & mask);
-            assert allocated[slotPrev] == (strategy.computeHashCode(keys[slotPrev]) & mask);
+            assert allocated[slotCurr] == (Internals.rehash(strategy.computeHashCode(keys[slotCurr])) & mask);
+            assert allocated[slotPrev] == (Internals.rehash(strategy.computeHashCode(keys[slotPrev])) & mask);
             /*! #end !*/
             /*! #end !*/
 
@@ -877,7 +877,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
-        int slot = strategy.computeHashCode(key) & mask;
+        int slot = Internals.rehash(strategy.computeHashCode(key)) & mask;
 
         /*! #if ($RH) !*/
         int dist = 0;
@@ -1016,7 +1016,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
-        int slot = strategy.computeHashCode(key) & mask;
+        int slot = Internals.rehash(strategy.computeHashCode(key)) & mask;
 
         /*! #if ($RH) !*/
         int dist = 0;
@@ -1124,6 +1124,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         final boolean[] states = this.allocated;
         #end !*/
 
+        final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
+
         for (int i = states.length; --i >= 0;)
         {
             if (states[i]/*! #if ($RH) !*/!= -1 /*! #end !*/)
@@ -1131,7 +1133,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                 //This hash is an intrinsic property of the container contents,
                 //consequently is independent from the HashStrategy, so do not use it !
 
-                h += Internals.rehash(keys[i]) + Internals.rehash(values[i]);
+                h += Internals.rehash(strategy.computeHashCode(keys[i])) + Internals.rehash(values[i]);
             }
         }
 
@@ -1902,7 +1904,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         /*! #if($DEBUG) !*/
         //Check : cached hashed slot is == computed value
         final int mask = alloc.length - 1;
-        assert rh == (this.hashStrategy.computeHashCode(this.keys[slot]) & mask);
+        assert rh == (Internals.rehash(this.hashStrategy.computeHashCode(this.keys[slot])) & mask);
         /*! #end !*/
 
         if (slot < rh) {
