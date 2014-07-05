@@ -19,7 +19,7 @@
             <pathelement location="target/builder" />
         </path>
 
-        <taskdef classname="com.carrotsearch.hppc.generator.TemplateProcessor" name="generate">
+        <taskdef classname="com.carrotsearch.hppcrt.generator.TemplateProcessor" name="generate">
             <classpath refid="libs" />
         </taskdef>
 

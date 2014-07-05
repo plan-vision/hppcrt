@@ -6,14 +6,14 @@
   <parent>
     <groupId>com.carrotsearch</groupId>
     <artifactId>hppc-parent</artifactId>
-    <version>RT-0.6.0-SNAPSHOT</version>
+    <version>RT-0.7.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <!-- Project info. -->
   <groupId>com.carrotsearch</groupId>
   <artifactId>hppc</artifactId>
-  <version>RT-0.6.0-SNAPSHOT</version>
+  <version>RT-0.7.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>HPPC-RT Collections</name>
@@ -123,7 +123,7 @@
                   classpathref="maven.plugin.classpath" />
 
                 <retrotranslator verbose="true" verify="false"
-                  failonwarning="true" target="1.5" embed="com.carrotsearch.hppc.backport"
+                  failonwarning="true" target="1.5" embed="com.carrotsearch.hppcrt.backport"
                   destjar="${project.build.directory}/${project.build.finalName}-jdk15.jar">
 
                   <jarfileset dir="${project.build.directory}"

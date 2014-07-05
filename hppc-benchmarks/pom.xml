@@ -5,14 +5,14 @@
   <parent>
     <groupId>com.carrotsearch</groupId>
     <artifactId>hppc-parent</artifactId>
-    <version>RT-0.6.0-SNAPSHOT</version>
+    <version>RT-0.7.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <!-- Project info. -->
   <groupId>com.carrotsearch</groupId>
   <artifactId>hppc-benchmarks</artifactId>
-  <version>RT-0.6.0-SNAPSHOT</version>
+  <version>RT-0.7.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>HPPC-RT Benchmarks</name>
@@ -120,7 +120,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>com.carrotsearch.hppc.caliper.BenchmarkSuite</mainClass>
+              <mainClass>com.carrotsearch.hppcrt.caliper.BenchmarkSuite</mainClass>
 	          <useUniqueVersions>false</useUniqueVersions>
               <addClasspath>true</addClasspath>
             </manifest>
