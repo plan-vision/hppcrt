@@ -9,7 +9,7 @@ import com.carrotsearch.hppcrt.procedures.*;
 
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
 /*! #set( $ROBIN_HOOD_FOR_PRIMITIVES = false) !*/
-/*! #set( $ROBIN_HOOD_FOR_GENERICS = false) !*/
+/*! #set( $ROBIN_HOOD_FOR_GENERICS = true) !*/
 /*! #set( $DEBUG = false) !*/
 // If RH is defined, RobinHood Hashing is in effect :
 /*! #set( $RH = (($TemplateOptions.KTypeGeneric && $ROBIN_HOOD_FOR_GENERICS) || ($TemplateOptions.KTypeNumeric && $ROBIN_HOOD_FOR_PRIMITIVES)) ) !*/
@@ -755,7 +755,16 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
             while (allocated[slotCurr] /*! #if ($RH) !*/!= -1 /*! #end !*/)
             {
-                slotOther = Internals.rehash(keys[slotCurr]) & mask;
+                /*! #if ($RH) !*/
+                //use the cached value, no need to recompute
+                slotOther = allocated[slotCurr];
+                /*! #if($DEBUG) !*/
+                //Check invariants
+                assert slotOther == (Internals.rehash(keys[slotCurr]) & mask);
+                /*! #end !*/
+                /*! #else
+                 slotOther = Internals.rehash(keys[slotCurr]) & mask;
+                #end !*/
 
                 if (slotPrev <= slotCurr)
                 {

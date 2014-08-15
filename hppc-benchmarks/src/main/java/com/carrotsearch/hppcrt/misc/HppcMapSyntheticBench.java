@@ -35,6 +35,12 @@ public final class HppcMapSyntheticBench
 
     private static final int COUNT_ITERATION = (int) 10e6;
 
+    private static final boolean RUN_PRIMITIVES = true;
+
+    private static final boolean RUN_INTEGERS = true;
+
+    private static final boolean RUN_BIG_OBJECTS = true;
+
     public Random prng = new XorShiftRandom();
 
     private long totalSum;
@@ -453,7 +459,7 @@ public final class HppcMapSyntheticBench
 
                 for (int ii = 0; ii < m.allocated.length; ii++)
                 {
-                    if (m.allocated[ii])
+                    if (m.allocated[ii] /* != -1 */)
                     {
                         sumDirect += m.values[ii];
                     }
@@ -1034,41 +1040,52 @@ public final class HppcMapSyntheticBench
             testClass.runMapIterationBench();
             System.gc();
 
-            testClass.runMapSyntheticBenchPrimitives(MAP_LOOKUP_TEST.MOSTLY_TRUE);
-            System.gc();
+            if (HppcMapSyntheticBench.RUN_PRIMITIVES) {
+                System.out.println("\n");
+                testClass.runMapSyntheticBenchPrimitives(MAP_LOOKUP_TEST.MOSTLY_TRUE);
+                System.gc();
+            }
+            if (HppcMapSyntheticBench.RUN_INTEGERS) {
+                System.out.println("\n");
+                testClass.runMapSyntheticBenchIntegers(MAP_LOOKUP_TEST.MOSTLY_TRUE);
+                System.gc();
+            }
+            if (HppcMapSyntheticBench.RUN_BIG_OBJECTS) {
+                System.out.println("\n");
+                testClass.runMapSyntheticBenchObjects(MAP_LOOKUP_TEST.MOSTLY_TRUE);
+                System.gc();
+            }
+            if (HppcMapSyntheticBench.RUN_PRIMITIVES) {
+                System.out.println("\n\n");
+                testClass.runMapSyntheticBenchPrimitives(MAP_LOOKUP_TEST.MIXED);
+                System.gc();
+            }
 
-            testClass.runMapSyntheticBenchPrimitives(MAP_LOOKUP_TEST.MIXED);
-            System.gc();
+            if (HppcMapSyntheticBench.RUN_INTEGERS) {
+                System.out.println("\n");
+                testClass.runMapSyntheticBenchIntegers(MAP_LOOKUP_TEST.MIXED);
+                System.gc();
+            }
 
-            testClass.runMapSyntheticBenchPrimitives(MAP_LOOKUP_TEST.MOSTLY_FALSE);
-            System.gc();
-
-            System.out.println("\n");
-            System.out.println("\n");
-
-            testClass.runMapSyntheticBenchIntegers(MAP_LOOKUP_TEST.MOSTLY_TRUE);
-            System.gc();
-
-            System.out.println("\n");
-            testClass.runMapSyntheticBenchIntegers(MAP_LOOKUP_TEST.MIXED);
-            System.gc();
-
-            System.out.println("\n");
-            testClass.runMapSyntheticBenchIntegers(MAP_LOOKUP_TEST.MOSTLY_FALSE);
-            System.gc();
-
-            System.out.println("\n");
-            System.out.println("\n");
-
-            testClass.runMapSyntheticBenchObjects(MAP_LOOKUP_TEST.MOSTLY_TRUE);
-            System.gc();
-
-            System.out.println("\n");
-            testClass.runMapSyntheticBenchObjects(MAP_LOOKUP_TEST.MIXED);
-            System.gc();
-
-            System.out.println("\n");
-            testClass.runMapSyntheticBenchObjects(MAP_LOOKUP_TEST.MOSTLY_FALSE);
+            if (HppcMapSyntheticBench.RUN_BIG_OBJECTS) {
+                System.out.println("\n");
+                testClass.runMapSyntheticBenchObjects(MAP_LOOKUP_TEST.MIXED);
+                System.gc();
+            }
+            if (HppcMapSyntheticBench.RUN_PRIMITIVES) {
+                System.out.println("\n\n");
+                testClass.runMapSyntheticBenchPrimitives(MAP_LOOKUP_TEST.MOSTLY_FALSE);
+                System.gc();
+            }
+            if (HppcMapSyntheticBench.RUN_INTEGERS) {
+                System.out.println("\n");
+                testClass.runMapSyntheticBenchIntegers(MAP_LOOKUP_TEST.MOSTLY_FALSE);
+                System.gc();
+            }
+            if (HppcMapSyntheticBench.RUN_BIG_OBJECTS) {
+                System.out.println("\n");
+                testClass.runMapSyntheticBenchObjects(MAP_LOOKUP_TEST.MOSTLY_FALSE);
+            }
         }
     }
 }

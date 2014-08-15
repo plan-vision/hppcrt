@@ -27,8 +27,8 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 // ${TemplateOptions.doNotGenerateKType("BOOLEAN")}
 //${TemplateOptions.doNotGenerateVType("BOOLEAN")}
-/*! #set( $ROBIN_HOOD_FOR_PRIMITIVES = false) !*/
-/*! #set( $ROBIN_HOOD_FOR_GENERICS = false) !*/
+/*! #set( $ROBIN_HOOD_FOR_PRIMITIVES = true) !*/
+/*! #set( $ROBIN_HOOD_FOR_GENERICS = true) !*/
 // If RH is defined, RobinHood Hashing is in effect :
 /*! #set( $RH = (($TemplateOptions.KTypeGeneric && $ROBIN_HOOD_FOR_GENERICS) || ($TemplateOptions.KTypeNumeric && $ROBIN_HOOD_FOR_PRIMITIVES)) ) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
