@@ -71,8 +71,8 @@ import com.carrotsearch.hppcrt.procedures.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -597,8 +597,8 @@ public class KTypeOpenHashSet<KType>
             }
 
             if (/*! #if ($RH) !*/
-            allocated[slotCurr] == -1
-            /*! #else
+                    allocated[slotCurr] == -1
+                    /*! #else
             !allocated[slotCurr]
             #end !*/)
             {
@@ -844,7 +844,7 @@ public class KTypeOpenHashSet<KType>
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     allocated[i] == -1
-            /*! #else
+                    /*! #else
             !allocated[i]
             #end  !*/)
             {
@@ -1053,30 +1053,10 @@ public class KTypeOpenHashSet<KType>
     }
 
     /**
-     * DEPRECATED : has now the same effect as calling newInstance().
-     * @deprecated
-     */
-    @Deprecated
-    public static <KType> KTypeOpenHashSet<KType> newInstanceWithoutPerturbations()
-    {
-        return new KTypeOpenHashSet<KType>();
-    }
-
-    /**
      * Returns a new object of this class with no need to declare generic type (shortcut
      * instead of using a constructor).
      */
     public static <KType> KTypeOpenHashSet<KType> newInstanceWithCapacity(final int initialCapacity, final float loadFactor)
-    {
-        return new KTypeOpenHashSet<KType>(initialCapacity, loadFactor);
-    }
-
-    /**
-     * DEPRECATED : has now the same effect as calling newInstanceWithCapacity().
-     * @deprecated
-     */
-    @Deprecated
-    public static <KType> KTypeOpenHashSet<KType> newInstanceWithoutPerturbations(final int initialCapacity, final float loadFactor)
     {
         return new KTypeOpenHashSet<KType>(initialCapacity, loadFactor);
     }

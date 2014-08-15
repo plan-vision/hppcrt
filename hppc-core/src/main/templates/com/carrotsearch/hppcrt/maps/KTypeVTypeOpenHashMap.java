@@ -79,7 +79,7 @@ import com.carrotsearch.hppcrt.procedures.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenHashMap<KType, VType>
-implements KTypeVTypeMap<KType, VType>, Cloneable
+        implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -782,8 +782,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             }
 
             if (/*! #if ($RH) !*/
-                    allocated[slotCurr] == -1
-                    /*! #else
+            allocated[slotCurr] == -1
+            /*! #else
             !allocated[slotCurr]
             #end !*/)
             {
@@ -1216,7 +1216,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     allocated[i] == -1
-            /*! #else
+                    /*! #else
             !allocated[i]
             #end  !*/)
             {
@@ -1336,7 +1336,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      * A view of the keys inside this hash map.
      */
     public final class KeysContainer
-    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenHashMap<KType, VType> owner =
                 KTypeVTypeOpenHashMap.this;
@@ -1518,7 +1518,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     allocated[i] == -1
-            /*! #else
+                    /*! #else
             !allocated[i]
             #end  !*/)
             {
@@ -1586,7 +1586,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             for (int slot = 0; slot < states.length; slot++)
             {
                 if (/*! #if ($RH) !*/
-                        states[slot] != -1
+                states[slot] != -1
                         /*! #else
                         states[slot]
                         #end  !*/
@@ -1612,8 +1612,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             for (int slot = 0; slot < states.length; slot++)
             {
                 if (/*! #if ($RH) !*/
-                        states[slot] != -1
-                        /*! #else
+                states[slot] != -1
+                /*! #else
                 states[slot]
                 #end  !*/) {
                     procedure.apply(values[slot]);
@@ -1637,8 +1637,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             for (int slot = 0; slot < states.length; slot++)
             {
                 if (/*! #if ($RH) !*/
-                        states[slot] != -1
-                        /*! #else
+                states[slot] != -1
+                /*! #else
                 states[slot]
                 #end  !*/)
                 {
@@ -1811,7 +1811,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     allocated[i] == -1
-            /*! #else
+                    /*! #else
             !allocated[i]
             #end  !*/)
             {
@@ -1905,30 +1905,10 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     }
 
     /**
-     * DEPRECATED : has now the same effect as calling newInstance().
-     * @deprecated
-     */
-    @Deprecated
-    public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> newInstanceWithoutPerturbations()
-    {
-        return new KTypeVTypeOpenHashMap<KType, VType>();
-    }
-
-    /**
      * Create a new hash map with initial capacity and load factor control. (constructor
      * shortcut).
      */
     public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> newInstance(final int initialCapacity, final float loadFactor)
-    {
-        return new KTypeVTypeOpenHashMap<KType, VType>(initialCapacity, loadFactor);
-    }
-
-    /**
-     * DEPRECATED : has now the same effect as calling newInstance(final int initialCapacity, final float loadFactor).
-     * @deprecated
-     */
-    @Deprecated
-    public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> newInstanceWithoutPerturbations(final int initialCapacity, final float loadFactor)
     {
         return new KTypeVTypeOpenHashMap<KType, VType>(initialCapacity, loadFactor);
     }

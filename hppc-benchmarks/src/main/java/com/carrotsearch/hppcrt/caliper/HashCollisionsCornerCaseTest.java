@@ -31,11 +31,6 @@ public class HashCollisionsCornerCaseTest extends SimpleBenchmark
         RANDOM, LINEAR, LINEAR_DECREMENT, HIGHBITS;
     }
 
-    public enum Perturbation
-    {
-        NOT_PERTURBED, PERTURBED;
-    }
-
     public enum Allocation
     {
         DEFAULT_SIZE, PREALLOCATED;
@@ -43,9 +38,6 @@ public class HashCollisionsCornerCaseTest extends SimpleBenchmark
 
     @Param
     public Allocation allocation;
-
-    @Param
-    public Perturbation perturbation;
 
     @Param
     public Distribution distribution;
@@ -96,38 +88,19 @@ public class HashCollisionsCornerCaseTest extends SimpleBenchmark
         }
 
         //Preallocate of not the tested hash containers
-        if (perturbation == Perturbation.PERTURBED) {
+        if (allocation == Allocation.DEFAULT_SIZE) {
 
-            if (allocation == Allocation.DEFAULT_SIZE) {
-
-                currentUnderTestSet = IntOpenHashSet.newInstance();
-                currentUnderTestSet2 = IntOpenHashSet.newInstance();
-                currentUnderTestMap = IntIntOpenHashMap.newInstance();
-                currentUnderTestMap2 = IntIntOpenHashMap.newInstance();
-            }
-            else if (allocation == Allocation.PREALLOCATED) {
-
-                currentUnderTestSet = IntOpenHashSet.newInstanceWithCapacity(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
-                currentUnderTestSet2 = IntOpenHashSet.newInstanceWithCapacity(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
-                currentUnderTestMap = IntIntOpenHashMap.newInstance(this.size, IntIntOpenHashMap.DEFAULT_LOAD_FACTOR);
-                currentUnderTestMap2 = IntIntOpenHashMap.newInstance(this.size, IntIntOpenHashMap.DEFAULT_LOAD_FACTOR);
-            }
+            currentUnderTestSet = IntOpenHashSet.newInstance();
+            currentUnderTestSet2 = IntOpenHashSet.newInstance();
+            currentUnderTestMap = IntIntOpenHashMap.newInstance();
+            currentUnderTestMap2 = IntIntOpenHashMap.newInstance();
         }
-        else if (perturbation == Perturbation.NOT_PERTURBED) {
+        else if (allocation == Allocation.PREALLOCATED) {
 
-            if (allocation == Allocation.DEFAULT_SIZE) {
-
-                currentUnderTestSet = IntOpenHashSet.newInstanceWithoutPerturbations();
-                currentUnderTestSet2 = IntOpenHashSet.newInstanceWithoutPerturbations();
-                currentUnderTestMap = IntIntOpenHashMap.newInstanceWithoutPerturbations(IntIntOpenHashMap.DEFAULT_CAPACITY, IntIntOpenHashMap.DEFAULT_LOAD_FACTOR);
-                currentUnderTestMap2 = IntIntOpenHashMap.newInstanceWithoutPerturbations(IntIntOpenHashMap.DEFAULT_CAPACITY, IntIntOpenHashMap.DEFAULT_LOAD_FACTOR);
-            }
-            else if (allocation == Allocation.PREALLOCATED) {
-                currentUnderTestSet = IntOpenHashSet.newInstanceWithoutPerturbations(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
-                currentUnderTestSet2 = IntOpenHashSet.newInstanceWithoutPerturbations(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
-                currentUnderTestMap = IntIntOpenHashMap.newInstanceWithoutPerturbations(this.size, IntIntOpenHashMap.DEFAULT_LOAD_FACTOR);
-                currentUnderTestMap2 = IntIntOpenHashMap.newInstanceWithoutPerturbations(this.size, IntIntOpenHashMap.DEFAULT_LOAD_FACTOR);
-            }
+            currentUnderTestSet = IntOpenHashSet.newInstanceWithCapacity(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
+            currentUnderTestSet2 = IntOpenHashSet.newInstanceWithCapacity(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
+            currentUnderTestMap = IntIntOpenHashMap.newInstance(this.size, IntIntOpenHashMap.DEFAULT_LOAD_FACTOR);
+            currentUnderTestMap2 = IntIntOpenHashMap.newInstance(this.size, IntIntOpenHashMap.DEFAULT_LOAD_FACTOR);
         }
     }
 

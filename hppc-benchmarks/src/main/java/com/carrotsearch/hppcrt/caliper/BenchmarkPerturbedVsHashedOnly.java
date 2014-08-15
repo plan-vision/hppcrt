@@ -15,19 +15,11 @@ import com.google.caliper.SimpleBenchmark;
  */
 public class BenchmarkPerturbedVsHashedOnly extends SimpleBenchmark
 {
-    public enum Perturbation
-    {
-        NOT_PERTURBED, PERTURBED;
-    }
-
     @Param(
-            {
-            "3000000"
-            })
+    {
+                "3000000"
+    })
     public int size;
-
-    @Param
-    public Perturbation perturbation;
 
     public enum Distribution
     {
@@ -47,19 +39,8 @@ public class BenchmarkPerturbedVsHashedOnly extends SimpleBenchmark
     {
         final DistributionGenerator gene = new DistributionGenerator(this.size, new XorShiftRandom(0x11223344));
 
-        switch (this.perturbation)
-        {
-            case NOT_PERTURBED:
-                // Our tested implementation, uses preallocation
-                this.impl = IntOpenHashSet.newInstanceWithoutPerturbations(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
-                break;
-            case PERTURBED:
-                // Our tested implementation, uses preallocation
-                this.impl = IntOpenHashSet.newInstanceWithCapacity(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
-                break;
-            default:
-                throw new RuntimeException();
-        }
+        // Our tested implementation, uses preallocation
+        this.impl = IntOpenHashSet.newInstanceWithCapacity(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
 
         switch (this.distribution)
         {

@@ -23,21 +23,6 @@ public enum Implementations
         }
     },
 
-    HPPC_NOPERTURBS
-    {
-        @Override
-        public MapImplementation<?> getInstance()
-        {
-            return new HppcMap(IntIntOpenHashMap.newInstanceWithoutPerturbations());
-        }
-
-        @Override
-        public MapImplementation<?> getInstance(final int size)
-        {
-            return new HppcMap(IntIntOpenHashMap.newInstanceWithoutPerturbations(size, IntIntOpenCustomHashMap.DEFAULT_LOAD_FACTOR));
-        }
-    },
-
     HPPC_STRATEGY
     {
         @Override
