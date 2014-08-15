@@ -4,24 +4,25 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.carrotsearch</groupId>
-    <artifactId>hppc-parent</artifactId>
-    <version>RT-0.7.0-SNAPSHOT</version>
+    <groupId>vsonnier</groupId>
+    <artifactId>hppcrt-parent</artifactId>
+    <version>0.6.5</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <!-- Project info. -->
-  <groupId>com.carrotsearch</groupId>
-  <artifactId>hppc</artifactId>
-  <version>RT-0.7.0-SNAPSHOT</version>
+  <groupId>vsonnier</groupId>
+  <artifactId>hppcrt</artifactId>
+  <version>0.6.5</version>
   <packaging>jar</packaging>
 
   <name>HPPC-RT Collections</name>
-  <description>High Performance Primitive Collections. &quot;Realtime&quot;
+  <description>High Performance Primitive Collections Realtime
  (fork of HPPC of Carrotsearch)
   Fundamental data structures (maps, sets, lists, stacks, queues, heaps, sorts) generated for
   combinations of object and primitive types to conserve JVM memory and speed
-  up execution. The Realtime fork intend of extending collections while tweaking optimization to remove any dynamic allocations at runtime.
+  up execution. The Realtime fork intend of extending collections while tweaking and optimizations to remove any dynamic allocations at runtime,
+  and low variance execution times. 
 </description>
   
   <!-- Dependencies. -->
@@ -152,8 +153,8 @@
 
         <dependencies>
           <dependency>
-            <groupId>com.carrotsearch</groupId>
-            <artifactId>hppc-templateprocessor</artifactId>
+            <groupId>vsonnier</groupId>
+            <artifactId>hppcrt-templateprocessor</artifactId>
             <version>${project.version}</version>
           </dependency>
           
@@ -429,15 +430,15 @@
                   <encoding>${project.build.sourceEncoding}</encoding>
                   <docfilessubdirs>true</docfilessubdirs>
                   <windowtitle>HPPC-RT v${project.version} API Documentation (JavaDoc)</windowtitle>
-                  <doctitle>HPPC v${project.version} API Documentation</doctitle>
-                  <header><![CDATA[<div id='header'><a class='logo' target='_top' href='http://labs.carrotsearch.com'></a>High Performance Primitive Collections (HPPC) v${project.version} <br>API Documentation</div>]]></header>
-                  <overview>${basedir}/src/main/java/com/carrotsearch/hppc/overview.html</overview>
+                  <doctitle>HPPC-RT v${project.version} API Documentation</doctitle>
+                  <header><![CDATA[<div id='header'><a class='logo' target='_top' href='https://github.com/vsonnier/hppc'></a>High Performance Primitive Collections Realtime (HPPC-RT) v${project.version} <br>API Documentation</div>]]></header>
+                  <overview>${basedir}/src/main/java/com/carrotsearch/hppcrt/overview.html</overview>
                   <failonerror>true</failonerror>
                   <use>false</use>
                   <groups>
                     <group>
                       <title>HPPC-RT</title>
-                      <packages>com.carrotsearch.hppc*</packages>
+                      <packages>com.carrotsearch.hppcrt*</packages>
                     </group>
                   </groups>
                 </configuration>

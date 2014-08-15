@@ -3,16 +3,16 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.carrotsearch</groupId>
-    <artifactId>hppc-parent</artifactId>
-    <version>RT-0.7.0-SNAPSHOT</version>
+    <groupId>vsonnier</groupId>
+    <artifactId>hppcrt-parent</artifactId>
+    <version>0.6.5</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <!-- Project info. -->
-  <groupId>com.carrotsearch</groupId>
-  <artifactId>hppc-benchmarks</artifactId>
-  <version>RT-0.7.0-SNAPSHOT</version>
+  <groupId>vsonnier</groupId>
+  <artifactId>hppcrt-benchmarks</artifactId>
+  <version>0.6.5</version>
   <packaging>jar</packaging>
 
   <name>HPPC-RT Benchmarks</name>
@@ -26,8 +26,8 @@
   <!-- Dependencies. -->
   <dependencies>
     <dependency>
-      <groupId>com.carrotsearch</groupId>
-      <artifactId>hppc</artifactId>
+      <groupId>vsonnier</groupId>
+      <artifactId>hppcrt</artifactId>
       <version>${project.version}</version>
     </dependency>
 

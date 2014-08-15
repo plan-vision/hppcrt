@@ -4,12 +4,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <!-- Project info. -->
-  <groupId>com.carrotsearch</groupId>
-  <artifactId>hppc-tests-jdk15</artifactId>
-  <version>RT-0.7.0-SNAPSHOT</version>
+  <groupId>vsonnier</groupId>
+  <artifactId>hppcrt-tests-jdk15</artifactId>
+  <version>0.6.5</version>
   <packaging>jar</packaging>
 
-  <name>HPPC JDK15 Tests</name>
+  <name>HPPC-RT JDK15 Tests</name>
   <description>Ensures JDK15 backport is functional.</description>
 
   <!-- Global properties. -->
@@ -22,9 +22,9 @@
   <!-- Dependencies. -->
   <dependencies>
     <dependency>
-      <groupId>com.carrotsearch</groupId>
-      <artifactId>hppc</artifactId>
-      <version>RT-0.7.0-SNAPSHOT</version>
+      <groupId>vsonnier</groupId>
+      <artifactId>hppcrt</artifactId>
+      <version>0.6.5</version>
       <classifier>jdk15</classifier>
     </dependency>
     

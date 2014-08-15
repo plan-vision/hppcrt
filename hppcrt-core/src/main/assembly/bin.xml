@@ -16,6 +16,7 @@
       <outputDirectory />
       <includes>
         <include>LICENSE</include>
+        <include>AUTHORS</include>
         <include>README</include>
         <include>CHANGES</include>
       </includes>

@@ -3,20 +3,20 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.carrotsearch</groupId>
-    <artifactId>hppc-parent</artifactId>
-    <version>RT-0.7.0-SNAPSHOT</version>
+    <groupId>vsonnier</groupId>
+    <artifactId>hppcrt-parent</artifactId>
+    <version>0.6.5</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <!-- Project info. -->
-  <groupId>com.carrotsearch</groupId>
-  <artifactId>hppc-examples</artifactId>
-  <version>RT-0.7.0-SNAPSHOT</version>
+  <groupId>vsonnier</groupId>
+  <artifactId>hppcrt-examples</artifactId>
+  <version>0.6.5</version>
   <packaging>jar</packaging>
 
-  <name>HPPC Examples</name>
-  <description>Examples and use patterns of High Performance Primitive Collections (HPPC).</description>
+  <name>HPPC-RT Examples</name>
+  <description>Examples and use patterns of High Performance Primitive Collections Realtime.</description>
 
   <properties>
     <skip.deployment>true</skip.deployment>
@@ -25,8 +25,8 @@
   <!-- Dependencies. -->
   <dependencies>
     <dependency>
-      <groupId>com.carrotsearch</groupId>
-      <artifactId>hppc</artifactId>
+      <groupId>vsonnier</groupId>
+      <artifactId>hppcrt</artifactId>
       <version>${project.version}</version>
     </dependency>
 

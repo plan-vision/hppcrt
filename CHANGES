@@ -1,3 +1,33 @@
+[0.6.5]
+** API-breaking changes
+
+HPPCRT-20: Repackaging into com.carootsearch.hppcrt.lists|sets|maps|heaps
+
+HPPCRT-18: Remove Perturbation methods in Hashs and replace with reverse iterationPerturbation vs. Non-perturbations Hash methods are removed, no longer needed.
+
+** Bug fixes
+
+HPPCRT-13 : Heaps equals() errors and various other equals() inconsistencies bug enhancement medium prio
+  
+HPPCRT-11 : Iterators states are inconsistent 
+
+HPPCRT-10: Heaps removeAll(Predicate) is not exception - safe
+
+HPPCRT-6: Stack use ArrayList.sort() method for sorting, which leads to counterintuitive sort 
+
+HPPCRT-1 : initial constructor sizes of some containers do not garantee zero reallocations
+
+** New features
+
+HPPCRT-17: Robin Hood Hashing for Object and CustomHash containers
+
+HPPCRT-14: Add a forEach(KTypeVTypePredicate) for the KTypeVTypeAssociativeContainer
+
+HPPCRT-12 : Make ArrayDeque a KTypeIndexedContainer
+
+** Changes in functionality
+
+HPPCRT-19: Drop hash startegies from OpenHash implementations, and replace it with dedicated CustomHash classes
 
 [0.6.0]
 http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=11820

@@ -41,8 +41,8 @@ import com.carrotsearch.hppcrt.strategies.*;
  *  in insertion and search-related operations, for an all-around smother operation at the cost
  *  of smaller peak performance:</p>
  *  <p> - Pedro Celis (1986) for the original Robin-Hood hashing paper, </p>
- *  <p> - <a href="https://github.com/moonpolysoft">MoonPolySoft/Cliff Moon</a> for the initial Robin-hood on HPPC implementation,</p>
- *  <p> - <a href="https://github.com/vsonnier" >Vincent Sonnier</a> for the present implementation using cached hashes.</p>
+ *  <p> - <a href="cliff@leaninto.it">MoonPolySoft/Cliff Moon</a> for the initial Robin-hood on HPPC implementation,</p>
+ *  <p> - <a href="vsonnier@gmail.com" >Vincent Sonnier</a> for the present implementation using cached hashes.</p>
 #end
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/

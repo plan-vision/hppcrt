@@ -6,7 +6,7 @@
   clover separately here.
   -->
 
-<project name="hppc-clover" default="test" basedir="../../">
+<project name="hppcrt-clover" default="test" basedir="../../">
 
 	<!-- Compilation presets. -->
 	<presetdef name="javac">
@@ -82,12 +82,12 @@
 		</junit>
 
 		<clover-report>
-			<current outfile="${coverage.report.dir}" title="HPPC Coverage Report ${version}">
+			<current outfile="${coverage.report.dir}" title="HPPC-RT Coverage Report ${version}">
 				<format type="html" />
 			</current>
 		</clover-report>
 		<clover-report>
-			<current outfile="${coverage.report.dir}/coverage.xml" title="HPPC Coverage Report ${version}">
+			<current outfile="${coverage.report.dir}/coverage.xml" title="HPPC-RT Coverage Report ${version}">
 				<format type="xml" />
 			</current>
 		</clover-report>

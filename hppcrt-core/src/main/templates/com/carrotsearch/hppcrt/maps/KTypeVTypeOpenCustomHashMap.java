@@ -18,7 +18,7 @@ import com.carrotsearch.hppcrt.strategies.*;
  * A hash map of <code>KType</code> to <code>VType</code>, implemented using open
  * addressing with linear probing for collision resolution.
  *
- * The difference with {@link KTypeOpenHashSet} is that it uses a
+ * The difference with {@link KTypeVTypeOpenHashMap} is that it uses a
  * {@link KTypeHashingStrategy} to compare objects externally instead of using
  * the built-in hashCode() /  equals(). In particular, the management of <code>null</code>
  * keys is up to the {@link KTypeHashingStrategy} implementation.
@@ -40,8 +40,8 @@ import com.carrotsearch.hppcrt.strategies.*;
  *  in insertion and search-related operations, for an all-around smother operation at the cost
  *  of smaller peak performance:</p>
  *  <p> - Pedro Celis (1986) for the original Robin-Hood hashing paper, </p>
- *  <p> - <a href="https://github.com/moonpolysoft">MoonPolySoft/Cliff Moon</a> for the initial Robin-hood on HPPC implementation,</p>
- *  <p> - <a href="https://github.com/vsonnier" >Vincent Sonnier</a> for the present implementation using cached hashes.</p>
+ *  <p> - <a href="cliff@leaninto.it">MoonPolySoft/Cliff Moon</a> for the initial Robin-hood on HPPC implementation,</p>
+ *  <p> - <a href="vsonnier@gmail.com" >Vincent Sonnier</a> for the present implementation using cached hashes.</p>
 #end
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/

@@ -3,16 +3,16 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.carrotsearch</groupId>
-    <artifactId>hppc-parent</artifactId>
-    <version>RT-0.7.0-SNAPSHOT</version>
+    <groupId>vsonnier</groupId>
+    <artifactId>hppcrt-parent</artifactId>
+    <version>0.6.5</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <!-- Project info. -->
-  <groupId>com.carrotsearch</groupId>
-  <artifactId>hppc-templateprocessor</artifactId>
-  <version>RT-0.7.0-SNAPSHOT</version>
+  <groupId>vsonnier</groupId>
+  <artifactId>hppcrt-templateprocessor</artifactId>
+  <version>0.6.5</version>
   <packaging>jar</packaging>
 
   <name>HPPC-RT Template Processor</name>

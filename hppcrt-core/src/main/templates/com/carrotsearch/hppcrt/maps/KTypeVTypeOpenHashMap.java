@@ -73,13 +73,13 @@ import com.carrotsearch.hppcrt.procedures.*;
  *  in insertion and search-related operations, for an all-around smother operation at the cost
  *  of smaller peak performance:</p>
  *  <p> - Pedro Celis (1986) for the original Robin-Hood hashing paper, </p>
- *  <p> - <a href="https://github.com/moonpolysoft">MoonPolySoft/Cliff Moon</a> for the initial Robin-hood on HPPC implementation,</p>
- *  <p> - <a href="https://github.com/vsonnier" >Vincent Sonnier</a> for the present implementation using cached hashes.</p>
+ *  <p> - <a href="cliff@leaninto.it">MoonPolySoft/Cliff Moon</a> for the initial Robin-hood on HPPC implementation,</p>
+ *  <p> - <a href="vsonnier@gmail.com" >Vincent Sonnier</a> for the present implementation using cached hashes.</p>
 #end
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -782,8 +782,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             }
 
             if (/*! #if ($RH) !*/
-            allocated[slotCurr] == -1
-            /*! #else
+                    allocated[slotCurr] == -1
+                    /*! #else
             !allocated[slotCurr]
             #end !*/)
             {
@@ -1216,7 +1216,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     allocated[i] == -1
-                    /*! #else
+            /*! #else
             !allocated[i]
             #end  !*/)
             {
@@ -1336,7 +1336,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * A view of the keys inside this hash map.
      */
     public final class KeysContainer
-            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenHashMap<KType, VType> owner =
                 KTypeVTypeOpenHashMap.this;
@@ -1518,7 +1518,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     allocated[i] == -1
-                    /*! #else
+            /*! #else
             !allocated[i]
             #end  !*/)
             {
@@ -1586,7 +1586,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             for (int slot = 0; slot < states.length; slot++)
             {
                 if (/*! #if ($RH) !*/
-                states[slot] != -1
+                        states[slot] != -1
                         /*! #else
                         states[slot]
                         #end  !*/
@@ -1612,8 +1612,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             for (int slot = 0; slot < states.length; slot++)
             {
                 if (/*! #if ($RH) !*/
-                states[slot] != -1
-                /*! #else
+                        states[slot] != -1
+                        /*! #else
                 states[slot]
                 #end  !*/) {
                     procedure.apply(values[slot]);
@@ -1637,8 +1637,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             for (int slot = 0; slot < states.length; slot++)
             {
                 if (/*! #if ($RH) !*/
-                states[slot] != -1
-                /*! #else
+                        states[slot] != -1
+                        /*! #else
                 states[slot]
                 #end  !*/)
                 {
@@ -1811,7 +1811,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     allocated[i] == -1
-                    /*! #else
+            /*! #else
             !allocated[i]
             #end  !*/)
             {
