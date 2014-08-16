@@ -37,10 +37,10 @@ especially noticable for big container sizes.
 
 11.  Boolean versions of containers when it makes sense: lists, queues, stacks, values of Maps.
 
-Various other performance and API tweaks....
+and some small other performance and API tweaks....
 
 All these new features are Unit tested, so should work reasonably well.
-Pre-built binaries, sources and Javadoc are provided in the 'hppc/binaries' for convenience.
+Pre-built binaries, (including both Java 1.5 and Java 1.6 ones) sources and Javadoc are provided in the 'hppc/binaries' for convenience.
 
 Stable version is in the '0.6.5x-RT-release' branch,
 current developpement version is in '0.7x-RT' branch.
