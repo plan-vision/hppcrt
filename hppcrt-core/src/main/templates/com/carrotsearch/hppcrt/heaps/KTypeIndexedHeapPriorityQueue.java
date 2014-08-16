@@ -22,7 +22,7 @@ import com.carrotsearch.hppcrt.sorting.*;
 /*! #set( $DEBUG = false) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType>
-        implements KTypeIndexedPriorityQueue<KType>, Cloneable
+implements KTypeIndexedPriorityQueue<KType>, Cloneable
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -32,9 +32,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
     /**
      * Internal array for storing the priority queue
      * The array may be larger than the current size
-     * ({@link #size()}).
      * <p>
-     * Direct indexed priority queue iteration: iterate pq[i] for i in [0; size()[ (included)
+     * Direct indexed priority queue iteration: iterate pq[i] for i in [0; pq.length[
      * and buffer[pq[i]] to get value where pq[i] > 0
      * </p>
      */
@@ -42,10 +41,9 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
 
     /**
      * Internal array for storing index to buffer position matching
-     * ({@link #size()}).
      * i.e for an index i, pq[i] is the position of element in priority queue buffer.
      * <p>
-     * Direct iteration: iterate pq[i] for indices i in [0; size()[
+     * Direct iteration: iterate pq[i] for indices i in [0; pq.length[
      * where pq[i] > 0, then buffer[pq[i]] is the value associated with index i.
      * </p>
      */
@@ -53,7 +51,6 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
 
     /**
      * Internal array pq inversing :
-     * ({@link #size()}).
      * i.e for a priority buffer position pos, qp[pos] is the index of the value.,
      * ie qp[pq|i]] = i
      */
@@ -151,7 +148,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
      * @see BoundedProportionalArraySizingStrategy
      */
     public KTypeIndexedHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp
-    /*! #else
+            /*! #else
     KTypeComparator<? super KType> comp
     #end !*/)
     {
@@ -1064,22 +1061,22 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
             //swap k and its parent
             parent = k >> 1;
 
-            //swap k and parent
-            tmp = buffer[k];
-            buffer[k] = buffer[parent];
-            buffer[parent] = tmp;
+        //swap k and parent
+        tmp = buffer[k];
+        buffer[k] = buffer[parent];
+        buffer[parent] = tmp;
 
-            //swap references
-            indexK = qp[k];
-            indexParent = qp[parent];
+        //swap references
+        indexK = qp[k];
+        indexParent = qp[parent];
 
-            pq[indexK] = parent;
-            pq[indexParent] = k;
+        pq[indexK] = parent;
+        pq[indexParent] = k;
 
-            qp[k] = indexParent;
-            qp[parent] = indexK;
+        qp[k] = indexParent;
+        qp[parent] = indexK;
 
-            k = parent;
+        k = parent;
         }
     }
 
@@ -1108,22 +1105,22 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
             //swap k and its parent
             parent = k >> 1;
 
-            //swap k and parent
-            tmp = buffer[k];
-            buffer[k] = buffer[parent];
-            buffer[parent] = tmp;
+        //swap k and parent
+        tmp = buffer[k];
+        buffer[k] = buffer[parent];
+        buffer[parent] = tmp;
 
-            //swap references
-            indexK = qp[k];
-            indexParent = qp[parent];
+        //swap references
+        indexK = qp[k];
+        indexParent = qp[parent];
 
-            pq[indexK] = parent;
-            pq[indexParent] = k;
+        pq[indexK] = parent;
+        pq[indexParent] = k;
 
-            qp[k] = indexParent;
-            qp[parent] = indexK;
+        qp[k] = indexParent;
+        qp[parent] = indexK;
 
-            k = parent;
+        k = parent;
         }
     }
 
