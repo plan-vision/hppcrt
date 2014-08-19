@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <!-- Project info. -->
-  <groupId>vsonnier</groupId>
+  <groupId>com.github.vsonnier</groupId>
   <artifactId>hppcrt-tests-jdk15</artifactId>
   <version>0.6.5</version>
   <packaging>jar</packaging>
@@ -22,7 +22,7 @@
   <!-- Dependencies. -->
   <dependencies>
     <dependency>
-      <groupId>vsonnier</groupId>
+      <groupId>com.github.vsonnier</groupId>
       <artifactId>hppcrt</artifactId>
       <version>0.6.5</version>
       <classifier>jdk15</classifier>

@@ -10,7 +10,7 @@
   </parent>
 
   <!-- Project info. -->
-  <groupId>vsonnier</groupId>
+  <groupId>com.github.vsonnier</groupId>
   <artifactId>hppcrt-parent</artifactId>
   <version>0.6.5</version>
   <packaging>pom</packaging>
