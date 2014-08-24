@@ -19,27 +19,27 @@ public abstract class AbstractKTypeCollection<KType> implements KTypeCollection<
     protected KTypePredicate<KType> containsTestPredicate = new KTypePredicate<KType>() {
 
         @Override
-        public boolean apply(final KType k)
+        public final boolean apply(final KType k)
         {
-            return testContainer.contains(k);
+            return AbstractKTypeCollection.this.testContainer.contains(k);
         }
     };
 
     protected KTypePredicate<KType> containsNegateTestPredicate = new KTypePredicate<KType>() {
 
         @Override
-        public boolean apply(final KType k)
+        public final boolean apply(final KType k)
         {
-            return !testContainer.contains(k);
+            return !AbstractKTypeCollection.this.testContainer.contains(k);
         }
     };
 
     protected KTypePredicate<KType> negatePredicate = new KTypePredicate<KType>() {
 
         @Override
-        public boolean apply(final KType k)
+        public final boolean apply(final KType k)
         {
-            return !testPredicate.apply(k);
+            return !AbstractKTypeCollection.this.testPredicate.apply(k);
         }
     };
 
@@ -153,7 +153,7 @@ public abstract class AbstractKTypeCollection<KType> implements KTypeCollection<
      */
     public KType getDefaultValue()
     {
-        return defaultValue;
+        return this.defaultValue;
     }
 
     /**

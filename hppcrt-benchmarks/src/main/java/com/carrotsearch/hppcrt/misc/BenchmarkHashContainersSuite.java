@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.carrotsearch.hppcrt.Util;
 import com.carrotsearch.hppcrt.caliper.BenchmarkContainsWithRemoved;
-import com.carrotsearch.hppcrt.caliper.BenchmarkPerturbedVsHashedOnly;
 import com.carrotsearch.hppcrt.caliper.BenchmarkPut;
 import com.carrotsearch.hppcrt.caliper.HashCollisionsCornerCaseTest;
 import com.google.caliper.Benchmark;
@@ -20,7 +19,6 @@ public class BenchmarkHashContainersSuite
 {
     private final static Class<?>[] ALL_BENCHMARKS = new Class[]
     {
-            BenchmarkPerturbedVsHashedOnly.class,
             HashCollisionsCornerCaseTest.class, BenchmarkPut.class, BenchmarkContainsWithRemoved.class,
             HppcMapSyntheticBench.class
     };

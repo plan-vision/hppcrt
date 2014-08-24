@@ -71,8 +71,8 @@ import com.carrotsearch.hppcrt.procedures.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenHashSet<KType>
-extends AbstractKTypeCollection<KType>
-implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+        extends AbstractKTypeCollection<KType>
+        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -104,6 +104,9 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      * <p>
      * Direct set iteration: iterate keys[i] for i in [0; keys.length[ where this.allocated[i] is true.
      * </p>
+     * 
+     * <p><b>Direct iteration warning: </b>
+     * If the iteration goal is to fill another hash container, please iterate {@link #keys} in reverse to prevent performance losses.
      * @see #allocated
      */
     public KType[] keys;
@@ -211,9 +214,9 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     @Override
     public boolean add(KType e)
     {
-        assert assigned < allocated.length;
+        assert this.assigned < this.allocated.length;
 
-        final int mask = allocated.length - 1;
+        final int mask = this.allocated.length - 1;
 
         int slot = Internals.rehash(e) & mask;
 
@@ -273,12 +276,12 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         // Check if we need to grow. If so, reallocate new data,
         // fill in the last element and rehash.
-        if (assigned == resizeAt) {
+        if (this.assigned == this.resizeAt) {
 
             expandAndAdd(e, slot);
         }
         else {
-            assigned++;
+            this.assigned++;
             /*! #if ($RH) !*/
             allocated[slot] = initial_slot;
             /*! #else
@@ -361,10 +364,10 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      */
     private void expandAndAdd(final KType pendingKey, final int freeSlot)
     {
-        assert assigned == resizeAt;
+        assert this.assigned == this.resizeAt;
 
         /*! #if ($RH) !*/
-        assert allocated[freeSlot] == -1;
+        assert this.allocated[freeSlot] == -1;
         /*! #else
         assert !allocated[freeSlot];
          #end !*/
@@ -379,12 +382,12 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         final boolean[] oldAllocated = this.allocated;
         #end !*/
 
-        allocateBuffers(HashContainerUtils.nextCapacity(keys.length));
+        allocateBuffers(HashContainerUtils.nextCapacity(this.keys.length));
 
         // We have succeeded at allocating new data so insert the pending key/value at
         // the free slot in the old arrays before rehashing.
-        lastSlot = -1;
-        assigned++;
+        this.lastSlot = -1;
+        this.assigned++;
 
         //We don't care of the oldAllocated value, so long it means "allocated = true", since the whole set is rebuilt from scratch.
         /*! #if ($RH) !*/
@@ -506,7 +509,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         //allocate so that there is at least one slot that remains allocated = false
         //this is compulsory to guarantee proper stop in searching loops
-        this.resizeAt = Math.max(3, (int) (capacity * loadFactor)) - 2;
+        this.resizeAt = Math.max(3, (int) (capacity * this.loadFactor)) - 2;
     }
 
     /**
@@ -523,7 +526,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      */
     public boolean remove(final KType key)
     {
-        final int mask = allocated.length - 1;
+        final int mask = this.allocated.length - 1;
 
         int slot = Internals.rehash(key) & mask;
 
@@ -564,7 +567,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     protected void shiftConflictingKeys(int slotCurr)
     {
         // Copied nearly verbatim from fastutil's impl.
-        final int mask = allocated.length - 1;
+        final int mask = this.allocated.length - 1;
         int slotPrev, slotOther;
 
         final KType[] keys = this.keys;
@@ -607,8 +610,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
             }
 
             if (/*! #if ($RH) !*/
-                    allocated[slotCurr] == -1
-                    /*! #else
+            allocated[slotCurr] == -1
+            /*! #else
             !allocated[slotCurr]
             #end !*/)
             {
@@ -650,15 +653,15 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      */
     public KType lkey()
     {
-        assert lastSlot >= 0 : "Call contains() first.";
+        assert this.lastSlot >= 0 : "Call contains() first.";
 
         /*! #if ($RH) !*/
-        assert allocated[lastSlot] != -1 : "Last call to exists did not have any associated value.";
+        assert this.allocated[this.lastSlot] != -1 : "Last call to exists did not have any associated value.";
         /*! #else
          assert allocated[lastSlot] : "Last call to exists did not have any associated value.";
         #end !*/
 
-        return keys[lastSlot];
+        return this.keys[this.lastSlot];
     }
 
     /**
@@ -669,8 +672,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      */
     public int lslot()
     {
-        assert lastSlot >= 0 : "Call contains() first.";
-        return lastSlot;
+        assert this.lastSlot >= 0 : "Call contains() first.";
+        return this.lastSlot;
     }
 
     /**
@@ -686,7 +689,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     @Override
     public boolean contains(final KType key)
     {
-        final int mask = allocated.length - 1;
+        final int mask = this.allocated.length - 1;
 
         int slot = Internals.rehash(key) & mask;
 
@@ -733,14 +736,14 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         // States are always cleared.
         /*! #if ($RH) !*/
-        Internals.blankIntArrayMinusOne(allocated, 0, allocated.length);
+        Internals.blankIntArrayMinusOne(this.allocated, 0, this.allocated.length);
         /*! #else
          Internals.blankBooleanArray(allocated, 0, allocated.length);
         #end !*/
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         //Faster than Arrays.fill(keys, null); // Help the GC.
-        Internals.blankObjectArray(keys, 0, keys.length);
+        Internals.blankObjectArray(this.keys, 0, this.keys.length);
         /*! #end !*/
     }
 
@@ -750,7 +753,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     @Override
     public int size()
     {
-        return assigned;
+        return this.assigned;
     }
 
     /**
@@ -759,7 +762,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     @Override
     public int capacity() {
 
-        return resizeAt - 1;
+        return this.resizeAt - 1;
     }
 
     /**
@@ -838,8 +841,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         public EntryIterator()
         {
-            cursor = new KTypeCursor<KType>();
-            cursor.index = -2;
+            this.cursor = new KTypeCursor<KType>();
+            this.cursor.index = -2;
         }
 
         /**
@@ -849,12 +852,12 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         @Override
         protected KTypeCursor<KType> fetch()
         {
-            int i = cursor.index - 1;
+            int i = this.cursor.index - 1;
 
             while (i >= 0 &&
                     /*! #if ($RH) !*/
-                    allocated[i] == -1
-                    /*! #else
+                    KTypeOpenHashSet.this.allocated[i] == -1
+            /*! #else
             !allocated[i]
             #end  !*/)
             {
@@ -864,9 +867,9 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
             if (i == -1)
                 return done();
 
-            cursor.index = i;
-            cursor.value = keys[i];
-            return cursor;
+            this.cursor.index = i;
+            this.cursor.value = KTypeOpenHashSet.this.keys[i];
+            return this.cursor;
         }
     }
 
@@ -884,7 +887,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
                 @Override
                 public void initialize(final EntryIterator obj) {
-                    obj.cursor.index = keys.length;
+                    obj.cursor.index = KTypeOpenHashSet.this.keys.length;
                 }
 
                 @Override
@@ -919,7 +922,9 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         final boolean[] states = this.allocated;
         #end !*/
 
-        for (int i = 0; i < states.length; i++)
+        //Iterate in reverse for side-stepping the longest conflict chain
+        //in another hash, in case apply() is actually used to fill another hash container.
+        for (int i = states.length - 1; i >= 0; i--)
         {
             if (states[i] /*! #if ($RH) !*/!= -1 /*! #end !*/)
                 procedure.apply(keys[i]);
@@ -989,7 +994,9 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         final boolean[] states = this.allocated;
         #end !*/
 
-        for (int i = 0; i < states.length; i++)
+        //Iterate in reverse for side-stepping the longest conflict chain
+        //in another hash, in case apply() is actually used to fill another hash container.
+        for (int i = states.length - 1; i >= 0; i--)
         {
             if (states[i]/*! #if ($RH) !*/!= -1 /*! #end !*/)
             {
@@ -1003,6 +1010,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
     /**
      * {@inheritDoc}
+     * <p><strong>Important!</strong>
+     * If the predicate actually injects the removed keys in another hash container, you may experience performance losses.
      */
     @Override
     public int removeAll(final KTypePredicate<? super KType> predicate)
@@ -1015,7 +1024,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         final boolean[] states = this.allocated;
         #end !*/
 
-        final int before = assigned;
+        final int before = this.assigned;
 
         for (int i = 0; i < states.length;)
         {

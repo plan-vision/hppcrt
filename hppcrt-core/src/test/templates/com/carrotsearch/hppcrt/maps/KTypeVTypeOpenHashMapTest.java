@@ -54,53 +54,53 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
     @After
     public void checkConsistency()
     {
-        if (map != null)
+        if (this.map != null)
         {
             int occupied = 0;
 
-            final int mask = map.allocated.length - 1;
+            final int mask = this.map.allocated.length - 1;
 
-            for (int i = 0; i < map.keys.length; i++)
+            for (int i = 0; i < this.map.keys.length; i++)
             {
                 if (/*! #if ($RH) !*/
-                map.allocated[i] == -1
-                /*!#else
+                        this.map.allocated[i] == -1
+                        /*!#else
                 !map.allocated[i]
                 #end !*/)
                 {
                     //if not allocated, generic version if patched to null for GC sake
 
                     /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                    TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), map.keys[i]);
+                    TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), this.map.keys[i]);
                     /*! #end !*/
                     /*! #if ($TemplateOptions.VTypeGeneric) !*/
-                    TestUtils.assertEquals2(Intrinsics.defaultVTypeValue(), map.values[i]);
+                    TestUtils.assertEquals2(Intrinsics.defaultVTypeValue(), this.map.values[i]);
                     /*! #end !*/
                 }
                 else
                 {
                     /*! #if ($RH) !*/
                     //check hash cache consistency
-                    Assert.assertEquals(Internals.rehash(map.keys[i]) & mask, map.allocated[i]);
+                    Assert.assertEquals(Internals.rehash(this.map.keys[i]) & mask, this.map.allocated[i]);
                     /*! #end !*/
 
                     //try to reach the key by contains()
-                    Assert.assertTrue(map.containsKey(map.keys[i]));
+                    Assert.assertTrue(this.map.containsKey(this.map.keys[i]));
 
                     //check slot
-                    Assert.assertEquals(i, map.lslot());
+                    Assert.assertEquals(i, this.map.lslot());
 
                     //get() test
-                    Assert.assertEquals(vcastType(map.values[i]), vcastType(map.get(map.keys[i])));
+                    Assert.assertEquals(vcastType(this.map.values[i]), vcastType(this.map.get(this.map.keys[i])));
 
                     //retreive again by lkey(), lget() :
-                    Assert.assertEquals(castType(map.keys[i]), castType(map.lkey()));
-                    Assert.assertEquals(vcastType(map.values[i]), vcastType(map.lget()));
+                    Assert.assertEquals(castType(this.map.keys[i]), castType(this.map.lkey()));
+                    Assert.assertEquals(vcastType(this.map.values[i]), vcastType(this.map.lget()));
 
                     occupied++;
                 }
             }
-            Assert.assertEquals(occupied, map.assigned);
+            Assert.assertEquals(occupied, this.map.assigned);
         }
     }
 
@@ -108,12 +108,12 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
     @Test
     public void testCloningConstructor()
     {
-        map.put(key1, value1);
-        map.put(key2, value2);
-        map.put(key3, value3);
+        this.map.put(this.key1, this.value1);
+        this.map.put(this.key2, this.value2);
+        this.map.put(this.key3, this.value3);
 
-        assertSameMap(map, KTypeVTypeOpenHashMap.from(map));
-        assertSameMap(map, new KTypeVTypeOpenHashMap<KType, VType>(map));
+        assertSameMap(this.map, KTypeVTypeOpenHashMap.from(this.map));
+        assertSameMap(this.map, new KTypeVTypeOpenHashMap<KType, VType>(this.map));
     }
 
     /* */
@@ -123,48 +123,48 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
     @Test
     public void testFromArrays()
     {
-        map.put(key1, value1);
-        map.put(key2, value2);
-        map.put(key3, value3);
+        this.map.put(this.key1, this.value1);
+        this.map.put(this.key2, this.value2);
+        this.map.put(this.key3, this.value3);
 
         final KTypeVTypeOpenHashMap<KType, VType> map2 = KTypeVTypeOpenHashMap.from(
-                newArray(key1, key2, key3),
-                newvArray(value1, value2, value3));
+                newArray(this.key1, this.key2, this.key3),
+                newvArray(this.value1, this.value2, this.value3));
 
-        assertSameMap(map, map2);
+        assertSameMap(this.map, map2);
     }
 
     /* */
     @Test
     public void testPut()
     {
-        map.put(key1, value1);
+        this.map.put(this.key1, this.value1);
 
-        Assert.assertTrue(map.containsKey(key1));
-        TestUtils.assertEquals2(value1, map.lget());
-        TestUtils.assertEquals2(value1, map.get(key1));
+        Assert.assertTrue(this.map.containsKey(this.key1));
+        TestUtils.assertEquals2(this.value1, this.map.lget());
+        TestUtils.assertEquals2(this.value1, this.map.get(this.key1));
     }
 
     /* */
     @Test
     public void testLPut()
     {
-        map.put(key1, value2);
-        if (map.containsKey(key1))
-            map.lset(value3);
+        this.map.put(this.key1, this.value2);
+        if (this.map.containsKey(this.key1))
+            this.map.lset(this.value3);
 
-        Assert.assertTrue(map.containsKey(key1));
-        TestUtils.assertEquals2(value3, map.lget());
-        TestUtils.assertEquals2(value3, map.get(key1));
+        Assert.assertTrue(this.map.containsKey(this.key1));
+        TestUtils.assertEquals2(this.value3, this.map.lget());
+        TestUtils.assertEquals2(this.value3, this.map.get(this.key1));
     }
 
     /* */
     @Test
     public void testPutOverExistingKey()
     {
-        map.put(key1, value1);
-        TestUtils.assertEquals2(value1, map.put(key1, value3));
-        TestUtils.assertEquals2(value3, map.get(key1));
+        this.map.put(this.key1, this.value1);
+        TestUtils.assertEquals2(this.value1, this.map.put(this.key1, this.value3));
+        TestUtils.assertEquals2(this.value3, this.map.get(this.key1));
     }
 
     /* */
@@ -181,44 +181,44 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             final boolean hadKey = values.contains(cast(v));
             values.add(cast(v));
 
-            Assert.assertEquals(hadKey, map.containsKey(cast(v)));
-            map.put(cast(v), vcast(v));
-            Assert.assertEquals(values.size(), map.size());
+            Assert.assertEquals(hadKey, this.map.containsKey(cast(v)));
+            this.map.put(cast(v), vcast(v));
+            Assert.assertEquals(values.size(), this.map.size());
         }
-        Assert.assertEquals(values.size(), map.size());
+        Assert.assertEquals(values.size(), this.map.size());
     }
 
     /* */
     @Test
     public void testPutAll()
     {
-        map.put(key1, value1);
-        map.put(key2, value1);
+        this.map.put(this.key1, this.value1);
+        this.map.put(this.key2, this.value1);
 
         final KTypeVTypeOpenHashMap<KType, VType> map2 =
                 new KTypeVTypeOpenHashMap<KType, VType>();
 
-        map2.put(key2, value2);
-        map2.put(key3, value1);
+        map2.put(this.key2, this.value2);
+        map2.put(this.key3, this.value1);
 
         // One new key (key3).
-        Assert.assertEquals(1, map.putAll(map2));
+        Assert.assertEquals(1, this.map.putAll(map2));
 
         // Assert the value under key2 has been replaced.
-        TestUtils.assertEquals2(value2, map.get(key2));
+        TestUtils.assertEquals2(this.value2, this.map.get(this.key2));
 
         // And key3 has been added.
-        TestUtils.assertEquals2(value1, map.get(key3));
-        Assert.assertEquals(3, map.size());
+        TestUtils.assertEquals2(this.value1, this.map.get(this.key3));
+        Assert.assertEquals(3, this.map.size());
     }
 
     /* */
     @Test
     public void testPutIfAbsent()
     {
-        Assert.assertTrue(map.putIfAbsent(key1, value1));
-        Assert.assertFalse(map.putIfAbsent(key1, value2));
-        TestUtils.assertEquals2(value1, map.get(key1));
+        Assert.assertTrue(this.map.putIfAbsent(this.key1, this.value1));
+        Assert.assertFalse(this.map.putIfAbsent(this.key1, this.value2));
+        TestUtils.assertEquals2(this.value1, this.map.get(this.key1));
     }
 
     /*! #if ($TemplateOptions.VTypeNumeric)
@@ -243,80 +243,80 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
     @Test
     public void testRemove()
     {
-        map.put(key1, value1);
-        TestUtils.assertEquals2(value1, map.remove(key1));
-        TestUtils.assertEquals2(Intrinsics.defaultVTypeValue(), map.remove(key1));
-        Assert.assertEquals(0, map.size());
+        this.map.put(this.key1, this.value1);
+        TestUtils.assertEquals2(this.value1, this.map.remove(this.key1));
+        TestUtils.assertEquals2(Intrinsics.defaultVTypeValue(), this.map.remove(this.key1));
+        Assert.assertEquals(0, this.map.size());
 
         // These are internals, but perhaps worth asserting too.
-        Assert.assertEquals(0, map.assigned);
+        Assert.assertEquals(0, this.map.assigned);
     }
 
     /* */
     @Test
     public void testRemoveAllWithContainer()
     {
-        map.put(key1, value1);
-        map.put(key2, value1);
-        map.put(key3, value1);
+        this.map.put(this.key1, this.value1);
+        this.map.put(this.key2, this.value1);
+        this.map.put(this.key3, this.value1);
 
         final KTypeArrayList<KType> list2 = KTypeArrayList.newInstance();
-        list2.add(newArray(key2, key3, key4));
+        list2.add(newArray(this.key2, this.key3, this.key4));
 
-        map.removeAll(list2);
-        Assert.assertEquals(1, map.size());
-        Assert.assertTrue(map.containsKey(key1));
+        this.map.removeAll(list2);
+        Assert.assertEquals(1, this.map.size());
+        Assert.assertTrue(this.map.containsKey(this.key1));
     }
 
     /* */
     @Test
     public void testRemoveAllWithPredicate()
     {
-        map.put(key1, value1);
-        map.put(key2, value1);
-        map.put(key3, value1);
+        this.map.put(this.key1, this.value1);
+        this.map.put(this.key2, this.value1);
+        this.map.put(this.key3, this.value1);
 
-        map.removeAll(new KTypePredicate<KType>()
-        {
+        this.map.removeAll(new KTypePredicate<KType>()
+                {
             @Override
             public boolean apply(final KType value)
             {
-                return value == key2 || value == key3;
+                return value == KTypeVTypeOpenHashMapTest.this.key2 || value == KTypeVTypeOpenHashMapTest.this.key3;
             }
-        });
-        Assert.assertEquals(1, map.size());
-        Assert.assertTrue(map.containsKey(key1));
+                });
+        Assert.assertEquals(1, this.map.size());
+        Assert.assertTrue(this.map.containsKey(this.key1));
     }
 
     /* */
     @Test
     public void testRemoveAllWithPredicateInterrupted()
     {
-        map.put(key0, value1);
-        map.put(key1, value1);
-        map.put(key2, value1);
-        map.put(key3, value1);
-        map.put(key4, value1);
-        map.put(key5, value1);
-        map.put(key6, value1);
-        map.put(key7, value1);
-        map.put(key8, value1);
+        this.map.put(this.key0, this.value1);
+        this.map.put(this.key1, this.value1);
+        this.map.put(this.key2, this.value1);
+        this.map.put(this.key3, this.value1);
+        this.map.put(this.key4, this.value1);
+        this.map.put(this.key5, this.value1);
+        this.map.put(this.key6, this.value1);
+        this.map.put(this.key7, this.value1);
+        this.map.put(this.key8, this.value1);
 
         final RuntimeException t = new RuntimeException();
         try
         {
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size + 1
-            Assert.assertEquals(10, map.removeAll(new KTypePredicate<KType>()
-            {
+            Assert.assertEquals(10, this.map.removeAll(new KTypePredicate<KType>()
+                    {
                 @Override
                 public boolean apply(final KType key)
                 {
-                    if (key == key7)
+                    if (key == KTypeVTypeOpenHashMapTest.this.key7)
                         throw t;
-                    return key == key2 || key == key9 || key == key5;
+                    return key == KTypeVTypeOpenHashMapTest.this.key2 || key == KTypeVTypeOpenHashMapTest.this.key9 || key == KTypeVTypeOpenHashMapTest.this.key5;
                 };
-            }));
+                    }));
 
             Assert.fail();
         }
@@ -330,7 +330,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         // And check if the set is in consistent state. We cannot predict the pattern,
         //but we know that since key7 throws an exception, key7 is still present in the set.
 
-        Assert.assertTrue(map.containsKey(key7));
+        Assert.assertTrue(this.map.containsKey(this.key7));
         checkConsistency();
     }
 
@@ -338,77 +338,77 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
     @Test
     public void testRemoveAllViaKeySetView()
     {
-        map.put(key1, value1);
-        map.put(key2, value1);
-        map.put(key3, value1);
+        this.map.put(this.key1, this.value1);
+        this.map.put(this.key2, this.value1);
+        this.map.put(this.key3, this.value1);
 
-        map.keys().removeAll(new KTypePredicate<KType>()
-        {
+        this.map.keys().removeAll(new KTypePredicate<KType>()
+                {
             @Override
             public boolean apply(final KType value)
             {
-                return value == key2 || value == key3;
+                return value == KTypeVTypeOpenHashMapTest.this.key2 || value == KTypeVTypeOpenHashMapTest.this.key3;
             }
-        });
-        Assert.assertEquals(1, map.size());
-        Assert.assertTrue(map.containsKey(key1));
+                });
+        Assert.assertEquals(1, this.map.size());
+        Assert.assertTrue(this.map.containsKey(this.key1));
     }
 
     /* */
     @Test
     public void testRemoveAllViaValueSetView()
     {
-        map.put(key1, value1); //del
-        map.put(key2, value2); //del
-        map.put(key3, value1); //del
-        map.put(key4, value3);
-        map.put(key5, value5);
-        map.put(key6, value5);
-        map.put(key7, value1); //del
-        map.put(key8, value8);
-        map.put(key9, value2); //del
+        this.map.put(this.key1, this.value1); //del
+        this.map.put(this.key2, this.value2); //del
+        this.map.put(this.key3, this.value1); //del
+        this.map.put(this.key4, this.value3);
+        this.map.put(this.key5, this.value5);
+        this.map.put(this.key6, this.value5);
+        this.map.put(this.key7, this.value1); //del
+        this.map.put(this.key8, this.value8);
+        this.map.put(this.key9, this.value2); //del
 
-        final int nbRemoved = map.values().removeAll(new KTypePredicate<VType>()
-        {
+        final int nbRemoved = this.map.values().removeAll(new KTypePredicate<VType>()
+                {
             @Override
             public boolean apply(final VType value)
             {
-                return value == value1 || value == value2;
+                return value == KTypeVTypeOpenHashMapTest.this.value1 || value == KTypeVTypeOpenHashMapTest.this.value2;
             }
-        });
+                });
 
         Assert.assertEquals(5, nbRemoved);
-        Assert.assertEquals(4, map.size());
-        Assert.assertTrue(map.containsKey(key4));
-        Assert.assertTrue(map.containsKey(key5));
-        Assert.assertTrue(map.containsKey(key6));
-        Assert.assertTrue(map.containsKey(key8));
+        Assert.assertEquals(4, this.map.size());
+        Assert.assertTrue(this.map.containsKey(this.key4));
+        Assert.assertTrue(this.map.containsKey(this.key5));
+        Assert.assertTrue(this.map.containsKey(this.key6));
+        Assert.assertTrue(this.map.containsKey(this.key8));
     }
 
     /* */
     @Test
     public void testRemoveAllOccurencesViaValueSetView()
     {
-        map.put(key1, value1); //del
-        map.put(key2, value2);
-        map.put(key3, value1); //del
-        map.put(key4, value3);
-        map.put(key5, value7);
-        map.put(key6, value5);
-        map.put(key7, value1); //del
-        map.put(key8, value8);
-        map.put(key9, value2);
+        this.map.put(this.key1, this.value1); //del
+        this.map.put(this.key2, this.value2);
+        this.map.put(this.key3, this.value1); //del
+        this.map.put(this.key4, this.value3);
+        this.map.put(this.key5, this.value7);
+        this.map.put(this.key6, this.value5);
+        this.map.put(this.key7, this.value1); //del
+        this.map.put(this.key8, this.value8);
+        this.map.put(this.key9, this.value2);
 
-        final int nbRemoved = map.values().removeAllOccurrences(value1);
+        final int nbRemoved = this.map.values().removeAllOccurrences(this.value1);
 
         Assert.assertEquals(3, nbRemoved);
-        Assert.assertEquals(6, map.size());
-        Assert.assertTrue(map.containsKey(key2));
-        Assert.assertTrue(map.containsKey(key4));
-        Assert.assertTrue(map.containsKey(key5));
-        Assert.assertTrue(map.containsKey(key6));
-        Assert.assertTrue(map.containsKey(key8));
-        Assert.assertTrue(map.containsKey(key9));
+        Assert.assertEquals(6, this.map.size());
+        Assert.assertTrue(this.map.containsKey(this.key2));
+        Assert.assertTrue(this.map.containsKey(this.key4));
+        Assert.assertTrue(this.map.containsKey(this.key5));
+        Assert.assertTrue(this.map.containsKey(this.key6));
+        Assert.assertTrue(this.map.containsKey(this.key8));
+        Assert.assertTrue(this.map.containsKey(this.key9));
     }
 
     /* */
@@ -418,58 +418,58 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         final KTypeVTypeOpenHashMap<KType, VType> map2 =
                 KTypeVTypeOpenHashMap.newInstance();
 
-        map.put(key1, value1);
-        map.put(key2, value1);
-        map.put(key3, value1);
+        this.map.put(this.key1, this.value1);
+        this.map.put(this.key2, this.value1);
+        this.map.put(this.key3, this.value1);
 
-        map2.put(key2, value1);
-        map2.put(key4, value1);
+        map2.put(this.key2, this.value1);
+        map2.put(this.key4, this.value1);
 
-        Assert.assertEquals(2, map.keys().retainAll(map2.keys()));
+        Assert.assertEquals(2, this.map.keys().retainAll(map2.keys()));
 
-        Assert.assertEquals(1, map.size());
-        Assert.assertTrue(map.containsKey(key2));
+        Assert.assertEquals(1, this.map.size());
+        Assert.assertTrue(this.map.containsKey(this.key2));
     }
 
     /* */
     @Test
     public void testMapKeySet()
     {
-        map.put(key1, value3);
-        map.put(key2, value2);
-        map.put(key3, value1);
+        this.map.put(this.key1, this.value3);
+        this.map.put(this.key2, this.value2);
+        this.map.put(this.key3, this.value1);
 
-        TestUtils.assertSortedListEquals(map.keys().toArray(), key1, key2, key3);
+        TestUtils.assertSortedListEquals(this.map.keys().toArray(), this.key1, this.key2, this.key3);
     }
 
     /* */
     @Test
     public void testMapKeySetIterator()
     {
-        map.put(key1, value3);
-        map.put(key2, value2);
-        map.put(key3, value1);
+        this.map.put(this.key1, this.value3);
+        this.map.put(this.key2, this.value2);
+        this.map.put(this.key3, this.value1);
 
         int counted = 0;
-        for (final KTypeCursor<KType> c : map.keys())
+        for (final KTypeCursor<KType> c : this.map.keys())
         {
-            TestUtils.assertEquals2(map.keys[c.index], c.value);
+            TestUtils.assertEquals2(this.map.keys[c.index], c.value);
             counted++;
         }
-        Assert.assertEquals(counted, map.size());
+        Assert.assertEquals(counted, this.map.size());
     }
 
     /* */
     @Test
     public void testClear()
     {
-        map.put(key1, value1);
-        map.put(key2, value1);
-        map.clear();
-        Assert.assertEquals(0, map.size());
+        this.map.put(this.key1, this.value1);
+        this.map.put(this.key2, this.value1);
+        this.map.clear();
+        Assert.assertEquals(0, this.map.size());
 
         // These are internals, but perhaps worth asserting too.
-        Assert.assertEquals(0, map.assigned);
+        Assert.assertEquals(0, this.map.assigned);
 
         // Check if the map behaves properly upon subsequent use.
         testPutWithExpansions();
@@ -479,13 +479,13 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
     @Test
     public void testClearViaKeySetView()
     {
-        map.put(key3, value2);
-        map.put(key4, value4);
-        map.keys().clear();
-        Assert.assertEquals(0, map.keys().size());
+        this.map.put(this.key3, this.value2);
+        this.map.put(this.key4, this.value4);
+        this.map.keys().clear();
+        Assert.assertEquals(0, this.map.keys().size());
 
         // These are internals, but perhaps worth asserting too.
-        Assert.assertEquals(0, map.assigned);
+        Assert.assertEquals(0, this.map.assigned);
 
         // Check if the map behaves properly upon subsequent use.
         testPutWithExpansions();
@@ -495,13 +495,13 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
     @Test
     public void testClearViaValueSetView()
     {
-        map.put(key5, value4);
-        map.put(key6, value1);
-        map.values().clear();
-        Assert.assertEquals(0, map.values().size());
+        this.map.put(this.key5, this.value4);
+        this.map.put(this.key6, this.value1);
+        this.map.values().clear();
+        Assert.assertEquals(0, this.map.values().size());
 
         // These are internals, but perhaps worth asserting too.
-        Assert.assertEquals(0, map.assigned);
+        Assert.assertEquals(0, this.map.assigned);
 
         // Check if the map behaves properly upon subsequent use.
         testPutWithExpansions();
@@ -522,111 +522,111 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
     @Test
     public void testIterable()
     {
-        map.put(key1, value1);
-        map.put(key2, value2);
-        map.put(key3, value3);
-        map.remove(key2);
+        this.map.put(this.key1, this.value1);
+        this.map.put(this.key2, this.value2);
+        this.map.put(this.key3, this.value3);
+        this.map.remove(this.key2);
 
         int count = 0;
-        for (final KTypeVTypeCursor<KType, VType> cursor : map)
+        for (final KTypeVTypeCursor<KType, VType> cursor : this.map)
         {
             count++;
-            Assert.assertTrue(map.containsKey(cursor.key));
-            TestUtils.assertEquals2(cursor.value, map.get(cursor.key));
+            Assert.assertTrue(this.map.containsKey(cursor.key));
+            TestUtils.assertEquals2(cursor.value, this.map.get(cursor.key));
 
-            TestUtils.assertEquals2(cursor.value, map.values[cursor.index]);
-            TestUtils.assertEquals2(cursor.key, map.keys[cursor.index]);
+            TestUtils.assertEquals2(cursor.value, this.map.values[cursor.index]);
+            TestUtils.assertEquals2(cursor.key, this.map.keys[cursor.index]);
 
-            Assert.assertTrue(map.allocated[cursor.index] /*! #if ($RH) !*/!= -1 /*! #end !*/);
+            Assert.assertTrue(this.map.allocated[cursor.index] /*! #if ($RH) !*/!= -1 /*! #end !*/);
 
         }
-        Assert.assertEquals(count, map.size());
+        Assert.assertEquals(count, this.map.size());
 
-        map.clear();
-        Assert.assertFalse(map.iterator().hasNext());
+        this.map.clear();
+        Assert.assertFalse(this.map.iterator().hasNext());
     }
 
     /* */
     @Test
     public void testFullLoadFactor()
     {
-        map = new KTypeVTypeOpenHashMap<KType, VType>(1, 1f);
+        this.map = new KTypeVTypeOpenHashMap<KType, VType>(1, 1f);
 
         // Fit in the byte key range.
         final int capacity = 0x80;
         final int max = capacity - 2;
         for (int i = 0; i < max; i++)
         {
-            map.put(cast(i), value1);
+            this.map.put(cast(i), this.value1);
         }
 
         // Still not expanded.
-        Assert.assertEquals(max, map.size());
-        Assert.assertEquals(capacity, map.keys.length);
+        Assert.assertEquals(max, this.map.size());
+        Assert.assertEquals(capacity, this.map.keys.length);
         // Won't expand (existing key).
-        map.put(cast(0), value2);
-        Assert.assertEquals(capacity, map.keys.length);
+        this.map.put(cast(0), this.value2);
+        Assert.assertEquals(capacity, this.map.keys.length);
         // Expanded.
-        map.put(cast(0xff), value2);
-        Assert.assertEquals(2 * capacity, map.keys.length);
+        this.map.put(cast(0xff), this.value2);
+        Assert.assertEquals(2 * capacity, this.map.keys.length);
     }
 
     /* */
     @Test
     public void testBug_HPPC73_FullCapacityGet()
     {
-        map = new KTypeVTypeOpenHashMap<KType, VType>(1, 1f);
+        this.map = new KTypeVTypeOpenHashMap<KType, VType>(1, 1f);
         final int capacity = 0x80;
         final int max = capacity - 2;
         for (int i = 0; i < max; i++)
         {
-            map.put(cast(i), value1);
+            this.map.put(cast(i), this.value1);
         }
-        Assert.assertEquals(max, map.size());
-        Assert.assertEquals(capacity, map.keys.length);
+        Assert.assertEquals(max, this.map.size());
+        Assert.assertEquals(capacity, this.map.keys.length);
 
         // Non-existent key.
-        map.remove(cast(max + 1));
-        Assert.assertFalse(map.containsKey(cast(max + 1)));
-        TestUtils.assertEquals2(Intrinsics.defaultVTypeValue(), map.get(cast(max + 1)));
+        this.map.remove(cast(max + 1));
+        Assert.assertFalse(this.map.containsKey(cast(max + 1)));
+        TestUtils.assertEquals2(Intrinsics.defaultVTypeValue(), this.map.get(cast(max + 1)));
 
         // Should not expand because we're replacing an existing element.
-        map.put(cast(0), value2);
-        Assert.assertEquals(max, map.size());
-        Assert.assertEquals(capacity, map.keys.length);
+        this.map.put(cast(0), this.value2);
+        Assert.assertEquals(max, this.map.size());
+        Assert.assertEquals(capacity, this.map.keys.length);
 
-        map.putIfAbsent(cast(0), value3);
-        Assert.assertEquals(max, map.size());
-        Assert.assertEquals(capacity, map.keys.length);
+        this.map.putIfAbsent(cast(0), this.value3);
+        Assert.assertEquals(max, this.map.size());
+        Assert.assertEquals(capacity, this.map.keys.length);
 
         // Remove from a full map.
-        map.remove(cast(0));
-        Assert.assertEquals(max - 1, map.size());
-        Assert.assertEquals(capacity, map.keys.length);
+        this.map.remove(cast(0));
+        Assert.assertEquals(max - 1, this.map.size());
+        Assert.assertEquals(capacity, this.map.keys.length);
     }
 
     /* */
     @Test
     public void testHalfLoadFactor()
     {
-        map = new KTypeVTypeOpenHashMap<KType, VType>(1, 0.5f);
+        this.map = new KTypeVTypeOpenHashMap<KType, VType>(1, 0.5f);
 
         final int capacity = 0x80;
         final int max = capacity - 2;
         for (int i = 0; i < max; i++)
         {
-            map.put(cast(i), value1);
+            this.map.put(cast(i), this.value1);
         }
 
-        Assert.assertEquals(max, map.size());
+        Assert.assertEquals(max, this.map.size());
         // Still not expanded.
-        Assert.assertEquals(2 * capacity, map.keys.length);
+        Assert.assertEquals(2 * capacity, this.map.keys.length);
         // Won't expand (existing key);
-        map.put(cast(0), value2);
-        Assert.assertEquals(2 * capacity, map.keys.length);
+        this.map.put(cast(0), this.value2);
+        Assert.assertEquals(2 * capacity, this.map.keys.length);
         // Expanded.
-        map.put(cast(0xff), value1);
-        Assert.assertEquals(4 * capacity, map.keys.length);
+        this.map.put(cast(0xff), this.value1);
+        Assert.assertEquals(4 * capacity, this.map.keys.length);
     }
 
     /*! #if ($TemplateOptions.VTypeGeneric) !*/
@@ -641,16 +641,16 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         Assert.assertEquals(l0, new KTypeVTypeOpenHashMap<KType, VType>());
 
         final KTypeVTypeOpenHashMap<KType, VType> l1 = KTypeVTypeOpenHashMap.from(
-                newArray(key1, key2, key3),
-                newvArray(value1, value2, value3));
+                newArray(this.key1, this.key2, this.key3),
+                newvArray(this.value1, this.value2, this.value3));
 
         final KTypeVTypeOpenHashMap<KType, VType> l2 = KTypeVTypeOpenHashMap.from(
-                newArray(key2, key1, key3),
-                newvArray(value2, value1, value3));
+                newArray(this.key2, this.key1, this.key3),
+                newvArray(this.value2, this.value1, this.value3));
 
         final KTypeVTypeOpenHashMap<KType, VType> l3 = KTypeVTypeOpenHashMap.from(
-                newArray(key1, key2),
-                newvArray(value2, value1));
+                newArray(this.key1, this.key2),
+                newvArray(this.value2, this.value1));
 
         Assert.assertEquals(l1.hashCode(), l2.hashCode());
         Assert.assertEquals(l1, l2);
@@ -666,12 +666,12 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
     public void testBug_HPPC37()
     {
         final KTypeVTypeOpenHashMap<KType, VType> l1 = KTypeVTypeOpenHashMap.from(
-                newArray(key1),
-                newvArray(value1));
+                newArray(this.key1),
+                newvArray(this.value1));
 
         final KTypeVTypeOpenHashMap<KType, VType> l2 = KTypeVTypeOpenHashMap.from(
-                newArray(key2),
-                newvArray(value1));
+                newArray(this.key2),
+                newvArray(this.value1));
 
         Assert.assertFalse(l1.equals(l2));
         Assert.assertFalse(l2.equals(l1));
@@ -681,13 +681,13 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
     @Test
     public void testNullKey()
     {
-        map.put(null, vcast(10));
-        TestUtils.assertEquals2(vcast(10), map.get(null));
-        Assert.assertTrue(map.containsKey(null));
-        TestUtils.assertEquals2(vcast(10), map.lget());
-        TestUtils.assertEquals2(null, map.lkey());
-        map.remove(null);
-        Assert.assertEquals(0, map.size());
+        this.map.put(null, vcast(10));
+        TestUtils.assertEquals2(vcast(10), this.map.get(null));
+        Assert.assertTrue(this.map.containsKey(null));
+        TestUtils.assertEquals2(vcast(10), this.map.lget());
+        TestUtils.assertEquals2(null, this.map.lkey());
+        this.map.remove(null);
+        Assert.assertEquals(0, this.map.size());
     }
 
     /*! #end !*/
@@ -695,48 +695,48 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
     @Test
     public void testLkey()
     {
-        map.put(key1, vcast(10));
-        map.put(key8, vcast(5));
-        map.put(key5, vcast(5));
-        map.put(key7, vcast(6));
-        map.put(key2, vcast(5));
-        map.put(key4, vcast(32));
-        map.put(key9, vcast(25));
+        this.map.put(this.key1, vcast(10));
+        this.map.put(this.key8, vcast(5));
+        this.map.put(this.key5, vcast(5));
+        this.map.put(this.key7, vcast(6));
+        this.map.put(this.key2, vcast(5));
+        this.map.put(this.key4, vcast(32));
+        this.map.put(this.key9, vcast(25));
 
-        Assert.assertTrue(map.containsKey(key1));
+        Assert.assertTrue(this.map.containsKey(this.key1));
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        Assert.assertSame(key1, map.lkey());
+        Assert.assertSame(this.key1, this.map.lkey());
         /*! #end !*/
 
         KType key1_ = cast(1);
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         key1_ = (KType) new Integer(1);
-        Assert.assertNotSame(key1, key1_);
+        Assert.assertNotSame(this.key1, key1_);
         /*! #end !*/
 
-        Assert.assertEquals(castType(key1), castType(key1_));
+        Assert.assertEquals(castType(this.key1), castType(key1_));
 
-        Assert.assertTrue(map.containsKey(key1_));
+        Assert.assertTrue(this.map.containsKey(key1_));
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        Assert.assertSame(key1, map.lkey());
+        Assert.assertSame(this.key1, this.map.lkey());
         /*! #end !*/
 
-        Assert.assertEquals(castType(key1_), castType(map.lkey()));
+        Assert.assertEquals(castType(key1_), castType(this.map.lkey()));
     }
 
     /*! #if ($TemplateOptions.VTypeGeneric) !*/
     @Test
     public void testNullValue()
     {
-        map.put(key1, null);
-        Assert.assertEquals(null, map.get(key1));
-        Assert.assertTrue(map.containsKey(key1));
-        map.remove(key1);
-        Assert.assertFalse(map.containsKey(key1));
-        Assert.assertEquals(0, map.size());
+        this.map.put(this.key1, null);
+        Assert.assertEquals(null, this.map.get(this.key1));
+        Assert.assertTrue(this.map.containsKey(this.key1));
+        this.map.remove(this.key1);
+        Assert.assertFalse(this.map.containsKey(this.key1));
+        Assert.assertEquals(0, this.map.size());
     }
 
     /*! #end !*/
@@ -756,7 +756,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         for (int size = 1000; size < 20000; size += 4000)
         {
             other.clear();
-            map.clear();
+            this.map.clear();
 
             for (int round = 0; round < size * 20; round++)
             {
@@ -765,20 +765,20 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
 
                 if (rnd.nextBoolean())
                 {
-                    map.put(key, value);
+                    this.map.put(key, value);
                     other.put(key, value);
 
-                    Assert.assertEquals(vcastType(value), vcastType(map.get(key)));
-                    Assert.assertTrue(map.containsKey(key));
-                    Assert.assertEquals(vcastType(value), vcastType(map.lget()));
+                    Assert.assertEquals(vcastType(value), vcastType(this.map.get(key)));
+                    Assert.assertTrue(this.map.containsKey(key));
+                    Assert.assertEquals(vcastType(value), vcastType(this.map.lget()));
                 }
                 else
                 {
                     Assert.assertEquals("size= " + size + ", round = " + round,
-                            vcastType(other.remove(key)), vcastType(map.remove(key)));
+                            vcastType(other.remove(key)), vcastType(this.map.remove(key)));
                 }
 
-                Assert.assertEquals(other.size(), map.size());
+                Assert.assertEquals(other.size(), this.map.size());
             }
         }
     }
@@ -791,15 +791,15 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
     @Test
     public void testClone()
     {
-        this.map.put(key1, value1);
-        this.map.put(key2, value2);
-        this.map.put(key3, value3);
+        this.map.put(this.key1, this.value1);
+        this.map.put(this.key2, this.value2);
+        this.map.put(this.key3, this.value3);
 
-        final KTypeVTypeOpenHashMap<KType, VType> cloned = map.clone();
-        cloned.remove(key1);
+        final KTypeVTypeOpenHashMap<KType, VType> cloned = this.map.clone();
+        cloned.remove(this.key1);
 
-        TestUtils.assertSortedListEquals(map.keys().toArray(), key1, key2, key3);
-        TestUtils.assertSortedListEquals(cloned.keys().toArray(), key2, key3);
+        TestUtils.assertSortedListEquals(this.map.keys().toArray(), this.key1, this.key2, this.key3);
+        TestUtils.assertSortedListEquals(cloned.keys().toArray(), this.key2, this.key3);
     }
 
     /*
@@ -809,21 +809,21 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
     public void testToString()
     {
         Assume.assumeTrue(
-                (int[].class.isInstance(map.keys) ||
-                        short[].class.isInstance(map.keys) ||
-                        byte[].class.isInstance(map.keys) ||
-                        long[].class.isInstance(map.keys) ||
-                        Object[].class.isInstance(map.keys)) &&
-                        (int[].class.isInstance(map.values) ||
-                                byte[].class.isInstance(map.values) ||
-                                short[].class.isInstance(map.values) ||
-                                long[].class.isInstance(map.values) ||
-                        Object[].class.isInstance(map.values)));
+                (int[].class.isInstance(this.map.keys) ||
+                        short[].class.isInstance(this.map.keys) ||
+                        byte[].class.isInstance(this.map.keys) ||
+                        long[].class.isInstance(this.map.keys) ||
+                        Object[].class.isInstance(this.map.keys)) &&
+                        (int[].class.isInstance(this.map.values) ||
+                                byte[].class.isInstance(this.map.values) ||
+                                short[].class.isInstance(this.map.values) ||
+                                long[].class.isInstance(this.map.values) ||
+                                Object[].class.isInstance(this.map.values)));
 
-        this.map.put(key1, value1);
-        this.map.put(key2, value2);
+        this.map.put(this.key1, this.value1);
+        this.map.put(this.key2, this.value2);
 
-        String asString = map.toString();
+        String asString = this.map.toString();
         asString = asString.replaceAll("[^0-9]", "");
         final char[] asCharArray = asString.toCharArray();
         Arrays.sort(asCharArray);
@@ -835,9 +835,9 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
     {
         // This test is only applicable to selected key types.
         Assume.assumeTrue(
-                int[].class.isInstance(map.keys) ||
-                        long[].class.isInstance(map.keys) ||
-                        Object[].class.isInstance(map.keys));
+                int[].class.isInstance(this.map.keys) ||
+                long[].class.isInstance(this.map.keys) ||
+                Object[].class.isInstance(this.map.keys));
 
         final IntArrayList hashChain = TestUtils.generateMurmurHash3CollisionChain(0x1fff, 0x7e, 0x1fff / 3);
 
@@ -845,9 +845,9 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
          * Add all of the conflicting keys to a map.
          */
         for (final IntCursor c : hashChain)
-            map.put(cast(c.value), this.value1);
+            this.map.put(cast(c.value), this.value1);
 
-        Assert.assertEquals(hashChain.size(), map.size());
+        Assert.assertEquals(hashChain.size(), this.map.size());
 
         /*
          * Add some more keys (random).
@@ -863,108 +863,108 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         }
 
         for (final IntCursor c : differentKeys)
-            map.put(cast(c.value), value2);
+            this.map.put(cast(c.value), this.value2);
 
-        Assert.assertEquals(hashChain.size() + differentKeys.size(), map.size());
+        Assert.assertEquals(hashChain.size() + differentKeys.size(), this.map.size());
 
         /*
          * Verify the map contains all of the conflicting keys.
          */
         for (final IntCursor c : hashChain)
-            Assert.assertEquals(vcastType(value1), vcastType(map.get(cast(c.value))));
+            Assert.assertEquals(vcastType(this.value1), vcastType(this.map.get(cast(c.value))));
 
         /*
          * Verify the map contains all the other keys.
          */
         for (final IntCursor c : differentKeys)
-            TestUtils.assertEquals2(value2, map.get(cast(c.value)));
+            TestUtils.assertEquals2(this.value2, this.map.get(cast(c.value)));
 
         /*
          * Iteratively remove the keys, from first to last.
          */
         for (final IntCursor c : hashChain)
-            TestUtils.assertEquals2(value1, map.remove(cast(c.value)));
+            TestUtils.assertEquals2(this.value1, this.map.remove(cast(c.value)));
 
-        Assert.assertEquals(differentKeys.size(), map.size());
+        Assert.assertEquals(differentKeys.size(), this.map.size());
 
         /*
          * Verify the map contains all the other keys.
          */
         for (final IntCursor c : differentKeys)
-            TestUtils.assertEquals2(value2, map.get(cast(c.value)));
+            TestUtils.assertEquals2(this.value2, this.map.get(cast(c.value)));
     }
 
     /* */
     @Test
     public void testMapValues()
     {
-        map.put(key1, value3);
-        map.put(key2, value2);
-        map.put(key3, value1);
-        TestUtils.assertSortedListEquals(map.values().toArray(), value1, value2, value3);
+        this.map.put(this.key1, this.value3);
+        this.map.put(this.key2, this.value2);
+        this.map.put(this.key3, this.value1);
+        TestUtils.assertSortedListEquals(this.map.values().toArray(), this.value1, this.value2, this.value3);
 
-        map.clear();
-        map.put(key1, value1);
-        map.put(key2, value2);
-        map.put(key3, value2);
-        TestUtils.assertSortedListEquals(map.values().toArray(), value1, value2, value2);
+        this.map.clear();
+        this.map.put(this.key1, this.value1);
+        this.map.put(this.key2, this.value2);
+        this.map.put(this.key3, this.value2);
+        TestUtils.assertSortedListEquals(this.map.values().toArray(), this.value1, this.value2, this.value2);
     }
 
     /* */
     @Test
     public void testMapValuesIterator()
     {
-        map.put(key1, value3);
-        map.put(key2, value2);
-        map.put(key3, value1);
+        this.map.put(this.key1, this.value3);
+        this.map.put(this.key2, this.value2);
+        this.map.put(this.key3, this.value1);
 
         int counted = 0;
-        for (final KTypeCursor<VType> c : map.values())
+        for (final KTypeCursor<VType> c : this.map.values())
         {
-            TestUtils.assertEquals2(map.values[c.index], c.value);
+            TestUtils.assertEquals2(this.map.values[c.index], c.value);
             counted++;
         }
-        Assert.assertEquals(counted, map.size());
+        Assert.assertEquals(counted, this.map.size());
     }
 
     /* */
     @Test
     public void testMapValuesContainer()
     {
-        map.put(key1, value1);
-        map.put(key2, value2);
-        map.put(key3, value2);
+        this.map.put(this.key1, this.value1);
+        this.map.put(this.key2, this.value2);
+        this.map.put(this.key3, this.value2);
 
         // contains()
-        for (final KTypeVTypeCursor<KType, VType> c : map)
-            Assert.assertTrue(map.values().contains(c.value));
-        Assert.assertFalse(map.values().contains(value3));
+        for (final KTypeVTypeCursor<KType, VType> c : this.map)
+            Assert.assertTrue(this.map.values().contains(c.value));
+        Assert.assertFalse(this.map.values().contains(this.value3));
 
-        Assert.assertEquals(map.isEmpty(), map.values().isEmpty());
-        Assert.assertEquals(map.size(), map.values().size());
+        Assert.assertEquals(this.map.isEmpty(), this.map.values().isEmpty());
+        Assert.assertEquals(this.map.size(), this.map.values().size());
 
         final KTypeArrayList<VType> values = new KTypeArrayList<VType>();
-        map.values().forEach(new KTypeProcedure<VType>()
-        {
+        this.map.values().forEach(new KTypeProcedure<VType>()
+                {
             @Override
             public void apply(final VType value)
             {
                 values.add(value);
             }
-        });
-        TestUtils.assertSortedListEquals(map.values().toArray(), value1, value2, value2);
+                });
+        TestUtils.assertSortedListEquals(this.map.values().toArray(), this.value1, this.value2, this.value2);
 
         values.clear();
-        map.values().forEach(new KTypePredicate<VType>()
-        {
+        this.map.values().forEach(new KTypePredicate<VType>()
+                {
             @Override
             public boolean apply(final VType value)
             {
                 values.add(value);
                 return true;
             }
-        });
-        TestUtils.assertSortedListEquals(map.values().toArray(), value1, value2, value2);
+                });
+        TestUtils.assertSortedListEquals(this.map.values().toArray(), this.value1, this.value2, this.value2);
     }
 
     @Test
@@ -988,7 +988,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             public void apply(final KType key, final VType value)
             {
 
-                count += vcastType(value);
+                this.count += vcastType(value);
             }
         }).count;
 
@@ -1076,7 +1076,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             count = 0;
             for (final KTypeVTypeCursor<KType, VType> cursor : testContainer)
             {
-                guard += vcastType(cursor.value);
+                this.guard += vcastType(cursor.value);
                 //we consume 1 iterator for this loop, but reallocs can happen,
                 //so we can only say its != initialPoolSize
                 Assert.assertTrue(initialPoolSize != testContainer.entryIteratorPool.size());
@@ -1100,7 +1100,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             count = 0;
             for (final KTypeCursor<KType> cursor : keyset)
             {
-                guard += castType(cursor.value);
+                this.guard += castType(cursor.value);
                 //we consume 1 iterator for this loop, but reallocs can happen,
                 //so we can only say its != initialPoolSize
                 Assert.assertTrue(initialPoolSize != keyset.keyIteratorPool.size());
@@ -1124,7 +1124,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             count = 0;
             for (final KTypeCursor<VType> cursor : valueset)
             {
-                guard += vcastType(cursor.value);
+                this.guard += vcastType(cursor.value);
                 //we consume 1 iterator for this loop, but reallocs can happen,
                 //so we can only say its != initialPoolSize
                 Assert.assertTrue(initialPoolSize != valueset.valuesIteratorPool.size());
@@ -1172,7 +1172,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             @Override
             public void apply(final KType key, final VType value)
             {
-                count += vcastType(value);
+                this.count += vcastType(value);
             }
         }).count;
 
@@ -1275,7 +1275,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             count = 0;
             while (loopIterator.hasNext())
             {
-                guard += vcastType(loopIterator.next().value);
+                this.guard += vcastType(loopIterator.next().value);
 
                 //brutally interrupt in the middle
                 if (count > TEST_SIZE / 2)
@@ -1304,7 +1304,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             count = 0;
             while (keyLoopIterator.hasNext())
             {
-                guard += castType(keyLoopIterator.next().value);
+                this.guard += castType(keyLoopIterator.next().value);
 
                 //brutally interrupt in the middle
                 if (count > TEST_SIZE / 2)
@@ -1333,7 +1333,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             count = 0;
             while (valueLoopIterator.hasNext())
             {
-                guard += vcastType(valueLoopIterator.next().value);
+                this.guard += vcastType(valueLoopIterator.next().value);
 
                 //brutally interrupt in the middle
                 if (count > TEST_SIZE / 2)
@@ -1377,7 +1377,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             @Override
             public void apply(final KType key, final VType value)
             {
-                count += vcastType(value);
+                this.count += vcastType(value);
             }
         }).count;
 
@@ -1394,11 +1394,11 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
 
                 Assert.assertEquals(startingPoolSize - 1, testContainer.entryIteratorPool.size());
 
-                guard = 0;
+                this.guard = 0;
                 count = 0;
                 while (loopIterator.hasNext())
                 {
-                    guard += vcastType(loopIterator.next().value);
+                    this.guard += vcastType(loopIterator.next().value);
 
                     //brutally interrupt in the middle some of the loops, but not all
                     if (round > TEST_ROUNDS / 2 && count > TEST_SIZE / 2)
@@ -1410,7 +1410,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
 
                 //iterator is returned to its pool in case of normal loop termination
                 Assert.assertEquals(startingPoolSize, testContainer.entryIteratorPool.size());
-                Assert.assertEquals(checksum, guard);
+                Assert.assertEquals(checksum, this.guard);
 
             }
             catch (final Exception e)
@@ -1501,11 +1501,11 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             newMap.put(cast(randomVK.nextInt((int) (0.7 * NB_ELEMENTS))), vcast(randomVK.nextInt()));
         }
 
-        //List the keys in the order of the internal buffer :
+        //List the keys in the reverse-order of the internal buffer, since forEach() is iterating in reverse also:
         final ArrayList<Integer> keyList = new ArrayList<Integer>();
         final ArrayList<Integer> valueList = new ArrayList<Integer>();
 
-        for (int i = 0; i < newMap.allocated.length; i++) {
+        for (int i = newMap.allocated.length - 1; i >= 0; i--) {
 
             if (newMap.allocated[i] /*! #if ($RH) !*/!= -1 /*! #end !*/) {
 
@@ -1598,11 +1598,11 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             newMap.put(cast(randomVK.nextInt((int) (0.7 * NB_ELEMENTS))), vcast(randomVK.nextInt()));
         }
 
-        //List the keys in the order of the internal buffer :
+        //List the keys in the reverse-order of the internal buffer, since forEach() is iterating in reverse also:
         final ArrayList<Integer> keyList = new ArrayList<Integer>();
         final ArrayList<Integer> valueList = new ArrayList<Integer>();
 
-        for (int i = 0; i < newMap.allocated.length; i++) {
+        for (int i = newMap.allocated.length - 1; i >= 0; i--) {
 
             if (newMap.allocated[i] /*! #if ($RH) !*/!= -1 /*! #end !*/) {
 
@@ -1611,11 +1611,11 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             }
         }
 
-        //Test forEach predicate and stop at each key in turn.
+        //List the keys in the reverse-order of the internal buffer, since forEach() is iterating in reverse also:
         final ArrayList<Integer> keyListTest = new ArrayList<Integer>();
         final ArrayList<Integer> valueListTest = new ArrayList<Integer>();
 
-        for (int i = 0; i < keyList.size(); i++)
+        for (int i = keyList.size() - 1; i >= 0; i--)
         {
             final int currentPairIndexSizeToIterate = i + 1;
 

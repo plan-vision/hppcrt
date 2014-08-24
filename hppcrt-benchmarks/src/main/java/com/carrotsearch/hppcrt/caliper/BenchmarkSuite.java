@@ -18,10 +18,10 @@ public class BenchmarkSuite
 {
     @SuppressWarnings("unchecked")
     private final static Class<? extends Benchmark>[] ALL_BENCHMARKS = new Class[]
-    {
-            BenchmarkPopCnt.class, BenchmarkBigramCounting.class, BenchmarkPerturbedVsHashedOnly.class,
-        HashCollisionsCornerCaseTest.class, BenchmarkPut.class, BenchmarkContainsWithRemoved.class
-    };
+            {
+        BenchmarkPopCnt.class, BenchmarkBigramCounting.class,
+            HashCollisionsCornerCaseTest.class, BenchmarkPut.class, BenchmarkContainsWithRemoved.class
+            };
 
     public static void main(final String[] args) throws Exception
     {
@@ -62,7 +62,7 @@ public class BenchmarkSuite
                 {
                     @SuppressWarnings("unchecked")
                     final Class<? extends Benchmark> clzInstance =
-                    (Class<? extends Benchmark>) Class.forName(clz, true, clLoader);
+                            (Class<? extends Benchmark>) Class.forName(clz, true, clLoader);
 
                     if (!Benchmark.class.isAssignableFrom(clzInstance))
                     {

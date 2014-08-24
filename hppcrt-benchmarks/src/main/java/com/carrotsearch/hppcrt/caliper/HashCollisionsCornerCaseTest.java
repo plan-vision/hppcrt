@@ -1,10 +1,10 @@
 package com.carrotsearch.hppcrt.caliper;
 
 import com.carrotsearch.hppcrt.DistributionGenerator;
-import com.carrotsearch.hppcrt.maps.*;
-import com.carrotsearch.hppcrt.sets.*;
 import com.carrotsearch.hppcrt.XorShiftRandom;
-import com.carrotsearch.hppcrt.cursors.IntCursor;
+import com.carrotsearch.hppcrt.predicates.IntPredicate;
+import com.carrotsearch.hppcrt.procedures.IntProcedure;
+import com.carrotsearch.hppcrt.sets.IntOpenHashSet;
 import com.google.caliper.Param;
 import com.google.caliper.Runner;
 import com.google.caliper.SimpleBenchmark;
@@ -16,15 +16,10 @@ public class HashCollisionsCornerCaseTest extends SimpleBenchmark
 {
     /* Prepare some test data */
     public IntOpenHashSet testSet;
-    public IntIntOpenHashMap testMap;
 
     public IntOpenHashSet currentUnderTestSet;
 
     public IntOpenHashSet currentUnderTestSet2;
-
-    public IntIntOpenHashMap currentUnderTestMap;
-
-    public IntIntOpenHashMap currentUnderTestMap2;
 
     public enum Distribution
     {
@@ -57,14 +52,13 @@ public class HashCollisionsCornerCaseTest extends SimpleBenchmark
         //Instead of this.size, fill up
         //prepare testSet to be filled up to their specified load factor.
 
-        testSet = new IntOpenHashSet(this.size);
-        testMap = new IntIntOpenHashMap(this.size);
+        this.testSet = new IntOpenHashSet(this.size);
 
         final DistributionGenerator gene = new DistributionGenerator(this.size, new XorShiftRandom(87955214455L));
 
         int nextValue = -1;
 
-        while (testSet.size() < testSet.capacity()) {
+        while (this.testSet.size() < this.testSet.capacity()) {
 
             if (this.distribution == Distribution.RANDOM) {
 
@@ -83,24 +77,19 @@ public class HashCollisionsCornerCaseTest extends SimpleBenchmark
                 nextValue = gene.LINEAR_DECREMENT.getNext();
             }
 
-            testSet.add(nextValue);
-            testMap.put(nextValue, ~nextValue);
+            this.testSet.add(nextValue);
         }
 
         //Preallocate of not the tested hash containers
-        if (allocation == Allocation.DEFAULT_SIZE) {
+        if (this.allocation == Allocation.DEFAULT_SIZE) {
 
-            currentUnderTestSet = IntOpenHashSet.newInstance();
-            currentUnderTestSet2 = IntOpenHashSet.newInstance();
-            currentUnderTestMap = IntIntOpenHashMap.newInstance();
-            currentUnderTestMap2 = IntIntOpenHashMap.newInstance();
+            this.currentUnderTestSet = IntOpenHashSet.newInstance();
+            this.currentUnderTestSet2 = IntOpenHashSet.newInstance();
         }
-        else if (allocation == Allocation.PREALLOCATED) {
+        else if (this.allocation == Allocation.PREALLOCATED) {
 
-            currentUnderTestSet = IntOpenHashSet.newInstanceWithCapacity(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
-            currentUnderTestSet2 = IntOpenHashSet.newInstanceWithCapacity(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
-            currentUnderTestMap = IntIntOpenHashMap.newInstance(this.size, IntIntOpenHashMap.DEFAULT_LOAD_FACTOR);
-            currentUnderTestMap2 = IntIntOpenHashMap.newInstance(this.size, IntIntOpenHashMap.DEFAULT_LOAD_FACTOR);
+            this.currentUnderTestSet = IntOpenHashSet.newInstanceWithCapacity(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
+            this.currentUnderTestSet2 = IntOpenHashSet.newInstanceWithCapacity(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
         }
     }
 
@@ -108,11 +97,10 @@ public class HashCollisionsCornerCaseTest extends SimpleBenchmark
     protected void tearDown() throws Exception
     {
         this.testSet = null;
-        this.testMap = null;
     }
 
     /**
-     * Time the 'putAll' operation.
+     * Time the 'addAll' operation.
      */
     public int timeSet_AddAll(final int reps)
     {
@@ -126,7 +114,7 @@ public class HashCollisionsCornerCaseTest extends SimpleBenchmark
     }
 
     /**
-     * Time the 'putAll' operation.
+     * Time the 'addAll' operation in successive ways
      */
     public int timeSet_AddAll_Successive(final int reps)
     {
@@ -142,31 +130,79 @@ public class HashCollisionsCornerCaseTest extends SimpleBenchmark
     }
 
     /**
-     * Time the 'putAll' operation.
+     * Time the 'addAll' operation using a forEach()
      */
-    public int timeMap_PutAll(final int reps)
+    public int timeSet_ForEach_add_all(final int reps)
     {
+        final IntProcedure addAllProcedure = new IntProcedure() {
+
+            @Override
+            public final void apply(final int value) {
+
+                HashCollisionsCornerCaseTest.this.currentUnderTestSet.add(value);
+            }
+        };
+
         int count = 0;
         for (int i = 0; i < reps; i++)
         {
-            this.currentUnderTestMap.clear();
-            count += this.currentUnderTestMap.putAll(this.testMap);
+            this.currentUnderTestSet.clear();
+
+            this.testSet.forEach(addAllProcedure);
+
+            count += this.currentUnderTestSet.size();
         }
         return count;
     }
 
     /**
-     * Time the 'putAll' operation.
+     * Time the 'add all' by direct iteration on buffer operation.
      */
-    public int timeMap_PutAll_Successive(final int reps)
+    public int timeSet_Direct_iteration_add_all(final int reps)
     {
         int count = 0;
         for (int i = 0; i < reps; i++)
         {
-            this.currentUnderTestMap.clear();
-            this.currentUnderTestMap2.clear();
-            count += this.currentUnderTestMap.putAll(this.testMap);
-            count += this.currentUnderTestMap2.putAll(this.currentUnderTestMap);
+            this.currentUnderTestSet.clear();
+
+            final int[] testSetKeys = this.testSet.keys;
+            final boolean[] testSetRefAllocated = this.testSet.allocated;
+
+            for (int j = 0; j < testSetRefAllocated.length; j++) {
+
+                if (testSetRefAllocated[j]) {
+
+                    this.currentUnderTestSet.add(testSetKeys[j]);
+                }
+            }
+
+            count += this.currentUnderTestSet.size();
+        }
+        return count;
+    }
+
+    /**
+     * Time the 'add all' by direct iteration on buffer operation.
+     */
+    public int timeSet_Direct_iteration_reversed_add_all(final int reps)
+    {
+        int count = 0;
+        for (int i = 0; i < reps; i++)
+        {
+            this.currentUnderTestSet.clear();
+
+            final int[] testSetKeys = this.testSet.keys;
+            final boolean[] testSetRefAllocated = this.testSet.allocated;
+
+            for (int j = testSetRefAllocated.length - 1; j >= 0; j--) {
+
+                if (testSetRefAllocated[j]) {
+
+                    this.currentUnderTestSet.add(testSetKeys[j]);
+                }
+            }
+
+            count += this.currentUnderTestSet.size();
         }
         return count;
     }

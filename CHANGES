@@ -1,3 +1,11 @@
+[0.6.6]
+
+** Bug fixes
+
+HPPC-92 : ObjectOpenHashSet/Generics -ClassCastException when accesing to keys[] array
+
+HPPCRT-22 : Follow-up of HPPCRT-18 for more Perturbation-free fixes in Hashs containers
+
 [0.6.5]
 ** API-breaking changes
 
@@ -26,6 +34,8 @@ HPPCRT-14: Add a forEach(KTypeVTypePredicate) for the KTypeVTypeAssociativeConta
 HPPCRT-12 : Make ArrayDeque a KTypeIndexedContainer
 
 ** Changes in functionality
+
+HPPCRT-8 : consistently Implement trim/trim-to-size methods using c = c.clone() idiom
 
 HPPCRT-19: Drop hash startegies from OpenHash implementations, and replace it with dedicated CustomHash classes
 
