@@ -47,8 +47,8 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenCustomHashSet<KType>
-extends AbstractKTypeCollection<KType>
-implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+        extends AbstractKTypeCollection<KType>
+        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -67,6 +67,16 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
     /**
      * Hash-indexed array holding all set entries.
+    #if ($TemplateOptions.KTypeGeneric)
+     * <p><strong>Important!</strong>
+     * The actual value in this field is always an instance of <code>Object[]</code>.
+     * Be warned that <code>javac</code> emits additional casts when <code>keys</code>
+     * are directly accessed; <strong>these casts
+     * may result in exceptions at runtime</strong>. A workaround is to cast directly to
+     * <code>Object[]</code> before accessing the buffer's elements (although it is highly
+     * recommended to use a {@link #iterator()} instead.
+     * </pre>
+    #end
      * <p>
      * Direct set iteration: iterate keys[i] for i in [0; keys.length[ where this.allocated[i] is true.
      * </p>
@@ -599,8 +609,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
             }
 
             if (/*! #if ($RH) !*/
-                    allocated[slotCurr] == -1
-                    /*! #else
+            allocated[slotCurr] == -1
+            /*! #else
             !allocated[slotCurr]
             #end !*/)
             {
@@ -859,7 +869,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     allocated[i] == -1
-                    /*! #else
+            /*! #else
             !allocated[i]
             #end  !*/)
             {

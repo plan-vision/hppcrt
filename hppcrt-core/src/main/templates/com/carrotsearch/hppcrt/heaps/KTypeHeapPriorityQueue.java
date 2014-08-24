@@ -20,7 +20,7 @@ import com.carrotsearch.hppcrt.sorting.*;
 /*! #set( $DEBUG = false) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType>
-        implements KTypePriorityQueue<KType>, Cloneable
+implements KTypePriorityQueue<KType>, Cloneable
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -28,11 +28,19 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
     public final static int DEFAULT_CAPACITY = 16;
 
     /**
-     * Internal array for storing the priority queue
-     * The array may be larger than the current size
-     * ({@link #size()}).
+     * Internal array for storing the priority queue.
+    #if ($TemplateOptions.KTypeGeneric)
+     * <p><strong>Important!</strong>
+     * The actual value in this field is always an instance of <code>Object[]</code>.
+     * Be warned that <code>javac</code> emits additional casts when <code>buffer</code>
+     * is directly accessed; <strong>these casts
+     * may result in exceptions at runtime</strong>. A workaround is to cast directly to
+     * <code>Object[]</code> before accessing the buffer's elements (although it is highly
+     * recommended to use a {@link #iterator()} instead.
+     * </pre>
+    #end
      * <p>
-     * Direct priority queue iteration: iterate buffer[i] for i in [1; size()] (included)
+     * Direct priority queue iteration: iterate buffer[i] for i in [1; size()] (included) but is out-of-order w.r.t {@link #popTop()}
      * </p>
      */
     public KType[] buffer;
@@ -114,7 +122,7 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
      * @see BoundedProportionalArraySizingStrategy
      */
     public KTypeHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp
-    /*! #else
+            /*! #else
     KTypeComparator<? super KType> comp
     #end !*/)
     {
@@ -262,7 +270,7 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
     {
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         //1-based indexing
-        Internals.blankObjectArray(buffer, 1, elementsCount + 1);
+        Internals.blankObjectArray(this.buffer, 1, this.elementsCount + 1);
         /*! #end !*/
         this.elementsCount = 0;
     }
@@ -290,11 +298,11 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
         protected KTypeCursor<KType> fetch()
         {
             //priority is 1-based index
-            if (cursor.index == size)
+            if (this.cursor.index == this.size)
                 return done();
 
-            cursor.value = buffer[++cursor.index];
-            return cursor;
+            this.cursor.value = this.buffer[++this.cursor.index];
+            return this.cursor;
         }
     }
 
@@ -315,7 +323,7 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
     public boolean contains(final KType element)
     {
         //1-based index
-        final int size = elementsCount;
+        final int size = this.elementsCount;
         final KType[] buff = this.buffer;
 
         for (int i = 1; i <= size; i++)
@@ -335,7 +343,7 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
     @Override
     public int size()
     {
-        return elementsCount;
+        return this.elementsCount;
     }
 
     /**
@@ -344,7 +352,7 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
     @Override
     public int capacity() {
 
-        return buffer.length - 1;
+        return this.buffer.length - 1;
     }
 
     /**
@@ -354,7 +362,7 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
     public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure)
     {
         final KType[] buff = this.buffer;
-        final int size = elementsCount;
+        final int size = this.elementsCount;
 
         for (int i = 1; i <= size; i++)
         {
@@ -371,7 +379,7 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
     public <T extends KTypePredicate<? super KType>> T forEach(final T predicate)
     {
         final KType[] buff = this.buffer;
-        final int size = elementsCount;
+        final int size = this.elementsCount;
 
         for (int i = 1; i <= size; i++)
         {
@@ -392,11 +400,11 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
         ensureBufferSpace(1);
 
         //add at the end
-        elementsCount++;
-        buffer[elementsCount] = element;
+        this.elementsCount++;
+        this.buffer[this.elementsCount] = element;
 
         //swim last element
-        swim(elementsCount);
+        swim(this.elementsCount);
     }
 
     /**
@@ -408,9 +416,9 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
     {
         KType elem = this.defaultValue;
 
-        if (elementsCount > 0)
+        if (this.elementsCount > 0)
         {
-            elem = buffer[1];
+            elem = this.buffer[1];
         }
 
         return elem;
@@ -425,33 +433,33 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
     {
         KType elem = this.defaultValue;
 
-        if (elementsCount > 0)
+        if (this.elementsCount > 0)
         {
-            elem = buffer[1];
+            elem = this.buffer[1];
 
-            if (elementsCount == 1)
+            if (this.elementsCount == 1)
             {
                 //for GC
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                buffer[1] = Intrinsics.<KType> defaultKTypeValue();
+                this.buffer[1] = Intrinsics.<KType> defaultKTypeValue();
                 /*! #end !*/
                 //diminuish size
-                elementsCount = 0;
+                this.elementsCount = 0;
             }
             else
             {
                 //at least 2 elements
                 //put the last element in first position
 
-                buffer[1] = buffer[elementsCount];
+                this.buffer[1] = this.buffer[this.elementsCount];
 
                 //for GC
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                buffer[elementsCount] = Intrinsics.<KType> defaultKTypeValue();
+                this.buffer[this.elementsCount] = Intrinsics.<KType> defaultKTypeValue();
                 /*! #end !*/
 
                 //diminuish size
-                elementsCount--;
+                this.elementsCount--;
 
                 //percolate down the first element
                 sink(1);
@@ -472,8 +480,8 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
 
         for (final KTypeCursor<? extends KType> cursor : container)
         {
-            elementsCount++;
-            buffer[elementsCount] = cursor.value;
+            this.elementsCount++;
+            this.buffer[this.elementsCount] = cursor.value;
         }
 
         //restore heap
@@ -521,7 +529,7 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
     public int hashCode()
     {
         int h = 1;
-        final int max = elementsCount;
+        final int max = this.elementsCount;
         final KType[] buff = this.buffer;
 
         //1-based index
@@ -540,14 +548,14 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
     {
         if (this.comparator == null)
         {
-            for (int k = elementsCount >> 1; k >= 1; k--)
+            for (int k = this.elementsCount >> 1; k >= 1; k--)
             {
                 sinkComparable(k);
             }
         }
         else
         {
-            for (int k = elementsCount >> 1; k >= 1; k--)
+            for (int k = this.elementsCount >> 1; k >= 1; k--)
             {
                 sinkComparator(k);
             }
@@ -648,18 +656,18 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
      */
     protected void ensureBufferSpace(final int expectedAdditions)
     {
-        final int bufferLen = (buffer == null ? 0 : buffer.length - 1);
-        if (elementsCount > bufferLen - expectedAdditions)
+        final int bufferLen = (this.buffer == null ? 0 : this.buffer.length - 1);
+        if (this.elementsCount > bufferLen - expectedAdditions)
         {
-            final int newSize = resizer.grow(bufferLen, elementsCount, expectedAdditions + 1);
-            assert newSize >= elementsCount + expectedAdditions : "Resizer failed to" +
+            final int newSize = this.resizer.grow(bufferLen, this.elementsCount, expectedAdditions + 1);
+            assert newSize >= this.elementsCount + expectedAdditions : "Resizer failed to" +
                     " return sensible new size: " + newSize + " <= "
-                    + (elementsCount + expectedAdditions);
+                    + (this.elementsCount + expectedAdditions);
 
             final KType[] newBuffer = Intrinsics.newKTypeArray(newSize);
             if (bufferLen > 0)
             {
-                System.arraycopy(buffer, 0, newBuffer, 0, buffer.length);
+                System.arraycopy(this.buffer, 0, newBuffer, 0, this.buffer.length);
             }
             this.buffer = newBuffer;
         }
@@ -672,7 +680,7 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
     public KType[] toArray(final KType[] target)
     {
         //copy from index 1
-        System.arraycopy(buffer, 1, target, 0, elementsCount);
+        System.arraycopy(this.buffer, 1, target, 0, this.elementsCount);
         return target;
     }
 
@@ -682,7 +690,7 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
      */
     private void sinkComparable(int k)
     {
-        final int N = elementsCount;
+        final int N = this.elementsCount;
         final KType[] buffer = this.buffer;
 
         KType tmp;
@@ -718,7 +726,7 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
      */
     private void sinkComparator(int k)
     {
-        final int N = elementsCount;
+        final int N = this.elementsCount;
         final KType[] buffer = this.buffer;
 
         KType tmp;
@@ -768,11 +776,11 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
             //swap k and its parent
             parent = k >> 1;
 
-            tmp = buffer[k];
-            buffer[k] = buffer[parent];
-            buffer[parent] = tmp;
+        tmp = buffer[k];
+        buffer[k] = buffer[parent];
+        buffer[parent] = tmp;
 
-            k = parent;
+        k = parent;
         }
     }
 
@@ -796,11 +804,11 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
         {
             //swap k and its parent
             parent = k >> 1;
-            tmp = buffer[k];
-            buffer[k] = buffer[parent];
-            buffer[parent] = tmp;
+        tmp = buffer[k];
+        buffer[k] = buffer[parent];
+        buffer[parent] = tmp;
 
-            k = parent;
+        k = parent;
         }
     }
 
@@ -846,7 +854,7 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
 // is subtree of pq[1..N] rooted at k a min heap?
     private boolean isMinHeapComparable(final int k)
     {
-        final int N = elementsCount;
+        final int N = this.elementsCount;
         final KType[] buffer = this.buffer;
 
         if (k > N)
@@ -864,7 +872,7 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
 // is subtree of pq[1..N] rooted at k a min heap?
     private boolean isMinHeapComparator(final int k)
     {
-        final int N = elementsCount;
+        final int N = this.elementsCount;
         final KType[] buffer = this.buffer;
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/

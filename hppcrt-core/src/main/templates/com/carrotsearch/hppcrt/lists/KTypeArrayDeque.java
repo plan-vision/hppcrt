@@ -48,7 +48,7 @@ import com.carrotsearch.hppcrt.sorting.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayDeque<KType>
-extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexedContainer<KType>, Cloneable
+        extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexedContainer<KType>, Cloneable
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -58,15 +58,16 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
     /**
      * Internal array for storing elements.
      * 
-     * #if ($TemplateOptions.KTypeGeneric)
-     * <p>The actual value in this field is always an instance of <code>Object[]</code>,
-     * regardless of the generic type used. The JDK is inconsistent here too --
-     * {@link ArrayList} declares internal <code>Object[]</code> buffer, but
-     * {@link ArrayDeque} declares an array of generic type objects like we do. The
-     * tradeoff is probably minimal, but you should be aware of additional casts generated
-     * by <code>javac</code> when <code>buffer</code> is directly accessed - these casts
-     * may result in exceptions at runtime. A workaround is to cast directly to
-     * <code>Object[]</code> before accessing the buffer's elements.#end
+    #if ($TemplateOptions.KTypeGeneric)
+     * <p><strong>Important!</strong>
+     * The actual value in this field is always an instance of <code>Object[]</code>.
+     * Be warned that <code>javac</code> emits additional casts when <code>buffer</code>
+     * is directly accessed; <strong>these casts
+     * may result in exceptions at runtime</strong>. A workaround is to cast directly to
+     * <code>Object[]</code> before accessing the buffer's elements (although it is highly
+     * recommended to use a {@link #iterator()} instead.
+     * </pre>
+    #end
      * <p>
      * Direct deque iteration from head to tail: iterate buffer[i % buffer.length] for i in [this.head; this.head + size()[
      * </p>
@@ -544,50 +545,50 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
                 : index >= head || index < tail) : "Index out of range (head="
                 + head + ", tail=" + tail + ", index=" + index + ").";
 
-                // Cache fields in locals (hopefully moved to registers).
-                final KType[] b = this.buffer;
-                final int bufLen = b.length;
-                final int lastIndex = bufLen - 1;
-                final int head = this.head;
-                final int tail = this.tail;
+        // Cache fields in locals (hopefully moved to registers).
+        final KType[] b = this.buffer;
+        final int bufLen = b.length;
+        final int lastIndex = bufLen - 1;
+        final int head = this.head;
+        final int tail = this.tail;
 
-                final int leftChunk = Math.abs(index - head) % bufLen;
-                final int rightChunk = Math.abs(tail - index) % bufLen;
+        final int leftChunk = Math.abs(index - head) % bufLen;
+        final int rightChunk = Math.abs(tail - index) % bufLen;
 
-                if (leftChunk < rightChunk)
-                {
-                    if (index >= head)
-                    {
-                        System.arraycopy(b, head, b, head + 1, leftChunk);
-                    }
-                    else
-                    {
-                        System.arraycopy(b, 0, b, 1, index);
-                        b[0] = b[lastIndex];
-                        System.arraycopy(b, head, b, head + 1, lastIndex - head);
-                    }
-                    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                    b[head] = Intrinsics.<KType> defaultKTypeValue();
-                    /*! #end !*/
-                    this.head = KTypeArrayDeque.oneRight(head, bufLen);
-                }
-                else
-                {
-                    if (index < tail)
-                    {
-                        System.arraycopy(b, index + 1, b, index, rightChunk);
-                    }
-                    else
-                    {
-                        System.arraycopy(b, index + 1, b, index, lastIndex - index);
-                        b[lastIndex] = b[0];
-                        System.arraycopy(b, 1, b, 0, tail);
-                    }
-                    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                    b[tail] = Intrinsics.<KType> defaultKTypeValue();
-                    /*! #end !*/
-                    this.tail = KTypeArrayDeque.oneLeft(tail, bufLen);
-                }
+        if (leftChunk < rightChunk)
+        {
+            if (index >= head)
+            {
+                System.arraycopy(b, head, b, head + 1, leftChunk);
+            }
+            else
+            {
+                System.arraycopy(b, 0, b, 1, index);
+                b[0] = b[lastIndex];
+                System.arraycopy(b, head, b, head + 1, lastIndex - head);
+            }
+            /*! #if ($TemplateOptions.KTypeGeneric) !*/
+            b[head] = Intrinsics.<KType> defaultKTypeValue();
+            /*! #end !*/
+            this.head = KTypeArrayDeque.oneRight(head, bufLen);
+        }
+        else
+        {
+            if (index < tail)
+            {
+                System.arraycopy(b, index + 1, b, index, rightChunk);
+            }
+            else
+            {
+                System.arraycopy(b, index + 1, b, index, lastIndex - index);
+                b[lastIndex] = b[0];
+                System.arraycopy(b, 1, b, 0, tail);
+            }
+            /*! #if ($TemplateOptions.KTypeGeneric) !*/
+            b[tail] = Intrinsics.<KType> defaultKTypeValue();
+            /*! #end !*/
+            this.tail = KTypeArrayDeque.oneLeft(tail, bufLen);
+        }
     }
 
     /**
@@ -1145,7 +1146,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeArrayDeque<KType> newInstance()
+            KTypeArrayDeque<KType> newInstance()
     {
         return new KTypeArrayDeque<KType>();
     }
@@ -1155,7 +1156,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeArrayDeque<KType> newInstanceWithCapacity(final int initialCapacity)
+            KTypeArrayDeque<KType> newInstanceWithCapacity(final int initialCapacity)
     {
         return new KTypeArrayDeque<KType>(initialCapacity);
     }
@@ -1164,7 +1165,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
      * Create a new deque by pushing a variable number of arguments to the end of it.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeArrayDeque<KType> from(final KType... elements)
+            KTypeArrayDeque<KType> from(final KType... elements)
     {
         final KTypeArrayDeque<KType> coll = new KTypeArrayDeque<KType>(elements.length);
         coll.addLast(elements);
@@ -1175,7 +1176,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
      * Create a new deque by pushing a variable number of arguments to the end of it.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeArrayDeque<KType> from(final KTypeArrayDeque<KType> container)
+            KTypeArrayDeque<KType> from(final KTypeArrayDeque<KType> container)
     {
         return new KTypeArrayDeque<KType>(container);
     }

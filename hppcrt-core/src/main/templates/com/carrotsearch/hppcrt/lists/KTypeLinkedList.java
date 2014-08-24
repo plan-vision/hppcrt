@@ -29,7 +29,7 @@ import com.carrotsearch.hppcrt.sorting.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeLinkedList<KType>
-        extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, KTypeDeque<KType>, Cloneable
+extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, KTypeDeque<KType>, Cloneable
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -40,17 +40,27 @@ public class KTypeLinkedList<KType>
      * Internal array for storing the list. The array may be larger than the current size
      * ({@link #size()}).
      * 
-     * #if ($TemplateOptions.KTypeGeneric)
-     * <p>The actual value in this field is always an instance of <code>Object[]</code>,
-     * regardless of the generic type used. The JDK is inconsistent here too --
+    #if ($TemplateOptions.KTypeGeneric)
+     * <p><strong>Important!</strong>
+     * The actual value in this field is always an instance of <code>Object[]</code>,
+     * regardless of the generic type used. The JDK is inconsistent here too:
      * {@link ArrayList} declares internal <code>Object[]</code> buffer, but
      * {@link ArrayDeque} declares an array of generic type objects like we do. The
      * tradeoff is probably minimal, but you should be aware of additional casts generated
-     * by <code>javac</code> when <code>buffer</code> is directly accessed - these casts
-     * may result in exceptions at runtime. A workaround is to cast directly to
-     * <code>Object[]</code> before accessing the buffer's elements.#end
+     * by <code>javac</code> when <code>buffer</code> is directly accessed; <strong>these casts
+     * may also result in exceptions at runtime</strong>. A workaround is to cast directly to
+     * <code>Object[]</code> before accessing the buffer's elements, as shown
+     * in the following code snippet.</p>
+     * 
+     * <pre>
+     * Object[] buf = list.buffer;
+     * for (int i = 2; i <  size() + 2; i++) {
+     *   doSomething(buf[i]);
+     * }
+     * </pre>
+    #end
      * <p>
-     * Direct list iteration: iterate buffer[i] for i in [2; size()+2[, but is out of order !
+     * Direct list iteration: iterate buffer[i] for i in [2; size()+2[, but beware, it is out of order w.r.t the real list order !
      * </p>
      */
     public KType[] buffer;
@@ -1796,7 +1806,7 @@ public class KTypeLinkedList<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> newInstance()
+    KTypeLinkedList<KType> newInstance()
     {
         return new KTypeLinkedList<KType>();
     }
@@ -1806,7 +1816,7 @@ public class KTypeLinkedList<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> newInstanceWithCapacity(final int initialCapacity)
+    KTypeLinkedList<KType> newInstanceWithCapacity(final int initialCapacity)
     {
         return new KTypeLinkedList<KType>(initialCapacity);
     }
@@ -1816,7 +1826,7 @@ public class KTypeLinkedList<KType>
      * The elements are copied from the argument to the internal buffer.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> from(final KType... elements)
+    KTypeLinkedList<KType> from(final KType... elements)
     {
         final KTypeLinkedList<KType> list = new KTypeLinkedList<KType>(elements.length);
         list.add(elements);
@@ -1827,7 +1837,7 @@ public class KTypeLinkedList<KType>
      * Create a list from elements of another container.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> from(final KTypeContainer<KType> container)
+    KTypeLinkedList<KType> from(final KTypeContainer<KType> container)
     {
         return new KTypeLinkedList<KType>(container);
     }

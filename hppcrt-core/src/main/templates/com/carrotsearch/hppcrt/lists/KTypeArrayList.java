@@ -48,7 +48,7 @@ import com.carrotsearch.hppcrt.sorting.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayList<KType>
-extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, Cloneable
+        extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, Cloneable
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -69,15 +69,25 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * Internal array for storing the list. The array may be larger than the current size
      * ({@link #size()}).
      * 
-     * #if ($TemplateOptions.KTypeGeneric)
-     * <p>The actual value in this field is always an instance of <code>Object[]</code>,
-     * regardless of the generic type used. The JDK is inconsistent here too --
+    #if ($TemplateOptions.KTypeGeneric)
+     * <p><strong>Important!</strong>
+     * The actual value in this field is always an instance of <code>Object[]</code>,
+     * regardless of the generic type used. The JDK is inconsistent here too:
      * {@link ArrayList} declares internal <code>Object[]</code> buffer, but
      * {@link ArrayDeque} declares an array of generic type objects like we do. The
      * tradeoff is probably minimal, but you should be aware of additional casts generated
-     * by <code>javac</code> when <code>buffer</code> is directly accessed - these casts
-     * may result in exceptions at runtime. A workaround is to cast directly to
-     * <code>Object[]</code> before accessing the buffer's elements.#end
+     * by <code>javac</code> when <code>buffer</code> is directly accessed; <strong>these casts
+     * may also result in exceptions at runtime</strong>. A workaround is to cast directly to
+     * <code>Object[]</code> before accessing the buffer's elements, as shown
+     * in the following code snippet.</p>
+     * 
+     * <pre>
+     * Object[] buf = list.buffer;
+     * for (int i = list.size(); --i >= 0;) {
+     *   doSomething(buf[i]);
+     * }
+     * </pre>
+    #end
      * <p>
      * Direct list iteration: iterate buffer[i] for i in [0; size()[
      * </p>
@@ -843,7 +853,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeArrayList<KType> newInstance()
+            KTypeArrayList<KType> newInstance()
     {
         return new KTypeArrayList<KType>();
     }
@@ -853,7 +863,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeArrayList<KType> newInstanceWithCapacity(final int initialCapacity)
+            KTypeArrayList<KType> newInstanceWithCapacity(final int initialCapacity)
     {
         return new KTypeArrayList<KType>(initialCapacity);
     }
@@ -863,7 +873,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * The elements are copied from the argument to the internal buffer.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeArrayList<KType> from(final KType... elements)
+            KTypeArrayList<KType> from(final KType... elements)
     {
         final KTypeArrayList<KType> list = new KTypeArrayList<KType>(elements.length);
         list.add(elements);
@@ -874,7 +884,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * Create a list from elements of another container.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeArrayList<KType> from(final KTypeContainer<KType> container)
+            KTypeArrayList<KType> from(final KTypeContainer<KType> container)
     {
         return new KTypeArrayList<KType>(container);
     }

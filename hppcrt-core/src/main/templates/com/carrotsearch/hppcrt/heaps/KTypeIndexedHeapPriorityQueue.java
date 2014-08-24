@@ -22,7 +22,7 @@ import com.carrotsearch.hppcrt.sorting.*;
 /*! #set( $DEBUG = false) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType>
-implements KTypeIndexedPriorityQueue<KType>, Cloneable
+        implements KTypeIndexedPriorityQueue<KType>, Cloneable
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -31,7 +31,16 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
 
     /**
      * Internal array for storing the priority queue
-     * The array may be larger than the current size
+      #if ($TemplateOptions.KTypeGeneric)
+     * <p><strong>Important!</strong>
+     * The actual value in this field is always an instance of <code>Object[]</code>.
+     * Be warned that <code>javac</code> emits additional casts when <code>buffer</code>
+     * is directly accessed; <strong>these casts
+     * may result in exceptions at runtime</strong>. A workaround is to cast directly to
+     * <code>Object[]</code> before accessing the buffer's elements (although it is highly
+     * recommended to use a {@link #iterator()} instead.
+     * </pre>
+    #end
      * <p>
      * Direct indexed priority queue iteration: iterate pq[i] for i in [0; pq.length[
      * and buffer[pq[i]] to get value where pq[i] > 0
@@ -84,7 +93,7 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
         @Override
         public final boolean apply(final int index, final KType k)
         {
-            return !testIndexedPredicate.apply(index, k);
+            return !KTypeIndexedHeapPriorityQueue.this.testIndexedPredicate.apply(index, k);
         }
     };
 
@@ -93,7 +102,7 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
         @Override
         public final boolean apply(final KType k)
         {
-            return Intrinsics.equalsKType(testContainsPredicate, k);
+            return Intrinsics.equalsKType(KTypeIndexedHeapPriorityQueue.this.testContainsPredicate, k);
         }
     };
 
@@ -148,7 +157,7 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
      * @see BoundedProportionalArraySizingStrategy
      */
     public KTypeIndexedHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp
-            /*! #else
+    /*! #else
     KTypeComparator<? super KType> comp
     #end !*/)
     {
@@ -289,16 +298,16 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
     {
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         //1-based indexing
-        Internals.blankObjectArray(buffer, 1, elementsCount + 1);
+        Internals.blankObjectArray(this.buffer, 1, this.elementsCount + 1);
         /*! #end !*/
 
         //we need to init to zero, not -1 !!!
-        Arrays.fill(pq, 0);
+        Arrays.fill(this.pq, 0);
 
         //This is not really needed to reset this,
         //but is useful to catch inconsistencies in assertions
         /*! #if($DEBUG) !*/
-        Arrays.fill(qp, -1);
+        Arrays.fill(this.qp, -1);
         /*! #end !*/
 
         this.elementsCount = 0;
@@ -324,20 +333,20 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
             this.buffer = KTypeIndexedHeapPriorityQueue.this.buffer;
             this.size = KTypeIndexedHeapPriorityQueue.this.size();
             this.qp = KTypeIndexedHeapPriorityQueue.this.qp;
-            currentPosition = 0;
+            this.currentPosition = 0;
         }
 
         @Override
         protected KTypeCursor<KType> fetch()
         {
             //priority is 1-based index
-            if (currentPosition == size)
+            if (this.currentPosition == this.size)
                 return done();
 
-            cursor.value = buffer[++currentPosition];
-            cursor.index = qp[currentPosition];
+            this.cursor.value = this.buffer[++this.currentPosition];
+            this.cursor.index = this.qp[this.currentPosition];
 
-            return cursor;
+            return this.cursor;
 
         }
     }
@@ -358,7 +367,7 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
     public boolean contains(final KType element)
     {
         //1-based index
-        final int size = elementsCount;
+        final int size = this.elementsCount;
         final KType[] buffer = this.buffer;
 
         for (int pos = 1; pos <= size; pos++)
@@ -378,7 +387,7 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
     @Override
     public int size()
     {
-        return elementsCount;
+        return this.elementsCount;
     }
 
     /**
@@ -387,7 +396,7 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
     @Override
     public int capacity() {
 
-        return buffer.length - 1;
+        return this.buffer.length - 1;
     }
 
     /**
@@ -397,7 +406,7 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
     public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure)
     {
         final KType[] buffer = this.buffer;
-        final int size = elementsCount;
+        final int size = this.elementsCount;
 
         for (int pos = 1; pos <= size; pos++)
         {
@@ -414,7 +423,7 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
     public <T extends KTypeIndexedProcedure<? super KType>> T indexedForEach(final T procedure)
     {
         final KType[] buffer = this.buffer;
-        final int size = elementsCount;
+        final int size = this.elementsCount;
 
         final int[] qp = this.qp;
 
@@ -433,7 +442,7 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
     public <T extends KTypePredicate<? super KType>> T forEach(final T predicate)
     {
         final KType[] buffer = this.buffer;
-        final int size = elementsCount;
+        final int size = this.elementsCount;
 
         for (int i = 1; i <= size; i++)
         {
@@ -451,7 +460,7 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
     public <T extends KTypeIndexedPredicate<? super KType>> T indexedForEach(final T predicate)
     {
         final KType[] buffer = this.buffer;
-        final int size = elementsCount;
+        final int size = this.elementsCount;
 
         final int[] qp = this.qp;
 
@@ -477,21 +486,21 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
         //resize if needed.
         ensureBufferSpace(index);
 
-        if (pq[index] > 0)
+        if (this.pq[index] > 0)
         {
             //element already exists
             return false;
         }
 
         //add at the end
-        elementsCount++;
-        final int count = elementsCount;
+        this.elementsCount++;
+        final int count = this.elementsCount;
 
-        buffer[count] = element;
+        this.buffer[count] = element;
 
         //initial position
-        pq[index] = count;
-        qp[count] = index;
+        this.pq[index] = count;
+        this.qp[count] = index;
 
         //swim last element
         swim(count);
@@ -508,9 +517,9 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
     {
         KType elem = this.defaultValue;
 
-        if (elementsCount > 0)
+        if (this.elementsCount > 0)
         {
-            elem = buffer[1];
+            elem = this.buffer[1];
         }
 
         return elem;
@@ -525,11 +534,11 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
     {
         KType elem = this.defaultValue;
 
-        if (elementsCount > 0)
+        if (this.elementsCount > 0)
         {
-            elem = buffer[1];
+            elem = this.buffer[1];
 
-            deleteIndex(qp[1]);
+            deleteIndex(this.qp[1]);
         }
 
         return elem;
@@ -543,14 +552,14 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
     public KType getIndex(final int index)
     {
         /*! #if($DEBUG) !*/
-        assert index >= pq.length || pq[index] > 0 : "Element of index " + " doesn't exist !";
+        assert index >= this.pq.length || this.pq[index] > 0 : "Element of index " + " doesn't exist !";
         /*! #end !*/
 
         KType elem = this.defaultValue;
 
-        if (index < pq.length && pq[index] > 0)
+        if (index < this.pq.length && this.pq[index] > 0)
         {
-            elem = buffer[pq[index]];
+            elem = this.buffer[this.pq[index]];
         }
 
         return elem;
@@ -563,7 +572,7 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
     public int hashCode()
     {
         int h = 1;
-        final int size = pq.length;
+        final int size = this.pq.length;
         final KType[] buffer = this.buffer;
         final int[] pq = this.pq;
 
@@ -599,7 +608,7 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
             final int deletedPos = pq[index];
             deletedElement = buffer[deletedPos];
 
-            if (deletedPos == elementsCount)
+            if (deletedPos == this.elementsCount)
             {
                 //we remove the last element
                 pq[index] = 0;
@@ -615,7 +624,7 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
                 /*! #end !*/
 
                 //diminuish size
-                elementsCount--;
+                this.elementsCount--;
             }
             else
             {
@@ -626,11 +635,12 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
                         deletedPos, qp[deletedPos], index);
                 /*! #end !*/
 
-                final int lastElementIndex = qp[elementsCount];
+                final int lastElementIndex = qp[this.elementsCount];
 
                 /*! #if($DEBUG) !*/
-                assert (lastElementIndex >= 0 && pq[lastElementIndex] == elementsCount) : String.format("lastElementIndex = qp[elementsCount] = %d, pq[lastElementIndex] = %d, elementsCount = %d",
-                        lastElementIndex, pq[lastElementIndex], elementsCount);
+                assert (lastElementIndex >= 0 && pq[lastElementIndex] == this.elementsCount) : String.format(
+                        "lastElementIndex = qp[elementsCount] = %d, pq[lastElementIndex] = %d, elementsCount = %d",
+                        lastElementIndex, pq[lastElementIndex], this.elementsCount);
                 /*! #end !*/
 
                 //not needed, overwritten below :
@@ -638,7 +648,7 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
                 qp[deletedPos] = -1;
                 /*! #end !*/
 
-                buffer[deletedPos] = buffer[elementsCount];
+                buffer[deletedPos] = buffer[this.elementsCount];
                 //last element is now at pos deletedPos
                 pq[lastElementIndex] = deletedPos;
                 qp[deletedPos] = lastElementIndex;
@@ -649,16 +659,16 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
 
                 //Not really needed, but usefull to catch inconsistencies
                 /*! #if($DEBUG) !*/
-                qp[elementsCount] = -1;
+                qp[this.elementsCount] = -1;
                 /*! #end !*/
 
                 //for GC
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                buffer[elementsCount] = Intrinsics.<KType> defaultKTypeValue();
+                buffer[this.elementsCount] = Intrinsics.<KType> defaultKTypeValue();
                 /*! #end !*/
 
                 //diminuish size
-                elementsCount--;
+                this.elementsCount--;
 
                 //after swapping positions
                 /*! #if($DEBUG) !*/
@@ -669,7 +679,7 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
                         deletedPos, qp[deletedPos], lastElementIndex, index);
                 /*! #end !*/
 
-                if (elementsCount > 1)
+                if (this.elementsCount > 1)
                 {
                     //re-establish heap
                     sink(pq[lastElementIndex]);
@@ -689,10 +699,10 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
     @Override
     public void changePriority(final int index)
     {
-        if (index < pq.length && pq[index] > 0)
+        if (index < this.pq.length && this.pq[index] > 0)
         {
-            swim(pq[index]);
-            sink(pq[index]);
+            swim(this.pq[index]);
+            sink(this.pq[index]);
         }
     }
 
@@ -705,7 +715,7 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
     @Override
     public boolean containsIndex(final int index)
     {
-        if (index < pq.length && pq[index] > 0)
+        if (index < this.pq.length && this.pq[index] > 0)
         {
             return true;
         }
@@ -853,14 +863,14 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
     {
         if (this.comparator == null)
         {
-            for (int k = elementsCount >> 1; k >= 1; k--)
+            for (int k = this.elementsCount >> 1; k >= 1; k--)
             {
                 sinkComparable(k);
             }
         }
         else
         {
-            for (int k = elementsCount >> 1; k >= 1; k--)
+            for (int k = this.elementsCount >> 1; k >= 1; k--)
             {
                 sinkComparator(k);
             }
@@ -873,7 +883,7 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
      */
     protected void ensureBufferSpace(final int index)
     {
-        final int pqLen = (pq == null ? 0 : pq.length);
+        final int pqLen = (this.pq == null ? 0 : this.pq.length);
         if (index > pqLen - 1)
         {
             //resize to acomodate this index.
@@ -885,9 +895,9 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
 
             if (pqLen > 0)
             {
-                System.arraycopy(buffer, 0, newBuffer, 0, buffer.length);
-                System.arraycopy(pq, 0, newPQIndex, 0, pq.length);
-                System.arraycopy(qp, 0, newQPIndex, 0, qp.length);
+                System.arraycopy(this.buffer, 0, newBuffer, 0, this.buffer.length);
+                System.arraycopy(this.pq, 0, newPQIndex, 0, this.pq.length);
+                System.arraycopy(this.qp, 0, newQPIndex, 0, this.qp.length);
             }
             this.buffer = newBuffer;
             this.pq = newPQIndex;
@@ -902,7 +912,7 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
     public KType[] toArray(final KType[] target)
     {
         //copy from index 1
-        System.arraycopy(buffer, 1, target, 0, elementsCount);
+        System.arraycopy(this.buffer, 1, target, 0, this.elementsCount);
         return target;
     }
 
@@ -944,7 +954,7 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
      */
     private void sinkComparable(int k)
     {
-        final int N = elementsCount;
+        final int N = this.elementsCount;
         KType tmp;
         int child;
         int indexK, indexChild;
@@ -993,7 +1003,7 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
      */
     private void sinkComparator(int k)
     {
-        final int N = elementsCount;
+        final int N = this.elementsCount;
         KType tmp;
         int child;
         int indexK, indexChild;
@@ -1061,22 +1071,22 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
             //swap k and its parent
             parent = k >> 1;
 
-        //swap k and parent
-        tmp = buffer[k];
-        buffer[k] = buffer[parent];
-        buffer[parent] = tmp;
+            //swap k and parent
+            tmp = buffer[k];
+            buffer[k] = buffer[parent];
+            buffer[parent] = tmp;
 
-        //swap references
-        indexK = qp[k];
-        indexParent = qp[parent];
+            //swap references
+            indexK = qp[k];
+            indexParent = qp[parent];
 
-        pq[indexK] = parent;
-        pq[indexParent] = k;
+            pq[indexK] = parent;
+            pq[indexParent] = k;
 
-        qp[k] = indexParent;
-        qp[parent] = indexK;
+            qp[k] = indexParent;
+            qp[parent] = indexK;
 
-        k = parent;
+            k = parent;
         }
     }
 
@@ -1105,22 +1115,22 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
             //swap k and its parent
             parent = k >> 1;
 
-        //swap k and parent
-        tmp = buffer[k];
-        buffer[k] = buffer[parent];
-        buffer[parent] = tmp;
+            //swap k and parent
+            tmp = buffer[k];
+            buffer[k] = buffer[parent];
+            buffer[parent] = tmp;
 
-        //swap references
-        indexK = qp[k];
-        indexParent = qp[parent];
+            //swap references
+            indexK = qp[k];
+            indexParent = qp[parent];
 
-        pq[indexK] = parent;
-        pq[indexParent] = k;
+            pq[indexK] = parent;
+            pq[indexParent] = k;
 
-        qp[k] = indexParent;
-        qp[parent] = indexK;
+            qp[k] = indexParent;
+            qp[parent] = indexK;
 
-        k = parent;
+            k = parent;
         }
     }
 
@@ -1158,29 +1168,29 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
      */
     private boolean isConsistent()
     {
-        if (elementsCount > 0)
+        if (this.elementsCount > 0)
         {
             //A) For each valid index, (in pq), there is match in position in qp
-            for (int index = 0; index < pq.length; index++)
+            for (int index = 0; index < this.pq.length; index++)
             {
-                if (pq[index] > 0)
+                if (this.pq[index] > 0)
                 {
-                    if (index != qp[pq[index]])
+                    if (index != this.qp[this.pq[index]])
                     {
                         assert false : String.format("Inconsistent Index: index=%d, size=%d , pq[index] = %d, ==> qp[pq[index]] = %d",
-                                index, size(), pq[index], qp[pq[index]]);
+                                index, size(), this.pq[index], this.qp[this.pq[index]]);
                     }
                 }
             }
 
             //B) Reverse check : for each element of position pos in buffer, there is a match in pq
-            for (int pos = 1; pos <= elementsCount; pos++)
+            for (int pos = 1; pos <= this.elementsCount; pos++)
             {
 
-                if (pos != pq[qp[pos]])
+                if (pos != this.pq[this.qp[pos]])
                 {
                     assert false : String.format("Inconsistent position: pos=%d, size=%d , qp[pos] = %d, ==> pq[qp[pos]] = %d",
-                            pos, size(), qp[pos], pq[qp[pos]]);
+                            pos, size(), this.qp[pos], this.pq[this.qp[pos]]);
 
                 }
             }
@@ -1206,7 +1216,7 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
     // is subtree of pq[1..N] rooted at k a min heap?
     private boolean isMinHeapComparable(final int k)
     {
-        final int N = elementsCount;
+        final int N = this.elementsCount;
         final KType[] buffer = this.buffer;
 
         if (k > N)
@@ -1224,7 +1234,7 @@ implements KTypeIndexedPriorityQueue<KType>, Cloneable
     // is subtree of pq[1..N] rooted at k a min heap?
     private boolean isMinHeapComparator(final int k)
     {
-        final int N = elementsCount;
+        final int N = this.elementsCount;
         final KType[] buffer = this.buffer;
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
