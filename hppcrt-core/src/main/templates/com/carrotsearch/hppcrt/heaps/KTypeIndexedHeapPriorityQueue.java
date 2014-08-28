@@ -9,20 +9,24 @@ import com.carrotsearch.hppcrt.procedures.*;
 import com.carrotsearch.hppcrt.sorting.*;
 
 /**
- * A Heap-based, indexed min-priority queue of <code>KType</code>s.
+ * A Heap-based, indexed min-priority queue of <code>KType</code>s,
  * i.e. top() is the smallest element of the queue.
- * as defined by Sedgewick: Algorithms 4th Edition (2011)
- * It assure O(log2(N)) complexity for insertion, deletion of the first element,
+ * as defined by Sedgewick: Algorithms 4th Edition (2011).
+ * This class is also a {@link IntKTypeMap}, and acts like a (K,V) = (int, KType) map.
+ * It assures O(log2(N)) complexity for insertion, deletion of the first element,
  * and constant time to examine the first element.
- * As it is indexed, it also supports containsIndex() in constant time, deleteIndex()
- * and change priority in O(log2(N)) time.
+ * As it is <code>int</code> indexed, it also supports {@link #containsKey()} in constant time, {@link #remove()}
+ * and {@link #changePriority(int)} in O(log2(N)) time.
+ * * <p><b>Important note: This implementation uses direct indexing, meaning that a map
+ * at any given time is only able to have <code>int</code> keys in
+ * the [0 ; {@link #capacity()}[ range. So when a {@link #put(key, KType)} occurs, the map may be resized to be able hold a key exceeding the current capacity.</b>
+ * </p>
  * @author <a href="https://github.com/vsonnier" >Vincent Sonnier</a>
  */
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
 /*! #set( $DEBUG = false) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
-public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType>
-        implements KTypeIndexedPriorityQueue<KType>, Cloneable
+public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>, Cloneable
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -80,31 +84,12 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
     protected KTypeComparator<? super KType> comparator;
     #end !*/
 
+    protected KType defaultValue = Intrinsics.<KType> defaultKTypeValue();
+
     /**
-     * internal pool of ValueIterator (must be created in constructor)
+     * internal pool of EntryIterator (must be created in constructor)
      */
-    protected final IteratorPool<KTypeCursor<KType>, ValueIterator> valueIteratorPool;
-
-    protected KTypeIndexedPredicate<? super KType> testIndexedPredicate;
-    protected KType testContainsPredicate;
-
-    protected final KTypeIndexedPredicate<KType> negateIndexedPredicate = new KTypeIndexedPredicate<KType>() {
-
-        @Override
-        public final boolean apply(final int index, final KType k)
-        {
-            return !KTypeIndexedHeapPriorityQueue.this.testIndexedPredicate.apply(index, k);
-        }
-    };
-
-    protected final KTypePredicate<KType> containsPredicate = new KTypePredicate<KType>() {
-
-        @Override
-        public final boolean apply(final KType k)
-        {
-            return Intrinsics.equalsKType(KTypeIndexedHeapPriorityQueue.this.testContainsPredicate, k);
-        }
-    };
+    protected final IteratorPool<IntKTypeCursor<KType>, EntryIterator> entryIteratorPool;
 
     /**
      * Create with a given initial capacity, using a
@@ -122,27 +107,27 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
         //1-based index buffer, assure allocation
         ensureBufferSpace(initialCapacity + 1);
 
-        this.valueIteratorPool = new IteratorPool<KTypeCursor<KType>, ValueIterator>(
-                new ObjectFactory<ValueIterator>() {
+        this.entryIteratorPool = new IteratorPool<IntKTypeCursor<KType>, EntryIterator>(
+                new ObjectFactory<EntryIterator>() {
 
                     @Override
-                    public ValueIterator create()
+                    public EntryIterator create()
                     {
-                        return new ValueIterator();
+                        return new EntryIterator();
                     }
 
                     @Override
-                    public void initialize(final ValueIterator obj)
+                    public void initialize(final EntryIterator obj)
                     {
                         obj.cursor.index = 0;
                         obj.buffer = KTypeIndexedHeapPriorityQueue.this.buffer;
                         obj.size = KTypeIndexedHeapPriorityQueue.this.elementsCount;
-                        obj.currentPosition = 0;
                         obj.qp = KTypeIndexedHeapPriorityQueue.this.qp;
                     }
 
                     @Override
-                    public void reset(final ValueIterator obj) {
+                    public void reset(final EntryIterator obj)
+                    {
                         // for GC sake
                         obj.qp = null;
                         obj.buffer = null;
@@ -157,7 +142,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
      * @see BoundedProportionalArraySizingStrategy
      */
     public KTypeIndexedHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp
-    /*! #else
+            /*! #else
     KTypeComparator<? super KType> comp
     #end !*/)
     {
@@ -184,116 +169,6 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
      * {@inheritDoc}
      */
     @Override
-    public int removeAllOccurrences(final KType e1)
-    {
-        this.testContainsPredicate = e1;
-        return this.removeAllInternal(this.containsPredicate, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int removeAll(final KTypePredicate<? super KType> predicate)
-    {
-        return removeAllInternal(predicate, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int removeAll(final KTypeIndexedPredicate<? super KType> indexedPredicate)
-    {
-        return removeAllInternal(null, indexedPredicate);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int retainAll(final KTypeIndexedPredicate<? super KType> indexedPredicate)
-    {
-        this.testIndexedPredicate = indexedPredicate;
-        return this.removeAllInternal(null, this.negateIndexedPredicate);
-    }
-
-    private int removeAllInternal(final KTypePredicate<? super KType> predicate, final KTypeIndexedPredicate<? super KType> indexedPredicate)
-    {
-        //remove by position
-        int deleted = 0;
-        final KType[] buffer = this.buffer;
-
-        final int[] qp = this.qp;
-        final int[] pq = this.pq;
-
-        int lastElementIndex = -1;
-
-        int elementsCount = this.elementsCount;
-
-        //1-based index
-        int pos = 1;
-
-        try
-        {
-            while (pos <= elementsCount)
-            {
-                //delete it
-                if (predicate == null ? indexedPredicate.apply(qp[pos], buffer[pos]) : predicate.apply(buffer[pos]))
-                {
-                    lastElementIndex = qp[elementsCount];
-
-                    //put the last element at position pos, like in deleteIndex()
-
-                    buffer[pos] = buffer[elementsCount];
-                    //last element is now at deleted position pos
-                    pq[lastElementIndex] = pos;
-
-                    //mark the index element to be removed
-                    //we must reset with 0 so that qp[pq[index]] is always valid !
-                    pq[qp[pos]] = 0;
-
-                    qp[pos] = lastElementIndex;
-
-                    //Not really needed
-                    /*! #if($DEBUG) !*/
-                    qp[elementsCount] = -1;
-                    /*! #end !*/
-
-                    //for GC
-                    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                    buffer[elementsCount] = Intrinsics.<KType> defaultKTypeValue();
-                    /*! #end !*/
-
-                    //Diminish size
-                    elementsCount--;
-                    deleted++;
-                } //end if to delete
-                else
-                {
-                    pos++;
-                }
-            } //end while
-        }
-        finally
-        {
-            this.elementsCount = elementsCount;
-            //reestablish heap
-            refreshPriorities();
-        }
-
-        /*! #if($DEBUG) !*/
-        assert isMinHeap();
-        assert isConsistent();
-        /*! #end !*/
-
-        return deleted;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void clear()
     {
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
@@ -314,40 +189,42 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
     }
 
     /**
-     * An iterator implementation for {@link HeapPriorityQueue#iterator}.
+     * An iterator implementation for {@link KTypeIndexedHeapPriorityQueue#iterator} entries.
+     * Holds a IntKTypeCursor<KType> cursor returning (key, value, index) = (int key, KType value, index the position in heap)
      */
-    public final class ValueIterator extends AbstractIterator<KTypeCursor<KType>>
+    public final class EntryIterator extends AbstractIterator<IntKTypeCursor<KType>>
     {
-        public final KTypeCursor<KType> cursor;
+        public final IntKTypeCursor<KType> cursor;
 
         private KType[] buffer;
         private int size;
         private int[] qp;
-        private int currentPosition = 0;
 
-        public ValueIterator()
+        public EntryIterator()
         {
-            this.cursor = new KTypeCursor<KType>();
+            this.cursor = new IntKTypeCursor<KType>();
             //index 0 is not used in Priority queue
             this.cursor.index = 0;
             this.buffer = KTypeIndexedHeapPriorityQueue.this.buffer;
             this.size = KTypeIndexedHeapPriorityQueue.this.size();
             this.qp = KTypeIndexedHeapPriorityQueue.this.qp;
-            this.currentPosition = 0;
         }
 
         @Override
-        protected KTypeCursor<KType> fetch()
+        protected IntKTypeCursor<KType> fetch()
         {
             //priority is 1-based index
-            if (this.currentPosition == this.size)
+            if (this.cursor.index == this.size)
+            {
                 return done();
+            }
 
-            this.cursor.value = this.buffer[++this.currentPosition];
-            this.cursor.index = this.qp[this.currentPosition];
+            //this.cursor.index represent the position in the heap buffer.
+            this.cursor.key = this.qp[++this.cursor.index];
+
+            this.cursor.value = this.buffer[this.cursor.index];
 
             return this.cursor;
-
         }
     }
 
@@ -355,30 +232,9 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
      * {@inheritDoc}
      */
     @Override
-    public ValueIterator iterator()
+    public EntryIterator iterator()
     {
-        return this.valueIteratorPool.borrow();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean contains(final KType element)
-    {
-        //1-based index
-        final int size = this.elementsCount;
-        final KType[] buffer = this.buffer;
-
-        for (int pos = 1; pos <= size; pos++)
-        {
-            if (Intrinsics.equalsKType(element, buffer[pos]))
-            {
-                return true;
-            }
-        } //end for
-
-        return false;
+        return this.entryIteratorPool.borrow();
     }
 
     /**
@@ -394,8 +250,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
      * {@inheritDoc}
      */
     @Override
-    public int capacity() {
-
+    public int capacity()
+    {
         return this.buffer.length - 1;
     }
 
@@ -403,29 +259,11 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
      * {@inheritDoc}
      */
     @Override
-    public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure)
+    public <T extends IntKTypeProcedure<? super KType>> T forEach(final T procedure)
     {
         final KType[] buffer = this.buffer;
-        final int size = this.elementsCount;
-
-        for (int pos = 1; pos <= size; pos++)
-        {
-            procedure.apply(buffer[pos]);
-        }
-
-        return procedure;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public <T extends KTypeIndexedProcedure<? super KType>> T indexedForEach(final T procedure)
-    {
-        final KType[] buffer = this.buffer;
-        final int size = this.elementsCount;
-
         final int[] qp = this.qp;
+        final int size = this.elementsCount;
 
         for (int pos = 1; pos <= size; pos++)
         {
@@ -439,15 +277,18 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
      * {@inheritDoc}
      */
     @Override
-    public <T extends KTypePredicate<? super KType>> T forEach(final T predicate)
+    public <T extends IntKTypePredicate<? super KType>> T forEach(final T predicate)
     {
         final KType[] buffer = this.buffer;
+        final int[] qp = this.qp;
         final int size = this.elementsCount;
 
-        for (int i = 1; i <= size; i++)
+        for (int pos = 1; pos <= size; pos++)
         {
-            if (!predicate.apply(buffer[i]))
+            if (!predicate.apply(qp[pos], buffer[pos]))
+            {
                 break;
+            }
         }
 
         return predicate;
@@ -457,20 +298,93 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
      * {@inheritDoc}
      */
     @Override
-    public <T extends KTypeIndexedPredicate<? super KType>> T indexedForEach(final T predicate)
+    public boolean isEmpty()
     {
-        final KType[] buffer = this.buffer;
-        final int size = this.elementsCount;
+        return this.elementsCount == 0;
+    }
 
-        final int[] qp = this.qp;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int removeAll(final IntContainer container)
+    {
+        final int before = this.elementsCount;
 
-        for (int pos = 1; pos <= size; pos++)
+        for (final IntCursor cursor : container)
         {
-            if (!predicate.apply(qp[pos], buffer[pos]))
-                break;
+            remove(cursor.value);
         }
 
-        return predicate;
+        return before - this.elementsCount;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int removeAll(final IntPredicate predicate)
+    {
+        final int[] pq = this.pq;
+        final int size = this.pq.length;
+
+        final int initialSize = this.elementsCount;
+
+        //iterate keys, for all valid keys is OK because only the current pq[key] slot
+        //is affected by the current remove() but the next ones are not.
+        for (int key = 0; key < size; key++)
+        {
+            if (pq[key] > 0 && predicate.apply(key))
+            {
+                remove(key);
+            }
+        } //end for
+
+        /*! #if($DEBUG) !*/
+        assert isMinHeap();
+        assert isConsistent();
+        /*! #end !*/
+
+        return initialSize - this.elementsCount;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean putIfAbsent(final int key, final KType value)
+    {
+        if (!containsKey(key))
+        {
+            put(key, value);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int putAll(final IntKTypeAssociativeContainer<? extends KType> container)
+    {
+        return putAll((Iterable<? extends IntKTypeCursor<? extends KType>>) container);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int putAll(final Iterable<? extends IntKTypeCursor<? extends KType>> iterable)
+    {
+        final int count = this.elementsCount;
+
+        for (final IntKTypeCursor<? extends KType> c : iterable)
+        {
+            put(c.key, c.value);
+        }
+
+        return this.elementsCount - count;
     }
 
     /**
@@ -478,41 +392,158 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
      * cost: O(log2(N)) for a N sized queue
      */
     @Override
-    public boolean insert(final int index, final KType element)
+    public KType put(final int key, final KType element)
     {
-        assert index >= 0;
+        assert key >= 0;
 
-        // pq must be sufficient to receive index by direct indexing,
-        //resize if needed.
-        ensureBufferSpace(index);
-
-        if (this.pq[index] > 0)
+        //1) Key already present, insert new value
+        if (key < this.pq.length && this.pq[key] > 0)
         {
-            //element already exists
-            return false;
+            //element already exists : insert brutally at the same position in buffer and refresh the priorities to reestablish heap
+            final KType previousValue = this.buffer[this.pq[key]];
+
+            this.buffer[this.pq[key]] = element;
+
+            //re-establish heap
+            sink(this.pq[key]);
+            swim(this.pq[key]);
+
+            /*! #if($DEBUG) !*/
+            assert isMinHeap();
+            assert isConsistent();
+            /*! #end !*/
+
+            return previousValue;
         }
 
-        //add at the end
+        //2) not present, add at the end
+        // 2-1) pq must be sufficient to receive index by direct indexing,
+        //resize if needed.
+        ensureBufferSpace(key);
+
+        //2-2) Add
         this.elementsCount++;
         final int count = this.elementsCount;
 
         this.buffer[count] = element;
 
         //initial position
-        this.pq[index] = count;
-        this.qp[count] = index;
+        this.pq[key] = count;
+        this.qp[count] = key;
 
         //swim last element
         swim(count);
 
-        return true;
+        return this.defaultValue;
     }
 
+    /*! #if ($TemplateOptions.KTypeNumeric) !*/
     /**
-     * {@inheritDoc}
+     * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. An equivalent
+     * of the following code:
+     * <pre>
+     *  if (containsKey(key))
+     *  {
+     *      KType v = get(key) + additionValue;
+     *      put(key, v);
+     *      return v;
+     *  }
+     *  else
+     *  {
+     *     put(key, putValue);
+     *     return putValue;
+     *  }
+     * </pre>
+     * 
+     * @param key The key of the value to adjust.
+     * @param putValue The value to put if <code>key</code> does not exist.
+     * @param additionValue The value to add to the existing value if <code>key</code> exists.
+     * @return Returns the current value associated with <code>key</code> (after changes).
+     */
+    /*! #end !*/
+    /*! #if ($TemplateOptions.KTypeNumeric)
+    @Override
+    public KType putOrAdd(int key, KType putValue, KType additionValue)
+    {
+       assert key >= 0;
+
+        //1) Key already present, add additionValue to the existing one
+        if (key < this.pq.length && this.pq[key] > 0)
+        {
+            //element already exists : insert brutally at the same position in buffer and refresh the priorities to reestablish heap
+            this.buffer[this.pq[key]] += additionValue;
+
+            //re-establish heap
+            sink(this.pq[key]);
+            swim(this.pq[key]);
+
+            #if($DEBUG)
+            assert isMinHeap();
+            assert isConsistent();
+            #end
+
+            return this.buffer[this.pq[key]];
+        }
+
+        //2) not present, add at the end
+        // 2-1) pq must be sufficient to receive index by direct indexing,
+        //resize if needed.
+        ensureBufferSpace(key);
+
+        //2-2) Add
+        this.elementsCount++;
+        final int count = this.elementsCount;
+
+        this.buffer[count] = putValue;
+
+        //initial position
+        this.pq[key] = count;
+        this.qp[count] = key;
+
+        //swim last element
+        swim(count);
+
+        return putValue;
+    }
+    #end !*/
+
+    /*! #if ($TemplateOptions.KTypeNumeric) !*/
+    /**
+     * An equivalent of calling
+     * <pre>
+     *  if (containsKey(key))
+     *  {
+     *      KType v = get(key) + additionValue;
+     *      put(key, v);
+     *      return v;
+     *  }
+     *  else
+     *  {
+     *     put(key, additionValue);
+     *     return additionValue;
+     *  }
+     * </pre>
+     * 
+     * @param key The key of the value to adjust.
+     * @param additionValue The value to put or add to the existing value if <code>key</code> exists.
+     * @return Returns the current value associated with <code>key</code> (after changes).
+     */
+    /*! #end !*/
+    /*! #if ($TemplateOptions.KTypeNumeric)
+    @Override
+    public KType addTo(int key, KType additionValue)
+    {
+        return putOrAdd(key, additionValue, additionValue);
+    }
+    #end !*/
+
+    /**
+     * Retrieve, but not remove, the top element of the queue,
+     * i.e. the min/max element with respect to the comparison criteria
+     * (implementation defined)
+     * of the queue. Returns the default value if empty.
      * cost: O(1)
      */
-    @Override
     public KType top()
     {
         KType elem = this.defaultValue;
@@ -526,10 +557,11 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
     }
 
     /**
-     * {@inheritDoc}
+     * Retrieve, and remove the top element of the queue,
+     * i.e. the min/max element with respect to the comparison criteria
+     * (implementation defined) Returns the default value if empty.
      * cost: O(log2(N)) for a N sized queue
      */
-    @Override
     public KType popTop()
     {
         KType elem = this.defaultValue;
@@ -538,7 +570,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
         {
             elem = this.buffer[1];
 
-            deleteIndex(this.qp[1]);
+            remove(this.qp[1]);
         }
 
         return elem;
@@ -549,17 +581,17 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
      * cost: O(1)
      */
     @Override
-    public KType getIndex(final int index)
+    public KType get(final int key)
     {
         /*! #if($DEBUG) !*/
-        assert index >= this.pq.length || this.pq[index] > 0 : "Element of index " + " doesn't exist !";
+        assert key >= this.pq.length || this.pq[key] > 0 : "Element of index " + " doesn't exist !";
         /*! #end !*/
 
         KType elem = this.defaultValue;
 
-        if (index < this.pq.length && this.pq[index] > 0)
+        if (key < this.pq.length && this.pq[key] > 0)
         {
-            elem = this.buffer[this.pq[index]];
+            elem = this.buffer[this.pq[key]];
         }
 
         return elem;
@@ -567,35 +599,10 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
 
     /**
      * {@inheritDoc}
-     */
-    @Override
-    public int hashCode()
-    {
-        int h = 1;
-        final int size = this.pq.length;
-        final KType[] buffer = this.buffer;
-        final int[] pq = this.pq;
-
-        for (int i = 0; i < size; i++)
-        {
-            if (pq[i] > 0)
-            {
-                //rehash of the index
-                h = 31 * h + Internals.rehash(i);
-                //append the rehash of the value
-                h = 31 * h + Internals.rehash(buffer[pq[i]]);
-            }
-        }
-
-        return h;
-    }
-
-    /**
-     * {@inheritDoc}
      * cost: O(log2(N))
      */
     @Override
-    public KType deleteIndex(final int index)
+    public KType remove(final int key)
     {
         KType deletedElement = this.defaultValue;
 
@@ -603,15 +610,15 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
         final int[] pq = this.pq;
         final KType[] buffer = this.buffer;
 
-        if (index < pq.length && pq[index] > 0)
+        if (key < pq.length && pq[key] > 0)
         {
-            final int deletedPos = pq[index];
+            final int deletedPos = pq[key];
             deletedElement = buffer[deletedPos];
 
             if (deletedPos == this.elementsCount)
             {
                 //we remove the last element
-                pq[index] = 0;
+                pq[key] = 0;
 
                 //for GC
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
@@ -631,14 +638,14 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
                 //We are not removing the last element
 
                 /*! #if($DEBUG) !*/
-                assert (deletedPos > 0 && qp[deletedPos] == index) : String.format("pq[index] = %d, qp[pq[index]] = %d (index = %d)",
-                        deletedPos, qp[deletedPos], index);
+                assert deletedPos > 0 && qp[deletedPos] == key : String.format("pq[key] = %d, qp[pq[key]] = %d (key = %d)",
+                        deletedPos, qp[deletedPos], key);
                 /*! #end !*/
 
                 final int lastElementIndex = qp[this.elementsCount];
 
                 /*! #if($DEBUG) !*/
-                assert (lastElementIndex >= 0 && pq[lastElementIndex] == this.elementsCount) : String.format(
+                assert lastElementIndex >= 0 && pq[lastElementIndex] == this.elementsCount : String.format(
                         "lastElementIndex = qp[elementsCount] = %d, pq[lastElementIndex] = %d, elementsCount = %d",
                         lastElementIndex, pq[lastElementIndex], this.elementsCount);
                 /*! #end !*/
@@ -655,7 +662,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
 
                 //mark the index element to be removed
                 //we must reset with 0 so that qp[pq[index]] is always valid !
-                pq[index] = 0;
+                pq[key] = 0;
 
                 //Not really needed, but usefull to catch inconsistencies
                 /*! #if($DEBUG) !*/
@@ -672,11 +679,11 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
 
                 //after swapping positions
                 /*! #if($DEBUG) !*/
-                assert (pq[lastElementIndex] == deletedPos) : String.format("pq[lastElementIndex = %d] = %d, while deletedPos = %d, (index = %d)",
-                        lastElementIndex, pq[lastElementIndex], deletedPos, index);
+                assert pq[lastElementIndex] == deletedPos : String.format("pq[lastElementIndex = %d] = %d, while deletedPos = %d, (key = %d)",
+                        lastElementIndex, pq[lastElementIndex], deletedPos, key);
 
-                assert (qp[deletedPos] == lastElementIndex) : String.format("qp[deletedPos = %d] = %d, while lastElementIndex = %d, (index = %d)",
-                        deletedPos, qp[deletedPos], lastElementIndex, index);
+                assert qp[deletedPos] == lastElementIndex : String.format("qp[deletedPos = %d] = %d, while lastElementIndex = %d, (key = %d)",
+                        deletedPos, qp[deletedPos], lastElementIndex, key);
                 /*! #end !*/
 
                 if (this.elementsCount > 1)
@@ -693,16 +700,16 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
 
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     /**
-     * {@inheritDoc}
+     * Update the priority of  the value of the queue with key, to re-establish the correct priority
+     * towards the comparison criteria.
      * cost: O(log2(N))
      */
-    @Override
-    public void changePriority(final int index)
+    public void changePriority(final int key)
     {
-        if (index < this.pq.length && this.pq[index] > 0)
+        if (key < this.pq.length && this.pq[key] > 0)
         {
-            swim(this.pq[index]);
-            sink(this.pq[index]);
+            swim(this.pq[key]);
+            sink(this.pq[key]);
         }
     }
 
@@ -713,14 +720,41 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
      * cost: O(1)
      */
     @Override
-    public boolean containsIndex(final int index)
+    public boolean containsKey(final int key)
     {
-        if (index < this.pq.length && this.pq[index] > 0)
+        if (key < this.pq.length && this.pq[key] > 0)
         {
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode()
+    {
+        int h = 1;
+        final int size = this.pq.length;
+        final KType[] buffer = this.buffer;
+        final int[] pq = this.pq;
+
+        //iterate by (ordered) index to have a reproducible hash and
+        //so keeping a multiplicative quality
+        for (int index = 0; index < size; index++)
+        {
+            if (pq[index] > 0)
+            {
+                //rehash of the index
+                h = 31 * h + Internals.rehash(index);
+                //append the rehash of the value
+                h = 31 * h + Internals.rehash(buffer[pq[index]]);
+            }
+        }
+
+        return h;
     }
 
     /**
@@ -740,30 +774,38 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
         if (obj != null)
         {
             if (obj == this)
+            {
                 return true;
+            }
 
             //we can only compare both KTypeHeapPriorityQueue,
             //that has the same comparison function reference
             if (!(obj instanceof KTypeIndexedHeapPriorityQueue<?>))
+            {
                 return false;
+            }
 
             final KTypeIndexedHeapPriorityQueue<KType> other = (KTypeIndexedHeapPriorityQueue<KType>) obj;
 
             if (other.size() != this.size())
+            {
                 return false;
+            }
 
             //Iterate over the smallest pq buffer of the two.
             int[] pqBuffer, otherPqBuffer;
             KType[] buffer, otherBuffer;
 
-            if (this.pq.length < other.pq.length) {
+            if (this.pq.length < other.pq.length)
+            {
 
                 pqBuffer = this.pq;
                 otherPqBuffer = other.pq;
                 buffer = this.buffer;
                 otherBuffer = other.buffer;
             }
-            else {
+            else
+            {
 
                 pqBuffer = other.pq;
                 otherPqBuffer = this.pq;
@@ -776,7 +818,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
             int currentIndex, otherIndex;
 
             //Both have null comparators
-            if (this.comparator == null && other.comparator == null) {
+            if (this.comparator == null && other.comparator == null)
+            {
 
                 for (int i = 0; i < pqBufferSize; i++)
                 {
@@ -788,7 +831,9 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
                         otherIndex = otherPqBuffer[i];
 
                         if (otherIndex <= 0)
+                        {
                             return false;
+                        }
 
                         //compare both elements with Comparable, or natural ordering
                         if (!Intrinsics.isCompEqualKTypeUnchecked(buffer[currentIndex], otherBuffer[otherIndex]))
@@ -801,7 +846,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
                 return true;
 
             }
-            else if (this.comparator != null && this.comparator.equals(other.comparator)) {
+            else if (this.comparator != null && this.comparator.equals(other.comparator))
+            {
 
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 final Comparator<? super KType> comp = this.comparator;
@@ -819,7 +865,9 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
                         otherIndex = otherPqBuffer[i];
 
                         if (otherIndex <= 0)
+                        {
                             return false;
+                        }
 
                         //compare both elements with Comparator
                         if (comp.compare(buffer[i], otherBuffer[i]) != 0)
@@ -845,9 +893,9 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
     {
         final KTypeIndexedHeapPriorityQueue<KType> cloned = new KTypeIndexedHeapPriorityQueue<KType>(this.comparator, this.size());
 
-        for (final KTypeCursor<KType> cursor : this)
+        for (final IntKTypeCursor<KType> cursor : this)
         {
-            cloned.insert(cursor.index, cursor.value);
+            cloned.put(cursor.index, cursor.value);
         }
 
         cloned.defaultValue = this.defaultValue;
@@ -856,9 +904,9 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
     }
 
     /**
-     * {@inheritDoc}
+     * Update priorities of all the elements of the queue, to re-establish the correct priorities
+     * towards the comparison criteria.
      */
-    @Override
     public void refreshPriorities()
     {
         if (this.comparator == null)
@@ -878,42 +926,451 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
     }
 
     /**
-     * Ensures the internal buffer has enough free slots to accomodate the index
-     * <code>index</code>. Increases internal buffer size if needed.
+     *  @return a new KeysContainer view of the keys of this associated container.
+     * This view then reflects all changes from the map.
      */
-    protected void ensureBufferSpace(final int index)
+    @Override
+    public KeysContainer keys()
     {
-        final int pqLen = (this.pq == null ? 0 : this.pq.length);
-        if (index > pqLen - 1)
+        return new KeysContainer();
+    }
+
+    /**
+     * A view of the keys inside this hash map.
+     */
+    public final class KeysContainer extends AbstractIntCollection implements IntLookupContainer
+    {
+        private final KTypeIndexedHeapPriorityQueue<KType> owner =
+                KTypeIndexedHeapPriorityQueue.this;
+
+        @Override
+        public boolean contains(final int e)
         {
-            //resize to acomodate this index.
-            final int newPQSize = index + KTypeIndexedHeapPriorityQueue.DEFAULT_CAPACITY;
+            return this.owner.containsKey(e);
+        }
 
-            final int[] newPQIndex = new int[newPQSize];
-            final KType[] newBuffer = Intrinsics.newKTypeArray(newPQSize + 1);
-            final int[] newQPIndex = new int[newPQSize + 1];
+        @Override
+        public <T extends IntProcedure> T forEach(final T procedure)
+        {
+            final KType[] buffer = this.owner.buffer;
+            final int[] qp = this.owner.qp;
+            final int size = this.owner.elementsCount;
 
-            if (pqLen > 0)
+            for (int pos = 1; pos <= size; pos++)
             {
-                System.arraycopy(this.buffer, 0, newBuffer, 0, this.buffer.length);
-                System.arraycopy(this.pq, 0, newPQIndex, 0, this.pq.length);
-                System.arraycopy(this.qp, 0, newQPIndex, 0, this.qp.length);
+                procedure.apply(qp[pos]);
             }
-            this.buffer = newBuffer;
-            this.pq = newPQIndex;
-            this.qp = newQPIndex;
+
+            return procedure;
+        }
+
+        @Override
+        public <T extends IntPredicate> T forEach(final T predicate)
+        {
+            final KType[] buffer = this.owner.buffer;
+            final int[] qp = this.owner.qp;
+            final int size = this.owner.elementsCount;
+
+            for (int pos = 1; pos <= size; pos++)
+            {
+                if (!predicate.apply(qp[pos]))
+                {
+                    break;
+                }
+            }
+
+            return predicate;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public KeysIterator iterator()
+        {
+            //return new KeysIterator();
+            return this.keyIteratorPool.borrow();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int size()
+        {
+            return this.owner.size();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int capacity()
+        {
+
+            return this.owner.capacity();
+        }
+
+        @Override
+        public void clear()
+        {
+            this.owner.clear();
+        }
+
+        @Override
+        public int removeAll(final IntPredicate predicate)
+        {
+            return this.owner.removeAll(predicate);
+        }
+
+        @Override
+        public int removeAllOccurrences(final int e)
+        {
+            final boolean hasKey = this.owner.containsKey(e);
+            int result = 0;
+            if (hasKey)
+            {
+                this.owner.remove(e);
+                result = 1;
+            }
+            return result;
+        }
+
+        @Override
+        public int[] toArray(final int[] target)
+        {
+            int count = 0;
+            final int[] pq = this.owner.pq;
+            final int size = this.owner.pq.length;
+
+            for (int key = 0; key < size; key++) {
+
+                if (pq[key] > 0) {
+
+                    target[count] = key;
+                    count++;
+                }
+            }
+
+            return target;
+        }
+
+        /**
+         * internal pool of KeysIterator
+         */
+        protected final IteratorPool<IntCursor, KeysIterator> keyIteratorPool = new IteratorPool<IntCursor, KeysIterator>(
+                new ObjectFactory<KeysIterator>() {
+
+                    @Override
+                    public KeysIterator create()
+                    {
+                        return new KeysIterator();
+                    }
+
+                    @Override
+                    public void initialize(final KeysIterator obj)
+                    {
+                        //the value here represent the key value
+                        obj.cursor.value = 0;
+                        obj.pq = KTypeIndexedHeapPriorityQueue.this.pq;
+                    }
+
+                    @Override
+                    public void reset(final KeysIterator obj)
+                    {
+                        //no dangling references
+                        obj.pq = null;
+                    }
+                });
+
+    };
+
+    /**
+     * An iterator over the set of assigned keys.
+     */
+    public final class KeysIterator extends AbstractIterator<IntCursor>
+    {
+        public final IntCursor cursor;
+
+        private int[] pq;
+
+        public KeysIterator()
+        {
+            this.cursor = new IntCursor();
+            //the value here represent the key value
+            this.cursor.value = 0;
+            this.pq = KTypeIndexedHeapPriorityQueue.this.pq;
+        }
+
+        /**
+         * 
+         */
+        @Override
+        protected IntCursor fetch()
+        {
+            //skip all non-affected keys and stop at the next affected key
+            while (this.cursor.value < this.pq.length && this.pq[this.cursor.value] <= 0)
+            {
+                this.cursor.value++;
+            }
+
+            if (this.cursor.value == this.pq.length)
+            {
+                return done();
+            }
+
+            //the cursor index corresponds to the position in heap buffer
+            this.cursor.index = this.pq[this.cursor.value];
+
+            return this.cursor;
         }
     }
 
     /**
-     * {@inheritDoc}
+     *  @return a new ValuesContainer, view of the values of this map.
+     * This view then reflects all changes from the map.
      */
     @Override
-    public KType[] toArray(final KType[] target)
+    public ValuesContainer values()
     {
-        //copy from index 1
-        System.arraycopy(this.buffer, 1, target, 0, this.elementsCount);
-        return target;
+        return new ValuesContainer();
+    }
+
+    /**
+     * A view over the set of values of this map.
+     */
+    public final class ValuesContainer extends AbstractKTypeCollection<KType>
+    {
+        private final KTypeIndexedHeapPriorityQueue<KType> owner =
+                KTypeIndexedHeapPriorityQueue.this;
+
+        private KType currentOccurenceToBeRemoved;
+
+        private final  KTypePredicate<? super KType> removeAllOccurencesPredicate = new KTypePredicate<KType> () {
+
+            @Override
+            public final  boolean apply(final KType value) {
+
+                if (ValuesContainer.this.owner.comparator == null) {
+
+                    if (Intrinsics.isCompEqualKTypeUnchecked(value, ValuesContainer.this.currentOccurenceToBeRemoved)) {
+
+                        return true;
+                    }
+
+                } else {
+
+                    if (ValuesContainer.this.owner.comparator.compare(value, ValuesContainer.this.currentOccurenceToBeRemoved) == 0) {
+
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        };
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int size()
+        {
+            return this.owner.size();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int capacity()
+        {
+            return this.owner.capacity();
+        }
+
+        @Override
+        public boolean contains(final KType value)
+        {
+            final KType[] buffer = this.owner.buffer;
+            final int size = this.owner.elementsCount;
+
+            if (this.owner.comparator == null) {
+
+                //iterate the heap buffer, use the natural comparison criteria
+                for (int pos = 1; pos <= size; pos++)
+                {
+                    if (Intrinsics.isCompEqualKTypeUnchecked(buffer[pos], value))
+                    {
+                        return true;
+                    }
+                }
+            }
+            else {
+
+                //use the dedicated comparator
+                /*! #if ($TemplateOptions.KTypeGeneric) !*/
+                final Comparator<? super KType> comp = this.owner.comparator;
+                /*! #else
+                KTypeComparator<? super KType> comp = this.owner.comparator;
+                #end !*/
+                for (int pos = 1; pos <= size; pos++)
+                {
+                    if (comp.compare(buffer[pos], value) == 0)
+                    {
+                        return true;
+                    }
+                }
+            } //end else
+
+            return false;
+        }
+
+        @Override
+        public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure)
+        {
+            final KType[] buffer = this.owner.buffer;
+            final int size = this.owner.elementsCount;
+
+            //iterate the heap buffer, use the natural comparison criteria
+            for (int pos = 1; pos <= size; pos++)
+            {
+                procedure.apply(buffer[pos]);
+            }
+
+            return procedure;
+        }
+
+        @Override
+        public <T extends KTypePredicate<? super KType>> T forEach(final T predicate)
+        {
+            final KType[] buffer = this.owner.buffer;
+            final int size = this.owner.elementsCount;
+
+            //iterate the heap buffer, use the natural comparison criteria
+            for (int pos = 1; pos <= size; pos++)
+            {
+                if (!predicate.apply(buffer[pos])) {
+                    break;
+                }
+            }
+
+            return predicate;
+        }
+
+        @Override
+        public ValuesIterator iterator()
+        {
+            // return new ValuesIterator();
+            return this.valuesIteratorPool.borrow();
+        }
+
+        /**
+         * {@inheritDoc}
+         * Indeed removes all the (key,value) pairs matching
+         * (key ? ,  e) with the  same  e,  from  the map.
+         */
+        @Override
+        public int removeAllOccurrences(final KType e)
+        {
+            this.currentOccurenceToBeRemoved = e;
+            return this.owner.removeAllInternal(this.removeAllOccurencesPredicate);
+        }
+
+        /**
+         * {@inheritDoc}
+         * Indeed removes all the (key,value) pairs matching
+         * the predicate for the values, from  the map.
+         */
+        @Override
+        public int removeAll(final KTypePredicate<? super KType> predicate)
+        {
+            return this.owner.removeAllInternal(predicate);
+        }
+
+        /**
+         * {@inheritDoc}
+         *  Alias for clear() the whole map.
+         */
+        @Override
+        public void clear()
+        {
+            this.owner.clear();
+        }
+
+        @Override
+        public KType[] toArray(final KType[] target)
+        {
+            //buffer validity starts at 1
+            System.arraycopy(this.owner.buffer, 1, target, 0, this.owner.elementsCount);
+
+            return target;
+        }
+
+        /**
+         * internal pool of ValuesIterator
+         */
+        protected final IteratorPool<KTypeCursor<KType>, ValuesIterator> valuesIteratorPool = new IteratorPool<KTypeCursor<KType>, ValuesIterator>(
+                new ObjectFactory<ValuesIterator>() {
+
+                    @Override
+                    public ValuesIterator create()
+                    {
+                        return new ValuesIterator();
+                    }
+
+                    @Override
+                    public void initialize(final ValuesIterator obj)
+                    {
+                        obj.cursor.index = 0;
+                        obj.buffer = KTypeIndexedHeapPriorityQueue.this.buffer;
+                        obj.size = KTypeIndexedHeapPriorityQueue.this.size();
+                    }
+
+                    @Override
+                    public void reset(final ValuesIterator obj)
+                    {
+                        obj.buffer = null;
+                    }
+                });
+
+
+    }
+
+    /**
+     * An iterator over the set of assigned values.
+     */
+    public final class ValuesIterator extends AbstractIterator<KTypeCursor<KType>>
+    {
+        public final KTypeCursor<KType> cursor;
+
+        private KType[] buffer;
+        private int size;
+
+        public ValuesIterator()
+        {
+            this.cursor = new KTypeCursor<KType>();
+
+            //index 0 is not used in Priority queue
+            this.cursor.index = 0;
+            this.buffer = KTypeIndexedHeapPriorityQueue.this.buffer;
+            this.size = KTypeIndexedHeapPriorityQueue.this.size();
+        }
+
+
+        @Override
+        protected KTypeCursor<KType> fetch()
+        {
+            //priority is 1-based index
+            if (this.cursor.index == this.size)
+            {
+                return done();
+            }
+
+            //this.cursor.index represent the position in the heap buffer.
+            this.cursor.value = this.buffer[++this.cursor.index];
+
+            return this.cursor;
+        }
     }
 
     @Override
@@ -949,6 +1406,44 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
     }
 
     /**
+     * Returns the "default value" value used
+     * in containers methods returning "default value"
+     * @return
+     */
+    public KType getDefaultValue()
+    {
+        return this.defaultValue;
+    }
+
+    /**
+     * Ensures the internal buffer has enough free slots to accomodate the index
+     * <code>index</code>. Increases internal buffer size if needed.
+     */
+    protected void ensureBufferSpace(final int index)
+    {
+        final int pqLen = this.pq == null ? 0 : this.pq.length;
+        if (index > pqLen - 1)
+        {
+            //resize to accomodate this index.
+            final int newPQSize = index + KTypeIndexedHeapPriorityQueue.DEFAULT_CAPACITY;
+
+            final int[] newPQIndex = new int[newPQSize];
+            final KType[] newBuffer = Intrinsics.newKTypeArray(newPQSize + 1);
+            final int[] newQPIndex = new int[newPQSize + 1];
+
+            if (pqLen > 0)
+            {
+                System.arraycopy(this.buffer, 0, newBuffer, 0, this.buffer.length);
+                System.arraycopy(this.pq, 0, newPQIndex, 0, this.pq.length);
+                System.arraycopy(this.qp, 0, newQPIndex, 0, this.qp.length);
+            }
+            this.buffer = newBuffer;
+            this.pq = newPQIndex;
+            this.qp = newQPIndex;
+        }
+    }
+
+    /**
      * Sink function for Comparable elements
      * @param k
      */
@@ -963,7 +1458,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
         final int[] pq = this.pq;
         final int[] qp = this.qp;
 
-        while ((k << 1) <= N)
+        while (k << 1 <= N)
         {
             //get the child of k
             child = k << 1;
@@ -1018,7 +1513,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
         KTypeComparator<? super KType> comp = this.comparator;
         #end !*/
 
-        while ((k << 1) <= N)
+        while (k << 1 <= N)
         {
             //get the child of k
             child = k << 1;
@@ -1071,22 +1566,22 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
             //swap k and its parent
             parent = k >> 1;
 
-            //swap k and parent
-            tmp = buffer[k];
-            buffer[k] = buffer[parent];
-            buffer[parent] = tmp;
+        //swap k and parent
+        tmp = buffer[k];
+        buffer[k] = buffer[parent];
+        buffer[parent] = tmp;
 
-            //swap references
-            indexK = qp[k];
-            indexParent = qp[parent];
+        //swap references
+        indexK = qp[k];
+        indexParent = qp[parent];
 
-            pq[indexK] = parent;
-            pq[indexParent] = k;
+        pq[indexK] = parent;
+        pq[indexParent] = k;
 
-            qp[k] = indexParent;
-            qp[parent] = indexK;
+        qp[k] = indexParent;
+        qp[parent] = indexK;
 
-            k = parent;
+        k = parent;
         }
     }
 
@@ -1115,22 +1610,22 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
             //swap k and its parent
             parent = k >> 1;
 
-            //swap k and parent
-            tmp = buffer[k];
-            buffer[k] = buffer[parent];
-            buffer[parent] = tmp;
+        //swap k and parent
+        tmp = buffer[k];
+        buffer[k] = buffer[parent];
+        buffer[parent] = tmp;
 
-            //swap references
-            indexK = qp[k];
-            indexParent = qp[parent];
+        //swap references
+        indexK = qp[k];
+        indexParent = qp[parent];
 
-            pq[indexK] = parent;
-            pq[indexParent] = k;
+        pq[indexK] = parent;
+        pq[indexParent] = k;
 
-            qp[k] = indexParent;
-            qp[parent] = indexK;
+        qp[k] = indexParent;
+        qp[parent] = indexK;
 
-            k = parent;
+        k = parent;
         }
     }
 
@@ -1158,6 +1653,83 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
         }
     }
 
+    private int removeAllInternal(final KTypePredicate<? super KType> predicate)
+    {
+        //remove by position
+        int deleted = 0;
+        final KType[] buffer = this.buffer;
+
+        final int[] qp = this.qp;
+        final int[] pq = this.pq;
+
+        int lastElementIndex = -1;
+
+        int elementsCount = this.elementsCount;
+
+        //1-based index
+        int pos = 1;
+
+        try
+        {
+            while (pos <= elementsCount)
+            {
+                //delete it
+                if (predicate.apply(buffer[pos]))
+                {
+                    lastElementIndex = qp[elementsCount];
+
+                    //put the last element at position pos, like in remove()
+
+                    buffer[pos] = buffer[elementsCount];
+                    //last element is now at deleted position pos
+                    pq[lastElementIndex] = pos;
+
+                    //mark the index element to be removed
+                    //we must reset with 0 so that qp[pq[index]] is always valid !
+                    pq[qp[pos]] = 0;
+
+                    qp[pos] = lastElementIndex;
+
+                    //Not really needed
+                    /*! #if($DEBUG) !*/
+                    qp[elementsCount] = -1;
+                    /*! #end !*/
+
+                    //for GC
+                    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+                    buffer[elementsCount] = Intrinsics.<KType> defaultKTypeValue();
+                    /*! #end !*/
+
+                    //Diminish size
+                    elementsCount--;
+                    deleted++;
+                } //end if to delete
+                else
+                {
+                    pos++;
+                }
+            } //end while
+
+            //At that point, heap property is not OK, but we are consistent nonetheless.
+            /*! #if($DEBUG) !*/
+            assert isConsistent();
+            /*! #end !*/
+        }
+        finally
+        {
+            this.elementsCount = elementsCount;
+            //reestablish heap
+            refreshPriorities();
+        }
+
+        /*! #if($DEBUG) !*/
+        assert isMinHeap();
+        assert isConsistent();
+        /*! #end !*/
+
+        return deleted;
+    }
+
 /*! #if($DEBUG) !*/
     /**
      * methods to test invariant in assert, not present in final generated code
@@ -1171,14 +1743,14 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
         if (this.elementsCount > 0)
         {
             //A) For each valid index, (in pq), there is match in position in qp
-            for (int index = 0; index < this.pq.length; index++)
+            for (int key = 0; key < this.pq.length; key++)
             {
-                if (this.pq[index] > 0)
+                if (this.pq[key] > 0)
                 {
-                    if (index != this.qp[this.pq[index]])
+                    if (key != this.qp[this.pq[key]])
                     {
-                        assert false : String.format("Inconsistent Index: index=%d, size=%d , pq[index] = %d, ==> qp[pq[index]] = %d",
-                                index, size(), this.pq[index], this.qp[this.pq[index]]);
+                        assert false : String.format("Inconsistent key: key=%d, size=%d , pq[key] = %d, ==> qp[pq[key]] = %d",
+                                key, size(), this.pq[key], this.qp[this.pq[key]]);
                     }
                 }
             }
@@ -1186,12 +1758,10 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
             //B) Reverse check : for each element of position pos in buffer, there is a match in pq
             for (int pos = 1; pos <= this.elementsCount; pos++)
             {
-
                 if (pos != this.pq[this.qp[pos]])
                 {
                     assert false : String.format("Inconsistent position: pos=%d, size=%d , qp[pos] = %d, ==> pq[qp[pos]] = %d",
                             pos, size(), this.qp[pos], this.pq[this.qp[pos]]);
-
                 }
             }
         }
@@ -1220,13 +1790,19 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
         final KType[] buffer = this.buffer;
 
         if (k > N)
+        {
             return true;
+        }
         final int left = 2 * k, right = 2 * k + 1;
 
         if (left <= N && Intrinsics.isCompSupKTypeUnchecked(buffer[k], buffer[left]))
+        {
             return false;
+        }
         if (right <= N && Intrinsics.isCompSupKTypeUnchecked(buffer[k], buffer[right]))
+        {
             return false;
+        }
         //recursively test
         return isMinHeapComparable(left) && isMinHeapComparable(right);
     }
@@ -1244,13 +1820,19 @@ public class KTypeIndexedHeapPriorityQueue<KType> extends AbstractKTypeCollectio
         #end !*/
 
         if (k > N)
+        {
             return true;
+        }
         final int left = 2 * k, right = 2 * k + 1;
 
         if (left <= N && comp.compare(buffer[k], buffer[left]) > 0)
+        {
             return false;
+        }
         if (right <= N && comp.compare(buffer[k], buffer[right]) > 0)
+        {
             return false;
+        }
         //recursively test
         return isMinHeapComparator(left) && isMinHeapComparator(right);
     }

@@ -79,7 +79,7 @@ import com.carrotsearch.hppcrt.procedures.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -366,12 +366,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     @Override
     public int putAll(final KTypeVTypeAssociativeContainer<? extends KType, ? extends VType> container)
     {
-        final int count = this.assigned;
-        for (final KTypeVTypeCursor<? extends KType, ? extends VType> c : container)
-        {
-            put(c.key, c.value);
-        }
-        return this.assigned - count;
+        return putAll((Iterable<? extends KTypeVTypeCursor<? extends KType, ? extends VType>>) container);
     }
 
     /**
@@ -793,20 +788,24 @@ public class KTypeVTypeOpenHashMap<KType, VType>
                 {
                     // we're on the right of the original slot.
                     if (slotPrev >= slotOther || slotOther > slotCurr)
+                    {
                         break;
+                    }
                 }
                 else
                 {
                     // we've wrapped around.
                     if (slotPrev >= slotOther && slotOther > slotCurr)
+                    {
                         break;
+                    }
                 }
                 slotCurr = (slotCurr + 1) & mask;
             }
 
             if (/*! #if ($RH) !*/
-            allocated[slotCurr] == -1
-            /*! #else
+                    allocated[slotCurr] == -1
+                    /*! #else
             !allocated[slotCurr]
             #end !*/)
             {
@@ -1178,7 +1177,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         if (obj != null)
         {
             if (obj == this)
+            {
                 return true;
+            }
 
             if (!(obj instanceof KTypeVTypeOpenHashMap))
             {
@@ -1241,7 +1242,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     KTypeVTypeOpenHashMap.this.allocated[i] == -1
-                    /*! #else
+            /*! #else
             !allocated[i]
             #end  !*/)
             {
@@ -1249,7 +1250,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             }
 
             if (i == -1)
+            {
                 return done();
+            }
 
             this.cursor.index = i;
             this.cursor.key = KTypeVTypeOpenHashMap.this.keys[i];
@@ -1314,7 +1317,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         for (int i = states.length - 1; i >= 0; i--)
         {
             if (states[i] /*! #if ($RH) !*/!= -1 /*! #end !*/)
+            {
                 procedure.apply(keys[i], values[i]);
+            }
         }
 
         return procedure;
@@ -1365,7 +1370,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * A view of the keys inside this hash map.
      */
     public final class KeysContainer
-            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenHashMap<KType, VType> owner =
                 KTypeVTypeOpenHashMap.this;
@@ -1392,7 +1397,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             for (int i = states.length - 1; i >= 0; i--)
             {
                 if (states[i] /*! #if ($RH) !*/!= -1 /*! #end !*/)
+                {
                     procedure.apply(keys[i]);
+                }
             }
 
             return procedure;
@@ -1416,7 +1423,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
                 if (states[i] /*! #if ($RH) !*/!= -1 /*! #end !*/)
                 {
                     if (!predicate.apply(keys[i]))
+                    {
                         break;
+                    }
                 }
             }
 
@@ -1551,7 +1560,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     KTypeVTypeOpenHashMap.this.allocated[i] == -1
-                    /*! #else
+            /*! #else
             !allocated[i]
             #end  !*/)
             {
@@ -1559,7 +1568,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             }
 
             if (i == -1)
+            {
                 return done();
+            }
 
             this.cursor.index = i;
             this.cursor.value = KTypeVTypeOpenHashMap.this.keys[i];
@@ -1619,7 +1630,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             for (int slot = 0; slot < states.length; slot++)
             {
                 if (/*! #if ($RH) !*/
-                states[slot] != -1
+                        states[slot] != -1
                         /*! #else
                         states[slot]
                         #end  !*/
@@ -1645,8 +1656,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             for (int slot = 0; slot < states.length; slot++)
             {
                 if (/*! #if ($RH) !*/
-                states[slot] != -1
-                /*! #else
+                        states[slot] != -1
+                        /*! #else
                 states[slot]
                 #end  !*/) {
                     procedure.apply(values[slot]);
@@ -1670,13 +1681,15 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             for (int slot = 0; slot < states.length; slot++)
             {
                 if (/*! #if ($RH) !*/
-                states[slot] != -1
-                /*! #else
+                        states[slot] != -1
+                        /*! #else
                 states[slot]
                 #end  !*/)
                 {
                     if (!predicate.apply(values[slot]))
+                    {
                         break;
+                    }
                 }
             }
 
@@ -1844,7 +1857,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     KTypeVTypeOpenHashMap.this.allocated[i] == -1
-                    /*! #else
+            /*! #else
             !allocated[i]
             #end  !*/)
             {
@@ -1852,7 +1865,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             }
 
             if (i == -1)
+            {
                 return done();
+            }
 
             this.cursor.index = i;
             this.cursor.value = KTypeVTypeOpenHashMap.this.values[i];
@@ -1893,7 +1908,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         for (final KTypeVTypeCursor<KType, VType> cursor : this)
         {
             if (!first)
+            {
                 buffer.append(", ");
+            }
             buffer.append(cursor.key);
             buffer.append("=>");
             buffer.append(cursor.value);
@@ -1909,7 +1926,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> from(final KType[] keys, final VType[] values)
     {
         if (keys.length != values.length)
+        {
             throw new IllegalArgumentException("Arrays of keys and values must have an identical length.");
+        }
 
         final KTypeVTypeOpenHashMap<KType, VType> map = new KTypeVTypeOpenHashMap<KType, VType>(keys.length);
 

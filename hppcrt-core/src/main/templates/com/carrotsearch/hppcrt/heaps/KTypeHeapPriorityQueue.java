@@ -277,6 +277,7 @@ implements KTypePriorityQueue<KType>, Cloneable
 
     /**
      * An iterator implementation for {@link HeapPriorityQueue#iterator}.
+     * Holds a KTypeCursor<KType> cursor returning (value, index) = (KType value, index the position in heap)
      */
     public final class ValueIterator extends AbstractIterator<KTypeCursor<KType>>
     {

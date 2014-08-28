@@ -46,7 +46,7 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenCustomHashMap<KType, VType>
-implements KTypeVTypeMap<KType, VType>, Cloneable
+        implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -349,13 +349,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     @Override
     public int putAll(final KTypeVTypeAssociativeContainer<? extends KType, ? extends VType> container)
     {
-        final int count = this.assigned;
-
-        for (final KTypeVTypeCursor<? extends KType, ? extends VType> c : container)
-        {
-            put(c.key, c.value);
-        }
-        return this.assigned - count;
+        return putAll((Iterable<? extends KTypeVTypeCursor<? extends KType, ? extends VType>>) container);
     }
 
     /**
@@ -786,20 +780,24 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                 {
                     // we're on the right of the original slot.
                     if (slotPrev >= slotOther || slotOther > slotCurr)
+                    {
                         break;
+                    }
                 }
                 else
                 {
                     // we've wrapped around.
                     if (slotPrev >= slotOther && slotOther > slotCurr)
+                    {
                         break;
+                    }
                 }
                 slotCurr = (slotCurr + 1) & mask;
             }
 
             if (/*! #if ($RH) !*/
-                    allocated[slotCurr] == -1
-                    /*! #else
+            allocated[slotCurr] == -1
+            /*! #else
             !allocated[slotCurr]
             #end !*/)
             {
@@ -1182,7 +1180,9 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         if (obj != null)
         {
             if (obj == this)
+            {
                 return true;
+            }
 
             if (!(obj instanceof KTypeVTypeOpenCustomHashMap))
             {
@@ -1248,7 +1248,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     KTypeVTypeOpenCustomHashMap.this.allocated[i] == -1
-            /*! #else
+                    /*! #else
             !allocated[i]
             #end  !*/)
             {
@@ -1256,7 +1256,9 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             }
 
             if (i == -1)
+            {
                 return done();
+            }
 
             this.cursor.index = i;
             this.cursor.key = KTypeVTypeOpenCustomHashMap.this.keys[i];
@@ -1321,7 +1323,9 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         for (int i = states.length - 1; i >= 0; i--)
         {
             if (states[i] /*! #if ($RH) !*/!= -1 /*! #end !*/)
+            {
                 procedure.apply(keys[i], values[i]);
+            }
         }
 
         return procedure;
@@ -1372,7 +1376,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      * A view of the keys inside this hash map.
      */
     public final class KeysContainer
-    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenCustomHashMap<KType, VType> owner =
                 KTypeVTypeOpenCustomHashMap.this;
@@ -1399,7 +1403,9 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             for (int i = states.length - 1; i >= 0; i--)
             {
                 if (states[i] /*! #if ($RH) !*/!= -1 /*! #end !*/)
+                {
                     procedure.apply(keys[i]);
+                }
             }
 
             return procedure;
@@ -1423,7 +1429,9 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                 if (states[i] /*! #if ($RH) !*/!= -1 /*! #end !*/)
                 {
                     if (!predicate.apply(keys[i]))
+                    {
                         break;
+                    }
                 }
             }
 
@@ -1557,7 +1565,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     KTypeVTypeOpenCustomHashMap.this.allocated[i] == -1
-            /*! #else
+                    /*! #else
             !allocated[i]
             #end  !*/)
             {
@@ -1565,7 +1573,9 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             }
 
             if (i == -1)
+            {
                 return done();
+            }
 
             this.cursor.index = i;
             this.cursor.value = KTypeVTypeOpenCustomHashMap.this.keys[i];
@@ -1625,7 +1635,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             for (int slot = 0; slot < states.length; slot++)
             {
                 if (/*! #if ($RH) !*/
-                        states[slot] != -1
+                states[slot] != -1
                         /*! #else
                         states[slot]
                         #end  !*/
@@ -1651,8 +1661,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             for (int slot = 0; slot < states.length; slot++)
             {
                 if (/*! #if ($RH) !*/
-                        states[slot] != -1
-                        /*! #else
+                states[slot] != -1
+                /*! #else
                 states[slot]
                 #end  !*/) {
                     procedure.apply(values[slot]);
@@ -1676,13 +1686,15 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             for (int slot = 0; slot < states.length; slot++)
             {
                 if (/*! #if ($RH) !*/
-                        states[slot] != -1
-                        /*! #else
+                states[slot] != -1
+                /*! #else
                 states[slot]
                 #end  !*/)
                 {
                     if (!predicate.apply(values[slot]))
+                    {
                         break;
+                    }
                 }
             }
 
@@ -1852,7 +1864,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     KTypeVTypeOpenCustomHashMap.this.allocated[i] == -1
-            /*! #else
+                    /*! #else
             !allocated[i]
             #end  !*/)
             {
@@ -1860,7 +1872,9 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             }
 
             if (i == -1)
+            {
                 return done();
+            }
 
             this.cursor.index = i;
             this.cursor.value = KTypeVTypeOpenCustomHashMap.this.values[i];
@@ -1883,7 +1897,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         @SuppressWarnings("unchecked")
         final/* #end */
         KTypeVTypeOpenCustomHashMap<KType, VType> cloned =
-        new KTypeVTypeOpenCustomHashMap<KType, VType>(this.size(), this.loadFactor, this.hashStrategy);
+                new KTypeVTypeOpenCustomHashMap<KType, VType>(this.size(), this.loadFactor, this.hashStrategy);
 
         cloned.putAll(this);
 
@@ -1906,7 +1920,9 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         for (final KTypeVTypeCursor<KType, VType> cursor : this)
         {
             if (!first)
+            {
                 buffer.append(", ");
+            }
             buffer.append(cursor.key);
             buffer.append("=>");
             buffer.append(cursor.value);
@@ -1922,7 +1938,9 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     public static <KType, VType> KTypeVTypeOpenCustomHashMap<KType, VType> from(final KType[] keys, final VType[] values, final KTypeHashingStrategy<? super KType> hashStrategy)
     {
         if (keys.length != values.length)
+        {
             throw new IllegalArgumentException("Arrays of keys and values must have an identical length.");
+        }
 
         final KTypeVTypeOpenCustomHashMap<KType, VType> map = new KTypeVTypeOpenCustomHashMap<KType, VType>(keys.length, hashStrategy);
 

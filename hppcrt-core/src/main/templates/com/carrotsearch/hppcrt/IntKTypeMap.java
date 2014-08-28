@@ -1,15 +1,17 @@
-package com.carrotsearch.hppcrt.maps;
+package com.carrotsearch.hppcrt;
 
-import com.carrotsearch.hppcrt.KTypeVTypeAssociativeContainer;
-import com.carrotsearch.hppcrt.cursors.KTypeVTypeCursor;
+import com.carrotsearch.hppcrt.cursors.IntKTypeCursor;
 
 /**
- * An associative container with unique binding from keys to a single value.
+ * An associative container with unique binding from ints to a single value.
+ * This is indeed a placeholder for template compilation,
+ * and will indeed be replaced by a (int, VType) instantiation
+ * of KTypeVTypeMap
  */
-/*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
+/*! ${TemplateOptions.doNotGenerateKType("all")} !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
-public interface KTypeVTypeMap<KType, VType>
-extends KTypeVTypeAssociativeContainer<KType, VType>
+public interface IntKTypeMap<KType>
+extends IntKTypeAssociativeContainer<KType>
 {
     /**
      * Place a given key and value in the container.
@@ -17,7 +19,7 @@ extends KTypeVTypeAssociativeContainer<KType, VType>
      *  value only </b> with the argument value. If no previous key existed,
      * the default value is returned and the (key, value) pair is inserted.
      */
-    VType put(KType key, VType value);
+    KType put(int key, KType value);
 
     /**
      * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. An equivalent
@@ -32,9 +34,9 @@ extends KTypeVTypeAssociativeContainer<KType, VType>
      * @return <code>true</code> if <code>key</code> did not exist and <code>value</code>
      * was placed in the map.
      */
-    boolean putIfAbsent(final KType key, final VType value);
+    boolean putIfAbsent(final int key, final KType value);
 
-    /*! #if ($TemplateOptions.VTypeNumeric) !*/
+    /*! #if ($TemplateOptions.KTypeNumeric) !*/
     /**
      * An equivalent of calling
      * <pre>
@@ -46,36 +48,20 @@ extends KTypeVTypeAssociativeContainer<KType, VType>
      * @return Returns the current value associated with <code>key</code> (after changes).
      */
     /*! #end !*/
-    /*! #if ($TemplateOptions.VTypeNumeric)
-     VType addTo(KType key, VType additionValue);
+    /*! #if ($TemplateOptions.KTypeNumeric)
+     KType addTo(int key, KType additionValue);
     #end !*/
 
-    /*! #if ($TemplateOptions.VTypeNumeric)!*/
+    /*! #if ($TemplateOptions.KTypeNumeric)!*/
     /**
-     * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. A logical
-     * equivalent of the following code (but does not update {@link #lastSlot):
-     * <pre>
-     *  if (containsKey(key))
-     *  {
-     *      VType v = (VType) (lget() + additionValue);
-     *      lset(v);
-     *      return v;
-     *  }
-     *  else
-     *  {
-     *     put(key, putValue);
-     *     return putValue;
-     *  }
-     * </pre>
-     * 
      * @param key The key of the value to adjust.
      * @param putValue The value to put if <code>key</code> does not exist.
      * @param additionValue The value to add to the existing value if <code>key</code> exists.
      * @return Returns the current value associated with <code>key</code> (after changes).
      */
     /*! #end !*/
-    /*!#if ($TemplateOptions.VTypeNumeric)
-     VType putOrAdd(KType key, VType putValue, VType additionValue);
+    /*!#if ($TemplateOptions.KTypeNumeric)
+     KType putOrAdd(int key, KType putValue, KType additionValue);
     #end !*/
 
     /**
@@ -83,7 +69,7 @@ extends KTypeVTypeAssociativeContainer<KType, VType>
      * for the value type, if the key is not associated with any value.
      *
      */
-    VType get(KType key);
+    KType get(int key);
 
     /**
      * Puts all keys from another container to this map, replacing the values
@@ -92,7 +78,7 @@ extends KTypeVTypeAssociativeContainer<KType, VType>
      * @return Returns the number of keys added to the map as a result of this
      * call (not previously present in the map). Values of existing keys are overwritten.
      */
-    int putAll(KTypeVTypeAssociativeContainer<? extends KType, ? extends VType> container);
+    int putAll(IntKTypeAssociativeContainer<? extends KType> container);
 
     /**
      * Puts all keys from an iterable cursor to this map, replacing the values
@@ -101,11 +87,11 @@ extends KTypeVTypeAssociativeContainer<KType, VType>
      * @return Returns the number of keys added to the map as a result of this
      * call (not previously present in the map). Values of existing keys are overwritten.
      */
-    int putAll(Iterable<? extends KTypeVTypeCursor<? extends KType, ? extends VType>> iterable);
+    int putAll(Iterable<? extends IntKTypeCursor<? extends KType>> iterable);
 
     /**
      * Remove all values at the given key. The default value for the key type is returned
      * if the value does not exist in the map.
      */
-    VType remove(KType key);
+    KType remove(int key);
 }

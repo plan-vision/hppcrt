@@ -25,7 +25,7 @@ public class TemplateOptions
     public boolean doNotGenerateVType = false;
 
     /**
-     * Reference over the current Velocity context, so that 
+     * Reference over the current Velocity context, so that
      * the current context could be set of get from the TemplateOptions object itself.
      */
     public VelocityContext context = null;
@@ -65,17 +65,17 @@ public class TemplateOptions
 
     public boolean isKTypePrimitive()
     {
-        return ktype != Type.GENERIC;
+        return this.ktype != Type.GENERIC;
     }
 
     public boolean isKTypeNumeric()
     {
-        return (ktype != Type.GENERIC && ktype != Type.BOOLEAN);
+        return this.ktype != Type.GENERIC && this.ktype != Type.BOOLEAN;
     }
 
     public boolean isKTypeBoolean()
     {
-        return (this.ktype == Type.BOOLEAN);
+        return this.ktype == Type.BOOLEAN;
     }
 
     public boolean isKType(final String... strKind)
@@ -100,12 +100,12 @@ public class TemplateOptions
 
     public boolean isVTypeNumeric()
     {
-        return (getVType() != Type.GENERIC && getVType() != Type.BOOLEAN);
+        return getVType() != Type.GENERIC && getVType() != Type.BOOLEAN;
     }
 
     public boolean isVTypeBoolean()
     {
-        return (vtype == Type.BOOLEAN);
+        return this.vtype == Type.BOOLEAN;
     }
 
     public boolean isVType(final String... strKind)
@@ -131,7 +131,7 @@ public class TemplateOptions
 
     public boolean isKTypeGeneric()
     {
-        return ktype == Type.GENERIC;
+        return this.ktype == Type.GENERIC;
     }
 
     public boolean isVTypeGeneric()
@@ -156,24 +156,28 @@ public class TemplateOptions
 
     public boolean isAnyGeneric()
     {
-        return isKTypeGeneric() || (hasVType() && isVTypeGeneric());
+        return isKTypeGeneric() || hasVType() && isVTypeGeneric();
     }
 
     public boolean hasVType()
     {
-        return vtype != null;
+        return this.vtype != null;
     }
 
     public Type getKType()
     {
-        return ktype;
+        return this.ktype;
     }
 
     public Type getVType()
     {
-        if (vtype == null)
-            throw new RuntimeException("VType is null.");
-        return vtype;
+        if (this.vtype == null)
+        {
+            final RuntimeException reEx = new RuntimeException("VType is null.");
+            reEx.printStackTrace();
+            throw reEx;
+        }
+        return this.vtype;
     }
 
     public void doNotGenerateKType(final String... notGeneratingType)
@@ -185,9 +189,7 @@ public class TemplateOptions
         //only accepting valid Type strings
         for (final String notToBeGenerated : notGeneratingType) {
 
-            if (this.ktype == Type.valueOf(notToBeGenerated.toUpperCase()))
-            {
-
+            if (notToBeGenerated.toUpperCase().equals("ALL") || this.ktype == Type.valueOf(notToBeGenerated.toUpperCase())) {
                 this.doNotGenerateKType = true;
                 return;
             }
@@ -204,9 +206,11 @@ public class TemplateOptions
         }
 
         //if any of the notGeneratingType is this.ktype, then do not generate
+        //return true if it matches any type of the list, case insensitively while
+        //only accepting valid Type strings
         for (final String notToBeGenerated : notGeneratingType)
         {
-            if (this.vtype == Type.valueOf(notToBeGenerated.toUpperCase()))
+            if (notToBeGenerated.toUpperCase().equals("ALL") || this.vtype == Type.valueOf(notToBeGenerated.toUpperCase()))
             {
                 this.doNotGenerateVType = true;
                 return;
@@ -279,14 +283,14 @@ public class TemplateOptions
 
     public String getSourceFile()
     {
-        return sourceFile.getName();
+        return this.sourceFile.getName();
     }
 
     public String getGeneratedAnnotation()
     {
         return "@javax.annotation.Generated(date = \"" +
                 getTimeNow() + "\", value = \"HPPC-RT generated from: " +
-                sourceFile.getName() + "\")";
+                this.sourceFile.getName() + "\")";
     }
 
     /**
@@ -295,31 +299,37 @@ public class TemplateOptions
      * @param argsArray
      * @return
      */
-    private String reformatJavaArguments(String methodBodyStr, final String[] argsArray) {
+    private String reformatJavaArguments(String methodBodyStr, final String[] argsArray)
+    {
 
         int argPosition = 0;
         boolean argumentIsFound = false;
 
         //for each of the arguments
-        for (int i = 0; i < argsArray.length; i++) {
+        for (int i = 0; i < argsArray.length; i++)
+        {
 
             argumentIsFound = false;
 
             final StringBuffer body = new StringBuffer();
 
-            while (true) {
+            while (true)
+            {
 
                 final Matcher m = TemplateOptions.JAVA_IDENTIFIER_PATTERN.matcher(methodBodyStr);
 
-                if (m.find()) {
+                if (m.find())
+                {
 
                     //copy from the start of the (remaining) method body to start of the current find :
                     body.append(methodBodyStr.substring(0, m.start()));
 
                     //this java identifier is known, replace
-                    if (m.group().equals(argsArray[i].trim())) {
+                    if (m.group().equals(argsArray[i].trim()))
+                    {
 
-                        if (!argumentIsFound) {
+                        if (!argumentIsFound)
+                        {
                             argPosition++;
                             //first time this argument is encountered, increment postion count
                             argumentIsFound = true;
@@ -328,7 +338,8 @@ public class TemplateOptions
                         //append replacement
                         body.append("%" + argPosition + "$s");
                     }
-                    else {
+                    else
+                    {
 
                         //else append verbatim
                         body.append(m.group());
@@ -338,7 +349,8 @@ public class TemplateOptions
                     methodBodyStr = methodBodyStr.substring(m.end());
 
                 } //end if find
-                else {
+                else
+                {
                     //append verbatim
                     body.append(methodBodyStr);
                     break;
