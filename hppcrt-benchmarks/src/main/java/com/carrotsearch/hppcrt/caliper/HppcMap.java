@@ -1,5 +1,6 @@
 package com.carrotsearch.hppcrt.caliper;
 
+import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.maps.*;
 
 public class HppcMap extends MapImplementation<IntIntMap>
@@ -11,22 +12,22 @@ public class HppcMap extends MapImplementation<IntIntMap>
 
     @Override
     public void remove(final int k) {
-        instance.remove(k);
+        this.instance.remove(k);
     }
 
     @Override
     public void clear() {
-        instance.clear();
+        this.instance.clear();
     }
 
     @Override
     public void put(final int k, final int v) {
-        instance.put(k, v);
+        this.instance.put(k, v);
     }
 
     @Override
     public int get(final int k) {
-        return instance.get(k);
+        return this.instance.get(k);
     }
 
     @Override
@@ -34,8 +35,9 @@ public class HppcMap extends MapImplementation<IntIntMap>
     {
         final IntIntMap prepared = this.instance;
         int count = 0;
-        for (int i = 0; i < keys.length; i++)
+        for (int i = 0; i < keys.length; i++) {
             count += prepared.containsKey(keys[i]) ? 1 : 0;
+        }
         return count;
     }
 

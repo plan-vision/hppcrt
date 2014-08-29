@@ -4,20 +4,13 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Random;
 
-import com.carrotsearch.hppcrt.DistributionGenerator;
+import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.DistributionGenerator.Generator;
-import com.carrotsearch.hppcrt.XorShiftRandom;
-import com.carrotsearch.hppcrt.cursors.IntLongCursor;
-import com.carrotsearch.hppcrt.lists.IntArrayList;
-import com.carrotsearch.hppcrt.lists.LongArrayList;
-import com.carrotsearch.hppcrt.lists.ObjectArrayList;
-import com.carrotsearch.hppcrt.maps.IntLongMap;
-import com.carrotsearch.hppcrt.maps.IntLongOpenHashMap;
-import com.carrotsearch.hppcrt.maps.ObjectLongMap;
-import com.carrotsearch.hppcrt.maps.ObjectLongOpenCustomHashMap;
-import com.carrotsearch.hppcrt.maps.ObjectLongOpenHashMap;
-import com.carrotsearch.hppcrt.procedures.LongProcedure;
-import com.carrotsearch.hppcrt.strategies.ObjectHashingStrategy;
+import com.carrotsearch.hppcrt.lists.*;
+import com.carrotsearch.hppcrt.maps.*;
+import com.carrotsearch.hppcrt.procedures.*;
+import com.carrotsearch.hppcrt.cursors.*;
+import com.carrotsearch.hppcrt.strategies.*;
 
 public final class HppcMapSyntheticBench
 {

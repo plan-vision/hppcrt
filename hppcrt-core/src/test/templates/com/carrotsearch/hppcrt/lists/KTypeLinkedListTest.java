@@ -1,10 +1,6 @@
 package com.carrotsearch.hppcrt.lists;
 
-import static com.carrotsearch.hppcrt.TestUtils.assertEquals2;
-import static com.carrotsearch.hppcrt.TestUtils.assertListEquals;
-import static com.carrotsearch.hppcrt.TestUtils.assertSortedListEquals;
-import static com.carrotsearch.hppcrt.TestUtils.reverse;
-import static org.junit.Assert.assertArrayEquals;
+import static com.carrotsearch.hppcrt.TestUtils.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -63,22 +59,23 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     public void initialize()
     {
         //create a vary small list to force reallocs.
-        list = KTypeLinkedList.newInstanceWithCapacity(2);
+        this.list = KTypeLinkedList.newInstanceWithCapacity(2);
 
-        sequence = KTypeArrayList.newInstance();
+        this.sequence = KTypeArrayList.newInstance();
 
-        for (int i = 0; i < 10000; i++)
-            sequence.add(cast(i));
+        for (int i = 0; i < 10000; i++) {
+            this.sequence.add(cast(i));
+        }
     }
 
     @After
     public void checkConsistency()
     {
-        if (list != null)
+        if (this.list != null)
         {
-            for (int i = list.elementsCount; i < list.buffer.length; i++) {
+            for (int i = this.list.elementsCount; i < this.list.buffer.length; i++) {
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                Assert.assertTrue(Intrinsics.<KType> defaultKTypeValue() == list.buffer[i]);
+                Assert.assertTrue(Intrinsics.<KType> defaultKTypeValue() == this.list.buffer[i]);
                 /*! #end !*/
             }
         }
@@ -88,32 +85,32 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testInitiallyEmpty()
     {
-        Assert.assertEquals(0, list.size());
+        Assert.assertEquals(0, this.list.size());
     }
 
     /* */
     @Test
     public void testAdd()
     {
-        list.add(key1, key2);
-        TestUtils.assertListEquals(list.toArray(), 1, 2);
+        this.list.add(this.key1, this.key2);
+        TestUtils.assertListEquals(this.list.toArray(), 1, 2);
     }
 
     /* */
     @Test
     public void testAddTwoArgs()
     {
-        list.add(key1, key2);
-        list.add(key3, key4);
-        TestUtils.assertListEquals(list.toArray(), 1, 2, 3, 4);
+        this.list.add(this.key1, this.key2);
+        this.list.add(this.key3, this.key4);
+        TestUtils.assertListEquals(this.list.toArray(), 1, 2, 3, 4);
     }
 
     /* */
     @Test
     public void testAddArray()
     {
-        list.add(asArray(0, 1, 2, 3), 1, 2);
-        TestUtils.assertListEquals(list.toArray(), 1, 2);
+        this.list.add(asArray(0, 1, 2, 3), 1, 2);
+        TestUtils.assertListEquals(this.list.toArray(), 1, 2);
     }
 
     /* */
@@ -123,9 +120,9 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testAddVarArg()
     {
-        list.add(asArray(0, 1, 2, 3));
-        list.add(key4, key5, key6, key7);
-        TestUtils.assertListEquals(list.toArray(), 0, 1, 2, 3, 4, 5, 6, 7);
+        this.list.add(asArray(0, 1, 2, 3));
+        this.list.add(this.key4, this.key5, this.key6, this.key7);
+        TestUtils.assertListEquals(this.list.toArray(), 0, 1, 2, 3, 4, 5, 6, 7);
     }
 
     /* */
@@ -135,10 +132,10 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         final KTypeLinkedList<KType> list2 = KTypeLinkedList.newInstance();
         list2.add(asArray(0, 1, 2));
 
-        list.addAll(list2);
-        list.addAll(list2);
+        this.list.addAll(list2);
+        this.list.addAll(list2);
 
-        TestUtils.assertListEquals(list.toArray(), 0, 1, 2, 0, 1, 2);
+        TestUtils.assertListEquals(this.list.toArray(), 0, 1, 2, 0, 1, 2);
     }
 
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
@@ -167,58 +164,58 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testInsert()
     {
-        list.insert(0, k1);
-        list.insert(0, k2);
-        list.insert(2, k3);
-        list.insert(1, k4);
+        this.list.insert(0, this.k1);
+        this.list.insert(0, this.k2);
+        this.list.insert(2, this.k3);
+        this.list.insert(1, this.k4);
 
-        TestUtils.assertListEquals(list.toArray(), 2, 4, 1, 3);
+        TestUtils.assertListEquals(this.list.toArray(), 2, 4, 1, 3);
     }
 
     /* */
     @Test
     public void testSet()
     {
-        list.add(asArray(0, 1, 2));
+        this.list.add(asArray(0, 1, 2));
 
-        TestUtils.assertEquals2(0, list.set(0, k3));
-        TestUtils.assertEquals2(1, list.set(1, k4));
-        TestUtils.assertEquals2(2, list.set(2, k5));
+        TestUtils.assertEquals2(0, this.list.set(0, this.k3));
+        TestUtils.assertEquals2(1, this.list.set(1, this.k4));
+        TestUtils.assertEquals2(2, this.list.set(2, this.k5));
 
-        TestUtils.assertListEquals(list.toArray(), 3, 4, 5);
+        TestUtils.assertListEquals(this.list.toArray(), 3, 4, 5);
     }
 
     /* */
     @Test
     public void testRemove()
     {
-        list.add(asArray(0, 1, 2, 3, 4, 5, 6, 7, 8, 9));
+        this.list.add(asArray(0, 1, 2, 3, 4, 5, 6, 7, 8, 9));
 
-        list.remove(0);
-        list.remove(2);
-        list.remove(1);
-        list.remove(4);
+        this.list.remove(0);
+        this.list.remove(2);
+        this.list.remove(1);
+        this.list.remove(4);
 
-        TestUtils.assertListEquals(list.toArray(), 1, 4, 5, 6, 8, 9);
+        TestUtils.assertListEquals(this.list.toArray(), 1, 4, 5, 6, 8, 9);
     }
 
     /* */
     @Test
     public void testRemoveRange()
     {
-        list.add(asArray(0, 1, 2, 3, 4));
+        this.list.add(asArray(0, 1, 2, 3, 4));
 
-        list.removeRange(0, 2);
-        TestUtils.assertListEquals(list.toArray(), 2, 3, 4);
+        this.list.removeRange(0, 2);
+        TestUtils.assertListEquals(this.list.toArray(), 2, 3, 4);
 
-        list.removeRange(2, 3);
-        TestUtils.assertListEquals(list.toArray(), 2, 3);
+        this.list.removeRange(2, 3);
+        TestUtils.assertListEquals(this.list.toArray(), 2, 3);
 
-        list.removeRange(1, 1);
-        TestUtils.assertListEquals(list.toArray(), 2, 3);
+        this.list.removeRange(1, 1);
+        TestUtils.assertListEquals(this.list.toArray(), 2, 3);
 
-        list.removeRange(0, 1);
-        TestUtils.assertListEquals(list.toArray(), 3);
+        this.list.removeRange(0, 1);
+        TestUtils.assertListEquals(this.list.toArray(), 3);
     }
 
     /* */
@@ -230,13 +227,13 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
 
         for (int i = 0; i < COUNT; i++)
         {
-            list.add(cast(i));
+            this.list.add(cast(i));
         }
 
         //check that we reach the good element, by index
         for (int i = 0; i < COUNT; i++)
         {
-            Assert.assertEquals(castType(cast(i)), castType(list.buffer[list.gotoIndex(i)]));
+            Assert.assertEquals(castType(cast(i)), castType(this.list.buffer[this.list.gotoIndex(i)]));
         }
     }
 
@@ -244,26 +241,26 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testRemoveFirstLast()
     {
-        list.add(asArray(0, 1, 2, 1, 0));
+        this.list.add(asArray(0, 1, 2, 1, 0));
 
-        Assert.assertEquals(-1, list.removeFirstOccurrence(k5));
-        Assert.assertEquals(-1, list.removeLastOccurrence(k5));
-        TestUtils.assertListEquals(list.toArray(), 0, 1, 2, 1, 0);
+        Assert.assertEquals(-1, this.list.removeFirstOccurrence(this.k5));
+        Assert.assertEquals(-1, this.list.removeLastOccurrence(this.k5));
+        TestUtils.assertListEquals(this.list.toArray(), 0, 1, 2, 1, 0);
 
-        Assert.assertEquals(1, list.removeFirstOccurrence(k1));
-        TestUtils.assertListEquals(list.toArray(), 0, 2, 1, 0);
-        Assert.assertEquals(3, list.removeLastOccurrence(k0));
-        TestUtils.assertListEquals(list.toArray(), 0, 2, 1);
-        Assert.assertEquals(0, list.removeLastOccurrence(k0));
-        TestUtils.assertListEquals(list.toArray(), 2, 1);
-        Assert.assertEquals(-1, list.removeLastOccurrence(k0));
+        Assert.assertEquals(1, this.list.removeFirstOccurrence(this.k1));
+        TestUtils.assertListEquals(this.list.toArray(), 0, 2, 1, 0);
+        Assert.assertEquals(3, this.list.removeLastOccurrence(this.k0));
+        TestUtils.assertListEquals(this.list.toArray(), 0, 2, 1);
+        Assert.assertEquals(0, this.list.removeLastOccurrence(this.k0));
+        TestUtils.assertListEquals(this.list.toArray(), 2, 1);
+        Assert.assertEquals(-1, this.list.removeLastOccurrence(this.k0));
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        list.clear();
-        list.add(newArray(k0, null, k2, null, k0));
-        Assert.assertEquals(1, list.removeFirstOccurrence(null));
-        Assert.assertEquals(2, list.removeLastOccurrence(null));
-        TestUtils.assertListEquals(list.toArray(), 0, 2, 0);
+        this.list.clear();
+        this.list.add(newArray(this.k0, null, this.k2, null, this.k0));
+        Assert.assertEquals(1, this.list.removeFirstOccurrence(null));
+        Assert.assertEquals(2, this.list.removeLastOccurrence(null));
+        TestUtils.assertListEquals(this.list.toArray(), 0, 2, 0);
         /*! #end !*/
     }
 
@@ -271,21 +268,21 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testRemoveAll()
     {
-        list.add(asArray(0, 1, 0, 1, 0));
+        this.list.add(asArray(0, 1, 0, 1, 0));
 
-        Assert.assertEquals(0, list.removeAllOccurrences(k2));
-        Assert.assertEquals(3, list.removeAllOccurrences(k0));
-        TestUtils.assertListEquals(list.toArray(), 1, 1);
+        Assert.assertEquals(0, this.list.removeAllOccurrences(this.k2));
+        Assert.assertEquals(3, this.list.removeAllOccurrences(this.k0));
+        TestUtils.assertListEquals(this.list.toArray(), 1, 1);
 
-        Assert.assertEquals(2, list.removeAllOccurrences(k1));
-        Assert.assertTrue(list.isEmpty());
+        Assert.assertEquals(2, this.list.removeAllOccurrences(this.k1));
+        Assert.assertTrue(this.list.isEmpty());
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        list.clear();
-        list.add(newArray(k0, null, k2, null, k0));
-        Assert.assertEquals(2, list.removeAllOccurrences(null));
-        Assert.assertEquals(0, list.removeAllOccurrences(null));
-        TestUtils.assertListEquals(list.toArray(), 0, 2, 0);
+        this.list.clear();
+        this.list.add(newArray(this.k0, null, this.k2, null, this.k0));
+        Assert.assertEquals(2, this.list.removeAllOccurrences(null));
+        Assert.assertEquals(0, this.list.removeAllOccurrences(null));
+        TestUtils.assertListEquals(this.list.toArray(), 0, 2, 0);
         /*! #end !*/
     }
 
@@ -293,70 +290,70 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testRemoveAllEverything()
     {
-        list.add(asArray(1, 1, 1, 1, 1));
+        this.list.add(asArray(1, 1, 1, 1, 1));
 
-        Assert.assertEquals(5, list.removeAllOccurrences(k1));
-        Assert.assertEquals(0, list.size());
+        Assert.assertEquals(5, this.list.removeAllOccurrences(this.k1));
+        Assert.assertEquals(0, this.list.size());
 
         //remove all a void
-        Assert.assertEquals(0, list.removeAllOccurrences(k1));
-        Assert.assertEquals(0, list.size());
+        Assert.assertEquals(0, this.list.removeAllOccurrences(this.k1));
+        Assert.assertEquals(0, this.list.size());
     }
 
     /* */
     @Test
     public void testRemoveAllFromLookupContainer()
     {
-        list.add(asArray(0, 1, 2, 1, 0));
+        this.list.add(asArray(0, 1, 2, 1, 0));
 
         final KTypeOpenHashSet<KType> list2 = KTypeOpenHashSet.newInstance();
         list2.add(asArray(0, 2));
 
-        Assert.assertEquals(3, list.removeAll(list2));
-        Assert.assertEquals(0, list.removeAll(list2));
+        Assert.assertEquals(3, this.list.removeAll(list2));
+        Assert.assertEquals(0, this.list.removeAll(list2));
 
-        TestUtils.assertListEquals(list.toArray(), 1, 1);
+        TestUtils.assertListEquals(this.list.toArray(), 1, 1);
     }
 
     /* */
     @Test
     public void testRemoveAllFromLookupContainerEverything()
     {
-        list.add(asArray(0, 1, 2, 1, 0));
+        this.list.add(asArray(0, 1, 2, 1, 0));
 
         final KTypeOpenHashSet<KType> list2 = KTypeOpenHashSet.newInstance();
         list2.add(asArray(0, 1, 2));
 
-        Assert.assertEquals(5, list.removeAll(list2));
-        Assert.assertEquals(0, list.size());
-        Assert.assertEquals(0, list.removeAll(list2));
+        Assert.assertEquals(5, this.list.removeAll(list2));
+        Assert.assertEquals(0, this.list.size());
+        Assert.assertEquals(0, this.list.removeAll(list2));
     }
 
     /* */
     @Test
     public void testRemoveAllWithPredicate()
     {
-        list.add(newArray(k0, k1, k2, k1, k4));
+        this.list.add(newArray(this.k0, this.k1, this.k2, this.k1, this.k4));
 
-        Assert.assertEquals(3, list.removeAll(new KTypePredicate<KType>()
+        Assert.assertEquals(3, this.list.removeAll(new KTypePredicate<KType>()
                 {
             @Override
             public boolean apply(final KType v)
             {
-                return v == key1 || v == key2;
+                return v == KTypeLinkedListTest.this.key1 || v == KTypeLinkedListTest.this.key2;
             };
                 }));
 
-        TestUtils.assertListEquals(list.toArray(), 0, 4);
+        TestUtils.assertListEquals(this.list.toArray(), 0, 4);
     }
 
     /* */
     @Test
     public void testRemoveAllWithPredicateEverything()
     {
-        list.add(newArray(k0, k1, k2, k1, k4));
+        this.list.add(newArray(this.k0, this.k1, this.k2, this.k1, this.k4));
 
-        Assert.assertEquals(5, list.removeAll(new KTypePredicate<KType>()
+        Assert.assertEquals(5, this.list.removeAll(new KTypePredicate<KType>()
                 {
             @Override
             public boolean apply(final KType v)
@@ -365,10 +362,10 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
             };
                 }));
 
-        Assert.assertEquals(0, list.size());
+        Assert.assertEquals(0, this.list.size());
 
         //try again
-        Assert.assertEquals(0, list.removeAll(new KTypePredicate<KType>()
+        Assert.assertEquals(0, this.list.removeAll(new KTypePredicate<KType>()
                 {
             @Override
             public boolean apply(final KType v)
@@ -377,46 +374,47 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
             };
                 }));
 
-        Assert.assertEquals(0, list.size());
+        Assert.assertEquals(0, this.list.size());
     }
 
     /* */
     @Test
     public void testRetainAllWithPredicate()
     {
-        list.add(newArray(k0, k1, k2, k1, k0));
+        this.list.add(newArray(this.k0, this.k1, this.k2, this.k1, this.k0));
 
-        Assert.assertEquals(2, list.retainAll(new KTypePredicate<KType>()
+        Assert.assertEquals(2, this.list.retainAll(new KTypePredicate<KType>()
                 {
             @Override
             public boolean apply(final KType v)
             {
-                return v == key1 || v == key2;
+                return v == KTypeLinkedListTest.this.key1 || v == KTypeLinkedListTest.this.key2;
             };
                 }));
 
-        TestUtils.assertListEquals(list.toArray(), 1, 2, 1);
+        TestUtils.assertListEquals(this.list.toArray(), 1, 2, 1);
     }
 
     /* */
     @Test
     public void testRemoveAllWithPredicateInterrupted()
     {
-        list.add(newArray(k0, k1, k2, k1, k4));
+        this.list.add(newArray(this.k0, this.k1, this.k2, this.k1, this.k4));
 
         final RuntimeException t = new RuntimeException();
         try
         {
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size
-            Assert.assertEquals(5, list.removeAll(new KTypePredicate<KType>()
+            Assert.assertEquals(5, this.list.removeAll(new KTypePredicate<KType>()
                     {
                 @Override
                 public boolean apply(final KType v)
                 {
-                    if (v == key2)
+                    if (v == KTypeLinkedListTest.this.key2) {
                         throw t;
-                    return v == key1;
+                    }
+                    return v == KTypeLinkedListTest.this.key1;
                 };
                     }));
             Assert.fail();
@@ -424,101 +422,102 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         catch (final RuntimeException e)
         {
             // Make sure it's really our exception...
-            if (e != t)
+            if (e != t) {
                 throw e;
+            }
         }
 
         // And check if the list is in consistent state.
-        TestUtils.assertListEquals(list.toArray(), 0, key2, key1, 4);
-        Assert.assertEquals(4, list.size());
+        TestUtils.assertListEquals(this.list.toArray(), 0, this.key2, this.key1, 4);
+        Assert.assertEquals(4, this.list.size());
     }
 
     /* */
     @Test
     public void testIndexOf()
     {
-        list.add(asArray(0, 1, 2, 1, 0));
+        this.list.add(asArray(0, 1, 2, 1, 0));
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        list.add((KType) null);
-        Assert.assertEquals(5, list.indexOf(null));
+        this.list.add((KType) null);
+        Assert.assertEquals(5, this.list.indexOf(null));
         /*! #end !*/
 
-        Assert.assertEquals(0, list.indexOf(k0));
-        Assert.assertEquals(-1, list.indexOf(k3));
-        Assert.assertEquals(2, list.indexOf(k2));
+        Assert.assertEquals(0, this.list.indexOf(this.k0));
+        Assert.assertEquals(-1, this.list.indexOf(this.k3));
+        Assert.assertEquals(2, this.list.indexOf(this.k2));
     }
 
     /* */
     @Test
     public void testLastIndexOf()
     {
-        list.add(asArray(0, 1, 2, 1, 0));
+        this.list.add(asArray(0, 1, 2, 1, 0));
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        list.add((KType) null);
-        Assert.assertEquals(5, list.lastIndexOf(null));
+        this.list.add((KType) null);
+        Assert.assertEquals(5, this.list.lastIndexOf(null));
         /*! #end !*/
 
-        TestUtils.assertEquals2(4, list.lastIndexOf(k0));
-        TestUtils.assertEquals2(-1, list.lastIndexOf(k3));
-        TestUtils.assertEquals2(2, list.lastIndexOf(k2));
+        TestUtils.assertEquals2(4, this.list.lastIndexOf(this.k0));
+        TestUtils.assertEquals2(-1, this.list.lastIndexOf(this.k3));
+        TestUtils.assertEquals2(2, this.list.lastIndexOf(this.k2));
     }
 
     /* */
     @Test
     public void testEnsureCapacity()
     {
-        list.ensureCapacity(100);
-        Assert.assertTrue(list.buffer.length >= 100);
+        this.list.ensureCapacity(100);
+        Assert.assertTrue(this.list.buffer.length >= 100);
 
-        list.ensureCapacity(1000);
-        list.ensureCapacity(1000);
-        Assert.assertTrue(list.buffer.length >= 1000);
+        this.list.ensureCapacity(1000);
+        this.list.ensureCapacity(1000);
+        Assert.assertTrue(this.list.buffer.length >= 1000);
     }
 
     /* */
     @Test
     public void testForEachWithProcedure()
     {
-        list.add(asArray(1, 2, 3));
+        this.list.add(asArray(1, 2, 3));
         final IntHolder holder = new IntHolder();
-        list.forEach(new KTypeProcedure<KType>() {
+        this.list.forEach(new KTypeProcedure<KType>() {
             int index = 0;
 
             @Override
             public void apply(final KType v)
             {
-                TestUtils.assertEquals2(v, list.get(index++));
-                holder.value = index;
+                TestUtils.assertEquals2(v, KTypeLinkedListTest.this.list.get(this.index++));
+                holder.value = this.index;
             }
         });
-        Assert.assertEquals(holder.value, list.size());
+        Assert.assertEquals(holder.value, this.list.size());
     }
 
     /* */
     @Test
     public void testForEachReturnValueFromAnonymousClass()
     {
-        list.add(asArray(1, 2, 3));
-        final int result = list.forEach(new KTypeProcedure<KType>() {
+        this.list.add(asArray(1, 2, 3));
+        final int result = this.list.forEach(new KTypeProcedure<KType>() {
             int index = 0;
 
             @Override
             public void apply(final KType v)
             {
-                TestUtils.assertEquals2(v, list.get(index++));
+                TestUtils.assertEquals2(v, KTypeLinkedListTest.this.list.get(this.index++));
             }
         }).index;
-        Assert.assertEquals(result, list.size());
+        Assert.assertEquals(result, this.list.size());
     }
 
     /* */
     @Test
     public void testClear()
     {
-        list.add(asArray(1, 2, 3));
-        list.clear();
+        this.list.add(asArray(1, 2, 3));
+        this.list.clear();
         checkConsistency();
     }
 
@@ -529,7 +528,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testFrom()
     {
-        final KTypeLinkedList<KType> variable = KTypeLinkedList.from(k1, k2, k3);
+        final KTypeLinkedList<KType> variable = KTypeLinkedList.from(this.k1, this.k2, this.k3);
         Assert.assertEquals(3, variable.size());
         TestUtils.assertListEquals(variable.toArray(), 1, 2, 3);
     }
@@ -545,9 +544,9 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertEquals(1, l0.hashCode());
         Assert.assertEquals(l0, ObjectArrayList.from());
 
-        final KTypeLinkedList<KType> l1 = KTypeLinkedList.from(k1, k2, k3);
-        final KTypeLinkedList<KType> l2 = KTypeLinkedList.from(k1, k2);
-        l2.add(k3);
+        final KTypeLinkedList<KType> l1 = KTypeLinkedList.from(this.k1, this.k2, this.k3);
+        final KTypeLinkedList<KType> l2 = KTypeLinkedList.from(this.k1, this.k2);
+        l2.add(this.k3);
 
         Assert.assertEquals(l1.hashCode(), l2.hashCode());
         Assert.assertEquals(l1, l2);
@@ -558,8 +557,8 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     @SuppressWarnings("unchecked")
     public void testHashCodeWithNulls()
     {
-        final KTypeLinkedList<KType> l1 = KTypeLinkedList.from(k1, null, k3);
-        final KTypeLinkedList<KType> l2 = KTypeLinkedList.from(k1, null, k3);
+        final KTypeLinkedList<KType> l1 = KTypeLinkedList.from(this.k1, null, this.k3);
+        final KTypeLinkedList<KType> l2 = KTypeLinkedList.from(this.k1, null, this.k3);
 
         Assert.assertEquals(l1.hashCode(), l2.hashCode());
         Assert.assertEquals(l1, l2);
@@ -583,9 +582,9 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testToArray()
     {
-        final KTypeLinkedList<KType> l1 = KTypeLinkedList.from(k1, k2, k3, k4, k5, k7);
+        final KTypeLinkedList<KType> l1 = KTypeLinkedList.from(this.k1, this.k2, this.k3, this.k4, this.k5, this.k7);
         final Object[] result = l1.toArray();
-        Assert.assertArrayEquals(new Object[] { k1, k2, k3, k4, k5, k7 }, result);
+        Assert.assertArrayEquals(new Object[] { this.k1, this.k2, this.k3, this.k4, this.k5, this.k7 }, result);
     }
 
     /*! #end !*/
@@ -597,13 +596,13 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testClone()
     {
-        list.add(k1, k2, k3);
+        this.list.add(this.k1, this.k2, this.k3);
 
-        final KTypeLinkedList<KType> cloned = list.clone();
-        cloned.removeAllOccurrences(key1);
+        final KTypeLinkedList<KType> cloned = this.list.clone();
+        cloned.removeAllOccurrences(this.key1);
 
-        TestUtils.assertSortedListEquals(list.toArray(), key1, key2, key3);
-        TestUtils.assertSortedListEquals(cloned.toArray(), key2, key3);
+        TestUtils.assertSortedListEquals(this.list.toArray(), this.key1, this.key2, this.key3);
+        TestUtils.assertSortedListEquals(cloned.toArray(), this.key2, this.key3);
     }
 
     /* */
@@ -614,13 +613,13 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     public void testToString()
     {
         Assert.assertEquals("["
-                + key1 + ", "
-                + key2 + ", "
-                + key3 + ", "
-                + key1 + ", "
-                + key7 + ", "
-                + key4 + ", "
-                + key3 + "]", KTypeLinkedList.from(k1, k2, k3, k1, k7, k4, k3).toString());
+                + this.key1 + ", "
+                + this.key2 + ", "
+                + this.key3 + ", "
+                + this.key1 + ", "
+                + this.key7 + ", "
+                + this.key4 + ", "
+                + this.key3 + "]", KTypeLinkedList.from(this.k1, this.k2, this.k3, this.k1, this.k7, this.k4, this.k3).toString());
     }
 
     @Test
@@ -639,7 +638,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
             @Override
             public void apply(final KType value)
             {
-                count += castType(value);
+                this.count += castType(value);
             }
         }).count;
 
@@ -685,7 +684,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
             count = 0;
             for (final KTypeCursor<KType> cursor : testContainer)
             {
-                guard += castType(cursor.value);
+                this.guard += castType(cursor.value);
                 //we consume 1 iterator for this loop, but reallocs can happen,
                 //so we can only say its != initialPoolSize
                 Assert.assertTrue(initialPoolSize != testContainer.valueIteratorPool.size());
@@ -727,7 +726,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
             @Override
             public void apply(final KType value)
             {
-                count += castType(value);
+                this.count += castType(value);
             }
         }).count;
 
@@ -784,7 +783,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
             count = 0;
             while (loopIterator.hasNext())
             {
-                guard += castType(loopIterator.next().value);
+                this.guard += castType(loopIterator.next().value);
 
                 //brutally interrupt in the middle
                 if (count > TEST_SIZE / 2)
@@ -824,7 +823,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
             @Override
             public void apply(final KType value)
             {
-                count += castType(value);
+                this.count += castType(value);
             }
         }).count;
 
@@ -840,11 +839,11 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
                 loopIterator = testContainer.iterator();
                 Assert.assertEquals(startingPoolSize - 1, testContainer.valueIteratorPool.size());
 
-                guard = 0;
+                this.guard = 0;
                 count = 0;
                 while (loopIterator.hasNext())
                 {
-                    guard += castType(loopIterator.next().value);
+                    this.guard += castType(loopIterator.next().value);
 
                     //brutally interrupt in the middle some of the loops, but not all
                     if (round > TEST_ROUNDS / 2 && count > TEST_SIZE / 2)
@@ -856,7 +855,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
 
                 //iterator is returned to its pool in case of normal loop termination
                 Assert.assertEquals(startingPoolSize, testContainer.valueIteratorPool.size());
-                Assert.assertEquals(checksum, guard);
+                Assert.assertEquals(checksum, this.guard);
 
             }
             catch (final Exception e)
@@ -891,7 +890,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
             @Override
             public void apply(final KType value)
             {
-                count += castType(value);
+                this.count += castType(value);
             }
         }).count;
 
@@ -916,12 +915,12 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
                 loopIterator = testContainer.iterator();
                 Assert.assertEquals(startingTestPoolSize - 1, testContainer.valueIteratorPool.size());
 
-                guard = 0;
+                this.guard = 0;
                 count = 0;
 
                 while (loopIterator.hasNext())
                 {
-                    guard += castType(loopIterator.next().value);
+                    this.guard += castType(loopIterator.next().value);
 
                     //brutally interrupt in the middle some of the loops, but not all
                     if (round > TEST_ROUNDS / 2 && count > TEST_SIZE / 2)
@@ -933,7 +932,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
 
                 //iterator is returned to its pool in case of normal loop termination
                 Assert.assertEquals(startingTestPoolSize, testContainer.valueIteratorPool.size());
-                Assert.assertEquals(checksum, guard);
+                Assert.assertEquals(checksum, this.guard);
 
                 //still, try to return it ....
                 loopIterator.release();
@@ -1049,52 +1048,53 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testAddFirst()
     {
-        list.addFirst(k1);
-        list.addFirst(k2);
-        list.addFirst(k3);
-        list.addFirst(k7);
-        list.addFirst(k1);
-        list.addFirst(k4);
-        list.addFirst(k5);
-        TestUtils.assertListEquals(list.toArray(), 5, 4, 1, 7, 3, 2, 1);
-        Assert.assertEquals(7, list.size());
+        this.list.addFirst(this.k1);
+        this.list.addFirst(this.k2);
+        this.list.addFirst(this.k3);
+        this.list.addFirst(this.k7);
+        this.list.addFirst(this.k1);
+        this.list.addFirst(this.k4);
+        this.list.addFirst(this.k5);
+        TestUtils.assertListEquals(this.list.toArray(), 5, 4, 1, 7, 3, 2, 1);
+        Assert.assertEquals(7, this.list.size());
     }
 
     /* */
     @Test
     public void testAddLast()
     {
-        list.addLast(k1);
-        list.addLast(k2);
-        list.addLast(k3);
-        list.addLast(k7);
-        list.addLast(k1);
-        list.addLast(k4);
-        list.addLast(k5);
-        TestUtils.assertListEquals(list.toArray(), 1, 2, 3, 7, 1, 4, 5);
-        Assert.assertEquals(7, list.size());
+        this.list.addLast(this.k1);
+        this.list.addLast(this.k2);
+        this.list.addLast(this.k3);
+        this.list.addLast(this.k7);
+        this.list.addLast(this.k1);
+        this.list.addLast(this.k4);
+        this.list.addLast(this.k5);
+        TestUtils.assertListEquals(this.list.toArray(), 1, 2, 3, 7, 1, 4, 5);
+        Assert.assertEquals(7, this.list.size());
     }
 
     /* */
     @Test
     public void testAddWithGrowth()
     {
-        for (int i = 0; i < sequence.size(); i++)
+        for (int i = 0; i < this.sequence.size(); i++)
         {
-            list.addFirst(sequence.buffer[i]);
+            this.list.addFirst(this.sequence.buffer[i]);
         }
 
-        TestUtils.assertListEquals(TestUtils.reverse(sequence.toArray()), list.toArray());
+        TestUtils.assertListEquals(TestUtils.reverse(this.sequence.toArray()), this.list.toArray());
     }
 
     /* */
     @Test
     public void testAddLastWithGrowth()
     {
-        for (int i = 0; i < sequence.size(); i++)
-            list.addLast(sequence.buffer[i]);
+        for (int i = 0; i < this.sequence.size(); i++) {
+            this.list.addLast(this.sequence.buffer[i]);
+        }
 
-        TestUtils.assertListEquals(sequence.toArray(), list.toArray());
+        TestUtils.assertListEquals(this.sequence.toArray(), this.list.toArray());
     }
 
     /* */
@@ -1104,16 +1104,16 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         final KTypeArrayList<KType> list2 = KTypeArrayList.newInstance();
         list2.add(asArray(0, 1, 2));
 
-        list.addFirst(list2);
-        TestUtils.assertListEquals(list.toArray(), 2, 1, 0);
-        list.addFirst(list2);
-        TestUtils.assertListEquals(list.toArray(), 2, 1, 0, 2, 1, 0);
+        this.list.addFirst(list2);
+        TestUtils.assertListEquals(this.list.toArray(), 2, 1, 0);
+        this.list.addFirst(list2);
+        TestUtils.assertListEquals(this.list.toArray(), 2, 1, 0, 2, 1, 0);
 
-        list.clear();
+        this.list.clear();
         final KTypeArrayDeque<KType> deque2 = new KTypeArrayDeque<KType>();
         deque2.addLast(asArray(0, 1, 2));
-        list.addFirst(deque2);
-        TestUtils.assertListEquals(list.toArray(), 2, 1, 0);
+        this.list.addFirst(deque2);
+        TestUtils.assertListEquals(this.list.toArray(), 2, 1, 0);
     }
 
     /* */
@@ -1123,112 +1123,112 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         final KTypeArrayList<KType> list2 = KTypeArrayList.newInstance();
         list2.add(asArray(0, 1, 2));
 
-        list.addLast(list2);
-        TestUtils.assertListEquals(list.toArray(), 0, 1, 2);
-        list.addLast(list2);
-        TestUtils.assertListEquals(list.toArray(), 0, 1, 2, 0, 1, 2);
+        this.list.addLast(list2);
+        TestUtils.assertListEquals(this.list.toArray(), 0, 1, 2);
+        this.list.addLast(list2);
+        TestUtils.assertListEquals(this.list.toArray(), 0, 1, 2, 0, 1, 2);
 
-        list.clear();
+        this.list.clear();
         final KTypeArrayDeque<KType> deque2 = new KTypeArrayDeque<KType>();
         deque2.addLast(asArray(0, 1, 2));
-        list.addLast(deque2);
-        TestUtils.assertListEquals(list.toArray(), 0, 1, 2);
+        this.list.addLast(deque2);
+        TestUtils.assertListEquals(this.list.toArray(), 0, 1, 2);
     }
 
     /* */
     @Test
     public void testRemoveFirst()
     {
-        list.addLast(k1);
-        list.addLast(k2);
-        list.addLast(k3);
+        this.list.addLast(this.k1);
+        this.list.addLast(this.k2);
+        this.list.addLast(this.k3);
 
-        list.removeFirst();
-        TestUtils.assertListEquals(list.toArray(), 2, 3);
-        Assert.assertEquals(2, list.size());
+        this.list.removeFirst();
+        TestUtils.assertListEquals(this.list.toArray(), 2, 3);
+        Assert.assertEquals(2, this.list.size());
 
-        list.addFirst(k4);
-        TestUtils.assertListEquals(list.toArray(), 4, 2, 3);
-        Assert.assertEquals(3, list.size());
+        this.list.addFirst(this.k4);
+        TestUtils.assertListEquals(this.list.toArray(), 4, 2, 3);
+        Assert.assertEquals(3, this.list.size());
 
-        list.removeFirst();
-        list.removeFirst();
-        list.removeFirst();
-        Assert.assertEquals(0, list.toArray().length);
-        Assert.assertEquals(0, list.size());
+        this.list.removeFirst();
+        this.list.removeFirst();
+        this.list.removeFirst();
+        Assert.assertEquals(0, this.list.toArray().length);
+        Assert.assertEquals(0, this.list.size());
     }
 
     /* */
     @Test(expected = AssertionError.class)
     public void testRemoveFirstEmpty()
     {
-        list.removeFirst();
+        this.list.removeFirst();
     }
 
     /* */
     @Test
     public void testRemoveLast()
     {
-        list.addLast(k1);
-        list.addLast(k2);
-        list.addLast(k3);
+        this.list.addLast(this.k1);
+        this.list.addLast(this.k2);
+        this.list.addLast(this.k3);
 
-        list.removeLast();
-        TestUtils.assertListEquals(list.toArray(), 1, 2);
-        Assert.assertEquals(2, list.size());
+        this.list.removeLast();
+        TestUtils.assertListEquals(this.list.toArray(), 1, 2);
+        Assert.assertEquals(2, this.list.size());
 
-        list.addLast(k4);
-        TestUtils.assertListEquals(list.toArray(), 1, 2, 4);
-        Assert.assertEquals(3, list.size());
+        this.list.addLast(this.k4);
+        TestUtils.assertListEquals(this.list.toArray(), 1, 2, 4);
+        Assert.assertEquals(3, this.list.size());
 
-        list.removeLast();
-        list.removeLast();
-        list.removeLast();
-        Assert.assertEquals(0, list.toArray().length);
-        Assert.assertEquals(0, list.size());
+        this.list.removeLast();
+        this.list.removeLast();
+        this.list.removeLast();
+        Assert.assertEquals(0, this.list.toArray().length);
+        Assert.assertEquals(0, this.list.size());
     }
 
     /* */
     @Test(expected = AssertionError.class)
     public void testRemoveLastEmpty()
     {
-        list.removeLast();
+        this.list.removeLast();
     }
 
     /* */
     @Test
     public void testGetFirst()
     {
-        list.addLast(k1);
-        list.addLast(k2);
-        TestUtils.assertEquals2(k1, list.getFirst());
-        list.addFirst(k3);
-        TestUtils.assertEquals2(k3, list.getFirst());
+        this.list.addLast(this.k1);
+        this.list.addLast(this.k2);
+        TestUtils.assertEquals2(this.k1, this.list.getFirst());
+        this.list.addFirst(this.k3);
+        TestUtils.assertEquals2(this.k3, this.list.getFirst());
     }
 
     /* */
     @Test(expected = AssertionError.class)
     public void testGetFirstEmpty()
     {
-        list.getFirst();
+        this.list.getFirst();
     }
 
     /* */
     @Test
     public void testGetLast()
     {
-        list.addLast(k1);
-        list.addLast(k2);
-        TestUtils.assertEquals2(k2, list.getLast());
-        list.addLast(k3);
-        TestUtils.assertEquals2(k3, list.getLast());
+        this.list.addLast(this.k1);
+        this.list.addLast(this.k2);
+        TestUtils.assertEquals2(this.k2, this.list.getLast());
+        this.list.addLast(this.k3);
+        TestUtils.assertEquals2(this.k3, this.list.getLast());
     }
 
     /* */
     @Test(expected = AssertionError.class)
     public void testGetLastEmpty()
     {
-        list.getLast();
+        this.list.getLast();
     }
 
     /* */
@@ -1237,29 +1237,29 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     {
         final int modulo = 10;
         final int count = 10000;
-        sequence.clear();
+        this.sequence.clear();
         for (int i = 0; i < count; i++)
         {
-            list.addLast(cast(i % modulo));
-            sequence.add(cast(i % modulo));
+            this.list.addLast(cast(i % modulo));
+            this.sequence.add(cast(i % modulo));
         }
 
-        TestUtils.assertListEquals(list.toArray(), sequence.toArray());
+        TestUtils.assertListEquals(this.list.toArray(), this.sequence.toArray());
 
         final Random rnd = new Random(0xdeadbeef);
         for (int i = 0; i < 500; i++)
         {
             final KType k = cast(rnd.nextInt(modulo));
             Assert.assertEquals(
-                    list.removeFirstOccurrence(k) >= 0,
-                    sequence.removeFirstOccurrence(k) >= 0);
+                    this.list.removeFirstOccurrence(k) >= 0,
+                    this.sequence.removeFirstOccurrence(k) >= 0);
         }
 
-        TestUtils.assertListEquals(list.toArray(), sequence.toArray());
+        TestUtils.assertListEquals(this.list.toArray(), this.sequence.toArray());
 
-        Assert.assertTrue(0 > list.removeFirstOccurrence(cast(modulo + 1)));
-        list.addLast(cast(modulo + 1));
-        Assert.assertTrue(0 <= list.removeFirstOccurrence(cast(modulo + 1)));
+        Assert.assertTrue(0 > this.list.removeFirstOccurrence(cast(modulo + 1)));
+        this.list.addLast(cast(modulo + 1));
+        Assert.assertTrue(0 <= this.list.removeFirstOccurrence(cast(modulo + 1)));
     }
 
     /* */
@@ -1268,15 +1268,15 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     {
         final int modulo = 10;
         final int count = 10000;
-        sequence.clear();
+        this.sequence.clear();
 
         for (int i = 0; i < count; i++)
         {
-            list.addLast(cast(i % modulo));
-            sequence.add(cast(i % modulo));
+            this.list.addLast(cast(i % modulo));
+            this.sequence.add(cast(i % modulo));
         }
 
-        TestUtils.assertListEquals(list.toArray(), sequence.toArray());
+        TestUtils.assertListEquals(this.list.toArray(), this.sequence.toArray());
 
         final Random rnd = new Random(0x11223344);
 
@@ -1284,18 +1284,18 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         {
             final KType k = cast(rnd.nextInt(modulo));
             Assert.assertEquals(
-                    list.removeLastOccurrence(k) >= 0,
-                    sequence.removeLastOccurrence(k) >= 0);
+                    this.list.removeLastOccurrence(k) >= 0,
+                    this.sequence.removeLastOccurrence(k) >= 0);
         }
 
-        TestUtils.assertListEquals(list.toArray(), sequence.toArray());
+        TestUtils.assertListEquals(this.list.toArray(), this.sequence.toArray());
 
-        int removedIndex = list.removeLastOccurrence(cast(modulo + 1));
+        int removedIndex = this.list.removeLastOccurrence(cast(modulo + 1));
         Assert.assertTrue("removeLastOccurrence(cast(modulo + 1) = " + removedIndex, removedIndex < 0);
 
-        list.addFirst(cast(modulo + 1));
+        this.list.addFirst(cast(modulo + 1));
 
-        removedIndex = list.removeLastOccurrence(cast(modulo + 1));
+        removedIndex = this.list.removeLastOccurrence(cast(modulo + 1));
         Assert.assertTrue("removeLastOccurrence(cast(modulo + 1) = " + removedIndex, removedIndex == 0);
     }
 
@@ -1303,68 +1303,68 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testRemoveAllOccurrences()
     {
-        list.add(asArray(0, 1, 2, 1, 0, 3, 0));
+        this.list.add(asArray(0, 1, 2, 1, 0, 3, 0));
 
-        Assert.assertEquals(0, list.removeAllOccurrences(k4));
-        Assert.assertEquals(3, list.removeAllOccurrences(k0));
-        TestUtils.assertListEquals(list.toArray(), 1, 2, 1, 3);
-        Assert.assertEquals(1, list.removeAllOccurrences(k3));
-        TestUtils.assertListEquals(list.toArray(), 1, 2, 1);
-        Assert.assertEquals(2, list.removeAllOccurrences(k1));
-        TestUtils.assertListEquals(list.toArray(), 2);
-        Assert.assertEquals(1, list.removeAllOccurrences(k2));
-        Assert.assertEquals(0, list.size());
+        Assert.assertEquals(0, this.list.removeAllOccurrences(this.k4));
+        Assert.assertEquals(3, this.list.removeAllOccurrences(this.k0));
+        TestUtils.assertListEquals(this.list.toArray(), 1, 2, 1, 3);
+        Assert.assertEquals(1, this.list.removeAllOccurrences(this.k3));
+        TestUtils.assertListEquals(this.list.toArray(), 1, 2, 1);
+        Assert.assertEquals(2, this.list.removeAllOccurrences(this.k1));
+        TestUtils.assertListEquals(this.list.toArray(), 2);
+        Assert.assertEquals(1, this.list.removeAllOccurrences(this.k2));
+        Assert.assertEquals(0, this.list.size());
     }
 
     /* */
     @Test
     public void testRemoveAllInLookupContainer()
     {
-        list.add(asArray(0, 1, 2, 1, 0));
+        this.list.add(asArray(0, 1, 2, 1, 0));
 
         final KTypeOpenHashSet<KType> set = KTypeOpenHashSet.newInstance();
         set.add(asArray(0, 2));
 
-        Assert.assertEquals(3, list.removeAll(set));
-        Assert.assertEquals(0, list.removeAll(set));
+        Assert.assertEquals(3, this.list.removeAll(set));
+        Assert.assertEquals(0, this.list.removeAll(set));
 
-        TestUtils.assertListEquals(list.toArray(), 1, 1);
+        TestUtils.assertListEquals(this.list.toArray(), 1, 1);
     }
 
     /* */
     @Test
     public void testClear2()
     {
-        list.addLast(k1);
-        list.addLast(k2);
-        list.addFirst(k3);
-        list.clear();
-        Assert.assertEquals(0, list.size());
+        this.list.addLast(this.k1);
+        this.list.addLast(this.k2);
+        this.list.addFirst(this.k3);
+        this.list.clear();
+        Assert.assertEquals(0, this.list.size());
 
-        list.addLast(k1);
-        TestUtils.assertListEquals(list.toArray(), 1);
+        this.list.addLast(this.k1);
+        TestUtils.assertListEquals(this.list.toArray(), 1);
     }
 
     /* */
     @Test
     public void testIterable()
     {
-        list.addLast(sequence);
+        this.list.addLast(this.sequence);
 
         int count = 0;
-        for (final KTypeCursor<KType> cursor : list)
+        for (final KTypeCursor<KType> cursor : this.list)
         {
-            TestUtils.assertEquals2(sequence.buffer[count], cursor.value);
+            TestUtils.assertEquals2(this.sequence.buffer[count], cursor.value);
             TestUtils.assertEquals2(count, cursor.index);
             count++;
         }
-        Assert.assertEquals(count, list.size());
-        Assert.assertEquals(count, sequence.size());
+        Assert.assertEquals(count, this.list.size());
+        Assert.assertEquals(count, this.sequence.size());
 
         count = 0;
-        list.clear();
+        this.list.clear();
         for (@SuppressWarnings("unused")
-        final KTypeCursor<KType> cursor : list)
+        final KTypeCursor<KType> cursor : this.list)
         {
             count++;
         }
@@ -1375,9 +1375,9 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testIterator()
     {
-        list.addLast(asArray(0, 1, 2, 3));
+        this.list.addLast(asArray(0, 1, 2, 3));
 
-        final Iterator<KTypeCursor<KType>> iterator = list.iterator();
+        final Iterator<KTypeCursor<KType>> iterator = this.list.iterator();
         int count = 0;
         while (iterator.hasNext())
         {
@@ -1387,50 +1387,50 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
             iterator.next();
             count++;
         }
-        Assert.assertEquals(count, list.size());
+        Assert.assertEquals(count, this.list.size());
 
-        list.clear();
-        Assert.assertFalse(list.iterator().hasNext());
+        this.list.clear();
+        Assert.assertFalse(this.list.iterator().hasNext());
     }
 
     /* */
     @Test
     public void testDescendingIterator()
     {
-        list.addLast(sequence);
+        this.list.addLast(this.sequence);
 
-        int index = sequence.size() - 1;
-        for (final Iterator<KTypeCursor<KType>> i = list.descendingIterator(); i.hasNext();)
+        int index = this.sequence.size() - 1;
+        for (final Iterator<KTypeCursor<KType>> i = this.list.descendingIterator(); i.hasNext();)
         {
             final KTypeCursor<KType> cursor = i.next();
-            TestUtils.assertEquals2(sequence.buffer[index], cursor.value);
+            TestUtils.assertEquals2(this.sequence.buffer[index], cursor.value);
             TestUtils.assertEquals2(index, cursor.index);
             index--;
         }
         Assert.assertEquals(-1, index);
 
-        list.clear();
-        Assert.assertFalse(list.descendingIterator().hasNext());
+        this.list.clear();
+        Assert.assertFalse(this.list.descendingIterator().hasNext());
     }
 
     /* */
     @Test
     public void testDescendingForEachWithProcedure()
     {
-        list.addLast(sequence);
+        this.list.addLast(this.sequence);
 
         final IntHolder count = new IntHolder();
-        list.descendingForEach(new KTypeProcedure<KType>() {
-            int index = sequence.size();
+        this.list.descendingForEach(new KTypeProcedure<KType>() {
+            int index = KTypeLinkedListTest.this.sequence.size();
 
             @Override
             public void apply(final KType v)
             {
-                TestUtils.assertEquals2(sequence.buffer[--index], v);
+                TestUtils.assertEquals2(KTypeLinkedListTest.this.sequence.buffer[--this.index], v);
                 count.value++;
             }
         });
-        Assert.assertEquals(count.value, list.size());
+        Assert.assertEquals(count.value, this.list.size());
     }
 
     ///////////////////////////////// iteration special methods ////////////////////////////////////
@@ -1439,9 +1439,9 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testIterationHeadTail()
     {
-        list.add(asArray(0, 11, 22, 33, 44, 55));
+        this.list.add(asArray(0, 11, 22, 33, 44, 55));
 
-        final KTypeLinkedList<KType>.ValueIterator it = list.iterator();
+        final KTypeLinkedList<KType>.ValueIterator it = this.list.iterator();
 
         Assert.assertEquals(-1, it.cursor.index);
         Assert.assertTrue(it.isHead());
@@ -1549,7 +1549,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
 
         //iteration 6
         it.gotoNext();
-        Assert.assertEquals(list.size(), it.cursor.index);
+        Assert.assertEquals(this.list.size(), it.cursor.index);
         Assert.assertFalse(it.isHead());
         Assert.assertFalse(it.isFirst());
         Assert.assertFalse(it.isLast());
@@ -1561,7 +1561,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
 
         //iteration 7 : we are already at tail, we don't move further
         it.gotoNext();
-        Assert.assertEquals(list.size(), it.cursor.index);
+        Assert.assertEquals(this.list.size(), it.cursor.index);
         Assert.assertFalse(it.isHead());
         Assert.assertFalse(it.isFirst());
         Assert.assertFalse(it.isLast());
@@ -1585,7 +1585,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
 
         //Goes again to tail:
         it.gotoTail();
-        Assert.assertEquals(list.size(), it.cursor.index);
+        Assert.assertEquals(this.list.size(), it.cursor.index);
         Assert.assertFalse(it.isHead());
         Assert.assertFalse(it.isFirst());
         Assert.assertFalse(it.isLast());
@@ -1601,12 +1601,12 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testIterationHeadTailReversed()
     {
-        list.add(asArray(0, 11, 22, 33, 44, 55));
+        this.list.add(asArray(0, 11, 22, 33, 44, 55));
 
         //this is a reversed iteration
-        final KTypeLinkedList<KType>.DescendingValueIterator it = list.descendingIterator();
+        final KTypeLinkedList<KType>.DescendingValueIterator it = this.list.descendingIterator();
 
-        Assert.assertEquals(list.size(), it.cursor.index);
+        Assert.assertEquals(this.list.size(), it.cursor.index);
         Assert.assertTrue(it.isHead());
         Assert.assertFalse(it.isFirst());
         Assert.assertFalse(it.isLast());
@@ -1618,7 +1618,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
 
         //Try to move backwards, we stay in head
         it.gotoPrevious();
-        Assert.assertEquals(list.size(), it.cursor.index);
+        Assert.assertEquals(this.list.size(), it.cursor.index);
         Assert.assertTrue(it.isHead());
         Assert.assertFalse(it.isFirst());
         Assert.assertFalse(it.isLast());
@@ -1736,7 +1736,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
 
         //Goes back to head
         it.gotoHead();
-        Assert.assertEquals(list.size(), it.cursor.index);
+        Assert.assertEquals(this.list.size(), it.cursor.index);
         Assert.assertTrue(it.isHead());
         Assert.assertFalse(it.isFirst());
         Assert.assertFalse(it.isLast());
@@ -1763,9 +1763,9 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testIterationBackAndForth()
     {
-        list.add(asArray(0, 11, 22, 33, 44, 55));
+        this.list.add(asArray(0, 11, 22, 33, 44, 55));
 
-        final KTypeLinkedList<KType>.ValueIterator it = list.iterator();
+        final KTypeLinkedList<KType>.ValueIterator it = this.list.iterator();
 
         //goes 3 steps ==> , 1 step <==
         it.gotoNext().gotoNext().gotoNext().gotoPrevious();
@@ -1788,9 +1788,9 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testIterationBackAndForthReversed()
     {
-        list.add(asArray(0, 11, 22, 33, 44, 55));
+        this.list.add(asArray(0, 11, 22, 33, 44, 55));
 
-        final KTypeLinkedList<KType>.DescendingValueIterator it = list.descendingIterator();
+        final KTypeLinkedList<KType>.DescendingValueIterator it = this.list.descendingIterator();
 
         //goes 3 steps ==> , 1 step <==
         it.gotoNext().gotoNext().gotoNext().gotoPrevious();
@@ -1813,9 +1813,9 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testIterationWithInsertionRemoveSetDelete()
     {
-        list.add(asArray(0, 11, 22, 33, 44, 55));
+        this.list.add(asArray(0, 11, 22, 33, 44, 55));
 
-        final KTypeLinkedList<KType>.ValueIterator it = list.iterator();
+        final KTypeLinkedList<KType>.ValueIterator it = this.list.iterator();
 
         //goes to 11
         it.gotoNext().gotoNext();
@@ -1824,12 +1824,12 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         it.insertAfter(cast(100));
         it.insertAfter(cast(99));
         //==> list.add(asArray(0, 11, 99, 100, 111, 22, 33, 44, 55));
-        TestUtils.assertListEquals(list.toArray(), 0, 11, 99, 100, 111, 22, 33, 44, 55);
+        TestUtils.assertListEquals(this.list.toArray(), 0, 11, 99, 100, 111, 22, 33, 44, 55);
         it.insertBefore(cast(3));
         it.insertBefore(cast(33));
         it.insertBefore(cast(20));
         //==> list.add(asArray(0, 3,33,20, 11, 99, 100, 111, 22, 33, 44, 55));
-        TestUtils.assertListEquals(list.toArray(), 0, 3, 33, 20, 11, 99, 100, 111, 22, 33, 44, 55);
+        TestUtils.assertListEquals(this.list.toArray(), 0, 3, 33, 20, 11, 99, 100, 111, 22, 33, 44, 55);
         it.gotoPrevious();
         Assert.assertEquals(20, castType(it.cursor.value));
 
@@ -1838,14 +1838,14 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         it.insertAfter(cast(111));
         it.insertAfter(cast(112));
         // ==> list.add(asArray(112,111,0, 3,33,20, 11, 99, 100, 111, 22, 33, 44, 55));
-        TestUtils.assertListEquals(list.toArray(), 112, 111, 0, 3, 33, 20, 11, 99, 100, 111, 22, 33, 44, 55);
+        TestUtils.assertListEquals(this.list.toArray(), 112, 111, 0, 3, 33, 20, 11, 99, 100, 111, 22, 33, 44, 55);
 
         //insert at tail
         it.gotoTail();
         it.insertBefore(cast(7));
         it.insertBefore(cast(9));
         // ==> list.add(asArray(112,111,0, 3,33,20, 11, 99, 100, 111, 22, 33, 44, 55,7, 9));
-        TestUtils.assertListEquals(list.toArray(), 112, 111, 0, 3, 33, 20, 11, 99, 100, 111, 22, 33, 44, 55, 7, 9);
+        TestUtils.assertListEquals(this.list.toArray(), 112, 111, 0, 3, 33, 20, 11, 99, 100, 111, 22, 33, 44, 55, 7, 9);
 
         //////// remove / set / delete /////////////////////
 
@@ -1855,7 +1855,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         it.gotoNext().gotoNext();
         Assert.assertEquals(0, castType(it.set(cast(88))));
         // ==> list.add(asArray(112,111,88, 3,33,20, 11, 99, 100, 111, 22, 33, 44, 55,7, 9));
-        TestUtils.assertListEquals(list.toArray(), 112, 111, 88, 3, 33, 20, 11, 99, 100, 111, 22, 33, 44, 55, 7, 9);
+        TestUtils.assertListEquals(this.list.toArray(), 112, 111, 88, 3, 33, 20, 11, 99, 100, 111, 22, 33, 44, 55, 7, 9);
 
         //move forward by 2 elements : 33
         it.gotoNext().gotoNext();
@@ -1865,7 +1865,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertEquals(20, castType(removed.value));
         // ==> list.add(asArray(112, 111,88, 3, 33, 11, 99, 100, 111, 22, 33, 44, 55,7, 9));
         //it still points to 33
-        TestUtils.assertListEquals(list.toArray(), 112, 111, 88, 3, 33, /*20 */11, 99, 100, 111, 22, 33, 44, 55, 7, 9);
+        TestUtils.assertListEquals(this.list.toArray(), 112, 111, 88, 3, 33, /*20 */11, 99, 100, 111, 22, 33, 44, 55, 7, 9);
         Assert.assertEquals(33, castType(it.cursor.value));
         Assert.assertEquals(4, it.cursor.index);
 
@@ -1876,7 +1876,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertEquals(6, removed.index);
         Assert.assertEquals(99, castType(removed.value));
 
-        TestUtils.assertListEquals(list.toArray(), 112, 111, 88, 3, 33, /*20 */11, /*99 */100, 111, 22, 33, 44, 55, 7, 9);
+        TestUtils.assertListEquals(this.list.toArray(), 112, 111, 88, 3, 33, /*20 */11, /*99 */100, 111, 22, 33, 44, 55, 7, 9);
         //the iterator still points to 100
         Assert.assertEquals(100, castType(it.cursor.value));
         Assert.assertEquals(6, it.cursor.index);
@@ -1886,7 +1886,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         //remove itself
         it.delete();
         //the iterator now points to 55
-        TestUtils.assertListEquals(list.toArray(), 112, 111, 88, 3, 33, /*20 */11, /*99 */100, 111, 22, 33, /* 44 */55, 7, 9);
+        TestUtils.assertListEquals(this.list.toArray(), 112, 111, 88, 3, 33, /*20 */11, /*99 */100, 111, 22, 33, /* 44 */55, 7, 9);
         Assert.assertEquals(55, castType(it.cursor.value));
         Assert.assertEquals(10, it.cursor.index);
     }
@@ -1895,14 +1895,14 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testIterationLoopWithDelete()
     {
-        list.add(asArray(112, 111, 88, 3, 33, 20, 11, 99, 100, 111, 22, 33, 44, 55, 7, 9));
+        this.list.add(asArray(112, 111, 88, 3, 33, 20, 11, 99, 100, 111, 22, 33, 44, 55, 7, 9));
 
-        final int poolSize = list.valueIteratorPool.size();
+        final int poolSize = this.list.valueIteratorPool.size();
 
         KTypeLinkedList<KType>.ValueIterator it = null;
         try
         {
-            for (it = list.iterator().gotoNext(); !it.isTail(); it.gotoNext())
+            for (it = this.list.iterator().gotoNext(); !it.isTail(); it.gotoNext())
             {
                 if (it.getNext() != null && castType(it.getNext().value) == 88 ||
                         it.getNext() != null && castType(it.getNext().value) == 99 ||
@@ -1913,34 +1913,34 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
                 }
             }
 
-            TestUtils.assertListEquals(list.toArray(), 112, 111, 3, 33, 20, 11, 100, 111, 22, 33, 44, 7, 9);
+            TestUtils.assertListEquals(this.list.toArray(), 112, 111, 3, 33, 20, 11, 100, 111, 22, 33, 44, 7, 9);
             it.release();
             //empty all
-            for (it = list.iterator().gotoNext(); !it.isTail(); it.gotoNext())
+            for (it = this.list.iterator().gotoNext(); !it.isTail(); it.gotoNext())
             {
                 it.delete();
                 //the for advanced itself, so go back one position
                 it.gotoPrevious();
             }
 
-            Assert.assertEquals(0, list.size());
+            Assert.assertEquals(0, this.list.size());
             it.release();
             //try to iterate an empty list
-            for (it = list.iterator().gotoNext(); !it.isTail(); it.gotoNext())
+            for (it = this.list.iterator().gotoNext(); !it.isTail(); it.gotoNext())
             {
                 it.delete();
                 //the for advanced itself, so go back one position
                 it.gotoPrevious();
             }
 
-            Assert.assertEquals(0, list.size());
+            Assert.assertEquals(0, this.list.size());
         }
         finally
         {
             it.release();
         }
 
-        Assert.assertEquals(poolSize, list.valueIteratorPool.size());
+        Assert.assertEquals(poolSize, this.list.valueIteratorPool.size());
 
     }
 
@@ -1948,14 +1948,14 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testIterationLoopWithDeleteReversed()
     {
-        list.add(asArray(112, 111, 88, 3, 33, 20, 11, 99, 100, 111, 22, 33, 44, 55, 7, 9));
+        this.list.add(asArray(112, 111, 88, 3, 33, 20, 11, 99, 100, 111, 22, 33, 44, 55, 7, 9));
 
-        final int poolSize = list.valueIteratorPool.size();
+        final int poolSize = this.list.valueIteratorPool.size();
 
         KTypeLinkedList<KType>.DescendingValueIterator it = null;
         try
         {
-            for (it = list.descendingIterator().gotoNext(); !it.isTail(); it.gotoNext())
+            for (it = this.list.descendingIterator().gotoNext(); !it.isTail(); it.gotoNext())
             {
                 if (it.getNext() != null && castType(it.getNext().value) == 88 ||
                         it.getNext() != null && castType(it.getNext().value) == 99 ||
@@ -1966,43 +1966,43 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
                 }
             }
 
-            TestUtils.assertListEquals(list.toArray(), 112, 111, 3, 33, 20, 11, 100, 111, 22, 33, 44, 7, 9);
+            TestUtils.assertListEquals(this.list.toArray(), 112, 111, 3, 33, 20, 11, 100, 111, 22, 33, 44, 7, 9);
             it.release();
             //empty all
-            for (it = list.descendingIterator().gotoNext(); !it.isTail(); it.gotoNext())
+            for (it = this.list.descendingIterator().gotoNext(); !it.isTail(); it.gotoNext())
             {
                 it.delete();
                 //the for advanced itself, so go back one position
                 it.gotoPrevious();
             }
 
-            Assert.assertEquals(0, list.size());
+            Assert.assertEquals(0, this.list.size());
             it.release();
             //try to iterate an empty list
-            for (it = list.descendingIterator().gotoNext(); !it.isTail(); it.gotoNext())
+            for (it = this.list.descendingIterator().gotoNext(); !it.isTail(); it.gotoNext())
             {
                 it.delete();
                 //the for advanced itself, so go back one position
                 it.gotoPrevious();
             }
 
-            Assert.assertEquals(0, list.size());
+            Assert.assertEquals(0, this.list.size());
         }
         finally
         {
             it.release();
         }
 
-        Assert.assertEquals(poolSize, list.valueIteratorPool.size());
+        Assert.assertEquals(poolSize, this.list.valueIteratorPool.size());
     }
 
     /* */
     @Test
     public void testIterationWithInsertionRemoveSetDeleteReversed()
     {
-        list.add(asArray(0, 11, 22, 33, 44, 55));
+        this.list.add(asArray(0, 11, 22, 33, 44, 55));
 
-        final KTypeLinkedList<KType>.DescendingValueIterator it = list.descendingIterator();
+        final KTypeLinkedList<KType>.DescendingValueIterator it = this.list.descendingIterator();
 
         //goes to 44
         it.gotoNext().gotoNext();
@@ -2011,12 +2011,12 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         it.insertAfter(cast(100));
         it.insertAfter(cast(99));
         //==> list.add(asArray(0, 11, 22, 33, 111, 100, 99, 44, 55));
-        TestUtils.assertListEquals(list.toArray(), 0, 11, 22, 33, 111, 100, 99, 44, 55);
+        TestUtils.assertListEquals(this.list.toArray(), 0, 11, 22, 33, 111, 100, 99, 44, 55);
         it.insertBefore(cast(3));
         it.insertBefore(cast(33));
         it.insertBefore(cast(20));
         //==> list.add(asArray(0, 11, 22, 33, 111, 100, 99, 44, 20, 33,3,55));
-        TestUtils.assertListEquals(list.toArray(), 0, 11, 22, 33, 111, 100, 99, 44, 20, 33, 3, 55);
+        TestUtils.assertListEquals(this.list.toArray(), 0, 11, 22, 33, 111, 100, 99, 44, 20, 33, 3, 55);
         it.gotoPrevious();
         Assert.assertEquals(20, castType(it.cursor.value));
 
@@ -2025,14 +2025,14 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         it.insertAfter(cast(111));
         it.insertAfter(cast(112));
         // ==> list.add(asArray(0, 11, 22, 33, 111, 100, 99, 44, 20, 33,3,55,111,112));
-        TestUtils.assertListEquals(list.toArray(), 0, 11, 22, 33, 111, 100, 99, 44, 20, 33, 3, 55, 111, 112);
+        TestUtils.assertListEquals(this.list.toArray(), 0, 11, 22, 33, 111, 100, 99, 44, 20, 33, 3, 55, 111, 112);
 
         //insert at tail
         it.gotoTail();
         it.insertBefore(cast(7));
         it.insertBefore(cast(9));
         // ==> list.add(asArray(9,7, 0, 11, 22, 33, 111, 100, 99, 44, 20, 33,3,55,111,112));
-        TestUtils.assertListEquals(list.toArray(), 9, 7, 0, 11, 22, 33, 111, 100, 99, 44, 20, 33, 3, 55, 111, 112);
+        TestUtils.assertListEquals(this.list.toArray(), 9, 7, 0, 11, 22, 33, 111, 100, 99, 44, 20, 33, 3, 55, 111, 112);
 
         //////// remove / set / delete /////////////////////
 
@@ -2042,7 +2042,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         it.gotoNext().gotoNext();
         Assert.assertEquals(55, castType(it.set(cast(88))));
         // ==> list.add(asArray( 9, 7, 0, 11, 22, 33, 111, 100, 99, 44, 20, 33,3,-88,111,112));
-        TestUtils.assertListEquals(list.toArray(), 9, 7, 0, 11, 22, 33, 111, 100, 99, 44, 20, 33, 3, 88, 111, 112);
+        TestUtils.assertListEquals(this.list.toArray(), 9, 7, 0, 11, 22, 33, 111, 100, 99, 44, 20, 33, 3, 88, 111, 112);
 
         //move forward by 2 elements : 33
         it.gotoNext().gotoNext();
@@ -2052,7 +2052,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertEquals(20, castType(removed.value));
         // ==> list.add(asArray(9, 7, 0, 11, 22, 33, 111, 100, 99, 44, 20, 33, 3,88,111,112));
         //it still points to 33
-        TestUtils.assertListEquals(list.toArray(), 9, 7, 0, 11, 22, 33, 111, 100, 99, 44 /*20 */, 33, 3, 88, 111, 112);
+        TestUtils.assertListEquals(this.list.toArray(), 9, 7, 0, 11, 22, 33, 111, 100, 99, 44 /*20 */, 33, 3, 88, 111, 112);
         Assert.assertEquals(33, castType(it.cursor.value));
         Assert.assertEquals(10, it.cursor.index);
 
@@ -2063,7 +2063,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertEquals(8, removed.index);
         Assert.assertEquals(99, castType(removed.value));
 
-        TestUtils.assertListEquals(list.toArray(), 9, 7, 0, 11, 22, 33, 111, 100, /*99*/44 /*20 */, 33, 3, 88, 111, 112);
+        TestUtils.assertListEquals(this.list.toArray(), 9, 7, 0, 11, 22, 33, 111, 100, /*99*/44 /*20 */, 33, 3, 88, 111, 112);
         //the iterator still points to 100
         Assert.assertEquals(100, castType(it.cursor.value));
         Assert.assertEquals(7, it.cursor.index);
@@ -2073,7 +2073,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         //remove itself
         it.delete();
         //the iterator now points to 0
-        TestUtils.assertListEquals(list.toArray(), 9, 7, 0 /*11 */, 22, 33, 111, 100, /*99*/44 /*20 */, 33, 3, 88, 111, 112);
+        TestUtils.assertListEquals(this.list.toArray(), 9, 7, 0 /*11 */, 22, 33, 111, 100, /*99*/44 /*20 */, 33, 3, 88, 111, 112);
         Assert.assertEquals(0, castType(it.cursor.value));
         Assert.assertEquals(2, it.cursor.index);
     }
@@ -2096,40 +2096,40 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
             final int op = rnd.nextInt(8);
             if (op < 2)
             {
-                list.addFirst(k);
+                this.list.addFirst(k);
                 ad.addFirst(k);
             }
             else if (op < 4)
             {
-                list.addLast(k);
+                this.list.addLast(k);
                 ad.addLast(k);
             }
             else if (op < 5 && ad.size() > 0)
             {
-                list.removeLast();
+                this.list.removeLast();
                 ad.removeLast();
             }
             else if (op < 6 && ad.size() > 0)
             {
-                list.removeLast();
+                this.list.removeLast();
                 ad.removeLast();
             }
             else if (op < 7)
             {
                 Assert.assertEquals(
                         ad.removeFirstOccurrence(k),
-                        list.removeFirstOccurrence(k) >= 0);
+                        this.list.removeFirstOccurrence(k) >= 0);
             }
             else if (op < 8)
             {
                 Assert.assertEquals(
                         ad.removeLastOccurrence(k),
-                        list.removeLastOccurrence(k) >= 0);
+                        this.list.removeLastOccurrence(k) >= 0);
             }
-            Assert.assertEquals(ad.size(), list.size());
+            Assert.assertEquals(ad.size(), this.list.size());
         }
 
-        Assert.assertArrayEquals(ad.toArray(), list.toArray());
+        Assert.assertArrayEquals(ad.toArray(), this.list.toArray());
     }
 
     /*! #end !*/
@@ -2144,9 +2144,9 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertEquals(1, l0.hashCode());
         Assert.assertEquals(l0, KTypeLinkedList.from());
 
-        final KTypeLinkedList<KType> l1 = KTypeLinkedList.from(k1, k2, k3);
-        final KTypeLinkedList<KType> l2 = KTypeLinkedList.from(k1, k2);
-        l2.addLast(k3);
+        final KTypeLinkedList<KType> l1 = KTypeLinkedList.from(this.k1, this.k2, this.k3);
+        final KTypeLinkedList<KType> l2 = KTypeLinkedList.from(this.k1, this.k2);
+        l2.addLast(this.k3);
 
         Assert.assertEquals(l1.hashCode(), l2.hashCode());
         Assert.assertEquals(l1, l2);
@@ -2204,20 +2204,20 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         {
             //add in head an in queue indifferently
             if (i % 3 == 0) {
-                list.addFirst(cast(i % modulo));
+                this.list.addFirst(cast(i % modulo));
                 list2.addFirst(cast(i % modulo));
             }
             else {
-                list.addLast(cast(i % modulo));
+                this.list.addLast(cast(i % modulo));
                 list2.addLast(cast(i % modulo));
             }
         }
 
         //both elements by elements are equal
-        TestUtils.assertListEquals(list.toArray(), list2.toArray());
+        TestUtils.assertListEquals(this.list.toArray(), list2.toArray());
 
         //Both dequeue are indeed equal
-        Assert.assertTrue(list.equals(list2));
+        Assert.assertTrue(this.list.equals(list2));
     }
 
     /* */
@@ -2226,26 +2226,26 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     {
         final int modulo = 127;
         final int count = 10000;
-        sequence.clear();
+        this.sequence.clear();
 
         for (int i = 0; i < count; i++)
         {
             //add in head an in queue indifferently
             if (i % 3 == 0) {
-                list.addFirst(cast(i % modulo));
-                sequence.insert(0, cast(i % modulo));
+                this.list.addFirst(cast(i % modulo));
+                this.sequence.insert(0, cast(i % modulo));
             }
             else {
-                list.addLast(cast(i % modulo));
-                sequence.add(cast(i % modulo));
+                this.list.addLast(cast(i % modulo));
+                this.sequence.add(cast(i % modulo));
             }
         }
 
         //both elements by elements are equal
-        TestUtils.assertListEquals(list.toArray(), sequence.toArray());
+        TestUtils.assertListEquals(this.list.toArray(), this.sequence.toArray());
 
         //The array list and dequeue are indeed equal
-        Assert.assertTrue(list.equals(sequence));
+        Assert.assertTrue(this.list.equals(this.sequence));
     }
 
     /* */
@@ -2261,20 +2261,20 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         {
             //add in head an in queue indifferently
             if (i % 3 == 0) {
-                list.addFirst(cast(i % modulo));
+                this.list.addFirst(cast(i % modulo));
                 deque2.addFirst(cast(i % modulo));
             }
             else {
-                list.addLast(cast(i % modulo));
+                this.list.addLast(cast(i % modulo));
                 deque2.addLast(cast(i % modulo));
             }
         }
 
         //both elements by elements are equal
-        TestUtils.assertListEquals(list.toArray(), deque2.toArray());
+        TestUtils.assertListEquals(this.list.toArray(), deque2.toArray());
 
         //Both Dequeues are indeed equal: explicitely cast it in KTypeDeque
-        Assert.assertTrue(list.equals((KTypeDeque<KType>) deque2));
+        Assert.assertTrue(this.list.equals((KTypeDeque<KType>) deque2));
     }
 
     /**

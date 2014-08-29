@@ -1,15 +1,11 @@
 package com.carrotsearch.hppcrt.heaps;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
-import java.util.TreeMap;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -17,13 +13,13 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import static com.carrotsearch.hppcrt.TestUtils.*;
 import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.cursors.*;
-import com.carrotsearch.hppcrt.heaps.*;
-import com.carrotsearch.hppcrt.mutables.LongHolder;
+import com.carrotsearch.hppcrt.mutables.*;
 import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
-import com.carrotsearch.hppcrt.sets.KTypeOpenHashSet;
+import com.carrotsearch.hppcrt.sets.*;
 import com.carrotsearch.hppcrt.sorting.*;
 
 /**
@@ -50,23 +46,23 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
     @Before
     public void initialize()
     {
-        prioq = new KTypeIndexedHeapPriorityQueue<KType>(null);
+        this.prioq = new KTypeIndexedHeapPriorityQueue<KType>(null);
     }
 
     @After
     public void checkConsistency()
     {
-        Assert.assertTrue(isMinHeap(prioq));
-        Assert.assertTrue(checkConsistency(prioq));
+        Assert.assertTrue(isMinHeap(this.prioq));
+        Assert.assertTrue(checkConsistency(this.prioq));
 
-        if (prioq != null)
+        if (this.prioq != null)
         {
             //scan beyond the active zone
             //1-based indexing
-            for (int i = prioq.elementsCount + 1; i < prioq.buffer.length; i++)
+            for (int i = this.prioq.elementsCount + 1; i < this.prioq.buffer.length; i++)
             {
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                Assert.assertTrue(Intrinsics.<KType> defaultKTypeValue() == prioq.buffer[i]);
+                Assert.assertTrue(Intrinsics.<KType> defaultKTypeValue() == this.prioq.buffer[i]);
                 /*! #end !*/
             }
         }
@@ -76,57 +72,107 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
     @Test
     public void testInitiallyEmpty()
     {
-        Assert.assertEquals(0, prioq.size());
+        Assert.assertEquals(0, this.prioq.size());
     }
 
     /* */
     @Test
-    public void testInsert()
+    public void testPut()
     {
-        prioq.insert(0, key1);
-        prioq.insert(111, key2);
-        assertPrioQueueEquals(prioq, 0, 1, 111, 2);
+        this.prioq.put(0, this.key1);
+        this.prioq.put(111, this.key2);
+        assertPrioQueueEquals(this.prioq, 0, 1, 111, 2);
     }
 
     /* */
     @Test
-    public void testInsert2()
+    public void testPut2()
     {
-        prioq.insert(5000, key1);
-        prioq.insert(0, key2);
-        prioq.insert(4, key4);
-        prioq.insert(3, key3);
-        assertPrioQueueEquals(prioq, 5000, 1, 0, 2, 4, 4, 3, 3);
+        this.prioq.put(5000, this.key1);
+        this.prioq.put(0, this.key2);
+        this.prioq.put(4, this.key4);
+        this.prioq.put(3, this.key3);
+        assertPrioQueueEquals(this.prioq, 5000, 1, 0, 2, 4, 4, 3, 3);
     }
 
     /* */
     @Test
-    public void testDelete()
+    public void testPutAll()
     {
-        prioq.insert(0, key0);
-        prioq.insert(1, key1);
-        prioq.insert(2, key2);
-        prioq.insert(3, key3);
-        prioq.insert(4, key4);
+        this.prioq.put(1, this.key1);
+        this.prioq.put(2, this.key1);
 
-        Assert.assertEquals(0, castType(prioq.deleteIndex(0)));
-        Assert.assertFalse(prioq.containsIndex(0));
-        Assert.assertEquals(4, castType(prioq.deleteIndex(4)));
-        Assert.assertFalse(prioq.containsIndex(4));
-        Assert.assertEquals(3, castType(prioq.deleteIndex(3)));
-        Assert.assertFalse(prioq.containsIndex(3));
-        Assert.assertEquals(2, castType(prioq.deleteIndex(2)));
-        Assert.assertFalse(prioq.containsIndex(2));
-        Assert.assertEquals(1, castType(prioq.deleteIndex(1)));
-        Assert.assertFalse(prioq.containsIndex(1));
+        final KTypeIndexedHeapPriorityQueue<KType> prio2 = new KTypeIndexedHeapPriorityQueue<KType>(null);
+
+        prio2.put(2, this.key2);
+        prio2.put(3, this.key4);
+
+        // One new key (key3).
+        Assert.assertEquals(1, this.prioq.putAll(prio2));
+
+        // Assert the value under 2 has been replaced.
+        TestUtils.assertEquals2(this.key2, this.prioq.get(2));
+
+        // And 3 has been added.
+        TestUtils.assertEquals2(this.key4, this.prioq.get(3));
+        Assert.assertEquals(3, this.prioq.size());
+    }
+
+    /* */
+    @Test
+    public void testPutIfAbsent()
+    {
+        Assert.assertTrue(this.prioq.putIfAbsent(1, this.key1));
+        Assert.assertFalse(this.prioq.putIfAbsent(1, this.key2));
+        TestUtils.assertEquals2(this.key1, this.prioq.get(1));
+    }
+
+    /*! #if ($TemplateOptions.KTypeNumeric)
+    @Test
+    public void testPutOrAdd()
+    {
+        assertEquals2(key1, prioq.putOrAdd(1, key1, key2));
+        assertEquals2(key1 + key2, prioq.putOrAdd(1, key1, key2));
+    }
+    #end !*/
+
+    /*! #if ($TemplateOptions.KTypeNumeric)
+    @Test
+    public void testAddTo()
+    {
+        assertEquals2(key1, prioq.addTo(1, key1));
+        assertEquals2(key1 + key2, prioq.addTo(1, key2));
+    }
+    #end !*/
+
+    /* */
+    @Test
+    public void testRemove()
+    {
+        this.prioq.put(0, this.key0);
+        this.prioq.put(1, this.key1);
+        this.prioq.put(2, this.key2);
+        this.prioq.put(3, this.key3);
+        this.prioq.put(4, this.key4);
+
+        Assert.assertEquals(0, castType(this.prioq.remove(0)));
+        Assert.assertFalse(this.prioq.containsKey(0));
+        Assert.assertEquals(4, castType(this.prioq.remove(4)));
+        Assert.assertFalse(this.prioq.containsKey(4));
+        Assert.assertEquals(3, castType(this.prioq.remove(3)));
+        Assert.assertFalse(this.prioq.containsKey(3));
+        Assert.assertEquals(2, castType(this.prioq.remove(2)));
+        Assert.assertFalse(this.prioq.containsKey(2));
+        Assert.assertEquals(1, castType(this.prioq.remove(1)));
+        Assert.assertFalse(this.prioq.containsKey(1));
 
         //try to delete a non-existent element index
-        Assert.assertEquals(castType(prioq.getDefaultValue()), castType(prioq.deleteIndex(10)));
+        Assert.assertEquals(castType(this.prioq.getDefaultValue()), castType(this.prioq.remove(10)));
     }
 
     /* */
     @Test
-    public void testDeleteRandom()
+    public void testRemoveRandom()
     {
         final int COUNT = (int) 1e5;
         final Random prng = new Random(791614611L);
@@ -148,21 +194,21 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
                 refSize++;
 
                 //add in map (there is a resize going on)
-                Assert.assertTrue(prioq.insert(index, cast(value)));
-                Assert.assertTrue(prioq.containsIndex(index));
+                this.prioq.put(index, cast(value));
+                Assert.assertTrue(this.prioq.containsKey(index));
             }
 
             if (i % 11587 == 0)
             {
-                checkConsistency(prioq);
-                Assert.assertTrue(isMinHeap(prioq));
+                checkConsistency(this.prioq);
+                Assert.assertTrue(isMinHeap(this.prioq));
             }
         }
 
-        checkConsistency(prioq);
-        Assert.assertTrue(isMinHeap(prioq));
+        checkConsistency(this.prioq);
+        Assert.assertTrue(isMinHeap(this.prioq));
 
-        Assert.assertEquals(refSize, prioq.size());
+        Assert.assertEquals(refSize, this.prioq.size());
 
         //B) delete some indices
         for (int i = 0; i < COUNT; i++)
@@ -172,45 +218,45 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
                 reference[i] = -1;
 
                 //remove also in the prio queue
-                prioq.deleteIndex(i);
-                Assert.assertFalse("" + i, prioq.containsIndex(i));
-                Assert.assertEquals("" + i, castType(prioq.getDefaultValue()), castType(prioq.deleteIndex(i)));
+                this.prioq.remove(i);
+                Assert.assertFalse("" + i, this.prioq.containsKey(i));
+                Assert.assertEquals("" + i, castType(this.prioq.getDefaultValue()), castType(this.prioq.remove(i)));
             }
 
             if (i % 8450 == 0)
             {
-                checkConsistency(prioq);
-                Assert.assertTrue(isMinHeap(prioq));
+                checkConsistency(this.prioq);
+                Assert.assertTrue(isMinHeap(this.prioq));
             }
         }
 
-        checkConsistency(prioq);
-        Assert.assertTrue(isMinHeap(prioq));
+        checkConsistency(this.prioq);
+        Assert.assertTrue(isMinHeap(this.prioq));
 
         //B-2) the remaining slots exists
         for (int index = 0; index < reference.length; index++)
         {
             if (reference[index] != -1)
             {
-                Assert.assertTrue(prioq.containsIndex(index));
-                prioq.deleteIndex(index);
-                Assert.assertFalse("" + index, prioq.containsIndex(index));
-                Assert.assertEquals("" + index, castType(prioq.getDefaultValue()), castType(prioq.deleteIndex(index)));
+                Assert.assertTrue(this.prioq.containsKey(index));
+                this.prioq.remove(index);
+                Assert.assertFalse("" + index, this.prioq.containsKey(index));
+                Assert.assertEquals("" + index, castType(this.prioq.getDefaultValue()), castType(this.prioq.remove(index)));
 
                 if (index % 5557 == 0)
                 {
-                    checkConsistency(prioq);
-                    Assert.assertTrue(isMinHeap(prioq));
+                    checkConsistency(this.prioq);
+                    Assert.assertTrue(isMinHeap(this.prioq));
                 }
             }
         }
 
-        Assert.assertEquals(0, prioq.size());
+        Assert.assertEquals(0, this.prioq.size());
     }
 
     /* */
     @Test
-    public void testInsertRandom()
+    public void testPutRandom()
     {
         final int COUNT = (int) 1e5;
         final Random prng = new Random(87842154L);
@@ -229,31 +275,31 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
                 reference.put(index, value);
 
                 //add in map (there is a resize going on)
-                Assert.assertTrue(prioq.insert(index, cast(value)));
-                final int currentSize = prioq.size();
+                this.prioq.put(index, cast(value));
+                final int currentSize = this.prioq.size();
                 //attempt to add twice
-                Assert.assertFalse(prioq.insert(index, cast(value)));
+                this.prioq.put(index, cast(value));
                 //size has not changed
-                Assert.assertEquals(currentSize, prioq.size());
+                Assert.assertEquals(currentSize, this.prioq.size());
             }
 
             if (i % 11587 == 0)
             {
-                checkConsistency(prioq);
-                Assert.assertTrue(isMinHeap(prioq));
+                checkConsistency(this.prioq);
+                Assert.assertTrue(isMinHeap(this.prioq));
             }
         }
 
-        checkConsistency(prioq);
-        Assert.assertTrue(isMinHeap(prioq));
+        checkConsistency(this.prioq);
+        Assert.assertTrue(isMinHeap(this.prioq));
 
-        Assert.assertEquals(reference.size(), prioq.size());
+        Assert.assertEquals(reference.size(), this.prioq.size());
 
         //iterate all the reference and check it also exists in prio queue
         for (final int index : reference.keySet())
         {
-            Assert.assertTrue(prioq.containsIndex(index));
-            Assert.assertEquals(reference.get(index).intValue(), castType(prioq.getIndex(index)));
+            Assert.assertTrue(this.prioq.containsKey(index));
+            Assert.assertEquals(reference.get(index).intValue(), castType(this.prioq.get(index)));
         }
     }
 
@@ -261,201 +307,214 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
     @Test
     public void testPopTop()
     {
-        insertElements(prioq, 0, 10, /**/1, 9, /**/2, 8, /**/3, 7, /**/4, 6, /**/5, 5, /**/6, 4, /**/7, 3);
-        assertPrioQueueEquals(prioq, 0, 10, /**/1, 9, /**/2, 8, /**/3, 7, /**/4, 6, /**/5, 5, /**/6, 4, /**/7, 3);
-        Assert.assertEquals(8, prioq.size());
-        Assert.assertEquals(3, castType(prioq.top()));
-        Assert.assertTrue(isMinHeap(prioq));
+        insertElements(this.prioq, 0, 10, /**/1, 9, /**/2, 8, /**/3, 7, /**/4, 6, /**/5, 5, /**/6, 4, /**/7, 3);
+        assertPrioQueueEquals(this.prioq, 0, 10, /**/1, 9, /**/2, 8, /**/3, 7, /**/4, 6, /**/5, 5, /**/6, 4, /**/7, 3);
+        Assert.assertEquals(8, this.prioq.size());
+        Assert.assertEquals(3, castType(this.prioq.top()));
+        Assert.assertTrue(isMinHeap(this.prioq));
 
-        Assert.assertEquals(3, castType(prioq.popTop()));
-        assertPrioQueueEquals(prioq, 6, 4, /**/5, 5, /**/4, 6, /**/3, 7, /**/2, 8, /**/1, 9, /**/0, 10);
-        Assert.assertEquals(7, prioq.size());
-        Assert.assertEquals(4, castType(prioq.top()));
-        Assert.assertTrue(isMinHeap(prioq));
+        Assert.assertEquals(3, castType(this.prioq.popTop()));
+        assertPrioQueueEquals(this.prioq, 6, 4, /**/5, 5, /**/4, 6, /**/3, 7, /**/2, 8, /**/1, 9, /**/0, 10);
+        Assert.assertEquals(7, this.prioq.size());
+        Assert.assertEquals(4, castType(this.prioq.top()));
+        Assert.assertTrue(isMinHeap(this.prioq));
 
-        Assert.assertEquals(4, castType(prioq.popTop()));
-        assertPrioQueueEquals(prioq, /**/5, 5, /**/4, 6, /**/3, 7, /**/2, 8, /**/1, 9, /**/0, 10);
-        Assert.assertEquals(6, prioq.size());
-        Assert.assertEquals(5, castType(prioq.top()));
-        Assert.assertTrue(isMinHeap(prioq));
+        Assert.assertEquals(4, castType(this.prioq.popTop()));
+        assertPrioQueueEquals(this.prioq, /**/5, 5, /**/4, 6, /**/3, 7, /**/2, 8, /**/1, 9, /**/0, 10);
+        Assert.assertEquals(6, this.prioq.size());
+        Assert.assertEquals(5, castType(this.prioq.top()));
+        Assert.assertTrue(isMinHeap(this.prioq));
 
-        Assert.assertEquals(5, castType(prioq.popTop()));
-        assertPrioQueueEquals(prioq, /**/4, 6, /**/3, 7, /**/2, 8, /**/1, 9, /**/0, 10);
-        Assert.assertEquals(5, prioq.size());
-        Assert.assertEquals(6, castType(prioq.top()));
-        Assert.assertTrue(isMinHeap(prioq));
-        Assert.assertFalse(prioq.isEmpty());
+        Assert.assertEquals(5, castType(this.prioq.popTop()));
+        assertPrioQueueEquals(this.prioq, /**/4, 6, /**/3, 7, /**/2, 8, /**/1, 9, /**/0, 10);
+        Assert.assertEquals(5, this.prioq.size());
+        Assert.assertEquals(6, castType(this.prioq.top()));
+        Assert.assertTrue(isMinHeap(this.prioq));
+        Assert.assertFalse(this.prioq.isEmpty());
 
-        Assert.assertEquals(6, castType(prioq.popTop()));
-        assertPrioQueueEquals(prioq, /**/3, 7, /**/2, 8, /**/1, 9, /**/0, 10);
-        Assert.assertEquals(4, prioq.size());
-        Assert.assertEquals(7, castType(prioq.top()));
-        Assert.assertTrue(isMinHeap(prioq));
-        Assert.assertFalse(prioq.isEmpty());
+        Assert.assertEquals(6, castType(this.prioq.popTop()));
+        assertPrioQueueEquals(this.prioq, /**/3, 7, /**/2, 8, /**/1, 9, /**/0, 10);
+        Assert.assertEquals(4, this.prioq.size());
+        Assert.assertEquals(7, castType(this.prioq.top()));
+        Assert.assertTrue(isMinHeap(this.prioq));
+        Assert.assertFalse(this.prioq.isEmpty());
 
-        Assert.assertEquals(7, castType(prioq.popTop()));
-        assertPrioQueueEquals(prioq, /**/2, 8, /**/1, 9, /**/0, 10);
-        Assert.assertEquals(3, prioq.size());
-        Assert.assertEquals(8, castType(prioq.top()));
-        Assert.assertTrue(isMinHeap(prioq));
-        Assert.assertFalse(prioq.isEmpty());
+        Assert.assertEquals(7, castType(this.prioq.popTop()));
+        assertPrioQueueEquals(this.prioq, /**/2, 8, /**/1, 9, /**/0, 10);
+        Assert.assertEquals(3, this.prioq.size());
+        Assert.assertEquals(8, castType(this.prioq.top()));
+        Assert.assertTrue(isMinHeap(this.prioq));
+        Assert.assertFalse(this.prioq.isEmpty());
 
-        Assert.assertEquals(8, castType(prioq.popTop()));
-        assertPrioQueueEquals(prioq, /**/1, 9, /**/0, 10);
-        Assert.assertEquals(2, prioq.size());
-        Assert.assertEquals(9, castType(prioq.top()));
-        Assert.assertTrue(isMinHeap(prioq));
-        Assert.assertFalse(prioq.isEmpty());
+        Assert.assertEquals(8, castType(this.prioq.popTop()));
+        assertPrioQueueEquals(this.prioq, /**/1, 9, /**/0, 10);
+        Assert.assertEquals(2, this.prioq.size());
+        Assert.assertEquals(9, castType(this.prioq.top()));
+        Assert.assertTrue(isMinHeap(this.prioq));
+        Assert.assertFalse(this.prioq.isEmpty());
 
-        Assert.assertEquals(9, castType(prioq.popTop()));
-        assertPrioQueueEquals(prioq, /**/0, 10);
-        Assert.assertEquals(1, prioq.size());
-        Assert.assertEquals(10, castType(prioq.top()));
-        Assert.assertTrue(isMinHeap(prioq));
-        Assert.assertFalse(prioq.isEmpty());
+        Assert.assertEquals(9, castType(this.prioq.popTop()));
+        assertPrioQueueEquals(this.prioq, /**/0, 10);
+        Assert.assertEquals(1, this.prioq.size());
+        Assert.assertEquals(10, castType(this.prioq.top()));
+        Assert.assertTrue(isMinHeap(this.prioq));
+        Assert.assertFalse(this.prioq.isEmpty());
 
-        Assert.assertEquals(10, castType(prioq.popTop()));
-        Assert.assertEquals(0, prioq.size());
-        Assert.assertTrue(prioq.isEmpty());
+        Assert.assertEquals(10, castType(this.prioq.popTop()));
+        Assert.assertEquals(0, this.prioq.size());
+        Assert.assertTrue(this.prioq.isEmpty());
     }
 
     /* */
     @Test
-    public void testRemoveAll()
+    public void testRemoveAllValues()
     {
-        insertElements(prioq, 1000, 0, 1001, 1, 1002, 0, 1003, 1, 1004, 0);
+        insertElements(this.prioq, 1000, 0, 1001, 1, 1002, 0, 1003, 1, 1004, 0);
 
-        Assert.assertEquals(0, prioq.removeAllOccurrences(k2));
-        Assert.assertEquals(3, prioq.removeAllOccurrences(k0));
-        assertPrioQueueEquals(prioq, 1001, 1, 1003, 1);
+        Assert.assertEquals(0, this.prioq.values().removeAllOccurrences(this.k2));
+        Assert.assertEquals(3, this.prioq.values().removeAllOccurrences(this.k0));
+        assertPrioQueueEquals(this.prioq, 1001, 1, 1003, 1);
 
-        Assert.assertEquals(2, prioq.removeAllOccurrences(k1));
-        Assert.assertTrue(prioq.isEmpty());
+        Assert.assertEquals(2, this.prioq.values().removeAllOccurrences(this.k1));
+        Assert.assertTrue(this.prioq.isEmpty());
     }
 
     /* */
     @Test
-    public void testRemoveAllFromLookupContainer()
+    public void testRemoveAllKeys()
     {
-        insertElements(prioq, 10, 0, 11, 1, 12, 2, 13, 1, 0, 0);
+        insertElements(this.prioq, 1000, 0, 1001, 1, 1002, 0, 1003, 1, 1004, 0);
+
+        Assert.assertEquals(0, this.prioq.keys().removeAllOccurrences(1111));
+        Assert.assertEquals(1, this.prioq.keys().removeAllOccurrences(1001));
+        assertPrioQueueEquals(this.prioq, 1000, 0, 1002, 0, 1003, 1, 1004, 0);
+
+        Assert.assertEquals(1, this.prioq.keys().removeAllOccurrences(1004));
+        assertPrioQueueEquals(this.prioq, 1000, 0, 1002, 0, 1003, 1);
+    }
+
+    /* */
+    @Test
+    public void testRemoveAllFromLookupContainerValues()
+    {
+        insertElements(this.prioq, 10, 0, 11, 1, 12, 2, 13, 1, 0, 0);
 
         final KTypeOpenHashSet<KType> list2 = KTypeOpenHashSet.newInstance();
         list2.add(asArray(0, 2));
 
-        Assert.assertEquals(3, prioq.removeAll(list2));
-        Assert.assertEquals(0, prioq.removeAll(list2));
+        Assert.assertEquals(3, this.prioq.values().removeAll(list2));
+        Assert.assertEquals(0, this.prioq.values().removeAll(list2));
 
-        assertPrioQueueEquals(prioq, 11, 1, 13, 1);
+        assertPrioQueueEquals(this.prioq, 11, 1, 13, 1);
     }
 
     /* */
     @Test
-    public void testRemoveAllWithPredicate()
+    public void testRemoveAllFromLookupContainerKeys()
     {
-        insertElements(prioq, 0, 0, 1, 1, 2, 2, 11, 1, 44, 4);
+        insertElements(this.prioq, 10, 0, 11, 1, 12, 2, 13, 1, 0, 0);
 
-        Assert.assertEquals(3, prioq.removeAll(new KTypePredicate<KType>()
-        {
+        final IntOpenHashSet list2 = IntOpenHashSet.newInstance();
+        list2.add(0, 10, 12);
+
+        Assert.assertEquals(3, this.prioq.keys().removeAll(list2));
+        Assert.assertEquals(0, this.prioq.keys().removeAll(list2));
+
+        assertPrioQueueEquals(this.prioq, 11, 1, 13, 1);
+    }
+
+    /* */
+    @Test
+    public void testRemoveAllWithPredicateValues()
+    {
+        insertElements(this.prioq, 0, 0, 1, 1, 2, 2, 11, 1, 44, 4);
+
+        Assert.assertEquals(3, this.prioq.values().removeAll(new KTypePredicate<KType>()
+                {
             @Override
             public boolean apply(final KType v)
             {
-                return v == key1 || v == key2;
+                return v == KTypeIndexedHeapPriorityQueueTest.this.key1 || v == KTypeIndexedHeapPriorityQueueTest.this.key2;
             };
-        }));
+                }));
 
-        assertPrioQueueEquals(prioq, 0, 0, 44, 4);
+        assertPrioQueueEquals(this.prioq, 0, 0, 44, 4);
     }
 
     /* */
     @Test
-    public void testRemoveAllWithPredicateInterrupted()
+    public void testRemoveAllWithPredicateKeys()
     {
-        insertElements(prioq, 0, 0, 1, 1, 2, 2, 3, 1, 11, 11, 44, 44, 66, 11, 77, 12);
+        insertElements(this.prioq, 0, 0, 1, 1, 2, 2, 11, 1, 44, 4);
+
+        Assert.assertEquals(3, this.prioq.keys().removeAll(new IntPredicate() {
+            @Override
+            public boolean apply(final int v)
+            {
+                return v == 1 || v == 44;
+            };
+        }));
+
+        assertPrioQueueEquals(this.prioq, 0, 10, 2, 2, 11, 1);
+    }
+
+    /* */
+    @Test
+    public void testRemoveAllWithPredicateInterruptedValues()
+    {
+        insertElements(this.prioq, 0, 0, 1, 1, 2, 2, 3, 1, 11, 11, 44, 44, 66, 11, 77, 12);
 
         final RuntimeException t = new RuntimeException();
         try
         {
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size
-            Assert.assertEquals(8, prioq.removeAll(new KTypePredicate<KType>()
-            {
+            Assert.assertEquals(8, this.prioq.values().removeAll(new KTypePredicate<KType>()
+                    {
                 @Override
                 public boolean apply(final KType v)
                 {
-                    if (v == cast(11))
+                    if (v == cast(11)) {
                         throw t;
-                    return v == key1;
+                    }
+                    return v == KTypeIndexedHeapPriorityQueueTest.this.key1;
                 };
-            }));
+                    }));
             Assert.fail();
         }
         catch (final RuntimeException e)
         {
             // Make sure it's really our exception...
-            if (e != t)
+            if (e != t) {
                 throw e;
+            }
         }
 
         // And check if the list is in consistent state.
-        assertPrioQueueEquals(prioq, 0, 0, 2, 2, 11, 11, 44, 44, 66, 11, 77, 12);
-        Assert.assertEquals(6, prioq.size());
+        assertPrioQueueEquals(this.prioq, 0, 0, 2, 2, 11, 11, 44, 44, 66, 11, 77, 12);
+        Assert.assertEquals(6, this.prioq.size());
     }
 
     /* */
     @Test
-    public void testRemoveAllEverything()
+    public void testRemoveAllWithPredicateInterruptedKeys()
     {
-        insertElements(prioq, 0, 0, 1, 1, 2, 2, 11, 1, 44, 4);
-
-        Assert.assertEquals(5, prioq.removeAll(new KTypePredicate<KType>()
-        {
-            @Override
-            public boolean apply(final KType v)
-            {
-                return true;
-            };
-        }));
-
-        Assert.assertEquals(0, prioq.size());
-    }
-
-    /* */
-    @Test
-    public void testRemoveAllWithIndexedPredicate()
-    {
-        insertElements(prioq, 0, 0, 1, 1, 2, 2, 3, 4, 8, 12, 11, 1, 44, 4, 12, 13);
-
-        Assert.assertEquals(3, prioq.removeAll(new KTypeIndexedPredicate<KType>()
-        {
-            @Override
-            public boolean apply(final int index, final KType v)
-            {
-                return index == 1 || index == 11 || index == 12;
-            };
-        }));
-
-        assertPrioQueueEquals(prioq, 0, 0, 2, 2, 3, 4, 8, 12, 44, 4);
-    }
-
-    /* */
-    @Test
-    public void testRemoveAllWithIndexedPredicateInterrupted()
-    {
-        insertElements(prioq, 0, 0, 1, 1, 2, 2, 3, 1, 11, 11, 44, 44, 66, 11, 77, 12);
+        insertElements(this.prioq, 0, 0, 1, 1, 2, 2, 3, 1, 11, 2, 44, 4, 66, 11, 77, 12);
 
         final RuntimeException t = new RuntimeException();
         try
         {
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size
-            Assert.assertEquals(8, prioq.removeAll(new KTypeIndexedPredicate<KType>()
-            {
+            //for keys, iteration is in-order.
+            Assert.assertEquals(8, this.prioq.keys().removeAll(new IntPredicate() {
                 @Override
-                public boolean apply(final int index, final KType v)
+                public boolean apply(final int v)
                 {
-                    if (index == 44)
+                    if (v == 44) {
                         throw t;
-                    return index == 1 || index == 11 || index == 66;
+                    }
+                    return (v == 3 || v == 77); // 3 will be suppressed but not 77, because 44 created an exception before.
                 };
             }));
             Assert.fail();
@@ -463,68 +522,164 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         catch (final RuntimeException e)
         {
             // Make sure it's really our exception...
-            if (e != t)
+            if (e != t) {
                 throw e;
+            }
         }
 
         // And check if the list is in consistent state.
-        //Beware, the heap is indeed iterated by priorities, not indices :
-        assertPrioQueueEquals(prioq, 0, 0, 2, 2, 3, 1, 44, 44, 77, 12);
-        Assert.assertEquals(5, prioq.size());
+        assertPrioQueueEquals(this.prioq, 0, 0, 1, 1, 2, 2, 11, 2, 44, 4, 66, 11, 77, 12);
+        Assert.assertEquals(7, this.prioq.size());
     }
 
     /* */
     @Test
-    public void testRemoveAllWithIndexedPredicateEverything()
+    public void testRemoveAllEverythingValues()
     {
-        insertElements(prioq, 0, 0, 1, 1, 2, 2, 3, 4, 8, 12, 11, 1, 44, 4, 12, 13);
+        insertElements(this.prioq, 0, 0, 1, 1, 2, 2, 11, 1, 44, 4);
 
-        Assert.assertEquals(8, prioq.removeAll(new KTypeIndexedPredicate<KType>()
-        {
+        Assert.assertEquals(5, this.prioq.values().removeAll(new KTypePredicate<KType>()
+                {
             @Override
-            public boolean apply(final int index, final KType v)
+            public boolean apply(final KType v)
+            {
+                return true;
+            };
+                }));
+
+        Assert.assertEquals(0, this.prioq.size());
+    }
+
+    /* */
+    @Test
+    public void testRemoveAllEverythingKeys()
+    {
+        insertElements(this.prioq, 0, 0, 1, 1, 2, 2, 11, 1, 44, 4);
+
+        Assert.assertEquals(5, this.prioq.keys().removeAll(new IntPredicate() {
+            @Override
+            public boolean apply(final int v)
             {
                 return true;
             };
         }));
 
-        Assert.assertEquals(0, prioq.size());
+        Assert.assertEquals(0, this.prioq.size());
     }
 
     /* */
     @Test
-    public void testRetainAllWithPredicate()
+    public void testRetainAllWithPredicateValues()
     {
-        insertElements(prioq, 10, 0, 11, 1, 12, 2, 13, 1, 14, 0);
+        insertElements(this.prioq, 10, 0, 11, 1, 12, 2, 13, 1, 14, 0);
 
-        Assert.assertEquals(2, prioq.retainAll(new KTypePredicate<KType>()
-        {
+        Assert.assertEquals(2, this.prioq.values().retainAll(new KTypePredicate<KType>()
+                {
             @Override
             public boolean apply(final KType v)
             {
-                return v == key1 || v == key2;
+                return v == KTypeIndexedHeapPriorityQueueTest.this.key1 || v == KTypeIndexedHeapPriorityQueueTest.this.key2;
             };
-        }));
+                }));
 
-        assertPrioQueueEquals(prioq, 11, 1, 13, 1, 12, 2);
+        assertPrioQueueEquals(this.prioq, 11, 1, 13, 1, 12, 2);
     }
 
     /* */
     @Test
-    public void testRetainAllWithIndexedPredicate()
+    public void testRetainAllWithPredicateKeys()
     {
-        insertElements(prioq, 10, 0, 11, 1, 12, 2, 13, 1, 14, 0);
+        insertElements(this.prioq, 10, 0, 11, 1, 12, 2, 13, 1, 14, 8);
 
-        Assert.assertEquals(3, prioq.retainAll(new KTypeIndexedPredicate<KType>()
-        {
+        Assert.assertEquals(3, this.prioq.keys().retainAll(new IntPredicate() {
             @Override
-            public boolean apply(final int index, final KType v)
+            public boolean apply(final int v)
             {
-                return index == 11 || index == 13;
+                return v == 10 || v == 14;
             };
         }));
 
-        assertPrioQueueEquals(prioq, 11, 1, 13, 1);
+        assertPrioQueueEquals(this.prioq, 10, 0, 14, 8);
+    }
+
+    /* */
+    @Test
+    public void testRemoveAllOccurencesValues()
+    {
+        this.prioq.put(1, this.key1); //del
+        this.prioq.put(2, this.key2);
+        this.prioq.put(3, this.key1); //del
+        this.prioq.put(4, this.key3);
+        this.prioq.put(5, this.key7);
+        this.prioq.put(6, this.key5);
+        this.prioq.put(7, this.key1); //del
+        this.prioq.put(8, this.key8);
+        this.prioq.put(9, this.key2);
+
+        Assert.assertEquals(9, this.prioq.size());
+
+        final int nbRemoved = this.prioq.values().removeAllOccurrences(this.key1);
+
+        Assert.assertEquals(3, nbRemoved);
+        Assert.assertEquals(6, this.prioq.size());
+        Assert.assertTrue(this.prioq.containsKey(2));
+        Assert.assertTrue(this.prioq.containsKey(4));
+        Assert.assertTrue(this.prioq.containsKey(5));
+        Assert.assertTrue(this.prioq.containsKey(6));
+        Assert.assertTrue(this.prioq.containsKey(8));
+        Assert.assertTrue(this.prioq.containsKey(9));
+    }
+
+    /* */
+    @Test
+    public void testContainsValues()
+    {
+        this.prioq.put(1, this.key1);
+        this.prioq.put(2, this.key2);
+        this.prioq.put(3, this.key1);
+        this.prioq.put(4, this.key3);
+        this.prioq.put(5, this.key7);
+        this.prioq.put(6, this.key5);
+        this.prioq.put(7, this.key1);
+        this.prioq.put(8, this.key8);
+        this.prioq.put(9, this.key2);
+
+        Assert.assertEquals(9, this.prioq.size());
+
+        Assert.assertTrue(this.prioq.values().contains(this.key1));
+        Assert.assertTrue(this.prioq.values().contains(this.key2));
+        Assert.assertTrue(this.prioq.values().contains(this.key3));
+        Assert.assertFalse(this.prioq.values().contains(this.key4)); //not in heap
+        Assert.assertTrue(this.prioq.values().contains(this.key5));
+        Assert.assertFalse(this.prioq.values().contains(this.key6)); //not in heap
+        Assert.assertTrue(this.prioq.values().contains(this.key7));
+        Assert.assertTrue(this.prioq.values().contains(this.key8));
+    }
+
+    /* */
+    @Test
+    public void testToArrayValues()
+    {
+        this.prioq.put(1, this.key1);
+        this.prioq.put(2, this.key2);
+        this.prioq.put(3, this.key1);
+        this.prioq.put(4, this.key3);
+        this.prioq.put(5, this.key7);
+        this.prioq.put(6, this.key5);
+        this.prioq.put(7, this.key1);
+        this.prioq.put(8, this.key8);
+        this.prioq.put(9, this.key2);
+
+        Assert.assertEquals(9, this.prioq.size());
+
+        Assert.assertTrue(this.prioq.values().contains(this.key1));
+        Assert.assertTrue(this.prioq.values().contains(this.key2));
+        Assert.assertTrue(this.prioq.values().contains(this.key3));
+        Assert.assertFalse(this.prioq.values().contains(this.key4)); //not in heap
+        Assert.assertTrue(this.prioq.values().contains(this.key5));
+        Assert.assertFalse(this.prioq.values().contains(this.key6)); //not in heap
+        Assert.assertTrue(this.prioq.values().contains(this.key7));
+        Assert.assertTrue(this.prioq.values().contains(this.key8));
     }
 
     /* */
@@ -547,33 +702,75 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
                 reference.put(index, castType(cast(value)));
 
                 //add in map (there is a resize going on)
-                prioq.insert(index, cast(value));
+                this.prioq.put(index, cast(value));
             }
         }
-        checkConsistency(prioq);
-        Assert.assertTrue(isMinHeap(prioq));
+        checkConsistency(this.prioq);
+        Assert.assertTrue(isMinHeap(this.prioq));
 
-        Assert.assertEquals(reference.size(), prioq.size());
+        Assert.assertEquals(reference.size(), this.prioq.size());
 
         //iterate the prio queue to see if it fits
         int count = 0;
-        for (final KTypeCursor<KType> cursor : prioq)
+        for (final IntKTypeCursor<KType> cursor : this.prioq)
         {
-            Assert.assertTrue(reference.containsKey(cursor.index));
-            Assert.assertEquals(reference.get(cursor.index).intValue(), castType(cursor.value));
+            Assert.assertTrue(reference.containsKey(cursor.key));
+            Assert.assertEquals(reference.get(cursor.key).intValue(), castType(cursor.value));
+            Assert.assertEquals(castType(this.prioq.buffer[cursor.index]), castType(cursor.value));
             count++;
         }
+
+        Assert.assertTrue(checkConsistency(this.prioq));
+
+        Assert.assertEquals(reference.size(), count);
+
+        //iterate keys()
+        count = 0;
+        for (final IntCursor cursor : this.prioq.keys())
+        {
+            Assert.assertTrue(reference.containsKey(cursor.value));
+            Assert.assertEquals(castType(this.prioq.buffer[cursor.index]), reference.get(cursor.value).intValue());
+            count++;
+        }
+
+        Assert.assertTrue(checkConsistency(this.prioq));
+
+        Assert.assertEquals(reference.size(), count);
+
+        //iterate values()
+        count = 0;
+        for (final KTypeCursor<KType> cursor : this.prioq.values())
+        {
+            Assert.assertEquals(castType(this.prioq.buffer[cursor.index]), castType(cursor.value));
+            count++;
+        }
+
+        Assert.assertTrue(checkConsistency(this.prioq));
 
         Assert.assertEquals(reference.size(), count);
 
         //try to iterate a void Prio queue
         count = 0;
-        prioq.clear();
-        Assert.assertEquals(0, prioq.size());
-        Assert.assertTrue(prioq.isEmpty());
+        this.prioq.clear();
+        Assert.assertEquals(0, this.prioq.size());
+        Assert.assertTrue(this.prioq.isEmpty());
 
-        for (@SuppressWarnings("unused")
-        final KTypeCursor<KType> cursor : prioq)
+        count = 0;
+        for (final IntKTypeCursor<KType> cursor : this.prioq)
+        {
+            count++;
+        }
+        Assert.assertEquals(0, count);
+
+        count = 0;
+        for (final IntCursor cursor : this.prioq.keys())
+        {
+            count++;
+        }
+        Assert.assertEquals(0, count);
+
+        count = 0;
+        for (final KTypeCursor<KType> cursor : this.prioq.values())
         {
             count++;
         }
@@ -584,9 +781,12 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
     @Test
     public void testIterator()
     {
-        insertElements(prioq, 0, 0, 1, 1, 2, 2, 3, 3);
-        final Iterator<KTypeCursor<KType>> iterator = prioq.iterator();
+        insertElements(this.prioq, 0, 0, 1, 1, 2, 2, 3, 3);
+
+        final Iterator<IntKTypeCursor<KType>> iterator = this.prioq.iterator();
+
         int count = 0;
+
         while (iterator.hasNext())
         {
             iterator.hasNext();
@@ -595,10 +795,48 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
             iterator.next();
             count++;
         }
-        Assert.assertEquals(count, prioq.size());
+        Assert.assertEquals(count, this.prioq.size());
 
-        prioq.clear();
-        Assert.assertFalse(prioq.iterator().hasNext());
+        this.prioq.clear();
+        Assert.assertFalse(this.prioq.iterator().hasNext());
+
+        //iterate keys()
+        insertElements(this.prioq, 0, 0, 1, 1, 2, 2, 3, 3);
+        final KTypeIndexedHeapPriorityQueue<KType>.KeysIterator iteratorKeys = this.prioq.keys().iterator();
+
+        count = 0;
+
+        while (iteratorKeys.hasNext())
+        {
+            iteratorKeys.hasNext();
+            iteratorKeys.hasNext();
+            iteratorKeys.hasNext();
+            iteratorKeys.next();
+            count++;
+        }
+        Assert.assertEquals(count, this.prioq.size());
+
+        this.prioq.clear();
+        Assert.assertFalse(this.prioq.keys().iterator().hasNext());
+
+        //iterate values()
+        insertElements(this.prioq, 0, 0, 1, 1, 2, 2, 3, 3);
+        final KTypeIndexedHeapPriorityQueue<KType>.ValuesIterator iteratorValues = this.prioq.values().iterator();
+
+        count = 0;
+
+        while (iteratorValues.hasNext())
+        {
+            iteratorValues.hasNext();
+            iteratorValues.hasNext();
+            iteratorValues.hasNext();
+            iteratorValues.next();
+            count++;
+        }
+        Assert.assertEquals(count, this.prioq.size());
+
+        this.prioq.clear();
+        Assert.assertFalse(this.prioq.values().iterator().hasNext());
     }
 
     /* */
@@ -611,7 +849,8 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
         final HashMap<Integer, Integer> reference = new HashMap<Integer, Integer>();
 
-        long checksum = 0;
+        long checksumValue = 0;
+        long checksumKeys = 0;
 
         for (int i = 0; i < COUNT; i++)
         {
@@ -625,19 +864,21 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
                 reference.put(index, value);
 
                 //add in map (there is a resize going on)
-                prioq.insert(index, cast(value));
+                this.prioq.put(index, cast(value));
 
-                checksum += value;
+                checksumValue += value;
+                checksumKeys += index;
             }
         }
 
-        Assert.assertEquals(reference.size(), prioq.size());
+        Assert.assertEquals(reference.size(), this.prioq.size());
 
-        //B) iterate and check that each value is taken
+        //B) values() iterate and check that each value is taken
         final LongHolder val = new LongHolder();
+        final LongHolder key = new LongHolder();
         final LongHolder count = new LongHolder();
 
-        prioq.forEach(new KTypeProcedure<KType>() {
+        this.prioq.values().forEach(new KTypeProcedure<KType>() {
 
             @Override
             public void apply(final KType v)
@@ -649,32 +890,60 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
         Assert.assertEquals(reference.size(), count.value);
 
-        Assert.assertEquals(checksum, val.value);
+        Assert.assertEquals(checksumValue, val.value);
 
-        //C) Indexed forEach, test that each value is passed on to apply
+        //C) full forEach, test that each value is passed on to apply
         count.value = 0;
+        val.value = 0;
+        key.value = 0;
 
-        prioq.indexedForEach(new KTypeIndexedProcedure<KType>() {
+        this.prioq.forEach(new IntKTypeProcedure<KType>() {
 
             @Override
             public void apply(final int index, final KType value)
             {
                 Assert.assertTrue(reference.containsKey(index));
                 Assert.assertEquals(reference.get(index).intValue(), castType(value));
+                val.value += castType(value);
+                key.value += index;
+
                 count.value++;
             }
         });
 
         Assert.assertEquals(reference.size(), count.value);
+
+        Assert.assertEquals(checksumValue, val.value);
+        Assert.assertEquals(checksumKeys, key.value);
+
+        //D) forEach() on keys, test that each value is passed on to apply
+        count.value = 0;
+        val.value = 0;
+        key.value = 0;
+
+        this.prioq.keys().forEach(new IntProcedure() {
+
+            @Override
+            public void apply(final int index)
+            {
+                Assert.assertTrue(reference.containsKey(index));
+                key.value += index;
+
+                count.value++;
+            }
+        });
+
+        Assert.assertEquals(reference.size(), count.value);
+
+        Assert.assertEquals(checksumKeys, key.value);
     }
 
     /* */
     @Test
     public void testClear()
     {
-        insertElements(prioq, 1, 2, 3, 4, 5, 6, 7, 8);
-        prioq.clear();
-        checkConsistency();
+        insertElements(this.prioq, 1, 2, 3, 4, 5, 6, 7, 8);
+        this.prioq.clear();
     }
 
     /* */
@@ -702,7 +971,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
                 reference.put(index, value);
 
                 //add in map (there is a resize going on)
-                prioq.insert(index, cast(value));
+                this.prioq.put(index, cast(value));
             }
         }
 
@@ -711,10 +980,10 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
         for (final int index : reference.keySet())
         {
-            prioq2.insert(index, cast(reference.get(index)));
+            prioq2.put(index, cast(reference.get(index)));
         }
 
-        Assert.assertEquals(prioq.hashCode(), prioq2.hashCode());
+        Assert.assertEquals(this.prioq.hashCode(), prioq2.hashCode());
     }
 
     /* */
@@ -724,13 +993,13 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
     @Test
     public void testClone()
     {
-        insertElements(prioq, 1, 1, 2, 2, 3, 3);
+        insertElements(this.prioq, 1, 1, 2, 2, 3, 3, 4, 3);
 
-        final KTypeIndexedHeapPriorityQueue<KType> cloned = prioq.clone();
-        cloned.removeAllOccurrences(key1);
+        final KTypeIndexedHeapPriorityQueue<KType> cloned = this.prioq.clone();
+        cloned.values().removeAllOccurrences(this.key3);
 
-        assertPrioQueueEquals(prioq, 1, 1, 2, 2, 3, 3);
-        assertPrioQueueEquals(cloned, 2, 2, 3, 3);
+        assertPrioQueueEquals(this.prioq, 1, 1, 2, 2, 3, 3, 4, 3);
+        assertPrioQueueEquals(cloned, 1, 1, 2, 2);
     }
 
     @Test
@@ -755,18 +1024,18 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
                 reference.put(index, value);
 
                 //add in map (there is a resize going on)
-                testPQ.insert(index, cast(value));
+                testPQ.put(index, cast(value));
             }
 
             if (i % 40701 == 0)
             {
-                checkConsistency(prioq);
-                Assert.assertTrue(isMinHeap(prioq));
+                checkConsistency(this.prioq);
+                Assert.assertTrue(isMinHeap(this.prioq));
             }
         }
 
-        checkConsistency(prioq);
-        Assert.assertTrue(isMinHeap(prioq));
+        checkConsistency(this.prioq);
+        Assert.assertTrue(isMinHeap(this.prioq));
 
         //fill reference array
         final int[] referenceArray = new int[reference.size()];
@@ -801,8 +1070,8 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
             if (i % 30711 == 0)
             {
-                checkConsistency(prioq);
-                Assert.assertTrue(isMinHeap(prioq));
+                checkConsistency(this.prioq);
+                Assert.assertTrue(isMinHeap(this.prioq));
             }
 
             currentSize--;
@@ -830,8 +1099,8 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
             //in Float or Double with no conversion error back and forth.
             final int randomInt = prng.nextInt(1000 * 1000);
 
-            testPQ.insert(i, cast(randomInt));
-            testPQ2.insert(i, cast(randomInt));
+            testPQ.put(i, cast(randomInt));
+            testPQ2.put(i, cast(randomInt));
         } //end for
 
         Assert.assertEquals(COUNT, testPQ.size());
@@ -957,11 +1226,11 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
             //in Float or Double with no conversion error back and forth.
             final int randomInt = prng.nextInt(1000 * 1000);
 
-            testPQ.insert(i, cast(randomInt));
-            testPQSameInstance.insert(i, cast(randomInt));
-            testPQOtherInstance.insert(i, cast(randomInt));
-            testPQSame.insert(i, cast(randomInt));
-            testPQSame2.insert(i, cast(randomInt));
+            testPQ.put(i, cast(randomInt));
+            testPQSameInstance.put(i, cast(randomInt));
+            testPQOtherInstance.put(i, cast(randomInt));
+            testPQSame.put(i, cast(randomInt));
+            testPQSame2.put(i, cast(randomInt));
 
         } //end for
 
@@ -1021,18 +1290,18 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
                 reference.put(index, value);
 
                 //add in map (there is a resize going on)
-                testPQ.insert(index, cast(value));
+                testPQ.put(index, cast(value));
             }
 
             if (i % 27001 == 0)
             {
-                checkConsistency(prioq);
-                Assert.assertTrue(isMinHeap(prioq));
+                checkConsistency(this.prioq);
+                Assert.assertTrue(isMinHeap(this.prioq));
             }
         }
 
-        checkConsistency(prioq);
-        Assert.assertTrue(isMinHeap(prioq));
+        checkConsistency(this.prioq);
+        Assert.assertTrue(isMinHeap(this.prioq));
 
         //fill reference array
         final KType[] referenceArray = Intrinsics.newKTypeArray(reference.size());
@@ -1071,8 +1340,8 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
             if (i % 31117 == 0)
             {
-                checkConsistency(prioq);
-                Assert.assertTrue(isMinHeap(prioq));
+                checkConsistency(this.prioq);
+                Assert.assertTrue(isMinHeap(this.prioq));
             }
 
             currentSize--;
@@ -1097,40 +1366,40 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
         for (int i = 0; i < TEST_SIZE; i++)
         {
-            testContainer.insert(prng.nextInt(TEST_SIZE), cast(prng.nextInt()));
+            testContainer.put(prng.nextInt(TEST_SIZE), cast(prng.nextInt()));
         }
 
-        final long checksum = testContainer.forEach(new KTypeProcedure<KType>() {
+        final long checksum = testContainer.forEach(new IntKTypeProcedure<KType>() {
 
             long count;
 
             @Override
-            public void apply(final KType value)
+            public void apply(final int key, final KType value)
             {
-                count += castType(value);
+                this.count += castType(value) + key;
             }
         }).count;
 
         long testValue = 0;
-        final long initialPoolSize = testContainer.valueIteratorPool.size();
+        final long initialPoolSize = testContainer.entryIteratorPool.size();
 
         for (int round = 0; round < TEST_ROUNDS; round++)
         {
             //for-each in test :
             testValue = 0;
-            for (final KTypeCursor<KType> cursor : testContainer)
+            for (final IntKTypeCursor<KType> cursor : testContainer)
             {
                 //we consume 1 iterator for this loop
-                Assert.assertEquals(initialPoolSize - 1, testContainer.valueIteratorPool.size());
+                Assert.assertEquals(initialPoolSize - 1, testContainer.entryIteratorPool.size());
 
-                testValue += castType(cursor.value);
+                testValue += castType(cursor.value) + cursor.key;
             }
 
             //check checksum the iteration
             Assert.assertEquals(checksum, testValue);
 
             //iterator is returned to its pool
-            Assert.assertEquals(initialPoolSize, testContainer.valueIteratorPool.size());
+            Assert.assertEquals(initialPoolSize, testContainer.entryIteratorPool.size());
         } //end for rounds
     }
 
@@ -1150,22 +1419,22 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         for (int i = 0; i < TEST_SIZE; i++)
         {
 
-            testContainer.insert(prng.nextInt(TEST_SIZE), cast(prng.nextInt()));
+            testContainer.put(prng.nextInt(TEST_SIZE), cast(prng.nextInt()));
         }
 
         int count = 0;
         for (int round = 0; round < TEST_ROUNDS; round++)
         {
             //for-each in test :
-            final long initialPoolSize = testContainer.valueIteratorPool.size();
+            final long initialPoolSize = testContainer.entryIteratorPool.size();
 
             count = 0;
-            for (final KTypeCursor<KType> cursor : testContainer)
+            for (final IntKTypeCursor<KType> cursor : testContainer)
             {
-                guard += castType(cursor.value);
+                this.guard += castType(cursor.value) + cursor.key;
                 //we consume 1 iterator for this loop, but reallocs can happen,
                 //so we can only say its != initialPoolSize
-                Assert.assertTrue(initialPoolSize != testContainer.valueIteratorPool.size());
+                Assert.assertTrue(initialPoolSize != testContainer.entryIteratorPool.size());
 
                 //brutally interrupt in the middle
                 if (count > TEST_SIZE / 2)
@@ -1179,12 +1448,12 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
             //iterator is NOT returned to its pool, due to the break.
             //reallocation could happen, so that the only testable thing
             //is that the size is != full pool
-            Assert.assertTrue(initialPoolSize != testContainer.valueIteratorPool.size());
+            Assert.assertTrue(initialPoolSize != testContainer.entryIteratorPool.size());
         } //end for rounds
 
         //Due to policy of the Iterator pool, the intended pool never get bigger that some limit
         //despite the Iterator leak.
-        Assert.assertTrue(testContainer.valueIteratorPool.capacity() < IteratorPool.getMaxPoolSize() + 1);
+        Assert.assertTrue(testContainer.entryIteratorPool.capacity() < IteratorPool.getMaxPoolSize() + 1);
     }
 
     @Test
@@ -1202,47 +1471,48 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
         for (int i = 0; i < TEST_SIZE; i++)
         {
-            testContainer.insert(prng.nextInt(TEST_SIZE), cast(prng.nextInt()));
+            testContainer.put(prng.nextInt(TEST_SIZE), cast(prng.nextInt()));
         }
 
-        final long checksum = testContainer.forEach(new KTypeProcedure<KType>() {
+        final long checksum = testContainer.forEach(new IntKTypeProcedure<KType>() {
 
             long count;
 
             @Override
-            public void apply(final KType value)
+            public void apply(final int key, final KType value)
             {
-                count += castType(value);
+                this.count += castType(value) + key;
             }
         }).count;
 
         long testValue = 0;
-        final int startingPoolSize = testContainer.valueIteratorPool.size();
+        final int startingPoolSize = testContainer.entryIteratorPool.size();
 
         for (int round = 0; round < TEST_ROUNDS; round++)
         {
             //Classical iterator loop, with manually allocated Iterator
-            final int initialPoolSize = testContainer.valueIteratorPool.size();
+            final int initialPoolSize = testContainer.entryIteratorPool.size();
 
-            final KTypeIndexedHeapPriorityQueue<KType>.ValueIterator loopIterator = testContainer.iterator();
+            final KTypeIndexedHeapPriorityQueue<KType>.EntryIterator loopIterator = testContainer.iterator();
 
-            Assert.assertEquals(initialPoolSize - 1, testContainer.valueIteratorPool.size());
+            Assert.assertEquals(initialPoolSize - 1, testContainer.entryIteratorPool.size());
 
             testValue = 0;
             while (loopIterator.hasNext())
             {
-                testValue += castType(loopIterator.next().value);
+                final IntKTypeCursor<KType> c = loopIterator.next();
+                testValue += castType(c.value) + c.key;
             } //end IteratorLoop
 
             //iterator is returned automatically to its pool, by normal iteration termination
-            Assert.assertEquals(initialPoolSize, testContainer.valueIteratorPool.size());
+            Assert.assertEquals(initialPoolSize, testContainer.entryIteratorPool.size());
 
             //checksum
             Assert.assertEquals(checksum, testValue);
         } //end for rounds
 
         // pool initial size is untouched anyway
-        Assert.assertEquals(startingPoolSize, testContainer.valueIteratorPool.size());
+        Assert.assertEquals(startingPoolSize, testContainer.entryIteratorPool.size());
     }
 
     @Test
@@ -1260,25 +1530,26 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
         for (int i = 0; i < TEST_SIZE; i++)
         {
-            testContainer.insert(prng.nextInt(TEST_SIZE), cast(prng.nextInt()));
+            testContainer.put(prng.nextInt(TEST_SIZE), cast(prng.nextInt()));
         }
 
-        final int startingPoolSize = testContainer.valueIteratorPool.size();
+        final int startingPoolSize = testContainer.entryIteratorPool.size();
 
         int count = 0;
         for (int round = 0; round < TEST_ROUNDS; round++)
         {
             //Classical iterator loop, with manually allocated Iterator
-            final long initialPoolSize = testContainer.valueIteratorPool.size();
+            final long initialPoolSize = testContainer.entryIteratorPool.size();
 
-            final KTypeIndexedHeapPriorityQueue<KType>.ValueIterator loopIterator = testContainer.iterator();
+            final KTypeIndexedHeapPriorityQueue<KType>.EntryIterator loopIterator = testContainer.iterator();
 
-            Assert.assertEquals(initialPoolSize - 1, testContainer.valueIteratorPool.size());
+            Assert.assertEquals(initialPoolSize - 1, testContainer.entryIteratorPool.size());
 
             count = 0;
             while (loopIterator.hasNext())
             {
-                guard += castType(loopIterator.next().value);
+                final IntKTypeCursor<KType> c = loopIterator.next();
+                this.guard += castType(c.value) + c.index;
 
                 //brutally interrupt in the middle
                 if (count > TEST_SIZE / 2)
@@ -1289,18 +1560,18 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
             } //end IteratorLoop
 
             //iterator is NOT returned to its pool, due to the break.
-            Assert.assertEquals(initialPoolSize - 1, testContainer.valueIteratorPool.size());
+            Assert.assertEquals(initialPoolSize - 1, testContainer.entryIteratorPool.size());
 
             //manual return to the pool
             loopIterator.release();
 
             //now the pool is restored
-            Assert.assertEquals(initialPoolSize, testContainer.valueIteratorPool.size());
+            Assert.assertEquals(initialPoolSize, testContainer.entryIteratorPool.size());
 
         } //end for rounds
 
         // pool initial size is untouched anyway
-        Assert.assertEquals(startingPoolSize, testContainer.valueIteratorPool.size());
+        Assert.assertEquals(startingPoolSize, testContainer.entryIteratorPool.size());
     }
 
     @Test
@@ -1316,37 +1587,38 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
         for (int i = 0; i < TEST_SIZE; i++)
         {
-            testContainer.insert(prng.nextInt(TEST_SIZE), cast(prng.nextInt()));
+            testContainer.put(prng.nextInt(TEST_SIZE), cast(prng.nextInt()));
         }
 
-        final long checksum = testContainer.forEach(new KTypeProcedure<KType>() {
+        final long checksum = testContainer.forEach(new IntKTypeProcedure<KType>() {
 
             long count;
 
             @Override
-            public void apply(final KType value)
+            public void apply(final int key, final KType value)
             {
-                count += castType(value);
+                this.count += castType(value) + key;
             }
         }).count;
 
-        final int startingPoolSize = testContainer.valueIteratorPool.size();
+        final int startingPoolSize = testContainer.entryIteratorPool.size();
 
         int count = 0;
-        KTypeIndexedHeapPriorityQueue<KType>.ValueIterator loopIterator = null;
+        KTypeIndexedHeapPriorityQueue<KType>.EntryIterator loopIterator = null;
 
         for (int round = 0; round < TEST_ROUNDS; round++)
         {
             try
             {
                 loopIterator = testContainer.iterator();
-                Assert.assertEquals(startingPoolSize - 1, testContainer.valueIteratorPool.size());
+                Assert.assertEquals(startingPoolSize - 1, testContainer.entryIteratorPool.size());
 
-                guard = 0;
+                this.guard = 0;
                 count = 0;
                 while (loopIterator.hasNext())
                 {
-                    guard += castType(loopIterator.next().value);
+                    final IntKTypeCursor<KType> c = loopIterator.next();
+                    this.guard += castType(c.value) + c.key;
 
                     //brutally interrupt in the middle some of the loops, but not all
                     if (round > TEST_ROUNDS / 2 && count > TEST_SIZE / 2)
@@ -1357,25 +1629,25 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
                 } //end while
 
                 //iterator is returned to its pool in case of normal loop termination
-                Assert.assertEquals(startingPoolSize, testContainer.valueIteratorPool.size());
-                Assert.assertEquals(checksum, guard);
+                Assert.assertEquals(startingPoolSize, testContainer.entryIteratorPool.size());
+                Assert.assertEquals(checksum, this.guard);
 
             }
             catch (final Exception e)
             {
                 //iterator is NOT returned to its pool because of the exception
-                Assert.assertEquals(startingPoolSize - 1, testContainer.valueIteratorPool.size());
+                Assert.assertEquals(startingPoolSize - 1, testContainer.entryIteratorPool.size());
 
                 //manual return to the pool then
                 loopIterator.release();
 
                 //now the pool is restored
-                Assert.assertEquals(startingPoolSize, testContainer.valueIteratorPool.size());
+                Assert.assertEquals(startingPoolSize, testContainer.entryIteratorPool.size());
             }
         } //end for rounds
 
         // pool initial size is untouched anyway
-        Assert.assertEquals(startingPoolSize, testContainer.valueIteratorPool.size());
+        Assert.assertEquals(startingPoolSize, testContainer.entryIteratorPool.size());
     }
 
     @Test
@@ -1391,47 +1663,48 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
         for (int i = 0; i < TEST_SIZE; i++)
         {
-            testContainer.insert(prng.nextInt(TEST_SIZE), cast(prng.nextInt()));
+            testContainer.put(prng.nextInt(TEST_SIZE), cast(prng.nextInt()));
         }
 
-        final long checksum = testContainer.forEach(new KTypeProcedure<KType>() {
+        final long checksum = testContainer.forEach(new IntKTypeProcedure<KType>() {
 
             long count;
 
             @Override
-            public void apply(final KType value)
+            public void apply(final int key, final KType value)
             {
-                count += castType(value);
+                this.count += castType(value) + key;
             }
         }).count;
 
-        final int initialPoolSize = testContainer.valueIteratorPool.size();
+        final int initialPoolSize = testContainer.entryIteratorPool.size();
 
         //start with a non full pool, remove 3 elements
-        final AbstractIterator<KTypeCursor<KType>> loopIteratorFake = testContainer.iterator();
-        final AbstractIterator<KTypeCursor<KType>> loopIteratorFake2 = testContainer.iterator();
-        final AbstractIterator<KTypeCursor<KType>> loopIteratorFake3 = testContainer.iterator();
+        final KTypeIndexedHeapPriorityQueue<KType>.EntryIterator loopIteratorFake = testContainer.iterator();
+        final KTypeIndexedHeapPriorityQueue<KType>.EntryIterator loopIteratorFake2 = testContainer.iterator();
+        final KTypeIndexedHeapPriorityQueue<KType>.EntryIterator loopIteratorFake3 = testContainer.iterator();
 
-        final int startingTestPoolSize = testContainer.valueIteratorPool.size();
+        final int startingTestPoolSize = testContainer.entryIteratorPool.size();
 
         Assert.assertEquals(initialPoolSize - 3, startingTestPoolSize);
 
         int count = 0;
-        KTypeIndexedHeapPriorityQueue<KType>.ValueIterator loopIterator = null;
+        KTypeIndexedHeapPriorityQueue<KType>.EntryIterator loopIterator = null;
 
         for (int round = 0; round < TEST_ROUNDS; round++)
         {
             try
             {
                 loopIterator = testContainer.iterator();
-                Assert.assertEquals(startingTestPoolSize - 1, testContainer.valueIteratorPool.size());
+                Assert.assertEquals(startingTestPoolSize - 1, testContainer.entryIteratorPool.size());
 
-                guard = 0;
+                this.guard = 0;
                 count = 0;
 
                 while (loopIterator.hasNext())
                 {
-                    guard += castType(loopIterator.next().value);
+                    final IntKTypeCursor<KType> c = loopIterator.next();
+                    this.guard += castType(c.value) + c.key;
 
                     //brutally interrupt in the middle some of the loops, but not all
                     if (round > TEST_ROUNDS / 2 && count > TEST_SIZE / 2)
@@ -1442,36 +1715,36 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
                 } //end while
 
                 //iterator is returned to its pool in case of normal loop termination
-                Assert.assertEquals(startingTestPoolSize, testContainer.valueIteratorPool.size());
-                Assert.assertEquals(checksum, guard);
+                Assert.assertEquals(startingTestPoolSize, testContainer.entryIteratorPool.size());
+                Assert.assertEquals(checksum, this.guard);
 
                 //still, try to return it ....
                 loopIterator.release();
 
                 //nothing has changed
-                Assert.assertEquals(startingTestPoolSize, testContainer.valueIteratorPool.size());
+                Assert.assertEquals(startingTestPoolSize, testContainer.entryIteratorPool.size());
             }
             catch (final Exception e)
             {
                 //iterator is NOT returned to its pool because of the exception
-                Assert.assertEquals(startingTestPoolSize - 1, testContainer.valueIteratorPool.size());
+                Assert.assertEquals(startingTestPoolSize - 1, testContainer.entryIteratorPool.size());
 
                 //manual return to the pool then
                 loopIterator.release();
 
                 //now the pool is restored
-                Assert.assertEquals(startingTestPoolSize, testContainer.valueIteratorPool.size());
+                Assert.assertEquals(startingTestPoolSize, testContainer.entryIteratorPool.size());
 
                 //continue to try to release...
                 loopIterator.release();
 
                 //nothing has changed
-                Assert.assertEquals(startingTestPoolSize, testContainer.valueIteratorPool.size());
+                Assert.assertEquals(startingTestPoolSize, testContainer.entryIteratorPool.size());
             }
         } //end for rounds
 
         // pool initial size is untouched anyway
-        Assert.assertEquals(startingTestPoolSize, testContainer.valueIteratorPool.size());
+        Assert.assertEquals(startingTestPoolSize, testContainer.entryIteratorPool.size());
 
         //finally return the fake ones, several times
         loopIteratorFake.release();
@@ -1483,7 +1756,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         loopIteratorFake3.release();
         loopIteratorFake3.release();
 
-        Assert.assertEquals(initialPoolSize, testContainer.valueIteratorPool.size());
+        Assert.assertEquals(initialPoolSize, testContainer.entryIteratorPool.size());
     }
 
     @Test
@@ -1515,7 +1788,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
             for (int i = 0; i < PREALLOCATED_SIZE; i++)
             {
-                newHeap.insert(i, cast(randomVK.nextInt()));
+                newHeap.put(i, cast(randomVK.nextInt()));
 
                 //internal size has not changed.
                 Assert.assertEquals(contructorBufferSize, newHeap.buffer.length);
@@ -1533,15 +1806,40 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
     {
         Assert.assertEquals(obj.toString(), elements.length / 2, obj.size());
 
-        //test
+        final KType[] valuesArrayExport = (KType[]) obj.values().toArray();
+        final int[] keysArrayExport = obj.keys().toArray();
+
+        Assert.assertEquals(obj.toString(), obj.size(), valuesArrayExport.length);
+        Assert.assertEquals(obj.toString(), obj.size(), keysArrayExport.length);
+
+        //A) test with containsKey() / get()
         int i = 0;
         while (i < elements.length)
         {
-            Assert.assertTrue(obj.toString(), obj.containsIndex(elements[i]));
-            Assert.assertEquals(obj.toString(), elements[i + 1], castType(obj.getIndex(elements[i])));
+            Assert.assertTrue(obj.toString(), obj.containsKey(elements[i]));
+            Assert.assertEquals(obj.toString(), elements[i + 1], castType(obj.get(elements[i])));
             i++;
             i++;
         }
+
+        //B) Test with toArray[] on obj
+        for (int ii = 0; ii < keysArrayExport.length; ii++) {
+
+            final int currentValue = castType(obj.get(keysArrayExport[i]));
+
+            boolean valueExist = false;
+
+            //show that the matching value exists in valuesArrayExport
+            for (int jj = 0; jj < valuesArrayExport.length; jj++) {
+
+                if (currentValue == castType(valuesArrayExport[jj])) {
+                    valueExist = true;
+                    break;
+                }
+            }
+
+            Assert.assertTrue(valueExist);
+        } //end for each key
     }
 
     public void insertElements(final KTypeIndexedHeapPriorityQueue<KType> pq, final int... elements)
@@ -1549,7 +1847,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         int i = 0;
         while (i < elements.length) {
 
-            pq.insert(elements[i], cast(elements[i + 1]));
+            pq.put(elements[i], cast(elements[i + 1]));
             i++;
             i++;
         }
@@ -1610,14 +1908,17 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         final int N = prio.elementsCount;
         final KType[] buffer = prio.buffer;
 
-        if (k > N)
+        if (k > N) {
             return true;
+        }
         final int left = 2 * k, right = 2 * k + 1;
 
-        if (left <= N && Intrinsics.isCompSupKTypeUnchecked(buffer[k], buffer[left]))
+        if (left <= N && Intrinsics.isCompSupKTypeUnchecked(buffer[k], buffer[left])) {
             return false;
-        if (right <= N && Intrinsics.isCompSupKTypeUnchecked(buffer[k], buffer[right]))
+        }
+        if (right <= N && Intrinsics.isCompSupKTypeUnchecked(buffer[k], buffer[right])) {
             return false;
+        }
         //recursively test
         return isMinHeapComparable(prio, left) && isMinHeapComparable(prio, right);
     }
@@ -1634,14 +1935,17 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         KTypeComparator<? super KType> comp = prio.comparator;
         #end !*/
 
-        if (k > N)
+        if (k > N) {
             return true;
+        }
         final int left = 2 * k, right = 2 * k + 1;
 
-        if (left <= N && comp.compare(buffer[k], buffer[left]) > 0)
+        if (left <= N && comp.compare(buffer[k], buffer[left]) > 0) {
             return false;
-        if (right <= N && comp.compare(buffer[k], buffer[right]) > 0)
+        }
+        if (right <= N && comp.compare(buffer[k], buffer[right]) > 0) {
             return false;
+        }
         //recursively test
         return isMinHeapComparator(prio, left) && isMinHeapComparator(prio, right);
     }
