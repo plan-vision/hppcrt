@@ -17,7 +17,17 @@ import com.carrotsearch.hppcrt.sorting.*;
  * and constant time to examine the first element.
  * As it is <code>int</code> indexed, it also supports {@link #containsKey()} in constant time, {@link #remove()}
  * and {@link #changePriority(int)} in O(log2(N)) time.
- * * <p><b>Important note: This implementation uses direct indexing, meaning that a map
+ * <p><b>Important: </b>
+ * Ordering of elements must be defined either
+ * #if ($TemplateOptions.KTypeGeneric)
+ * by {@link Comparable}
+ * #else
+ * by natural ordering
+ * #end
+ *  or by a custom comparator provided in constructors,
+ * see {@link #getComparator} .
+ * 
+ *<p><b>Warning : This implementation uses direct indexing, meaning that a map
  * at any given time is only able to have <code>int</code> keys in
  * the [0 ; {@link #capacity()}[ range. So when a {@link #put(key, KType)} occurs, the map may be resized to be able hold a key exceeding the current capacity.</b>
  * </p>
@@ -142,7 +152,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
      * @see BoundedProportionalArraySizingStrategy
      */
     public KTypeIndexedHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp
-            /*! #else
+    /*! #else
     KTypeComparator<? super KType> comp
     #end !*/)
     {
@@ -1087,6 +1097,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
     /**
      * An iterator over the set of assigned keys.
+     * Holds a IntCursor cursor returning (value, index) = (int key, index the position in heap)
      */
     public final class KeysIterator extends AbstractIterator<IntCursor>
     {
@@ -1146,10 +1157,10 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
         private KType currentOccurenceToBeRemoved;
 
-        private final  KTypePredicate<? super KType> removeAllOccurencesPredicate = new KTypePredicate<KType> () {
+        private final KTypePredicate<? super KType> removeAllOccurencesPredicate = new KTypePredicate<KType>() {
 
             @Override
-            public final  boolean apply(final KType value) {
+            public final boolean apply(final KType value) {
 
                 if (ValuesContainer.this.owner.comparator == null) {
 
@@ -1158,7 +1169,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
                         return true;
                     }
 
-                } else {
+                }
+                else {
 
                     if (ValuesContainer.this.owner.comparator.compare(value, ValuesContainer.this.currentOccurenceToBeRemoved) == 0) {
 
@@ -1188,6 +1200,17 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
             return this.owner.capacity();
         }
 
+        /**
+         * {@inheritDoc}
+         * <p><b>Note : </b> The comparison criteria for
+         * identity test is based on
+         * #if ($TemplateOptions.KTypeGeneric)
+         * {@link Comparable} compareTo() if no
+         * #else
+         * natural ordering if no
+         * #end
+         * custom comparator is given, else it uses the {@link #getComparator()} criteria.
+         */
         @Override
         public boolean contains(final KType value)
         {
@@ -1211,11 +1234,11 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 final Comparator<? super KType> comp = this.owner.comparator;
                 /*! #else
-                KTypeComparator<? super KType> comp = this.owner.comparator;
-                #end !*/
+                        KTypeComparator<? super KType> comp = this.owner.comparator;
+                        #end !*/
                 for (int pos = 1; pos <= size; pos++)
                 {
-                    if (comp.compare(buffer[pos], value) == 0)
+                    if (comp.compare(KTypeIndexedHeapPriorityQueue.this.buffer[pos], value) == 0)
                     {
                         return true;
                     }
@@ -1268,6 +1291,14 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
          * {@inheritDoc}
          * Indeed removes all the (key,value) pairs matching
          * (key ? ,  e) with the  same  e,  from  the map.
+         * <p><b>Note : </b> The comparison criteria for
+         * identity test is based on
+         * !#if ($TemplateOptions.KTypeGeneric)
+         * {@link Comparable} compareTo() if no
+         *  #else
+         * natural ordering if no
+         *  #end
+         * custom comparator is given, else it uses the {@link #getComparator()} criteria.
          */
         @Override
         public int removeAllOccurrences(final KType e)
@@ -1333,11 +1364,11 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
                     }
                 });
 
-
     }
 
     /**
      * An iterator over the set of assigned values.
+     * Holds a KTypeCursor<KType> cursor returning (value, index) = (KType value, index the position in heap)
      */
     public final class ValuesIterator extends AbstractIterator<KTypeCursor<KType>>
     {
@@ -1353,9 +1384,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
             //index 0 is not used in Priority queue
             this.cursor.index = 0;
             this.buffer = KTypeIndexedHeapPriorityQueue.this.buffer;
-            this.size = KTypeIndexedHeapPriorityQueue.this.size();
+            this.size = size();
         }
-
 
         @Override
         protected KTypeCursor<KType> fetch()
@@ -1413,6 +1443,22 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     public KType getDefaultValue()
     {
         return this.defaultValue;
+    }
+
+    /**
+     * Get the custom comparator used for comparing elements
+     * @return null if no custom comparator was set, i.e natural ordering
+     * of <code>KType</code>s is used instead
+     * #if ($TemplateOptions.KTypeGeneric) , which means objects in this case must be {@link Comparable}. #end
+     */
+/*! #if ($TemplateOptions.KTypeGeneric) !*/
+    public Comparator<? super KType>
+            /*! #else
+                                                    public KTypeComparator<? super KType>
+                                                    #end !*/
+            getComparator() {
+
+        return this.comparator;
     }
 
     /**
@@ -1510,8 +1556,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         final Comparator<? super KType> comp = this.comparator;
         /*! #else
-        KTypeComparator<? super KType> comp = this.comparator;
-        #end !*/
+            KTypeComparator<? super KType> comp = this.comparator;
+            #end !*/
 
         while (k << 1 <= N)
         {
@@ -1566,22 +1612,22 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
             //swap k and its parent
             parent = k >> 1;
 
-        //swap k and parent
-        tmp = buffer[k];
-        buffer[k] = buffer[parent];
-        buffer[parent] = tmp;
+            //swap k and parent
+            tmp = buffer[k];
+            buffer[k] = buffer[parent];
+            buffer[parent] = tmp;
 
-        //swap references
-        indexK = qp[k];
-        indexParent = qp[parent];
+            //swap references
+            indexK = qp[k];
+            indexParent = qp[parent];
 
-        pq[indexK] = parent;
-        pq[indexParent] = k;
+            pq[indexK] = parent;
+            pq[indexParent] = k;
 
-        qp[k] = indexParent;
-        qp[parent] = indexK;
+            qp[k] = indexParent;
+            qp[parent] = indexK;
 
-        k = parent;
+            k = parent;
         }
     }
 
@@ -1602,30 +1648,30 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         final Comparator<? super KType> comp = this.comparator;
         /*! #else
-        KTypeComparator<? super KType> comp = this.comparator;
-        #end !*/
+            KTypeComparator<? super KType> comp = this.comparator;
+            #end !*/
 
         while (k > 1 && comp.compare(buffer[k >> 1], buffer[k]) > 0)
         {
             //swap k and its parent
             parent = k >> 1;
 
-        //swap k and parent
-        tmp = buffer[k];
-        buffer[k] = buffer[parent];
-        buffer[parent] = tmp;
+            //swap k and parent
+            tmp = buffer[k];
+            buffer[k] = buffer[parent];
+            buffer[parent] = tmp;
 
-        //swap references
-        indexK = qp[k];
-        indexParent = qp[parent];
+            //swap references
+            indexK = qp[k];
+            indexParent = qp[parent];
 
-        pq[indexK] = parent;
-        pq[indexParent] = k;
+            pq[indexK] = parent;
+            pq[indexParent] = k;
 
-        qp[k] = indexParent;
-        qp[parent] = indexK;
+            qp[k] = indexParent;
+            qp[parent] = indexK;
 
-        k = parent;
+            k = parent;
         }
     }
 
@@ -1772,7 +1818,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     /**
      * method to test heap invariant in assert expressions
      */
-    // is buffer[1..N] a min heap?
+// is buffer[1..N] a min heap?
     private boolean isMinHeap()
     {
         if (this.comparator == null)
@@ -1783,7 +1829,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         return isMinHeapComparator(1);
     }
 
-    // is subtree of pq[1..N] rooted at k a min heap?
+// is subtree of pq[1..N] rooted at k a min heap?
     private boolean isMinHeapComparable(final int k)
     {
         final int N = this.elementsCount;
@@ -1807,7 +1853,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         return isMinHeapComparable(left) && isMinHeapComparable(right);
     }
 
-    // is subtree of pq[1..N] rooted at k a min heap?
+// is subtree of pq[1..N] rooted at k a min heap?
     private boolean isMinHeapComparator(final int k)
     {
         final int N = this.elementsCount;
@@ -1816,8 +1862,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         final Comparator<? super KType> comp = this.comparator;
         /*! #else
-        KTypeComparator<? super KType> comp = this.comparator;
-        #end !*/
+            KTypeComparator<? super KType> comp = this.comparator;
+            #end !*/
 
         if (k > N)
         {
@@ -1837,6 +1883,6 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         return isMinHeapComparator(left) && isMinHeapComparator(right);
     }
 
-    //end ifdef debug
+//end ifdef debug
 /*! #end !*/
 }

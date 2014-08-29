@@ -11,16 +11,25 @@ import com.carrotsearch.hppcrt.sorting.*;
 /**
  * A Heap-based, min-priority queue of <code>KType</code>s.
  * i.e. top() is the smallest element,
- * as defined by Sedgewick: Algorithms 4th Edition (2011)
+ * as defined by Sedgewick: Algorithms 4th Edition (2011).
  * It assure O(log2(N)) complexity for insertion, deletion of min element,
  * and constant time to examine the first element.
+ * <p><b>Important: </b>
+ * Ordering of elements must be defined either
+ * #if ($TemplateOptions.KTypeGeneric)
+ * by {@link Comparable}
+ * #else
+ * by natural ordering
+ * #end
+ *  or by a custom comparator provided in constructors,
+ * see {@link #getComparator} .
  * @author <a href="https://github.com/vsonnier" >Vincent Sonnier</a>
  */
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
 /*! #set( $DEBUG = false) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType>
-implements KTypePriorityQueue<KType>, Cloneable
+        implements KTypePriorityQueue<KType>, Cloneable
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -69,6 +78,38 @@ implements KTypePriorityQueue<KType>, Cloneable
      * internal pool of ValueIterator (must be created in constructor)
      */
     protected final IteratorPool<KTypeCursor<KType>, ValueIterator> valueIteratorPool;
+
+    /**
+     * The current value set for removeAll
+     */
+    private KType currentOccurenceToBeRemoved;
+
+    /**
+     * Internal predicate for removeAll
+     */
+    private final KTypePredicate<? super KType> removeAllOccurencesPredicate = new KTypePredicate<KType>() {
+
+        @Override
+        public final boolean apply(final KType value) {
+
+            if (KTypeHeapPriorityQueue.this.comparator == null) {
+
+                if (Intrinsics.isCompEqualKTypeUnchecked(value, KTypeHeapPriorityQueue.this.currentOccurenceToBeRemoved)) {
+
+                    return true;
+                }
+            }
+            else {
+
+                if (KTypeHeapPriorityQueue.this.comparator.compare(value, KTypeHeapPriorityQueue.this.currentOccurenceToBeRemoved) == 0) {
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    };
 
     /**
      * Create with a Comparator, an initial capacity, and a custom buffer resizing strategy.
@@ -122,7 +163,7 @@ implements KTypePriorityQueue<KType>, Cloneable
      * @see BoundedProportionalArraySizingStrategy
      */
     public KTypeHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp
-            /*! #else
+    /*! #else
     KTypeComparator<? super KType> comp
     #end !*/)
     {
@@ -161,52 +202,20 @@ implements KTypePriorityQueue<KType>, Cloneable
 
     /**
      * {@inheritDoc}
+     * <p><b>Note : </b> The comparison criteria for
+     * identity test is based on
+     * #if ($TemplateOptions.KTypeGeneric)
+     * {@link Comparable} compareTo() if no
+     * #else
+     * natural ordering if no
+     * #end
+     * custom comparator is given, else it uses the {@link #getComparator()} criteria.
      */
     @Override
     public int removeAllOccurrences(final KType e1)
     {
-        //remove by position
-        int deleted = 0;
-        final KType[] buffer = this.buffer;
-
-        int elementsCount = this.elementsCount;
-
-        //1-based index
-        int pos = 1;
-
-        while (pos <= elementsCount)
-        {
-            //delete it
-            if (Intrinsics.equalsKType(e1, buffer[pos]))
-            {
-                //put the last element at position pos, like in deleteIndex()
-                buffer[pos] = buffer[elementsCount];
-
-                //for GC
-                /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                buffer[elementsCount] = Intrinsics.<KType> defaultKTypeValue();
-                /*! #end !*/
-
-                //Diminish size
-                elementsCount--;
-                deleted++;
-            } //end if to delete
-            else
-            {
-                pos++;
-            }
-        } //end while
-
-        this.elementsCount = elementsCount;
-
-        //reestablish heap
-        refreshPriorities();
-
-        /*! #if($DEBUG) !*/
-        assert isMinHeap();
-        /*! #end !*/
-
-        return deleted;
+        this.currentOccurenceToBeRemoved = e1;
+        return removeAll(this.removeAllOccurencesPredicate);
     }
 
     /**
@@ -299,8 +308,9 @@ implements KTypePriorityQueue<KType>, Cloneable
         protected KTypeCursor<KType> fetch()
         {
             //priority is 1-based index
-            if (this.cursor.index == this.size)
+            if (this.cursor.index == this.size) {
                 return done();
+            }
 
             this.cursor.value = this.buffer[++this.cursor.index];
             return this.cursor;
@@ -319,6 +329,14 @@ implements KTypePriorityQueue<KType>, Cloneable
 
     /**
      * {@inheritDoc}
+     * <p><b>Note : </b> The comparison criteria for
+     * identity test is based on
+     * #if ($TemplateOptions.KTypeGeneric)
+     * {@link Comparable} compareTo() if no
+     * #else
+     * natural ordering if no
+     * #end
+     * custom comparator is given, else it uses the {@link #getComparator()} criteria.
      */
     @Override
     public boolean contains(final KType element)
@@ -327,13 +345,32 @@ implements KTypePriorityQueue<KType>, Cloneable
         final int size = this.elementsCount;
         final KType[] buff = this.buffer;
 
-        for (int i = 1; i <= size; i++)
-        {
-            if (Intrinsics.equalsKType(element, buff[i]))
+        if (this.comparator == null) {
+
+            for (int i = 1; i <= size; i++)
             {
-                return true;
-            }
-        } //end for
+                if (Intrinsics.isCompEqualKTypeUnchecked(element, buff[i]))
+                {
+                    return true;
+                }
+            } //end for
+        }
+        else {
+
+            /*! #if ($TemplateOptions.KTypeGeneric) !*/
+            final Comparator<? super KType> comp = this.comparator;
+            /*! #else
+            KTypeComparator<? super KType> comp = this.comparator;
+            #end !*/
+
+            for (int i = 1; i <= size; i++)
+            {
+                if (comp.compare(element, buff[i]) == 0)
+                {
+                    return true;
+                }
+            } //end for
+        }
 
         return false;
     }
@@ -384,8 +421,9 @@ implements KTypePriorityQueue<KType>, Cloneable
 
         for (int i = 1; i <= size; i++)
         {
-            if (!predicate.apply(buff[i]))
+            if (!predicate.apply(buff[i])) {
                 break;
+            }
         }
 
         return predicate;
@@ -476,22 +514,7 @@ implements KTypePriorityQueue<KType>, Cloneable
      */
     public int addAll(final KTypeContainer<? extends KType> container)
     {
-        final int size = container.size();
-        ensureBufferSpace(size);
-
-        for (final KTypeCursor<? extends KType> cursor : container)
-        {
-            this.elementsCount++;
-            this.buffer[this.elementsCount] = cursor.value;
-        }
-
-        //restore heap
-        refreshPriorities();
-        /*! #if($DEBUG) !*/
-        assert isMinHeap();
-        /*! #end !*/
-
-        return size;
+        return addAll((Iterable<? extends KTypeCursor<? extends KType>>) container);
     }
 
     /**
@@ -581,7 +604,7 @@ implements KTypePriorityQueue<KType>, Cloneable
     }
 
     /**
-     * this instance and obj can only be equal if either: <pre>
+     * this instance and obj can only be equal to this if either: <pre>
      * (both don't have set comparators)
      * or
      * (both have equal comparators defined by {@link #comparator}.equals(obj.comparator))</pre>
@@ -596,8 +619,9 @@ implements KTypePriorityQueue<KType>, Cloneable
     {
         if (obj != null)
         {
-            if (obj == this)
+            if (obj == this) {
                 return true;
+            }
 
             //we can only compare both KTypeHeapPriorityQueue,
             //that has the same comparison function reference
@@ -683,6 +707,23 @@ implements KTypePriorityQueue<KType>, Cloneable
         //copy from index 1
         System.arraycopy(this.buffer, 1, target, 0, this.elementsCount);
         return target;
+    }
+
+    /**
+     * Get the custom comparator used for comparing elements
+     * @return null if no custom comparator was set, i.e natural ordering
+     * of <code>KType</code>s is used instead
+     * #if($TemplateOptions.KTypeGeneric) , which means objects in this case must be {@link Comparable}.
+     * #end
+     */
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    public Comparator<? super KType>
+            /*! #else
+                                                            public KTypeComparator<? super KType>
+                                                            #end !*/
+            getComparator() {
+
+        return this.comparator;
     }
 
     /**
@@ -777,11 +818,11 @@ implements KTypePriorityQueue<KType>, Cloneable
             //swap k and its parent
             parent = k >> 1;
 
-        tmp = buffer[k];
-        buffer[k] = buffer[parent];
-        buffer[parent] = tmp;
+            tmp = buffer[k];
+            buffer[k] = buffer[parent];
+            buffer[parent] = tmp;
 
-        k = parent;
+            k = parent;
         }
     }
 
@@ -805,11 +846,11 @@ implements KTypePriorityQueue<KType>, Cloneable
         {
             //swap k and its parent
             parent = k >> 1;
-        tmp = buffer[k];
-        buffer[k] = buffer[parent];
-        buffer[parent] = tmp;
+            tmp = buffer[k];
+            buffer[k] = buffer[parent];
+            buffer[parent] = tmp;
 
-        k = parent;
+            k = parent;
         }
     }
 
@@ -858,14 +899,17 @@ implements KTypePriorityQueue<KType>, Cloneable
         final int N = this.elementsCount;
         final KType[] buffer = this.buffer;
 
-        if (k > N)
+        if (k > N) {
             return true;
+        }
         final int left = 2 * k, right = 2 * k + 1;
 
-        if (left <= N && Intrinsics.isCompSupKTypeUnchecked(buffer[k], buffer[left]))
+        if (left <= N && Intrinsics.isCompSupKTypeUnchecked(buffer[k], buffer[left])) {
             return false;
-        if (right <= N && Intrinsics.isCompSupKTypeUnchecked(buffer[k], buffer[right]))
+        }
+        if (right <= N && Intrinsics.isCompSupKTypeUnchecked(buffer[k], buffer[right])) {
             return false;
+        }
         //recursively test
         return isMinHeapComparable(left) && isMinHeapComparable(right);
     }
@@ -882,14 +926,17 @@ implements KTypePriorityQueue<KType>, Cloneable
         KTypeComparator<? super KType> comp = this.comparator;
         #end !*/
 
-        if (k > N)
+        if (k > N) {
             return true;
+        }
         final int left = 2 * k, right = 2 * k + 1;
 
-        if (left <= N && comp.compare(buffer[k], buffer[left]) > 0)
+        if (left <= N && comp.compare(buffer[k], buffer[left]) > 0) {
             return false;
-        if (right <= N && comp.compare(buffer[k], buffer[right]) > 0)
+        }
+        if (right <= N && comp.compare(buffer[k], buffer[right]) > 0) {
             return false;
+        }
         //recursively test
         return isMinHeapComparator(left) && isMinHeapComparator(right);
     }

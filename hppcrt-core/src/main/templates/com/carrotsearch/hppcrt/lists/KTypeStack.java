@@ -141,6 +141,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
     @Override
     public int removeFirstOccurrence(final KType e1)
     {
+        //that works because indexOf() was overridden in the stack
         return super.removeFirstOccurrence(e1);
     }
 
@@ -151,6 +152,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
     @Override
     public int removeLastOccurrence(final KType e1)
     {
+        //that works because indexOf() was overridden in the stack
         return super.removeLastOccurrence(e1);
     }
 
@@ -166,7 +168,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
 
         if (res != -1)
         {
-            res = elementsCount - res - 1;
+            res = this.elementsCount - res - 1;
         }
 
         return res;
@@ -180,7 +182,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
 
         if (res != -1)
         {
-            res = elementsCount - res - 1;
+            res = this.elementsCount - res - 1;
         }
 
         return res;
@@ -193,12 +195,12 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
     @Override
     public KType[] toArray(final KType[] target)
     {
-        final int size = elementsCount;
+        final int size = this.elementsCount;
 
         //copy the buffer backwards.
         for (int i = 0; i < size; i++)
         {
-            target[i] = buffer[size - i - 1];
+            target[i] = this.buffer[size - i - 1];
         }
 
         return target;
@@ -210,7 +212,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
     public void push(final KType e1)
     {
         ensureBufferSpace(1);
-        buffer[elementsCount++] = e1;
+        this.buffer[this.elementsCount++] = e1;
     }
 
     /**
@@ -219,8 +221,8 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
     public void push(final KType e1, final KType e2)
     {
         ensureBufferSpace(2);
-        buffer[elementsCount++] = e1;
-        buffer[elementsCount++] = e2;
+        this.buffer[this.elementsCount++] = e1;
+        this.buffer[this.elementsCount++] = e2;
     }
 
     /**
@@ -229,9 +231,9 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
     public void push(final KType e1, final KType e2, final KType e3)
     {
         ensureBufferSpace(3);
-        buffer[elementsCount++] = e1;
-        buffer[elementsCount++] = e2;
-        buffer[elementsCount++] = e3;
+        this.buffer[this.elementsCount++] = e1;
+        this.buffer[this.elementsCount++] = e2;
+        this.buffer[this.elementsCount++] = e3;
     }
 
     /**
@@ -240,10 +242,10 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
     public void push(final KType e1, final KType e2, final KType e3, final KType e4)
     {
         ensureBufferSpace(4);
-        buffer[elementsCount++] = e1;
-        buffer[elementsCount++] = e2;
-        buffer[elementsCount++] = e3;
-        buffer[elementsCount++] = e4;
+        this.buffer[this.elementsCount++] = e1;
+        this.buffer[this.elementsCount++] = e2;
+        this.buffer[this.elementsCount++] = e3;
+        this.buffer[this.elementsCount++] = e4;
     }
 
     /**
@@ -254,8 +256,8 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
         assert start >= 0 && len >= 0;
 
         ensureBufferSpace(len);
-        System.arraycopy(elements, start, buffer, elementsCount, len);
-        elementsCount += len;
+        System.arraycopy(elements, start, this.buffer, this.elementsCount, len);
+        this.elementsCount += len;
     }
 
     /**
@@ -289,11 +291,11 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
      */
     public void discard(final int count)
     {
-        assert elementsCount >= count;
+        assert this.elementsCount >= count;
 
-        elementsCount -= count;
+        this.elementsCount -= count;
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        Internals.blankObjectArray(buffer, elementsCount, elementsCount + count);
+        Internals.blankObjectArray(this.buffer, this.elementsCount, this.elementsCount + count);
         /*! #end !*/
     }
 
@@ -302,11 +304,11 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
      */
     public void discard()
     {
-        assert elementsCount > 0;
+        assert this.elementsCount > 0;
 
-        elementsCount--;
+        this.elementsCount--;
         /* #if ($TemplateOptions.KTypeGeneric) */
-        buffer[elementsCount] = null;
+        this.buffer[this.elementsCount] = null;
         /* #end */
     }
 
@@ -315,11 +317,11 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
      */
     public KType pop()
     {
-        assert elementsCount > 0;
+        assert this.elementsCount > 0;
 
-        final KType v = buffer[--elementsCount];
+        final KType v = this.buffer[--this.elementsCount];
         /* #if ($TemplateOptions.KTypeGeneric) */
-        buffer[elementsCount] = null;
+        this.buffer[this.elementsCount] = null;
         /* #end */
         return v;
     }
@@ -329,9 +331,9 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
      */
     public KType peek()
     {
-        assert elementsCount > 0;
+        assert this.elementsCount > 0;
 
-        return buffer[elementsCount - 1];
+        return this.buffer[this.elementsCount - 1];
     }
 
     /**
@@ -455,7 +457,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
             #end !*/
             comp)
     {
-        assert endIndex <= elementsCount;
+        assert endIndex <= this.elementsCount;
 
         if (endIndex - beginIndex > 1)
         {
@@ -466,7 +468,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
             final int startSortingRange = size - endIndex;
             final int endSortingRange = size - beginIndex;
 
-            KTypeSort.quicksort(buffer, startSortingRange, endSortingRange, comp);
+            KTypeSort.quicksort(this.buffer, startSortingRange, endSortingRange, comp);
 
             //reverse [startSortingRange, endSortingRange [
             KType tmpValue;
@@ -522,7 +524,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
     @Override
     public KTypeStack<KType> clone()
     {
-        final KTypeStack<KType> cloned = new KTypeStack<KType>(this.size(), this.resizer);
+        final KTypeStack<KType> cloned = new KTypeStack<KType>(size(), this.resizer);
 
         cloned.defaultValue = this.defaultValue;
 
@@ -543,15 +545,16 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
     {
         if (obj != null)
         {
-            if (obj == this)
+            if (obj == this) {
                 return true;
+            }
 
             if (obj instanceof KTypeIndexedContainer<?>)
             {
                 final KTypeIndexedContainer<?> other = (KTypeIndexedContainer<?>) obj;
 
-                return other.size() == this.size() &&
-                        allIndexesEqual(this, (KTypeIndexedContainer<KType>) other, this.size());
+                return other.size() == size() &&
+                        allIndexesEqual(this, (KTypeIndexedContainer<KType>) other, size());
             }
         }
         return false;
