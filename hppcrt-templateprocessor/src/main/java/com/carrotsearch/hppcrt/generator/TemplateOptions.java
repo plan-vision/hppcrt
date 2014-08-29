@@ -21,9 +21,6 @@ public class TemplateOptions
     public Type ktype;
     public Type vtype;
 
-    public boolean doNotGenerateKType = false;
-    public boolean doNotGenerateVType = false;
-
     /**
      * Reference over the current Velocity context, so that
      * the current context could be set of get from the TemplateOptions object itself.
@@ -48,6 +45,26 @@ public class TemplateOptions
         public String floatBody;
         public String doubleBody;
         public String booleanBody;
+    }
+
+    /**
+     * Exception to throw when we don't want to generate a particular type
+     * @author Vincent
+     *
+     */
+    public static class DoNotGenerateTypeException extends RuntimeException
+    {
+        //nothing
+        private static final long serialVersionUID = 5770524405182569439L;
+
+        public final Type kTypeInterrupted;
+        public final Type vTypeInterrupted;
+
+        public DoNotGenerateTypeException(final Type k, final Type v) {
+            super();
+            this.kTypeInterrupted = k;
+            this.vTypeInterrupted = v;
+        }
     }
 
     public HashMap<String, LocalInlineBodies> localInlinesMap = new HashMap<String, LocalInlineBodies>();
@@ -182,24 +199,20 @@ public class TemplateOptions
 
     public void doNotGenerateKType(final String... notGeneratingType)
     {
-        this.doNotGenerateKType = false;
-
         //if any of the notGeneratingType is this.ktype, then do not generate
         //return true if it matches any type of the list, case insensitively while
         //only accepting valid Type strings
         for (final String notToBeGenerated : notGeneratingType) {
 
             if (notToBeGenerated.toUpperCase().equals("ALL") || this.ktype == Type.valueOf(notToBeGenerated.toUpperCase())) {
-                this.doNotGenerateKType = true;
-                return;
+
+                throw new DoNotGenerateTypeException(this.ktype, null);
             }
         }
     }
 
     public void doNotGenerateVType(final String... notGeneratingType)
     {
-        this.doNotGenerateVType = false;
-
         if (this.vtype == null)
         {
             return;
@@ -212,20 +225,9 @@ public class TemplateOptions
         {
             if (notToBeGenerated.toUpperCase().equals("ALL") || this.vtype == Type.valueOf(notToBeGenerated.toUpperCase()))
             {
-                this.doNotGenerateVType = true;
-                return;
+                throw new DoNotGenerateTypeException(null, this.vtype);
             }
         }
-    }
-
-    public boolean isDoNotGenerateKType()
-    {
-        return this.doNotGenerateKType;
-    }
-
-    public boolean isDoNotGenerateVType()
-    {
-        return this.doNotGenerateVType;
     }
 
     public boolean inline(final String callName, String args, String universalCallBody) {

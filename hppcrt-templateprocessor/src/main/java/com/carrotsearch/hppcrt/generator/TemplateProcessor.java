@@ -18,8 +18,13 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.collections.ExtendedProperties;
 import org.apache.velocity.VelocityContext;
+import org.apache.velocity.exception.MethodInvocationException;
+import org.apache.velocity.exception.ParseErrorException;
+import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.RuntimeInstance;
+
+import com.carrotsearch.hppcrt.generator.TemplateOptions.DoNotGenerateTypeException;
 
 /**
  * Template processor for HPPC templates.
@@ -51,13 +56,13 @@ public final class TemplateProcessor
         this.velocity = velocity;
 
         //compile basic patterns
-        INTRINSICS_METHOD_CALL = Pattern.compile("(Intrinsics.\\s*)(<[^>]+>\\s*)?([a-zA-Z]+)",
+        this.INTRINSICS_METHOD_CALL = Pattern.compile("(Intrinsics.\\s*)(<[^>]+>\\s*)?([a-zA-Z]+)",
                 Pattern.MULTILINE | Pattern.DOTALL);
 
-        INTERNALS_METHOD_CALL = Pattern.compile("(Internals.\\s*)(<[^>]+>\\s*)?([a-zA-Z]+)",
+        this.INTERNALS_METHOD_CALL = Pattern.compile("(Internals.\\s*)(<[^>]+>\\s*)?([a-zA-Z]+)",
                 Pattern.MULTILINE | Pattern.DOTALL);
 
-        IMPORT_DECLARATION = Pattern.compile("(import\\s+[\\w.\\*\\s]*;)",
+        this.IMPORT_DECLARATION = Pattern.compile("(import\\s+[\\w.\\*\\s]*;)",
                 Pattern.MULTILINE | Pattern.DOTALL);
 
     }
@@ -101,14 +106,14 @@ public final class TemplateProcessor
     {
         // Collect files/ checksums from the output folder.
         final List<OutputFile> outputs = collectOutputFiles(new ArrayList<OutputFile>(),
-                outputDir);
+                this.outputDir);
 
         // Collect template files in the input folder.
         final List<TemplateFile> inputs = collectTemplateFiles(new ArrayList<TemplateFile>(),
-                templatesDir);
+                this.templatesDir);
 
         // Process templates
-        System.out.println("Processing " + inputs.size() + " templates to: " + outputDir.getPath());
+        System.out.println("Processing " + inputs.size() + " templates to: " + this.outputDir.getPath());
         final long start = System.currentTimeMillis();
         processTemplates(inputs, outputs);
         final long end = System.currentTimeMillis();
@@ -123,7 +128,7 @@ public final class TemplateProcessor
             if (!f.generated)
             {
                 deleted++;
-                if (verbose)
+                if (this.verbose)
                     System.out.println("Deleted: " + f.file);
                 f.file.delete();
             }
@@ -134,7 +139,7 @@ public final class TemplateProcessor
             if (f.updated)
             {
                 updated++;
-                if (verbose)
+                if (this.verbose)
                     System.out.println("Updated: "
                             + relativePath(f.file, this.outputDir));
             }
@@ -152,7 +157,8 @@ public final class TemplateProcessor
         for (final TemplateFile f : inputs)
         {
             final String fileName = f.file.getName();
-            if (!fileName.contains("VType") && fileName.contains("KType"))
+
+            if (fileName.contains("KType") && !fileName.contains("VType"))
             {
                 for (final Type t : Type.values())
                 {
@@ -161,7 +167,7 @@ public final class TemplateProcessor
                     generate(f, outputs, options);
                 }
             }
-            if (fileName.contains("KTypeVType"))
+            if (fileName.contains("KType") && fileName.contains("VType"))
             {
                 for (final Type ktype : Type.values())
                 {
@@ -175,12 +181,12 @@ public final class TemplateProcessor
             }
         }
 
-        if (verbose)
+        if (this.verbose)
             System.out.println(
-                    "Velocity: " + timeVelocity + "\n" +
-                            "Intrinsics: " + timeIntrinsics + "\n" +
-                            "TypeClassRefs: " + timeTypeClassRefs + "\n" +
-                            "Comments: " + timeComments + "\n");
+                    "Velocity: " + this.timeVelocity + "\n" +
+                            "Intrinsics: " + this.timeIntrinsics + "\n" +
+                            "TypeClassRefs: " + this.timeTypeClassRefs + "\n" +
+                            "Comments: " + this.timeComments + "\n");
     }
 
     /**
@@ -189,23 +195,23 @@ public final class TemplateProcessor
     private void generate(final TemplateFile f, final List<OutputFile> outputs,
             final TemplateOptions templateOptions)
     {
-        final String targetFileName = targetFileName(relativePath(f.file, templatesDir),
+        final String targetFileName = targetFileName(relativePath(f.file, this.templatesDir),
                 templateOptions);
         final OutputFile output = findOrCreate(targetFileName, outputs);
 
-        if (!incremental || !output.file.exists()
+        if (!this.incremental || !output.file.exists()
                 || output.file.lastModified() <= f.file.lastModified())
         {
             String input = readFile(f.file);
             long t1, t0 = System.currentTimeMillis();
 
-            //0) Apply velocity : if TemplateOptions.isDoNotGenerateKType() or TemplateOptions.isDoNotGenerateVType() is true, do not
-            //generate the final file.
-            input = filterVelocity(f, input, templateOptions);
+            //0) Apply velocity : if TemplateOptions.isDoNotGenerateKType() or TemplateOptions.isDoNotGenerateVType() throw a
+            //DoNotGenerateTypeException , do not generate the final file.
+            try {
 
-            if (!templateOptions.isDoNotGenerateKType() && !templateOptions.isDoNotGenerateVType())
-            {
-                timeVelocity += (t1 = System.currentTimeMillis()) - t0;
+                input = filterVelocity(f, input, templateOptions);
+
+                this.timeVelocity += (t1 = System.currentTimeMillis()) - t0;
 
                 //1) Apply inlining
                 input = filterInlines(f, input, templateOptions);
@@ -217,27 +223,50 @@ public final class TemplateProcessor
                 //3) filter intrinsics last, low-level calls replacements
                 input = filterIntrinsics(f, input, templateOptions);
 
-                timeIntrinsics += (t0 = System.currentTimeMillis()) - t1;
+                this.timeIntrinsics += (t0 = System.currentTimeMillis()) - t1;
 
                 //4) convert signatures
                 input = filterTypeClassRefs(f, input, templateOptions);
-                timeTypeClassRefs += (t1 = System.currentTimeMillis()) - t0;
+                this.timeTypeClassRefs += (t1 = System.currentTimeMillis()) - t0;
                 input = filterComments(f, input, templateOptions);
-                timeComments += (t0 = System.currentTimeMillis()) - t1;
+                this.timeComments += (t0 = System.currentTimeMillis()) - t1;
 
                 output.updated = true;
                 saveFile(output.file, input);
             }
-            else
-            {
-                //indeed remove the generated file
-                output.file.delete();
-                outputs.remove(output);
+            catch (final ParseErrorException e ) {
 
-                System.out.println("INFO : output from template '" + f.fullPath +
+                System.out.println("ERROR : parsing template '" + f.fullPath +
                         "' with KType = " + templateOptions.getKType() + " and VType =  " +
-                        (templateOptions.hasVType() ? templateOptions.getVType().toString() : "null") + " was bypassed...");
+                        (templateOptions.hasVType() ? templateOptions.getVType().toString() : "null") + " with error: '" + e.getMessage() + "'");
             }
+            catch (final ResourceNotFoundException e) {
+
+                System.out.println("ERROR : resouce not found for template '" + f.fullPath +
+                        "' with KType = " + templateOptions.getKType() + " and VType =  " +
+                        (templateOptions.hasVType() ? templateOptions.getVType().toString() : "null") + " with error: '" + e.getMessage() + "'");
+            }
+            catch (final MethodInvocationException e) {
+
+                if (e.getCause() instanceof DoNotGenerateTypeException) {
+
+                    final DoNotGenerateTypeException doNotGenException = (DoNotGenerateTypeException) e.getCause();
+                    //indeed remove the generated file
+                    output.file.delete();
+                    outputs.remove(output);
+
+                    System.out.println("INFO : output from template '" + f.fullPath +
+                            "' with KType = " + doNotGenException.kTypeInterrupted + " and VType =  " +
+                            doNotGenException.vTypeInterrupted + " was bypassed...");
+                }
+                else {
+
+                    System.out.println("ERROR : method invocation from template '" + f.fullPath +
+                            "' with KType = " + templateOptions.getKType() + " and VType =  " +
+                            (templateOptions.hasVType() ? templateOptions.getVType().toString() : "null") + " failed with error: '" + e.getMessage() + "'");
+                }
+
+            } //end MethodInvocationException
         }
     }
 
@@ -1089,7 +1118,7 @@ public final class TemplateProcessor
         //reference the context itself into the TemplateOptions object
         options.context = ctx;
 
-        velocity.evaluate(ctx, sw, f.file.getName(), template);
+        this.velocity.evaluate(ctx, sw, f.file.getName(), template);
 
         return sw.toString();
     }

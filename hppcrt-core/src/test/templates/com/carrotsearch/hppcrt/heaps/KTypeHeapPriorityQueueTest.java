@@ -322,11 +322,10 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertEquals(3, nbRemoved);
         Assert.assertEquals(6, this.prioq.size());
         Assert.assertTrue(this.prioq.contains(this.key2));
-        Assert.assertTrue(this.prioq.contains(this.key4));
+        Assert.assertTrue(this.prioq.contains(this.key3));
         Assert.assertTrue(this.prioq.contains(this.key5));
-        Assert.assertTrue(this.prioq.contains(this.key6));
+        Assert.assertTrue(this.prioq.contains(this.key7));
         Assert.assertTrue(this.prioq.contains(this.key8));
-        Assert.assertTrue(this.prioq.contains(this.key9));
     }
 
     /* */
