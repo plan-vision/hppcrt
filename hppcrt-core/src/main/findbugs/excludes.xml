@@ -14,7 +14,10 @@
    <Match>
       <Bug code="BC" />
    </Match>
-   <Match>
+    <Match>
       <Bug code="Eq" /> <!-- HPPC doesn't support equals() and hashCode() -->
+   </Match>
+    <Match>
+       <Bug pattern="CN_IDIOM_NO_SUPER_CALL" /> <!-- HPPC clone() implem -->
    </Match>
 </FindBugsFilter>

@@ -284,28 +284,6 @@
 
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-pmd-plugin</artifactId>
-              <version>3.2</version>
-              <reportSets>
-                <reportSet>
-                  <id>cpd</id>
-                  <reports>
-                    <report>cpd</report>
-                  </reports>
-                </reportSet>
-              </reportSets>
-              <configuration>
-                <targetJdk>${maven.compiler.target}</targetJdk>
-                <aggregate>true</aggregate>
-                <excludes>
-                  <exclude>**/BitUtil.java</exclude>
-                  <exclude>**/BitSet.java</exclude>
-                </excludes>
-              </configuration>
-            </plugin>
-
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-surefire-report-plugin</artifactId>
               <version>2.17</version>
               <reportSets>
@@ -324,7 +302,7 @@
             <plugin>
               <groupId>org.codehaus.mojo</groupId>
               <artifactId>findbugs-maven-plugin</artifactId>
-              <version>2.5.4</version>
+              <version>3.0.0</version>
               <configuration>
                 <excludeFilterFile>${basedir}/src/main/findbugs/excludes.xml</excludeFilterFile>
                 <findbugsXmlOutput>true</findbugsXmlOutput>

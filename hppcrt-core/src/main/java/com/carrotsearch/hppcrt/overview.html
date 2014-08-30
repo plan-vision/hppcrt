@@ -1,17 +1,18 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />    
-        <title>High Performance Primitive Collections (HPPC)</title>
+        <title>High Performance Primitive Collections Realtime(HPPC-RT)</title>
     </head>
 
     <body>
         <link rel="stylesheet" type="text/css" href="com/carrotsearch/hppc/doc-files/styles.css">
 
-        High Performance Primitive Collections (HPPC) library provides
-        typical data structures (lists, stacks, maps) 
-        template-generated for all Java primitive types 
-        (<code>byte</code>, <code>int</code>, etc.) to conserve 
-        memory and boost performance.
+        High Performance Primitive Collections Realtime (HPPC-RT) library provides
+        (fork of HPPC of Carrotsearch)
+        Fundamental data structures (maps, sets, lists, stacks, queues, heaps, sorts) generated for
+        combinations of object and primitive types to conserve JVM memory and speed
+        up execution. The Realtime fork intend of extending collections while tweaking and optimizations to remove any dynamic allocations at runtime,
+        and low variance execution times.
 
         <h2>Why HPPC?</h2>
 

@@ -2,23 +2,20 @@
  Introduction
  ------
  ------
- 2011-01-24
+ 2014-08-28
  ------
 
 
-HPPC, High Performance Primitive Collections
+HPPC-RT, High Performance Primitive Collections Realtime, fork of CarrotSearch'HPPC
 
  This is an automatically generated code style and coverage report (Maven2). See the 
- {{{http://labs.carrotsearch.com}Carrot Search Labs}} page for documentation.
+ {{{http://labs.carrotsearch.com}Carrot Search Labs}} page for documentation about the original HPPC,
+ and {{{https://github.com/vsonnier/hppc}HPPC-RT about the fork specifics.}}
 
 * Reports
 
-   * {{{./cpd.html}Code Duplication}} (<<<cpd>>>).
-
    * {{{./findbugs.html}Static Bug Analysis, FindBugs}} (<<<findbugs>>>).
-   
-   * {{{./pmd.html}Static Bug Analysis, PMD}} (<<<pmd>>>).
-   
+    
    * {{{./surefire-report.html}JUnit Tests}} (<<<junit>>>).
    
    * {{{./coverage/index.html}Test Code Coverage}} (<<<clover>>>).

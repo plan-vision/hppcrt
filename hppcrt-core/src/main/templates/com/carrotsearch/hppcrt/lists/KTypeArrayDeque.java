@@ -48,7 +48,7 @@ import com.carrotsearch.hppcrt.sorting.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayDeque<KType>
-        extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexedContainer<KType>, Cloneable
+extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexedContainer<KType>, Cloneable
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -135,7 +135,7 @@ public class KTypeArrayDeque<KType>
         // +1 because there is always one empty slot in a deque. (seen ensure buffer space)
         initialCapacity = resizer.round(initialCapacity + 1);
 
-        buffer = Intrinsics.newKTypeArray(initialCapacity);
+        this.buffer = Intrinsics.newKTypeArray(initialCapacity);
 
         this.valueIteratorPool = new IteratorPool<KTypeCursor<KType>, ValueIterator>(
                 new ObjectFactory<ValueIterator>() {
@@ -200,13 +200,13 @@ public class KTypeArrayDeque<KType>
     @Override
     public void addFirst(final KType e1)
     {
-        int h = KTypeArrayDeque.oneLeft(head, buffer.length);
-        if (h == tail)
+        int h = KTypeArrayDeque.oneLeft(this.head, this.buffer.length);
+        if (h == this.tail)
         {
             ensureBufferSpace(1);
-            h = KTypeArrayDeque.oneLeft(head, buffer.length);
+            h = KTypeArrayDeque.oneLeft(this.head, this.buffer.length);
         }
-        buffer[head = h] = e1;
+        this.buffer[this.head = h] = e1;
     }
 
     /**
@@ -265,14 +265,14 @@ public class KTypeArrayDeque<KType>
     @Override
     public void addLast(final KType e1)
     {
-        int t = KTypeArrayDeque.oneRight(tail, buffer.length);
-        if (head == t)
+        int t = KTypeArrayDeque.oneRight(this.tail, this.buffer.length);
+        if (this.head == t)
         {
             ensureBufferSpace(1);
-            t = KTypeArrayDeque.oneRight(tail, buffer.length);
+            t = KTypeArrayDeque.oneRight(this.tail, this.buffer.length);
         }
-        buffer[tail] = e1;
-        tail = t;
+        this.buffer[this.tail] = e1;
+        this.tail = t;
     }
 
     /**
@@ -333,11 +333,11 @@ public class KTypeArrayDeque<KType>
     {
         assert size() > 0 : "The deque is empty.";
 
-        final KType result = buffer[head];
+        final KType result = this.buffer[this.head];
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        buffer[head] = Intrinsics.<KType> defaultKTypeValue();
+        this.buffer[this.head] = Intrinsics.<KType> defaultKTypeValue();
         /*! #end !*/
-        head = KTypeArrayDeque.oneRight(head, buffer.length);
+        this.head = KTypeArrayDeque.oneRight(this.head, this.buffer.length);
         return result;
     }
 
@@ -349,10 +349,10 @@ public class KTypeArrayDeque<KType>
     {
         assert size() > 0 : "The deque is empty.";
 
-        tail = KTypeArrayDeque.oneLeft(tail, buffer.length);
-        final KType result = buffer[tail];
+        this.tail = KTypeArrayDeque.oneLeft(this.tail, this.buffer.length);
+        final KType result = this.buffer[this.tail];
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        buffer[tail] = Intrinsics.<KType> defaultKTypeValue();
+        this.buffer[this.tail] = Intrinsics.<KType> defaultKTypeValue();
         /*! #end !*/
         return result;
     }
@@ -365,7 +365,7 @@ public class KTypeArrayDeque<KType>
     {
         assert size() > 0 : "The deque is empty.";
 
-        return buffer[head];
+        return this.buffer[this.head];
     }
 
     /**
@@ -376,7 +376,7 @@ public class KTypeArrayDeque<KType>
     {
         assert size() > 0 : "The deque is empty.";
 
-        return buffer[KTypeArrayDeque.oneLeft(tail, buffer.length)];
+        return this.buffer[KTypeArrayDeque.oneLeft(this.tail, this.buffer.length)];
     }
 
     /**
@@ -410,11 +410,11 @@ public class KTypeArrayDeque<KType>
      */
     public int bufferIndexOf(final KType e1)
     {
-        final int last = tail;
-        final int bufLen = buffer.length;
+        final int last = this.tail;
+        final int bufLen = this.buffer.length;
         final KType[] buffer = this.buffer;
 
-        for (int i = head; i != last; i = KTypeArrayDeque.oneRight(i, bufLen))
+        for (int i = this.head; i != last; i = KTypeArrayDeque.oneRight(i, bufLen))
         {
             if (Intrinsics.equalsKType(e1, buffer[i]))
                 return i;
@@ -454,11 +454,11 @@ public class KTypeArrayDeque<KType>
      */
     public int lastBufferIndexOf(final KType e1)
     {
-        final int bufLen = buffer.length;
-        final int last = KTypeArrayDeque.oneLeft(head, bufLen);
+        final int bufLen = this.buffer.length;
+        final int last = KTypeArrayDeque.oneLeft(this.head, bufLen);
         final KType[] buffer = this.buffer;
 
-        for (int i = KTypeArrayDeque.oneLeft(tail, bufLen); i != last; i = KTypeArrayDeque.oneLeft(i, bufLen))
+        for (int i = KTypeArrayDeque.oneLeft(this.tail, bufLen); i != last; i = KTypeArrayDeque.oneLeft(i, bufLen))
         {
             if (Intrinsics.equalsKType(e1, buffer[i]))
                 return i;
@@ -500,12 +500,12 @@ public class KTypeArrayDeque<KType>
     public int removeAllOccurrences(final KType e1)
     {
         int removed = 0;
-        final int last = tail;
-        final int bufLen = buffer.length;
+        final int last = this.tail;
+        final int bufLen = this.buffer.length;
         final KType[] buffer = this.buffer;
 
         int from, to;
-        for (from = to = head; from != last; from = KTypeArrayDeque.oneRight(from, bufLen))
+        for (from = to = this.head; from != last; from = KTypeArrayDeque.oneRight(from, bufLen))
         {
             if (Intrinsics.equalsKType(e1, buffer[from]))
             {
@@ -527,7 +527,7 @@ public class KTypeArrayDeque<KType>
             to = KTypeArrayDeque.oneRight(to, bufLen);
         }
 
-        tail = to;
+        this.tail = to;
         return removed;
     }
 
@@ -540,55 +540,55 @@ public class KTypeArrayDeque<KType>
      */
     public void removeAtBufferIndex(final int index)
     {
-        assert (head <= tail
-                ? index >= head && index < tail
-                : index >= head || index < tail) : "Index out of range (head="
-                + head + ", tail=" + tail + ", index=" + index + ").";
+        assert (this.head <= this.tail
+                ? index >= this.head && index < this.tail
+                : index >= this.head || index < this.tail) : "Index out of range (head="
+                + this.head + ", tail=" + this.tail + ", index=" + index + ").";
 
-        // Cache fields in locals (hopefully moved to registers).
-        final KType[] b = this.buffer;
-        final int bufLen = b.length;
-        final int lastIndex = bufLen - 1;
-        final int head = this.head;
-        final int tail = this.tail;
+                // Cache fields in locals (hopefully moved to registers).
+                final KType[] b = this.buffer;
+                final int bufLen = b.length;
+                final int lastIndex = bufLen - 1;
+                final int head = this.head;
+                final int tail = this.tail;
 
-        final int leftChunk = Math.abs(index - head) % bufLen;
-        final int rightChunk = Math.abs(tail - index) % bufLen;
+                final int leftChunk = Math.abs(index - head) % bufLen;
+                final int rightChunk = Math.abs(tail - index) % bufLen;
 
-        if (leftChunk < rightChunk)
-        {
-            if (index >= head)
-            {
-                System.arraycopy(b, head, b, head + 1, leftChunk);
-            }
-            else
-            {
-                System.arraycopy(b, 0, b, 1, index);
-                b[0] = b[lastIndex];
-                System.arraycopy(b, head, b, head + 1, lastIndex - head);
-            }
-            /*! #if ($TemplateOptions.KTypeGeneric) !*/
-            b[head] = Intrinsics.<KType> defaultKTypeValue();
-            /*! #end !*/
-            this.head = KTypeArrayDeque.oneRight(head, bufLen);
-        }
-        else
-        {
-            if (index < tail)
-            {
-                System.arraycopy(b, index + 1, b, index, rightChunk);
-            }
-            else
-            {
-                System.arraycopy(b, index + 1, b, index, lastIndex - index);
-                b[lastIndex] = b[0];
-                System.arraycopy(b, 1, b, 0, tail);
-            }
-            /*! #if ($TemplateOptions.KTypeGeneric) !*/
-            b[tail] = Intrinsics.<KType> defaultKTypeValue();
-            /*! #end !*/
-            this.tail = KTypeArrayDeque.oneLeft(tail, bufLen);
-        }
+                if (leftChunk < rightChunk)
+                {
+                    if (index >= head)
+                    {
+                        System.arraycopy(b, head, b, head + 1, leftChunk);
+                    }
+                    else
+                    {
+                        System.arraycopy(b, 0, b, 1, index);
+                        b[0] = b[lastIndex];
+                        System.arraycopy(b, head, b, head + 1, lastIndex - head);
+                    }
+                    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+                    b[head] = Intrinsics.<KType> defaultKTypeValue();
+                    /*! #end !*/
+                    this.head = KTypeArrayDeque.oneRight(head, bufLen);
+                }
+                else
+                {
+                    if (index < tail)
+                    {
+                        System.arraycopy(b, index + 1, b, index, rightChunk);
+                    }
+                    else
+                    {
+                        System.arraycopy(b, index + 1, b, index, lastIndex - index);
+                        b[lastIndex] = b[0];
+                        System.arraycopy(b, 1, b, 0, tail);
+                    }
+                    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+                    b[tail] = Intrinsics.<KType> defaultKTypeValue();
+                    /*! #end !*/
+                    this.tail = KTypeArrayDeque.oneLeft(tail, bufLen);
+                }
     }
 
     /**
@@ -597,12 +597,12 @@ public class KTypeArrayDeque<KType>
     @Override
     public int size()
     {
-        if (head <= tail)
+        if (this.head <= this.tail)
         {
-            return tail - head;
+            return this.tail - this.head;
         }
 
-        return (tail - head + buffer.length);
+        return (this.tail - this.head + this.buffer.length);
     }
 
     /**
@@ -611,7 +611,7 @@ public class KTypeArrayDeque<KType>
     @Override
     public int capacity() {
 
-        return buffer.length;
+        return this.buffer.length;
     }
 
     /**
@@ -622,18 +622,18 @@ public class KTypeArrayDeque<KType>
     public void clear()
     {
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        if (head < tail)
+        if (this.head < this.tail)
         {
-            Internals.blankObjectArray(buffer, head, tail);
+            Internals.blankObjectArray(this.buffer, this.head, this.tail);
         }
         else
         {
-            Internals.blankObjectArray(buffer, 0, tail);
-            Internals.blankObjectArray(buffer, head, buffer.length);
+            Internals.blankObjectArray(this.buffer, 0, this.tail);
+            Internals.blankObjectArray(this.buffer, this.head, this.buffer.length);
         }
         /*! #end !*/
 
-        this.head = tail = 0;
+        this.head = this.tail = 0;
     }
 
     /**
@@ -641,21 +641,24 @@ public class KTypeArrayDeque<KType>
      */
     private void compactBeforeSorting()
     {
-        if (head > tail)
+        if (this.head > this.tail)
         {
             final int size = size();
-            final int hole = head - tail;
+
+            /*! #if ($TemplateOptions.KTypeGeneric) !*/
+            final int hole = this.head - this.tail;
+            /*! #end !*/
 
             //pack the separated chunk to the beginning of the buffer
-            System.arraycopy(buffer, head, buffer, tail, buffer.length - head);
+            System.arraycopy(this.buffer, this.head, this.buffer, this.tail, this.buffer.length - this.head);
 
             //reset of the positions
-            head = 0;
-            tail = size;
+            this.head = 0;
+            this.tail = size;
 
             //for GC sake, reset hole elements now at the end of buffer
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
-            Internals.blankObjectArray(buffer, tail, tail + hole);
+            Internals.blankObjectArray(this.buffer, this.tail, this.tail + hole);
             /*! #end !*/
         }
     }
@@ -665,8 +668,8 @@ public class KTypeArrayDeque<KType>
      */
     public void release()
     {
-        this.head = tail = 0;
-        buffer = Intrinsics.newKTypeArray(resizer.round(KTypeArrayDeque.DEFAULT_CAPACITY));
+        this.head = this.tail = 0;
+        this.buffer = Intrinsics.newKTypeArray(this.resizer.round(KTypeArrayDeque.DEFAULT_CAPACITY));
     }
 
     /**
@@ -675,12 +678,12 @@ public class KTypeArrayDeque<KType>
      */
     protected void ensureBufferSpace(final int expectedAdditions)
     {
-        final int bufferLen = (buffer == null ? 0 : buffer.length);
+        final int bufferLen = (this.buffer == null ? 0 : this.buffer.length);
         final int elementsCount = size();
         // +1 because there is always one empty slot in a deque.
         if (elementsCount >= bufferLen - expectedAdditions - 1)
         {
-            final int newSize = resizer.grow(bufferLen, elementsCount, expectedAdditions + 1);
+            final int newSize = this.resizer.grow(bufferLen, elementsCount, expectedAdditions + 1);
             assert newSize >= (elementsCount + expectedAdditions + 1) : "Resizer failed to" +
                     " return sensible new size: " + newSize + " <= "
                     + (elementsCount + expectedAdditions);
@@ -689,8 +692,8 @@ public class KTypeArrayDeque<KType>
             if (bufferLen > 0)
             {
                 toArray(newBuffer);
-                tail = elementsCount;
-                head = 0;
+                this.tail = elementsCount;
+                this.head = 0;
             }
             this.buffer = newBuffer;
         }
@@ -709,18 +712,18 @@ public class KTypeArrayDeque<KType>
     {
         assert target.length >= size() : "Target array must be >= " + size();
 
-        if (head < tail)
+        if (this.head < this.tail)
         {
             // The contents is not wrapped around. Just copy.
-            System.arraycopy(buffer, head, target, 0, size());
+            System.arraycopy(this.buffer, this.head, target, 0, size());
         }
-        else if (head > tail)
+        else if (this.head > this.tail)
         {
             // The contents is split. Merge elements from the following indexes:
             // [head...buffer.length - 1][0, tail - 1]
-            final int rightCount = buffer.length - head;
-            System.arraycopy(buffer, head, target, 0, rightCount);
-            System.arraycopy(buffer, 0, target, rightCount, tail);
+            final int rightCount = this.buffer.length - this.head;
+            System.arraycopy(this.buffer, this.head, target, 0, rightCount);
+            System.arraycopy(this.buffer, 0, target, rightCount, this.tail);
         }
 
         return target;
@@ -758,20 +761,20 @@ public class KTypeArrayDeque<KType>
 
         public ValueIterator()
         {
-            cursor = new KTypeCursor<KType>();
-            cursor.index = KTypeArrayDeque.oneLeft(KTypeArrayDeque.this.head, KTypeArrayDeque.this.buffer.length);
+            this.cursor = new KTypeCursor<KType>();
+            this.cursor.index = KTypeArrayDeque.oneLeft(KTypeArrayDeque.this.head, KTypeArrayDeque.this.buffer.length);
             this.remaining = KTypeArrayDeque.this.size();
         }
 
         @Override
         protected KTypeCursor<KType> fetch()
         {
-            if (remaining == 0)
+            if (this.remaining == 0)
                 return done();
 
-            remaining--;
-            cursor.value = buffer[cursor.index = KTypeArrayDeque.oneRight(cursor.index, buffer.length)];
-            return cursor;
+            this.remaining--;
+            this.cursor.value = KTypeArrayDeque.this.buffer[this.cursor.index = KTypeArrayDeque.oneRight(this.cursor.index, KTypeArrayDeque.this.buffer.length)];
+            return this.cursor;
         }
     }
 
@@ -785,20 +788,20 @@ public class KTypeArrayDeque<KType>
 
         public DescendingValueIterator()
         {
-            cursor = new KTypeCursor<KType>();
-            cursor.index = KTypeArrayDeque.this.tail;
+            this.cursor = new KTypeCursor<KType>();
+            this.cursor.index = KTypeArrayDeque.this.tail;
             this.remaining = KTypeArrayDeque.this.size();
         }
 
         @Override
         protected KTypeCursor<KType> fetch()
         {
-            if (remaining == 0)
+            if (this.remaining == 0)
                 return done();
 
-            remaining--;
-            cursor.value = buffer[cursor.index = KTypeArrayDeque.oneLeft(cursor.index, buffer.length)];
-            return cursor;
+            this.remaining--;
+            this.cursor.value = KTypeArrayDeque.this.buffer[this.cursor.index = KTypeArrayDeque.oneLeft(this.cursor.index, KTypeArrayDeque.this.buffer.length)];
+            return this.cursor;
         }
     }
 
@@ -855,7 +858,7 @@ public class KTypeArrayDeque<KType>
     @Override
     public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure)
     {
-        forEach(procedure, head, tail);
+        forEach(procedure, this.head, this.tail);
         return procedure;
     }
 
@@ -879,8 +882,8 @@ public class KTypeArrayDeque<KType>
     @Override
     public <T extends KTypePredicate<? super KType>> T forEach(final T predicate)
     {
-        final int fromIndex = head;
-        final int toIndex = tail;
+        final int fromIndex = this.head;
+        final int toIndex = this.tail;
 
         final KType[] buffer = this.buffer;
         for (int i = fromIndex; i != toIndex; i = KTypeArrayDeque.oneRight(i, buffer.length))
@@ -898,7 +901,7 @@ public class KTypeArrayDeque<KType>
     @Override
     public <T extends KTypeProcedure<? super KType>> T descendingForEach(final T procedure)
     {
-        descendingForEach(procedure, head, tail);
+        descendingForEach(procedure, this.head, this.tail);
         return procedure;
     }
 
@@ -927,7 +930,7 @@ public class KTypeArrayDeque<KType>
     @Override
     public <T extends KTypePredicate<? super KType>> T descendingForEach(final T predicate)
     {
-        descendingForEach(predicate, head, tail);
+        descendingForEach(predicate, this.head, this.tail);
         return predicate;
     }
 
@@ -960,15 +963,15 @@ public class KTypeArrayDeque<KType>
     public int removeAll(final KTypePredicate<? super KType> predicate)
     {
         int removed = 0;
-        final int last = tail;
-        final int bufLen = buffer.length;
+        final int last = this.tail;
+        final int bufLen = this.buffer.length;
         final KType[] buffer = this.buffer;
 
         int from, to;
-        from = to = head;
+        from = to = this.head;
         try
         {
-            for (from = to = head; from != last; from = KTypeArrayDeque.oneRight(from, bufLen))
+            for (from = to = this.head; from != last; from = KTypeArrayDeque.oneRight(from, bufLen))
             {
                 if (predicate.apply(buffer[from]))
                 {
@@ -1005,7 +1008,7 @@ public class KTypeArrayDeque<KType>
 
                 to = KTypeArrayDeque.oneRight(to, bufLen);
             }
-            tail = to;
+            this.tail = to;
         }
 
         return removed;
@@ -1017,8 +1020,8 @@ public class KTypeArrayDeque<KType>
     @Override
     public boolean contains(final KType e)
     {
-        final int fromIndex = head;
-        final int toIndex = tail;
+        final int fromIndex = this.head;
+        final int toIndex = this.tail;
 
         final KType[] buffer = this.buffer;
 
@@ -1038,8 +1041,8 @@ public class KTypeArrayDeque<KType>
     public int hashCode()
     {
         int h = 1;
-        final int fromIndex = head;
-        final int toIndex = tail;
+        final int fromIndex = this.head;
+        final int toIndex = this.tail;
 
         final KType[] buffer = this.buffer;
 
@@ -1073,7 +1076,7 @@ public class KTypeArrayDeque<KType>
                     return false;
                 }
 
-                final int fromIndex = head;
+                final int fromIndex = this.head;
                 final KType[] buffer = this.buffer;
                 int i = fromIndex;
 
@@ -1146,7 +1149,7 @@ public class KTypeArrayDeque<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayDeque<KType> newInstance()
+    KTypeArrayDeque<KType> newInstance()
     {
         return new KTypeArrayDeque<KType>();
     }
@@ -1156,7 +1159,7 @@ public class KTypeArrayDeque<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayDeque<KType> newInstanceWithCapacity(final int initialCapacity)
+    KTypeArrayDeque<KType> newInstanceWithCapacity(final int initialCapacity)
     {
         return new KTypeArrayDeque<KType>(initialCapacity);
     }
@@ -1165,7 +1168,7 @@ public class KTypeArrayDeque<KType>
      * Create a new deque by pushing a variable number of arguments to the end of it.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayDeque<KType> from(final KType... elements)
+    KTypeArrayDeque<KType> from(final KType... elements)
     {
         final KTypeArrayDeque<KType> coll = new KTypeArrayDeque<KType>(elements.length);
         coll.addLast(elements);
@@ -1176,7 +1179,7 @@ public class KTypeArrayDeque<KType>
      * Create a new deque by pushing a variable number of arguments to the end of it.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayDeque<KType> from(final KTypeArrayDeque<KType> container)
+    KTypeArrayDeque<KType> from(final KTypeArrayDeque<KType> container)
     {
         return new KTypeArrayDeque<KType>(container);
     }
@@ -1220,7 +1223,7 @@ public class KTypeArrayDeque<KType>
         if (size() > 1)
         {
             compactBeforeSorting();
-            KTypeSort.quicksort(buffer, head, tail, comp);
+            KTypeSort.quicksort(this.buffer, this.head, this.tail, comp);
         }
     }
 
@@ -1254,9 +1257,9 @@ public class KTypeArrayDeque<KType>
 
         final int indexInBuffer = positionToBufferIndex(index);
 
-        final KType previous = buffer[indexInBuffer];
+        final KType previous = this.buffer[indexInBuffer];
 
-        buffer[indexInBuffer] = e1;
+        this.buffer[indexInBuffer] = e1;
 
         return previous;
     }
@@ -1269,7 +1272,7 @@ public class KTypeArrayDeque<KType>
     @Override
     public KType get(final int index) {
 
-        return buffer[positionToBufferIndex(index)];
+        return this.buffer[positionToBufferIndex(index)];
     }
 
     /**
@@ -1282,7 +1285,7 @@ public class KTypeArrayDeque<KType>
 
         final int indexInBuffer = positionToBufferIndex(index);
 
-        final KType previous = buffer[indexInBuffer];
+        final KType previous = this.buffer[indexInBuffer];
 
         removeAtBufferIndex(indexInBuffer);
 
@@ -1310,12 +1313,12 @@ public class KTypeArrayDeque<KType>
 
         if (bufferIndex >= 0) {
 
-            pos = bufferIndex - head;
+            pos = bufferIndex - this.head;
 
             if (pos < 0) {
 
                 //fold it
-                pos += buffer.length;
+                pos += this.buffer.length;
             }
         }
 
@@ -1335,17 +1338,17 @@ public class KTypeArrayDeque<KType>
 
         if (position >= 0) {
 
-            if (tail == head) {
+            if (this.tail == this.head) {
 
                 return -1;
             }
 
-            bufferIndex = position + head;
+            bufferIndex = position + this.head;
 
-            if (bufferIndex >= buffer.length) {
+            if (bufferIndex >= this.buffer.length) {
 
                 //fold it
-                bufferIndex -= buffer.length;
+                bufferIndex -= this.buffer.length;
             }
         }
 

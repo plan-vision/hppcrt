@@ -970,7 +970,6 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         @Override
         public <T extends IntProcedure> T forEach(final T procedure)
         {
-            final KType[] buffer = this.owner.buffer;
             final int[] qp = this.owner.qp;
             final int size = this.owner.elementsCount;
 
@@ -985,7 +984,6 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         @Override
         public <T extends IntPredicate> T forEach(final T predicate)
         {
-            final KType[] buffer = this.owner.buffer;
             final int[] qp = this.owner.qp;
             final int size = this.owner.elementsCount;
 

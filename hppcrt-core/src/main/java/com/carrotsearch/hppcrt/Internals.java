@@ -11,27 +11,27 @@ public final class Internals
 {
     final public static int NB_OF_PROCESSORS = Runtime.getRuntime().availableProcessors();
 
-    final public static int BLANK_ARRAY_SIZE_IN_BIT_SHIFT = 10;
+    final private static int BLANK_ARRAY_SIZE_IN_BIT_SHIFT = 10;
 
     /**
      * Batch blanking array size
      */
-    final public static int BLANK_ARRAY_SIZE = 1 << Internals.BLANK_ARRAY_SIZE_IN_BIT_SHIFT;
+    final private static int BLANK_ARRAY_SIZE = 1 << Internals.BLANK_ARRAY_SIZE_IN_BIT_SHIFT;
 
     /**
      * Batch blanking array with Object nulls
      */
-    final public static Object[] BLANKING_OBJECT_ARRAY = new Object[Internals.BLANK_ARRAY_SIZE];
+    final private static Object[] BLANKING_OBJECT_ARRAY = new Object[Internals.BLANK_ARRAY_SIZE];
 
     /**
      * Batch blanking array with boolean false
      */
-    final public static boolean[] BLANKING_BOOLEAN_ARRAY = new boolean[Internals.BLANK_ARRAY_SIZE];
+    final private static boolean[] BLANKING_BOOLEAN_ARRAY = new boolean[Internals.BLANK_ARRAY_SIZE];
 
     /**
      * Batch blanking array with int == -1
      */
-    final public static int[] BLANKING_INT_ARRAY_MINUS_ONE = new int[Internals.BLANK_ARRAY_SIZE];
+    final private static int[] BLANKING_INT_ARRAY_MINUS_ONE = new int[Internals.BLANK_ARRAY_SIZE];
 
     static {
 

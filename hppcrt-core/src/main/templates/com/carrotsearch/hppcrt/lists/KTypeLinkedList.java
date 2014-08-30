@@ -252,7 +252,6 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
 
         ensureBufferSpace(length);
 
-        final KType[] buffer = this.buffer;
         final long[] beforeAfterPointers = this.beforeAfterPointers;
 
         for (int i = 0; i < length; i++)
