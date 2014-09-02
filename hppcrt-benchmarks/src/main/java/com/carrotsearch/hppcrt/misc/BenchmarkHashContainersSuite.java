@@ -1,6 +1,7 @@
 package com.carrotsearch.hppcrt.misc;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.carrotsearch.hppcrt.Util;
@@ -18,10 +19,10 @@ import com.google.common.collect.ObjectArrays;
 public class BenchmarkHashContainersSuite
 {
     private final static Class<?>[] ALL_BENCHMARKS = new Class[]
-    {
-            HashCollisionsCornerCaseTest.class, BenchmarkPut.class, BenchmarkContainsWithRemoved.class,
-            HppcMapSyntheticBench.class
-    };
+            {
+        HashCollisionsCornerCaseTest.class, BenchmarkPut.class, BenchmarkContainsWithRemoved.class,
+        HppcMapSyntheticBench.class
+            };
 
     public static void main(final String[] args) throws Exception
     {
@@ -48,25 +49,25 @@ public class BenchmarkHashContainersSuite
         }
 
         //list of arguments
-        String[] argsListCaliper = new String[] {};
+        final ArrayList<String> argsListCaliper = new ArrayList<String>();
 
         for (final String arg : parsedArgs[1].trim().split("\\s")) {
 
             if (!arg.trim().isEmpty()) {
 
-                argsListCaliper = ObjectArrays.concat(argsListCaliper, arg.trim());
+                argsListCaliper.add(arg.trim());
             }
         }
 
-        String[] argsListOther = new String[] {};
+        final ArrayList<String> argsListOther = new ArrayList<String>();
 
         for (final String arg : parsedArgs[args.length - 1].trim().split("\\s")) {
 
-            argsListOther = ObjectArrays.concat(argsListOther, arg.trim());
+            argsListOther.add(arg.trim());
         }
 
-        final List<Class<? extends Benchmark>> classesCaliper = Lists.newArrayList();
-        final List<Class<?>> classesOther = Lists.newArrayList();
+        final List<Class<? extends Benchmark>> classesCaliper = new ArrayList<Class<? extends Benchmark>>();
+        final List<Class<?>> classesOther = new ArrayList<Class<?>>();
 
         //enumerate
         for (final Class<?> clz : BenchmarkHashContainersSuite.ALL_BENCHMARKS) {
@@ -82,8 +83,8 @@ public class BenchmarkHashContainersSuite
         } //end for
 
         Util.printSystemInfo("Benchmark suite for hash containers starting.");
-        BenchmarkHashContainersSuite.runBenchmarks(classesCaliper, argsListCaliper,
-                classesOther, argsListOther);
+        BenchmarkHashContainersSuite.runBenchmarks(classesCaliper, argsListCaliper.toArray(new String[argsListCaliper.size()]),
+                classesOther, argsListOther.toArray(new String[argsListOther.size()]));
     }
 
     /**
