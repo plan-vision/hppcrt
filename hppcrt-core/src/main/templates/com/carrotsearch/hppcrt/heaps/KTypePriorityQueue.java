@@ -10,10 +10,10 @@ import com.carrotsearch.hppcrt.KTypeCollection;
 public interface KTypePriorityQueue<KType> extends KTypeCollection<KType>
 {
     /**
-     * Insert a <code>k</code> element in the priority queue
+     * Add a <code>k</code> element in the priority queue
      * @param k
      */
-    void insert(KType k);
+    void add(KType k);
 
     /**
      * Retrieve, but not remove, the top element of the queue,

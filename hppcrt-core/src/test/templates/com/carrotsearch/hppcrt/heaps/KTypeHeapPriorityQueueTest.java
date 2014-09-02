@@ -82,8 +82,8 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testInsert()
     {
-        this.prioq.insert(this.key1);
-        this.prioq.insert(this.key2);
+        this.prioq.add(this.key1);
+        this.prioq.add(this.key2);
         assertPrioQueueEquals(this.prioq, 1, 2);
     }
 
@@ -91,10 +91,10 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testInsert2()
     {
-        this.prioq.insert(this.key1);
-        this.prioq.insert(this.key2);
-        this.prioq.insert(this.key4);
-        this.prioq.insert(this.key3);
+        this.prioq.add(this.key1);
+        this.prioq.add(this.key2);
+        this.prioq.add(this.key4);
+        this.prioq.add(this.key3);
         assertPrioQueueEquals(this.prioq, 1, 2, 3, 4);
     }
 
@@ -294,7 +294,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
 
         for (int i = 0; i < count; i++)
         {
-            this.prioq.insert(cast(i));
+            this.prioq.add(cast(i));
         }
 
         Assert.assertEquals(count, this.prioq.size());
@@ -305,15 +305,15 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testRemoveAllOccurences()
     {
-        this.prioq.insert(this.key1); //del
-        this.prioq.insert(this.key2);
-        this.prioq.insert(this.key1); //del
-        this.prioq.insert(this.key3);
-        this.prioq.insert(this.key7);
-        this.prioq.insert(this.key5);
-        this.prioq.insert(this.key1); //del
-        this.prioq.insert(this.key8);
-        this.prioq.insert(this.key2);
+        this.prioq.add(this.key1); //del
+        this.prioq.add(this.key2);
+        this.prioq.add(this.key1); //del
+        this.prioq.add(this.key3);
+        this.prioq.add(this.key7);
+        this.prioq.add(this.key5);
+        this.prioq.add(this.key1); //del
+        this.prioq.add(this.key8);
+        this.prioq.add(this.key2);
 
         Assert.assertEquals(9, this.prioq.size());
 
@@ -332,15 +332,15 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testContains()
     {
-        this.prioq.insert(this.key1); //del
-        this.prioq.insert(this.key2);
-        this.prioq.insert(this.key1); //del
-        this.prioq.insert(this.key3);
-        this.prioq.insert(this.key7);
-        this.prioq.insert(this.key5);
-        this.prioq.insert(this.key1); //del
-        this.prioq.insert(this.key8);
-        this.prioq.insert(this.key2);
+        this.prioq.add(this.key1); //del
+        this.prioq.add(this.key2);
+        this.prioq.add(this.key1); //del
+        this.prioq.add(this.key3);
+        this.prioq.add(this.key7);
+        this.prioq.add(this.key5);
+        this.prioq.add(this.key1); //del
+        this.prioq.add(this.key8);
+        this.prioq.add(this.key2);
 
         Assert.assertEquals(9, this.prioq.size());
 
@@ -365,7 +365,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
 
         for (int i = 0; i < count; i++)
         {
-            this.prioq.insert(cast(i));
+            this.prioq.add(cast(i));
         }
 
         Assert.assertEquals(count, this.prioq.size());
@@ -437,7 +437,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
 
         for (int i = 0; i < count; i++)
         {
-            this.prioq.insert(cast(i));
+            this.prioq.add(cast(i));
             checksum += castType(cast(i));
         }
 
@@ -469,7 +469,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
 
         for (int i = 0; i < count; i++)
         {
-            this.prioq.insert(cast(i));
+            this.prioq.add(cast(i));
             checksum += castType(cast(i));
         }
 
@@ -513,8 +513,8 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
 
         for (int i = 0; i < count; i++)
         {
-            this.prioq.insert(cast(i));
-            list2.insert(cast(i));
+            this.prioq.add(cast(i));
+            list2.add(cast(i));
         }
 
         Assert.assertEquals(this.prioq.hashCode(), list2.hashCode());
@@ -568,8 +568,8 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
             //in Float or Double with no conversion error back and forth.
             final int randomInt = prng.nextInt(1000 * 1000);
 
-            testPQ.insert(cast(randomInt));
-            testPQ2.insert(cast(randomInt));
+            testPQ.add(cast(randomInt));
+            testPQ2.add(cast(randomInt));
         } //end for
 
         Assert.assertEquals(COUNT, testPQ.size());
@@ -696,11 +696,11 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
             //in Float or Double with no conversion error back and forth.
             final int randomInt = prng.nextInt(1000 * 1000);
 
-            testPQ.insert(cast(randomInt));
-            testPQSameInstance.insert(cast(randomInt));
-            testPQOtherInstance.insert(cast(randomInt));
-            testPQSame.insert(cast(randomInt));
-            testPQSame2.insert(cast(randomInt));
+            testPQ.add(cast(randomInt));
+            testPQSameInstance.add(cast(randomInt));
+            testPQOtherInstance.add(cast(randomInt));
+            testPQSame.add(cast(randomInt));
+            testPQSame2.add(cast(randomInt));
 
         } //end for
 
@@ -734,7 +734,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
             final int randomInt = prng.nextInt(1000 * 1000);
 
             final int size = testPQ.size();
-            testPQ.insert(cast(randomInt));
+            testPQ.add(cast(randomInt));
             Assert.assertEquals(size + 1, testPQ.size());
             referenceArray[i] = castType(cast(randomInt));
 
@@ -820,7 +820,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
             final int randomInt = prng.nextInt(1000 * 1000);
 
             final int size = testPQ.size();
-            testPQ.insert(cast(randomInt));
+            testPQ.add(cast(randomInt));
             Assert.assertEquals(size + 1, testPQ.size());
             referenceArray[i] = cast(randomInt);
 
@@ -886,7 +886,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         for (int i = 0; i < TEST_SIZE; i++)
         {
 
-            testContainer.insert(cast(prng.nextInt()));
+            testContainer.add(cast(prng.nextInt()));
         }
 
         final long checksum = testContainer.forEach(new KTypeProcedure<KType>() {
@@ -939,7 +939,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         for (int i = 0; i < TEST_SIZE; i++)
         {
 
-            testContainer.insert(cast(prng.nextInt()));
+            testContainer.add(cast(prng.nextInt()));
         }
 
         int count = 0;
@@ -991,7 +991,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
 
         for (int i = 0; i < TEST_SIZE; i++)
         {
-            testContainer.insert(cast(prng.nextInt()));
+            testContainer.add(cast(prng.nextInt()));
         }
 
         final long checksum = testContainer.forEach(new KTypeProcedure<KType>() {
@@ -1049,7 +1049,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
 
         for (int i = 0; i < TEST_SIZE; i++)
         {
-            testContainer.insert(cast(prng.nextInt()));
+            testContainer.add(cast(prng.nextInt()));
         }
 
         final int startingPoolSize = testContainer.valueIteratorPool.size();
@@ -1105,7 +1105,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
 
         for (int i = 0; i < TEST_SIZE; i++)
         {
-            testContainer.insert(cast(prng.nextInt()));
+            testContainer.add(cast(prng.nextInt()));
         }
 
         final long checksum = testContainer.forEach(new KTypeProcedure<KType>() {
@@ -1180,7 +1180,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
 
         for (int i = 0; i < TEST_SIZE; i++)
         {
-            testContainer.insert(cast(prng.nextInt()));
+            testContainer.add(cast(prng.nextInt()));
         }
 
         final long checksum = testContainer.forEach(new KTypeProcedure<KType>() {
@@ -1304,7 +1304,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
 
             for (int i = 0; i < PREALLOCATED_SIZE; i++)
             {
-                newHeap.insert(cast(randomVK.nextInt()));
+                newHeap.add(cast(randomVK.nextInt()));
 
                 //internal size has not changed.
                 Assert.assertEquals(contructorBufferSize, newHeap.buffer.length);
@@ -1335,7 +1335,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
     {
         for (int i = 0; i < elements.length; i++)
         {
-            pq.insert(cast(elements[i]));
+            pq.add(cast(elements[i]));
         }
     }
 

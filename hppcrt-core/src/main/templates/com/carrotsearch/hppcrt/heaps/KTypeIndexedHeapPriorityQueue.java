@@ -400,6 +400,11 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     /**
      * {@inheritDoc}
      * cost: O(log2(N)) for a N sized queue
+     * <p><b>Important: </b>
+     * Whenever a new (key, value) pair is inserted, or
+     * a value is updated with an already present key as specified by the  {@link IntKTypeMap#put()}
+     * contract, the inserted value priority is always consistent towards the comparison criteria.
+     * In other words, there is no need to call {@link #changePriority(int)} after a {@link #put(int, KType)}.
      */
     @Override
     public KType put(final int key, final KType element)
@@ -709,28 +714,31 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     }
 
     /**
-     * Update the priority of  the value of the queue with key, to re-establish the correct priority
+     * Update the priority of the value associated with key, to re-establish the value correct priority
      * towards the comparison criteria.
      * cost: O(log2(N))
      */
     public void changePriority(final int key)
     {
-        /*! #if ($TemplateOptions.KTypeNumeric) !*/
-        if (this.comparator == null) {
-
+        /*! #if ($TemplateOptions.KTypeNumeric)
+        if (this.comparator != null) {
             //there is no point in calling changePriority()
-            //for primitives without comparator set, because
-            //they are by nature immutable that way, so their ordering
+            //for primitives without a comparator set, because
+            //they are by nature immutable that way so their ordering
             //stays always OK.
-            return;
-        }
-        /*! #end !*/
+
+        #end !*/
 
         if (key < this.pq.length && this.pq[key] > 0)
         {
             swim(this.pq[key]);
             sink(this.pq[key]);
         }
+
+        /*! #if ($TemplateOptions.KTypeNumeric)
+        }
+        #end !*/
+
     }
 
     /**
@@ -816,7 +824,6 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
             if (this.pq.length < other.pq.length)
             {
-
                 pqBuffer = this.pq;
                 otherPqBuffer = other.pq;
                 buffer = this.buffer;
@@ -824,7 +831,6 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
             }
             else
             {
-
                 pqBuffer = other.pq;
                 otherPqBuffer = this.pq;
                 buffer = other.buffer;
@@ -838,7 +844,6 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
             //Both have null comparators
             if (this.comparator == null && other.comparator == null)
             {
-
                 for (int i = 0; i < pqBufferSize; i++)
                 {
                     currentIndex = pqBuffer[i];
@@ -1834,7 +1839,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     }
 
     /**
-     * method to test heap invariant in assert expressions
+     * methods to test heap invariant in assert expressions
      */
 // is buffer[1..N] a min heap?
     private boolean isMinHeap()
