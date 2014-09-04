@@ -18,15 +18,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.carrotsearch.hppcrt.*;
-import com.carrotsearch.hppcrt.maps.*;
+import com.carrotsearch.hppcrt.lists.*;
 import com.carrotsearch.hppcrt.TestUtils;
 import com.carrotsearch.hppcrt.cursors.*;
-import com.carrotsearch.hppcrt.lists.*;
-import com.carrotsearch.hppcrt.lists.*;
 import com.carrotsearch.hppcrt.mutables.*;
 import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
-import com.carrotsearch.hppcrt.sets.KTypeOpenHashSet;
+import com.carrotsearch.hppcrt.sets.*;
 import com.carrotsearch.hppcrt.sorting.*;
 
 /**
@@ -450,6 +448,26 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
 
     /* */
     @Test
+    public void testContains()
+    {
+        this.list.add(asArray(0, 1, 2, 7, 4, 3));
+
+        /*! #if ($TemplateOptions.KTypeGeneric) !*/
+        this.list.add((KType) null);
+        Assert.assertTrue(this.list.contains(null));
+        /*! #end !*/
+
+        Assert.assertTrue(this.list.contains(this.k0));
+        Assert.assertTrue(this.list.contains(this.k3));
+        Assert.assertTrue(this.list.contains(this.k2));
+
+        Assert.assertFalse(this.list.contains(this.k5));
+        Assert.assertFalse(this.list.contains(this.k6));
+        Assert.assertFalse(this.list.contains(this.k8));
+    }
+
+    /* */
+    @Test
     public void testLastIndexOf()
     {
         this.list.add(asArray(0, 1, 2, 1, 0));
@@ -493,6 +511,116 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
             }
         });
         Assert.assertEquals(holder.value, this.list.size());
+    }
+
+    /* */
+    @Test
+    public void testForEachWithPredicate()
+    {
+        this.list.add(asArray(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12));
+
+        final int lastValue = this.list.forEach(new KTypePredicate<KType>() {
+            int value = 0;
+            int index = 0;
+
+            @Override
+            public boolean apply(final KType v)
+            {
+                TestUtils.assertEquals2(v, KTypeLinkedListTest.this.list.get(this.index));
+                this.value = castType(v);
+
+                if (this.value == 6) {
+
+                    return false;
+                }
+
+                this.index++;
+
+                return true;
+            }
+        }).value;
+
+        Assert.assertEquals(lastValue, 6);
+    }
+
+    /* */
+    @Test
+    public void testForEachWithPredicateAllwaysTrue()
+    {
+        this.list.add(asArray(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12));
+
+        final int lastValue = this.list.forEach(new KTypePredicate<KType>() {
+            int value = 0;
+            int index = 0;
+
+            @Override
+            public boolean apply(final KType v)
+            {
+                TestUtils.assertEquals2(v, KTypeLinkedListTest.this.list.get(this.index));
+                this.value = castType(v);
+
+                this.index++;
+
+                return true;
+            }
+        }).value;
+
+        Assert.assertEquals(lastValue, 12);
+    }
+
+    /* */
+    @Test
+    public void testDescendingForEachWithPredicate()
+    {
+        this.list.add(asArray(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12));
+
+        final int lastValue = this.list.descendingForEach(new KTypePredicate<KType>() {
+            int value = 0;
+            int index = KTypeLinkedListTest.this.list.size() - 1;
+
+            @Override
+            public boolean apply(final KType v)
+            {
+                TestUtils.assertEquals2(v, KTypeLinkedListTest.this.list.get(this.index));
+                this.value = castType(v);
+
+                if (this.value == 9) {
+
+                    return false;
+                }
+
+                this.index--;
+
+                return true;
+            }
+        }).value;
+
+        Assert.assertEquals(lastValue, 9);
+    }
+
+    /* */
+    @Test
+    public void testDescendingForEachWithPredicateAllwaysTrue()
+    {
+        this.list.add(asArray(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12));
+
+        final int lastValue = this.list.descendingForEach(new KTypePredicate<KType>() {
+            int value = 0;
+            int index = KTypeLinkedListTest.this.list.size() - 1;
+
+            @Override
+            public boolean apply(final KType v)
+            {
+                TestUtils.assertEquals2(v, KTypeLinkedListTest.this.list.get(this.index));
+                this.value = castType(v);
+
+                this.index--;
+
+                return true;
+            }
+        }).value;
+
+        Assert.assertEquals(lastValue, 1);
     }
 
     /* */

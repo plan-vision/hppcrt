@@ -8,8 +8,14 @@ import java.util.Random;
 import org.junit.*;
 
 import com.carrotsearch.hppcrt.*;
+import com.carrotsearch.hppcrt.lists.*;
 import com.carrotsearch.hppcrt.TestUtils;
-import com.carrotsearch.hppcrt.sorting.KTypeComparator;
+import com.carrotsearch.hppcrt.cursors.*;
+import com.carrotsearch.hppcrt.mutables.*;
+import com.carrotsearch.hppcrt.predicates.*;
+import com.carrotsearch.hppcrt.procedures.*;
+import com.carrotsearch.hppcrt.sets.*;
+import com.carrotsearch.hppcrt.sorting.*;
 
 /**
  * Unit tests for {@link KTypeStack}.
@@ -33,50 +39,50 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
     @Before
     public void initialize()
     {
-        stack = KTypeStack.newInstance();
+        this.stack = KTypeStack.newInstance();
     }
 
     /* */
     @Test
     public void testInitiallyEmpty()
     {
-        Assert.assertEquals(0, stack.size());
+        Assert.assertEquals(0, this.stack.size());
     }
 
     /* */
     @Test
     public void testPush1()
     {
-        stack.push(key1);
-        Assert.assertEquals(1, stack.size());
-        TestUtils.assertEquals2(key1, stack.peek());
-        TestUtils.assertEquals2(key1, stack.pop());
-        Assert.assertEquals(0, stack.size());
+        this.stack.push(this.key1);
+        Assert.assertEquals(1, this.stack.size());
+        TestUtils.assertEquals2(this.key1, this.stack.peek());
+        TestUtils.assertEquals2(this.key1, this.stack.pop());
+        Assert.assertEquals(0, this.stack.size());
     }
 
     /* */
     @Test
     public void testPush2()
     {
-        stack.push(key1, key3);
-        Assert.assertEquals(2, stack.size());
-        TestUtils.assertEquals2(key3, stack.peek());
-        TestUtils.assertEquals2(key3, stack.get(0));
-        TestUtils.assertEquals2(key1, stack.get(1));
-        TestUtils.assertEquals2(key3, stack.pop());
-        TestUtils.assertEquals2(key1, stack.pop());
-        Assert.assertEquals(0, stack.size());
+        this.stack.push(this.key1, this.key3);
+        Assert.assertEquals(2, this.stack.size());
+        TestUtils.assertEquals2(this.key3, this.stack.peek());
+        TestUtils.assertEquals2(this.key3, this.stack.get(0));
+        TestUtils.assertEquals2(this.key1, this.stack.get(1));
+        TestUtils.assertEquals2(this.key3, this.stack.pop());
+        TestUtils.assertEquals2(this.key1, this.stack.pop());
+        Assert.assertEquals(0, this.stack.size());
     }
 
     /* */
     @Test
     public void testPushArray()
     {
-        stack.push(asArray(1, 2, 3, 4, 5), 1, 3);
-        Assert.assertEquals(3, stack.size());
-        TestUtils.assertEquals2(key4, stack.get(0));
-        TestUtils.assertEquals2(key3, stack.get(1));
-        TestUtils.assertEquals2(key2, stack.get(2));
+        this.stack.push(asArray(1, 2, 3, 4, 5), 1, 3);
+        Assert.assertEquals(3, this.stack.size());
+        TestUtils.assertEquals2(this.key4, this.stack.get(0));
+        TestUtils.assertEquals2(this.key3, this.stack.get(1));
+        TestUtils.assertEquals2(this.key2, this.stack.get(2));
     }
 
     /* */
@@ -86,10 +92,10 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
         final KTypeArrayList<KType> list2 = KTypeArrayList.newInstance();
         list2.add(asArray(0, 1, 2, 3, 4, 5));
 
-        stack.addAll(list2);
-        stack.pushAll(list2);
+        this.stack.addAll(list2);
+        this.stack.pushAll(list2);
 
-        TestUtils.assertListEquals(stack.toArray(), 5, 4, 3, 2, 1, 0, 5, 4, 3, 2, 1, 0);
+        TestUtils.assertListEquals(this.stack.toArray(), 5, 4, 3, 2, 1, 0, 5, 4, 3, 2, 1, 0);
     }
 
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
@@ -97,18 +103,18 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testNullify()
     {
-        stack.push(asArray(1, 2, 3, 4));
-        stack.pop();
-        stack.discard();
-        stack.discard(2);
-        Assert.assertEquals(0, stack.size());
+        this.stack.push(asArray(1, 2, 3, 4));
+        this.stack.pop();
+        this.stack.discard();
+        this.stack.discard(2);
+        Assert.assertEquals(0, this.stack.size());
 
         /*
          * Cleanup only for the generic version (to allow GCing of references).
          */
-        for (int i = 0; i < stack.buffer.length; i++)
+        for (int i = 0; i < this.stack.buffer.length; i++)
         {
-            TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), stack.buffer[i]);
+            TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), this.stack.buffer[i]);
         }
     }
 
@@ -118,37 +124,37 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testDiscard()
     {
-        stack.push(key1, key3);
-        Assert.assertEquals(2, stack.size());
+        this.stack.push(this.key1, this.key3);
+        Assert.assertEquals(2, this.stack.size());
 
-        stack.discard();
-        Assert.assertEquals(1, stack.size());
+        this.stack.discard();
+        Assert.assertEquals(1, this.stack.size());
 
-        stack.push(key4);
-        Assert.assertEquals(2, stack.size());
+        this.stack.push(this.key4);
+        Assert.assertEquals(2, this.stack.size());
 
-        TestUtils.assertEquals2(4, stack.get(0));
-        TestUtils.assertEquals2(1, stack.get(1));
+        TestUtils.assertEquals2(4, this.stack.get(0));
+        TestUtils.assertEquals2(1, this.stack.get(1));
 
-        stack.discard(2);
-        Assert.assertEquals(0, stack.size());
+        this.stack.discard(2);
+        Assert.assertEquals(0, this.stack.size());
     }
 
     /* */
     @Test(expected = AssertionError.class)
     public void testGetAssertions()
     {
-        stack.push(key1);
-        stack.pop();
-        stack.get(0);
+        this.stack.push(this.key1);
+        this.stack.pop();
+        this.stack.get(0);
     }
 
     /* */
     @Test(expected = AssertionError.class)
     public void testDiscardAssertions()
     {
-        stack.push(key1);
-        stack.discard(2);
+        this.stack.push(this.key1);
+        this.stack.discard(2);
     }
 
     /* */
@@ -162,13 +168,13 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertEquals(1, s0.hashCode());
         Assert.assertEquals(s0, KTypeArrayList.newInstance());
 
-        KTypeStack<KType> s1 = KTypeStack.from(key1, key2, key3);
-        final KTypeStack<KType> s2 = KTypeStack.from(key1, key2, key3);
+        KTypeStack<KType> s1 = KTypeStack.from(this.key1, this.key2, this.key3);
+        final KTypeStack<KType> s2 = KTypeStack.from(this.key1, this.key2, this.key3);
 
         Assert.assertEquals(s1.hashCode(), s2.hashCode());
         Assert.assertEquals(s1, s2);
 
-        s1 = KTypeStack.from(key1, key2);
+        s1 = KTypeStack.from(this.key1, this.key2);
         Assert.assertFalse(s1.equals(s2));
     }
 
@@ -198,13 +204,13 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testClone()
     {
-        stack.push(key1, key2, key3);
+        this.stack.push(this.key1, this.key2, this.key3);
 
-        final KTypeStack<KType> cloned = stack.clone();
-        cloned.removeAllOccurrences(key1);
+        final KTypeStack<KType> cloned = this.stack.clone();
+        cloned.removeAllOccurrences(this.key1);
 
-        TestUtils.assertSortedListEquals(stack.toArray(), key1, key2, key3);
-        TestUtils.assertSortedListEquals(cloned.toArray(), key2, key3);
+        TestUtils.assertSortedListEquals(this.stack.toArray(), this.key1, this.key2, this.key3);
+        TestUtils.assertSortedListEquals(cloned.toArray(), this.key2, this.key3);
     }
 
     /* */
@@ -215,9 +221,9 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
     public void testToString()
     {
         Assert.assertEquals("["
-                + key3 + ", "
-                + key2 + ", "
-                + key1 + "]", KTypeStack.from(key1, key2, key3).toString());
+                + this.key3 + ", "
+                + this.key2 + ", "
+                + this.key1 + "]", KTypeStack.from(this.key1, this.key2, this.key3).toString());
     }
 
     @Test
@@ -266,23 +272,23 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testInsert()
     {
-        stack.insert(0, k1);
-        stack.insert(0, k2);
-        stack.insert(2, k3);
-        stack.insert(1, k4);
-        stack.insert(1, k6);
-        stack.insert(3, k7);
-        stack.insert(6, k8);
+        this.stack.insert(0, this.k1);
+        this.stack.insert(0, this.k2);
+        this.stack.insert(2, this.k3);
+        this.stack.insert(1, this.k4);
+        this.stack.insert(1, this.k6);
+        this.stack.insert(3, this.k7);
+        this.stack.insert(6, this.k8);
 
-        TestUtils.assertListEquals(stack.toArray(), 2, 6, 4, 7, 1, 3, 8);
+        TestUtils.assertListEquals(this.stack.toArray(), 2, 6, 4, 7, 1, 3, 8);
 
-        Assert.assertEquals(castType(k2), castType(stack.get(0)));
-        Assert.assertEquals(castType(k6), castType(stack.get(1)));
-        Assert.assertEquals(castType(k4), castType(stack.get(2)));
-        Assert.assertEquals(castType(k7), castType(stack.get(3)));
-        Assert.assertEquals(castType(k1), castType(stack.get(4)));
-        Assert.assertEquals(castType(k3), castType(stack.get(5)));
-        Assert.assertEquals(castType(k8), castType(stack.get(6)));
+        Assert.assertEquals(castType(this.k2), castType(this.stack.get(0)));
+        Assert.assertEquals(castType(this.k6), castType(this.stack.get(1)));
+        Assert.assertEquals(castType(this.k4), castType(this.stack.get(2)));
+        Assert.assertEquals(castType(this.k7), castType(this.stack.get(3)));
+        Assert.assertEquals(castType(this.k1), castType(this.stack.get(4)));
+        Assert.assertEquals(castType(this.k3), castType(this.stack.get(5)));
+        Assert.assertEquals(castType(this.k8), castType(this.stack.get(6)));
 
     }
 
@@ -290,15 +296,15 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testIndexOf()
     {
-        stack.add(asArray(0, 1, 2, 1, 0, 5));
+        this.stack.add(asArray(0, 1, 2, 1, 0, 5));
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        stack.add((KType) null);
-        Assert.assertEquals(0, stack.indexOf(null));
+        this.stack.add((KType) null);
+        Assert.assertEquals(0, this.stack.indexOf(null));
 
-        Assert.assertEquals(2, stack.indexOf(k0));
-        Assert.assertEquals(-1, stack.indexOf(k3));
-        Assert.assertEquals(4, stack.indexOf(k2));
+        Assert.assertEquals(2, this.stack.indexOf(this.k0));
+        Assert.assertEquals(-1, this.stack.indexOf(this.k3));
+        Assert.assertEquals(4, this.stack.indexOf(this.k2));
 
         /*! #else
         Assert.assertEquals(1, stack.indexOf(k0));
@@ -311,15 +317,15 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testLastIndexOf()
     {
-        stack.add(asArray(0, 1, 2, 3, 0, 1, 2, 3));
+        this.stack.add(asArray(0, 1, 2, 3, 0, 1, 2, 3));
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        stack.add((KType) null);
-        Assert.assertEquals(0, stack.lastIndexOf(null));
+        this.stack.add((KType) null);
+        Assert.assertEquals(0, this.stack.lastIndexOf(null));
 
-        TestUtils.assertEquals2(8, stack.lastIndexOf(k0));
-        TestUtils.assertEquals2(-1, stack.lastIndexOf(k7));
-        TestUtils.assertEquals2(6, stack.lastIndexOf(k2));
+        TestUtils.assertEquals2(8, this.stack.lastIndexOf(this.k0));
+        TestUtils.assertEquals2(-1, this.stack.lastIndexOf(this.k7));
+        TestUtils.assertEquals2(6, this.stack.lastIndexOf(this.k2));
 
         /*! #else
         TestUtils.assertEquals2(7, stack.lastIndexOf(k0));
@@ -333,49 +339,49 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testSet()
     {
-        stack.add(asArray(0, 1, 2, 3, 4));
+        this.stack.add(asArray(0, 1, 2, 3, 4));
 
-        TestUtils.assertEquals2(4, stack.set(0, k3));
-        TestUtils.assertEquals2(3, stack.set(1, k4));
-        TestUtils.assertEquals2(2, stack.set(2, k5));
+        TestUtils.assertEquals2(4, this.stack.set(0, this.k3));
+        TestUtils.assertEquals2(3, this.stack.set(1, this.k4));
+        TestUtils.assertEquals2(2, this.stack.set(2, this.k5));
 
         //set again
-        TestUtils.assertEquals2(3, stack.set(0, k7));
-        TestUtils.assertEquals2(4, stack.set(1, k6));
-        TestUtils.assertEquals2(5, stack.set(2, k5));
+        TestUtils.assertEquals2(3, this.stack.set(0, this.k7));
+        TestUtils.assertEquals2(4, this.stack.set(1, this.k6));
+        TestUtils.assertEquals2(5, this.stack.set(2, this.k5));
 
-        TestUtils.assertListEquals(stack.toArray(), 7, 6, 5, 1, 0);
+        TestUtils.assertListEquals(this.stack.toArray(), 7, 6, 5, 1, 0);
     }
 
     /* */
     @Test
     public void testRemoveFirstLast()
     {
-        stack.add(asArray(0, 1, 2, 3, 4, 0, 1, 2, 3, 4));
+        this.stack.add(asArray(0, 1, 2, 3, 4, 0, 1, 2, 3, 4));
 
-        Assert.assertEquals(-1, stack.removeFirstOccurrence(k5));
-        Assert.assertEquals(-1, stack.removeLastOccurrence(k5));
-        TestUtils.assertListEquals(stack.toArray(), 4, 3, 2, 1, 0, 4, 3, 2, 1, 0);
+        Assert.assertEquals(-1, this.stack.removeFirstOccurrence(this.k5));
+        Assert.assertEquals(-1, this.stack.removeLastOccurrence(this.k5));
+        TestUtils.assertListEquals(this.stack.toArray(), 4, 3, 2, 1, 0, 4, 3, 2, 1, 0);
 
-        Assert.assertEquals(3, stack.removeFirstOccurrence(k1));
-        TestUtils.assertListEquals(stack.toArray(), 4, 3, 2, 0, 4, 3, 2, 1, 0);
-        Assert.assertEquals(8, stack.removeLastOccurrence(k0));
-        TestUtils.assertListEquals(stack.toArray(), 4, 3, 2, 0, 4, 3, 2, 1);
-        Assert.assertEquals(6, stack.removeLastOccurrence(k2));
-        TestUtils.assertListEquals(stack.toArray(), 4, 3, 2, 0, 4, 3, 1);
-        Assert.assertEquals(1, stack.removeFirstOccurrence(k3));
-        TestUtils.assertListEquals(stack.toArray(), 4, 2, 0, 4, 3, 1);
+        Assert.assertEquals(3, this.stack.removeFirstOccurrence(this.k1));
+        TestUtils.assertListEquals(this.stack.toArray(), 4, 3, 2, 0, 4, 3, 2, 1, 0);
+        Assert.assertEquals(8, this.stack.removeLastOccurrence(this.k0));
+        TestUtils.assertListEquals(this.stack.toArray(), 4, 3, 2, 0, 4, 3, 2, 1);
+        Assert.assertEquals(6, this.stack.removeLastOccurrence(this.k2));
+        TestUtils.assertListEquals(this.stack.toArray(), 4, 3, 2, 0, 4, 3, 1);
+        Assert.assertEquals(1, this.stack.removeFirstOccurrence(this.k3));
+        TestUtils.assertListEquals(this.stack.toArray(), 4, 2, 0, 4, 3, 1);
 
-        Assert.assertEquals(2, stack.removeLastOccurrence(k0));
-        Assert.assertEquals(-1, stack.removeLastOccurrence(k0));
-        TestUtils.assertListEquals(stack.toArray(), 4, 2, 4, 3, 1);
+        Assert.assertEquals(2, this.stack.removeLastOccurrence(this.k0));
+        Assert.assertEquals(-1, this.stack.removeLastOccurrence(this.k0));
+        TestUtils.assertListEquals(this.stack.toArray(), 4, 2, 4, 3, 1);
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        stack.clear();
-        stack.add(newArray(k0, null, k2, null, k0));
-        Assert.assertEquals(1, stack.removeFirstOccurrence(null));
-        Assert.assertEquals(2, stack.removeLastOccurrence(null));
-        TestUtils.assertListEquals(stack.toArray(), 0, 2, 0);
+        this.stack.clear();
+        this.stack.add(newArray(this.k0, null, this.k2, null, this.k0));
+        Assert.assertEquals(1, this.stack.removeFirstOccurrence(null));
+        Assert.assertEquals(2, this.stack.removeLastOccurrence(null));
+        TestUtils.assertListEquals(this.stack.toArray(), 0, 2, 0);
         /*! #end !*/
     }
 
@@ -383,32 +389,32 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testRemove()
     {
-        stack.add(asArray(0, 1, 2, 3, 4, 5, 6));
+        this.stack.add(asArray(0, 1, 2, 3, 4, 5, 6));
 
-        stack.remove(0);
-        stack.remove(2);
-        stack.remove(1);
+        this.stack.remove(0);
+        this.stack.remove(2);
+        this.stack.remove(1);
 
-        TestUtils.assertListEquals(stack.toArray(), 5, 2, 1, 0);
+        TestUtils.assertListEquals(this.stack.toArray(), 5, 2, 1, 0);
     }
 
     /* */
     @Test
     public void testRemoveRange()
     {
-        stack.add(asArray(0, 1, 2, 3, 4, 5, 6, 7, 8));
+        this.stack.add(asArray(0, 1, 2, 3, 4, 5, 6, 7, 8));
 
-        stack.removeRange(0, 2);
-        TestUtils.assertListEquals(stack.toArray(), 6, 5, 4, 3, 2, 1, 0);
+        this.stack.removeRange(0, 2);
+        TestUtils.assertListEquals(this.stack.toArray(), 6, 5, 4, 3, 2, 1, 0);
 
-        stack.removeRange(2, 3);
-        TestUtils.assertListEquals(stack.toArray(), 6, 5, 3, 2, 1, 0);
+        this.stack.removeRange(2, 3);
+        TestUtils.assertListEquals(this.stack.toArray(), 6, 5, 3, 2, 1, 0);
 
-        stack.removeRange(1, 1);
-        TestUtils.assertListEquals(stack.toArray(), 6, 5, 3, 2, 1, 0);
+        this.stack.removeRange(1, 1);
+        TestUtils.assertListEquals(this.stack.toArray(), 6, 5, 3, 2, 1, 0);
 
-        stack.removeRange(0, 1);
-        TestUtils.assertListEquals(stack.toArray(), 5, 3, 2, 1, 0);
+        this.stack.removeRange(0, 1);
+        TestUtils.assertListEquals(this.stack.toArray(), 5, 3, 2, 1, 0);
     }
 
     @Test

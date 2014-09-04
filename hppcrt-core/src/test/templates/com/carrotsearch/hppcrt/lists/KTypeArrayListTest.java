@@ -359,6 +359,26 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
 
     /* */
     @Test
+    public void testContains()
+    {
+        this.list.add(asArray(0, 1, 2, 7, 4, 3));
+
+        /*! #if ($TemplateOptions.KTypeGeneric) !*/
+        this.list.add((KType) null);
+        Assert.assertTrue(this.list.contains(null));
+        /*! #end !*/
+
+        Assert.assertTrue(this.list.contains(this.k0));
+        Assert.assertTrue(this.list.contains(this.k3));
+        Assert.assertTrue(this.list.contains(this.k2));
+
+        Assert.assertFalse(this.list.contains(this.k5));
+        Assert.assertFalse(this.list.contains(this.k6));
+        Assert.assertFalse(this.list.contains(this.k8));
+    }
+
+    /* */
+    @Test
     public void testLastIndexOf()
     {
         this.list.add(asArray(0, 1, 2, 1, 0));
@@ -541,6 +561,61 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
             }
         }).index;
         Assert.assertEquals(result, this.list.size());
+    }
+
+    /* */
+    @Test
+    public void testForEachWithPredicate()
+    {
+        this.list.add(asArray(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12));
+
+        final int lastValue = this.list.forEach(new KTypePredicate<KType>() {
+            int value = 0;
+            int index = 0;
+
+            @Override
+            public boolean apply(final KType v)
+            {
+                TestUtils.assertEquals2(v, KTypeArrayListTest.this.list.get(this.index));
+                this.value = castType(v);
+
+                if (this.value == 6) {
+
+                    return false;
+                }
+
+                this.index++;
+
+                return true;
+            }
+        }).value;
+
+        Assert.assertEquals(lastValue, 6);
+    }
+
+    /* */
+    @Test
+    public void testForEachWithPredicateAllwaysTrue()
+    {
+        this.list.add(asArray(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12));
+
+        final int lastValue = this.list.forEach(new KTypePredicate<KType>() {
+            int value = 0;
+            int index = 0;
+
+            @Override
+            public boolean apply(final KType v)
+            {
+                TestUtils.assertEquals2(v, KTypeArrayListTest.this.list.get(this.index));
+                this.value = castType(v);
+
+                this.index++;
+
+                return true;
+            }
+        }).value;
+
+        Assert.assertEquals(lastValue, 12);
     }
 
     /* */

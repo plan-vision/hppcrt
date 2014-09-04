@@ -220,8 +220,9 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
         ensureBufferSpace(elements.length);
 
         // For now, naive loop.
-        for (int i = 0; i < elements.length; i++)
+        for (int i = 0; i < elements.length; i++) {
             addFirst(elements[i]);
+        }
     }
 
     /**
@@ -232,15 +233,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
      */
     public int addFirst(final KTypeContainer<? extends KType> container)
     {
-        final int size = container.size();
-        ensureBufferSpace(size);
-
-        for (final KTypeCursor<? extends KType> cursor : container)
-        {
-            addFirst(cursor.value);
-        }
-
-        return size;
+        return addFirst((Iterable<? extends KTypeCursor<? extends KType>>) container);
     }
 
     /**
@@ -286,8 +279,9 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
         ensureBufferSpace(1);
 
         // For now, naive loop.
-        for (int i = 0; i < elements.length; i++)
+        for (int i = 0; i < elements.length; i++) {
             addLast(elements[i]);
+        }
     }
 
     /**
@@ -298,15 +292,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
      */
     public int addLast(final KTypeContainer<? extends KType> container)
     {
-        final int size = container.size();
-        ensureBufferSpace(size);
-
-        for (final KTypeCursor<? extends KType> cursor : container)
-        {
-            addLast(cursor.value);
-        }
-
-        return size;
+        return addLast((Iterable<? extends KTypeCursor<? extends KType>>) container);
     }
 
     /**
@@ -416,8 +402,9 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
 
         for (int i = this.head; i != last; i = KTypeArrayDeque.oneRight(i, bufLen))
         {
-            if (Intrinsics.equalsKType(e1, buffer[i]))
+            if (Intrinsics.equalsKType(e1, buffer[i])) {
                 return i;
+            }
         }
 
         return -1;
@@ -460,8 +447,9 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
 
         for (int i = KTypeArrayDeque.oneLeft(this.tail, bufLen); i != last; i = KTypeArrayDeque.oneLeft(i, bufLen))
         {
-            if (Intrinsics.equalsKType(e1, buffer[i]))
+            if (Intrinsics.equalsKType(e1, buffer[i])) {
                 return i;
+            }
         }
 
         return -1;
@@ -769,8 +757,9 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
         @Override
         protected KTypeCursor<KType> fetch()
         {
-            if (this.remaining == 0)
+            if (this.remaining == 0) {
                 return done();
+            }
 
             this.remaining--;
             this.cursor.value = KTypeArrayDeque.this.buffer[this.cursor.index = KTypeArrayDeque.oneRight(this.cursor.index, KTypeArrayDeque.this.buffer.length)];
@@ -796,8 +785,9 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
         @Override
         protected KTypeCursor<KType> fetch()
         {
-            if (this.remaining == 0)
+            if (this.remaining == 0) {
                 return done();
+            }
 
             this.remaining--;
             this.cursor.value = KTypeArrayDeque.this.buffer[this.cursor.index = KTypeArrayDeque.oneLeft(this.cursor.index, KTypeArrayDeque.this.buffer.length)];
@@ -888,8 +878,9 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
         final KType[] buffer = this.buffer;
         for (int i = fromIndex; i != toIndex; i = KTypeArrayDeque.oneRight(i, buffer.length))
         {
-            if (!predicate.apply(buffer[i]))
+            if (!predicate.apply(buffer[i])) {
                 break;
+            }
         }
 
         return predicate;
@@ -912,8 +903,9 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
     private void descendingForEach(final KTypeProcedure<? super KType> procedure,
             final int fromIndex, final int toIndex)
     {
-        if (fromIndex == toIndex)
+        if (fromIndex == toIndex) {
             return;
+        }
 
         final KType[] buffer = this.buffer;
         int i = toIndex;
@@ -943,16 +935,18 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
     private void descendingForEach(final KTypePredicate<? super KType> predicate,
             final int fromIndex, final int toIndex)
     {
-        if (fromIndex == toIndex)
+        if (fromIndex == toIndex) {
             return;
+        }
 
         final KType[] buffer = this.buffer;
         int i = toIndex;
         do
         {
             i = KTypeArrayDeque.oneLeft(i, buffer.length);
-            if (!predicate.apply(buffer[i]))
+            if (!predicate.apply(buffer[i])) {
                 break;
+            }
         } while (i != fromIndex);
     }
 
@@ -1027,8 +1021,9 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
 
         for (int i = fromIndex; i != toIndex; i = KTypeArrayDeque.oneRight(i, buffer.length))
         {
-            if (Intrinsics.equalsKType(e, buffer[i]))
+            if (Intrinsics.equalsKType(e, buffer[i])) {
                 return true;
+            }
         }
 
         return false;
@@ -1064,8 +1059,9 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
     {
         if (obj != null)
         {
-            if (obj == this)
+            if (obj == this) {
                 return true;
+            }
 
             if (obj instanceof KTypeDeque<?>)
             {

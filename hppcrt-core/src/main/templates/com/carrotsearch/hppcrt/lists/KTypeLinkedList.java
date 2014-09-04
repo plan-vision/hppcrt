@@ -144,11 +144,11 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
         this.beforeAfterPointers = new long[internalSize + 2];
 
         //initialize
-        elementsCount = 2;
+        this.elementsCount = 2;
 
         //initialize head and tail: initially, they are linked to each other.
-        beforeAfterPointers[KTypeLinkedList.HEAD_POSITION] = KTypeLinkedList.getLinkNodeValue(KTypeLinkedList.HEAD_POSITION, KTypeLinkedList.TAIL_POSITION);
-        beforeAfterPointers[KTypeLinkedList.TAIL_POSITION] = KTypeLinkedList.getLinkNodeValue(KTypeLinkedList.HEAD_POSITION, KTypeLinkedList.TAIL_POSITION);
+        this.beforeAfterPointers[KTypeLinkedList.HEAD_POSITION] = KTypeLinkedList.getLinkNodeValue(KTypeLinkedList.HEAD_POSITION, KTypeLinkedList.TAIL_POSITION);
+        this.beforeAfterPointers[KTypeLinkedList.TAIL_POSITION] = KTypeLinkedList.getLinkNodeValue(KTypeLinkedList.HEAD_POSITION, KTypeLinkedList.TAIL_POSITION);
 
         this.valueIteratorPool = new IteratorPool<KTypeCursor<KType>, ValueIterator>(
                 new ObjectFactory<ValueIterator>() {
@@ -323,7 +323,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
         assert (index >= 0 && index < size()) : "Index " + index + " out of bounds [" + 0 + ", " + size() + ").";
 
         //get object at pos currentPos in buffer
-        return buffer[gotoIndex(index)];
+        return this.buffer[gotoIndex(index)];
 
     }
 
@@ -339,10 +339,10 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
         final int pos = gotoIndex(index);
 
         //keep the previous value
-        final KType elem = buffer[pos];
+        final KType elem = this.buffer[pos];
 
         //new value
-        buffer[pos] = e1;
+        this.buffer[pos] = e1;
 
         return elem;
     }
@@ -358,7 +358,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
         //get object at pos currentPos in buffer
         final int currentPos = gotoIndex(index);
 
-        final KType elem = buffer[currentPos];
+        final KType elem = this.buffer[currentPos];
 
         //remove
         removeAtPosNoCheck(currentPos);
@@ -463,7 +463,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
         int pos = 2;
 
         //directly iterate the buffer, so out of order.
-        while (pos < elementsCount)
+        while (pos < this.elementsCount)
         {
             if (Intrinsics.equalsKType(e1, buffer[pos]))
             {
@@ -549,8 +549,9 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      */
     public void ensureCapacity(final int minCapacity)
     {
-        if (minCapacity > this.buffer.length)
+        if (minCapacity > this.buffer.length) {
             ensureBufferSpace(minCapacity - size());
+        }
     }
 
     /**
@@ -560,14 +561,14 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      */
     protected boolean ensureBufferSpace(final int expectedAdditions)
     {
-        final int bufferLen = (buffer == null ? 0 : buffer.length);
+        final int bufferLen = (this.buffer == null ? 0 : this.buffer.length);
 
-        if (elementsCount > bufferLen - expectedAdditions)
+        if (this.elementsCount > bufferLen - expectedAdditions)
         {
-            final int newSize = resizer.grow(bufferLen, elementsCount, expectedAdditions);
-            assert newSize >= elementsCount + expectedAdditions : "Resizer failed to" +
+            final int newSize = this.resizer.grow(bufferLen, this.elementsCount, expectedAdditions);
+            assert newSize >= this.elementsCount + expectedAdditions : "Resizer failed to" +
                     " return sensible new size: " + newSize + " <= "
-                    + (elementsCount + expectedAdditions);
+                    + (this.elementsCount + expectedAdditions);
 
             //the first 2 slots are head/tail placeholders
             final KType[] newBuffer = Intrinsics.newKTypeArray(newSize + 2);
@@ -575,8 +576,8 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
 
             if (bufferLen > 0)
             {
-                System.arraycopy(buffer, 0, newBuffer, 0, buffer.length);
-                System.arraycopy(beforeAfterPointers, 0, newPointers, 0, beforeAfterPointers.length);
+                System.arraycopy(this.buffer, 0, newBuffer, 0, this.buffer.length);
+                System.arraycopy(this.beforeAfterPointers, 0, newPointers, 0, this.beforeAfterPointers.length);
             }
             this.buffer = newBuffer;
             this.beforeAfterPointers = newPointers;
@@ -594,7 +595,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     @Override
     public int size()
     {
-        return elementsCount - 2;
+        return this.elementsCount - 2;
     }
 
     /**
@@ -603,7 +604,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     @Override
     public int capacity() {
 
-        return buffer.length - 2;
+        return this.buffer.length - 2;
     }
 
     /**
@@ -613,15 +614,15 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     public void clear()
     {
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        Internals.blankObjectArray(buffer, 0, elementsCount);
+        Internals.blankObjectArray(this.buffer, 0, this.elementsCount);
         /*! #end !*/
 
         //the first two are placeholders
         this.elementsCount = 2;
 
         //rebuild head/tail
-        beforeAfterPointers[KTypeLinkedList.HEAD_POSITION] = KTypeLinkedList.getLinkNodeValue(KTypeLinkedList.HEAD_POSITION, KTypeLinkedList.TAIL_POSITION);
-        beforeAfterPointers[KTypeLinkedList.TAIL_POSITION] = KTypeLinkedList.getLinkNodeValue(KTypeLinkedList.HEAD_POSITION, KTypeLinkedList.TAIL_POSITION);
+        this.beforeAfterPointers[KTypeLinkedList.HEAD_POSITION] = KTypeLinkedList.getLinkNodeValue(KTypeLinkedList.HEAD_POSITION, KTypeLinkedList.TAIL_POSITION);
+        this.beforeAfterPointers[KTypeLinkedList.TAIL_POSITION] = KTypeLinkedList.getLinkNodeValue(KTypeLinkedList.HEAD_POSITION, KTypeLinkedList.TAIL_POSITION);
 
     }
 
@@ -703,8 +704,9 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     {
         if (obj != null)
         {
-            if (obj == this)
+            if (obj == this) {
                 return true;
+            }
 
             final long[] pointers = this.beforeAfterPointers;
             final KType[] buffer = this.buffer;
@@ -836,7 +838,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
         final long[] pointers = this.beforeAfterPointers;
 
         //A) Search by head
-        if (index <= (elementsCount / 2.0))
+        if (index <= (this.elementsCount / 2.0))
         {
             //reach index - 1 position, from head, insert after
             currentIndex = 0;
@@ -882,7 +884,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
 
         //the new element is taken at the end of the buffer, at elementsCount.
         //link it as: [insertionPos | nextAfterInsertionPos]
-        pointers[elementsCount] = KTypeLinkedList.getLinkNodeValue(insertionPos, nextAfterInsertionPos);
+        pointers[this.elementsCount] = KTypeLinkedList.getLinkNodeValue(insertionPos, nextAfterInsertionPos);
 
         //re-link insertionPos element (left) :
         //[.. | nextAfterInsertionPos] ==> [.. | elementsCount]
@@ -893,8 +895,8 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
         pointers[nextAfterInsertionPos] = KTypeLinkedList.setLinkBeforeNodeValue(pointers[nextAfterInsertionPos], this.elementsCount);
 
         //really add element to buffer at position elementsCount
-        buffer[elementsCount] = e1;
-        elementsCount++;
+        this.buffer[this.elementsCount] = e1;
+        this.elementsCount++;
     }
 
     /**
@@ -919,17 +921,17 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
         pointers[afterRemovalPos] = KTypeLinkedList.setLinkBeforeNodeValue(pointers[afterRemovalPos], beforeRemovalPos);
 
         //if the removed element is not the last of the buffer, move it to the "hole" created at removalPos
-        if (removalPos != elementsCount - 1)
+        if (removalPos != this.elementsCount - 1)
         {
             //B) To keep the buffer compact, take now the last buffer element and put it to  removalPos
             //keep the positions of the last buffer element, because we'll need to re-link it after
             //moving the element elementsCount - 1
-            final int beforeLastElementPos = KTypeLinkedList.getLinkBefore(pointers[elementsCount - 1]);
-            final int afterLastElementPos = KTypeLinkedList.getLinkAfter(pointers[elementsCount - 1]);
+            final int beforeLastElementPos = KTypeLinkedList.getLinkBefore(pointers[this.elementsCount - 1]);
+            final int afterLastElementPos = KTypeLinkedList.getLinkAfter(pointers[this.elementsCount - 1]);
 
             //To keep the buffer compact, take now the last buffer element and put it to  removalPos
-            buffer[removalPos] = buffer[elementsCount - 1];
-            pointers[removalPos] = pointers[elementsCount - 1];
+            this.buffer[removalPos] = this.buffer[this.elementsCount - 1];
+            pointers[removalPos] = pointers[this.elementsCount - 1];
 
             //B-2) Re-link the elements that where neighbours of "elementsCount - 1" to point to removalPos element now
             //update the pointer of the before the last element = [... | elementsCount - 1] ==> [... | removalPos]
@@ -941,10 +943,10 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
 
         //for GC
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        buffer[elementsCount - 1] = Intrinsics.<KType> defaultKTypeValue();
+        this.buffer[this.elementsCount - 1] = Intrinsics.<KType> defaultKTypeValue();
         /*! #end !*/
 
-        elementsCount--;
+        this.elementsCount--;
 
         return KTypeLinkedList.getLinkAfter(pointers[beforeRemovalPos]);
     }
@@ -990,7 +992,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
             this.cursor = new KTypeCursor<KType>();
             this.tmpCursor = new KTypeCursor<KType>();
 
-            internalIndex = -1;
+            this.internalIndex = -1;
             this.cursor.index = -1;
             this.cursor.value = KTypeLinkedList.this.defaultValue;
 
@@ -1018,7 +1020,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
         @Override
         public boolean hasNext()
         {
-            final int nextPos = KTypeLinkedList.getLinkAfter(this.pointers[internalPos]);
+            final int nextPos = KTypeLinkedList.getLinkAfter(this.pointers[this.internalPos]);
 
             //auto-release when hasNext() returns false;
             if (nextPos == KTypeLinkedList.TAIL_POSITION && this.iteratorPool != null && !this.isFree)
@@ -1039,7 +1041,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
         public KTypeCursor<KType> next()
         {
             //search for the next position
-            final int nextPos = KTypeLinkedList.getLinkAfter(this.pointers[internalPos]);
+            final int nextPos = KTypeLinkedList.getLinkAfter(this.pointers[this.internalPos]);
 
             //we are at tail already.
             if (nextPos == KTypeLinkedList.TAIL_POSITION)
@@ -1051,10 +1053,10 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
             this.internalPos = nextPos;
             this.internalIndex++;
 
-            cursor.index = internalIndex;
-            cursor.value = buffer[nextPos];
+            this.cursor.index = this.internalIndex;
+            this.cursor.value = this.buffer[nextPos];
 
-            return cursor;
+            return this.cursor;
         }
 
         ///////////////////////// Forward iteration methods //////////////////////////////////////
@@ -1084,7 +1086,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
          */
         public boolean isFirst()
         {
-            final int nextPos = KTypeLinkedList.getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
+            final int nextPos = KTypeLinkedList.getLinkAfter(this.pointers[KTypeLinkedList.HEAD_POSITION]);
 
             return (nextPos == KTypeLinkedList.TAIL_POSITION) ? true : (nextPos == this.internalPos);
         }
@@ -1095,7 +1097,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
          */
         public boolean isLast()
         {
-            final int nextPos = KTypeLinkedList.getLinkBefore(pointers[KTypeLinkedList.TAIL_POSITION]);
+            final int nextPos = KTypeLinkedList.getLinkBefore(this.pointers[KTypeLinkedList.TAIL_POSITION]);
 
             return (nextPos == KTypeLinkedList.HEAD_POSITION) ? true : (nextPos == this.internalPos);
         }
@@ -1151,7 +1153,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
 
                 //update cursor
                 this.cursor.index = this.internalIndex;
-                this.cursor.value = buffer[this.internalPos];
+                this.cursor.value = this.buffer[this.internalPos];
             }
 
             return this;
@@ -1175,7 +1177,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
             {
                 this.internalIndex--;
                 this.cursor.index = this.internalIndex;
-                this.cursor.value = buffer[this.internalPos];
+                this.cursor.value = this.buffer[this.internalPos];
             }
 
             return this;
@@ -1196,7 +1198,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
             }
             //use the temporary Cursor in order to protect the iterator cursor
             this.tmpCursor.index = this.internalIndex + 1;
-            this.tmpCursor.value = buffer[nextPos];
+            this.tmpCursor.value = this.buffer[nextPos];
 
             return this.tmpCursor;
         }
@@ -1216,7 +1218,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
 
             //use the temporary Cursor in order to protect the iterator cursor
             this.tmpCursor.index = this.internalIndex - 1;
-            this.tmpCursor.value = buffer[beforePos];
+            this.tmpCursor.value = this.buffer[beforePos];
 
             return this.tmpCursor;
         }
@@ -1353,7 +1355,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
                 this.internalPos = removeAtPosNoCheck(this.internalPos);
 
                 //update cursor returned by iterator
-                cursor.value = buffer[this.internalPos];
+                this.cursor.value = this.buffer[this.internalPos];
                 //internal index doesn't change
             }
 
@@ -1392,7 +1394,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
         {
             super();
 
-            internalIndex = KTypeLinkedList.this.size();
+            this.internalIndex = KTypeLinkedList.this.size();
 
             this.cursor.index = KTypeLinkedList.this.size();
             this.cursor.value = KTypeLinkedList.this.defaultValue;
@@ -1410,7 +1412,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
         @Override
         public boolean hasNext()
         {
-            final int nextPos = KTypeLinkedList.getLinkBefore(this.pointers[internalPos]);
+            final int nextPos = KTypeLinkedList.getLinkBefore(this.pointers[this.internalPos]);
 
             //auto-release when hasNext() returns false;
             if (nextPos == KTypeLinkedList.HEAD_POSITION && this.iteratorPool != null && !this.isFree)
@@ -1431,7 +1433,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
         public KTypeCursor<KType> next()
         {
             //search for the next position
-            final int nextPos = KTypeLinkedList.getLinkBefore(this.pointers[internalPos]);
+            final int nextPos = KTypeLinkedList.getLinkBefore(this.pointers[this.internalPos]);
 
             //we are at tail already.
             if (nextPos == KTypeLinkedList.HEAD_POSITION)
@@ -1443,10 +1445,10 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
             this.internalPos = nextPos;
             this.internalIndex--;
 
-            cursor.index = internalIndex;
-            cursor.value = buffer[nextPos];
+            this.cursor.index = this.internalIndex;
+            this.cursor.value = this.buffer[nextPos];
 
-            return cursor;
+            return this.cursor;
         }
 
         ///////////////////////// Descending iteration methods //////////////////////////////////////
@@ -1594,9 +1596,9 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
 
                 this.internalIndex--;
                 //update cursor
-                cursor.value = buffer[this.internalPos];
+                this.cursor.value = this.buffer[this.internalPos];
                 //index is decremented
-                cursor.index = this.internalIndex;
+                this.cursor.index = this.internalIndex;
             }
 
             return this;
@@ -1761,7 +1763,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
                 break;
             }
 
-            currentPos = KTypeLinkedList.getLinkAfter(pointers[currentPos]);
+            currentPos = KTypeLinkedList.getLinkBefore(pointers[currentPos]);
 
         } //end while
 
@@ -1782,7 +1784,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
         int pos = 2;
 
         //directly iterate the buffer, so out of order.
-        while (pos < elementsCount)
+        while (pos < this.elementsCount)
         {
             if (predicate.apply(buffer[pos]))
             {
@@ -1895,12 +1897,12 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
             #end !*/
             comp)
     {
-        if (elementsCount > 3)
+        if (this.elementsCount > 3)
         {
             final int elementsCount = this.elementsCount;
             final long[] pointers = this.beforeAfterPointers;
 
-            KTypeSort.quicksort(buffer, 2, elementsCount, comp);
+            KTypeSort.quicksort(this.buffer, 2, elementsCount, comp);
 
             //rebuild nodes, in order
             //a) rebuild head/tail
@@ -1935,15 +1937,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      */
     public int addFirst(final KTypeContainer<? extends KType> container)
     {
-        final int size = container.size();
-        ensureBufferSpace(size);
-
-        for (final KTypeCursor<? extends KType> cursor : container)
-        {
-            insertAfterPosNoCheck(cursor.value, KTypeLinkedList.HEAD_POSITION);
-        }
-
-        return size;
+        return addFirst((Iterable<? extends KTypeCursor<? extends KType>>) container);
     }
 
     /**
@@ -1995,15 +1989,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      */
     public int addLast(final KTypeContainer<? extends KType> container)
     {
-        final int size = container.size();
-        ensureBufferSpace(size);
-
-        for (final KTypeCursor<? extends KType> cursor : container)
-        {
-            insertAfterPosNoCheck(cursor.value, KTypeLinkedList.getLinkBefore(this.beforeAfterPointers[KTypeLinkedList.TAIL_POSITION]));
-        }
-
-        return size;
+        return addLast((Iterable<? extends KTypeCursor<? extends KType>>) container);
     }
 
     /**
@@ -2030,7 +2016,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
 
         final int removedPos = KTypeLinkedList.getLinkAfter(this.beforeAfterPointers[KTypeLinkedList.HEAD_POSITION]);
 
-        final KType elem = buffer[removedPos];
+        final KType elem = this.buffer[removedPos];
 
         removeAtPosNoCheck(removedPos);
 
@@ -2044,7 +2030,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
 
         final int removedPos = KTypeLinkedList.getLinkBefore(this.beforeAfterPointers[KTypeLinkedList.TAIL_POSITION]);
 
-        final KType elem = buffer[removedPos];
+        final KType elem = this.buffer[removedPos];
 
         removeAtPosNoCheck(removedPos);
 
@@ -2056,7 +2042,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     {
         assert size() > 0;
 
-        return buffer[KTypeLinkedList.getLinkAfter(this.beforeAfterPointers[KTypeLinkedList.HEAD_POSITION])];
+        return this.buffer[KTypeLinkedList.getLinkAfter(this.beforeAfterPointers[KTypeLinkedList.HEAD_POSITION])];
     }
 
     @Override
@@ -2064,7 +2050,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     {
         assert size() > 0;
 
-        return buffer[KTypeLinkedList.getLinkBefore(this.beforeAfterPointers[KTypeLinkedList.TAIL_POSITION])];
+        return this.buffer[KTypeLinkedList.getLinkBefore(this.beforeAfterPointers[KTypeLinkedList.TAIL_POSITION])];
     }
 
     /*! #if ($TemplateOptions.inline("KTypeLinkedList.getLinkNodeValue","(beforeIndex, afterIndex)",
