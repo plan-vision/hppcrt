@@ -53,10 +53,7 @@ public final class KTypeSort
      */
     public static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType extends Comparable<? super KType>> /*! #end !*/void quicksort(final KType[] table)
     {
-        if (table.length > 1)
-        {
-            KTypeSort.dualPivotQuicksort(table, 0, table.length - 1);
-        }
+        KTypeSort.quicksort(table, 0, table.length);
     }
 
     ////////////////////////////
@@ -98,11 +95,7 @@ public final class KTypeSort
                     #end !*/
     comp)
     {
-
-        if (table.length > 1)
-        {
-            KTypeSort.dualPivotQuicksort(table, 0, table.length - 1, comp);
-        }
+        KTypeSort.quicksort(table, 0, table.length, comp);
     }
 
     /**

@@ -442,44 +442,70 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
         };
 
         final int TEST_SIZE = (int) 1e5;
-        //A) Sort an array of random values of primitive types
+        //A) Sort a stack of random values of primitive types
 
         /*! #if ($TemplateOptions.KTypePrimitive)
         //A-1) full sort
-        KTypeStack<KType> primitiveStack = createStackWithRandomData(TEST_SIZE, 8741631654L);
-        primitiveStack.sort();
-        assertOrder(primitiveStack, 0, primitiveStack.size());
+        KTypeStack<KType> primitiveList = createStackWithRandomData(TEST_SIZE, 1515411541215L);
+        KTypeStack<KType> primitiveListOriginal = createStackWithRandomData(TEST_SIZE, 1515411541215L);
+        primitiveList.sort();
+        assertOrder(primitiveListOriginal, primitiveList, 0, primitiveList.size());
         //A-2) Partial sort
-        primitiveStack = createStackWithRandomData(TEST_SIZE, 1114478824455L);
-        primitiveStack.sort(11478,448745);
-        assertOrder(primitiveStack, 11478,448745);
+        primitiveList = createStackWithRandomData(TEST_SIZE, 87454541215L);
+        primitiveListOriginal = createStackWithRandomData(TEST_SIZE, 87454541215L);
+        primitiveList.sort(12150,79444);
+        assertOrder(primitiveListOriginal, primitiveList, 12150, 79444);
         #end !*/
 
         //B) Sort with Comparator
         //B-1) Full sort
-        KTypeStack<KType> comparatorStack = createStackWithRandomData(TEST_SIZE, 1215443161L);
-        comparatorStack.sort(comp);
-        assertOrder(comparatorStack, 0, comparatorStack.size());
+        KTypeStack<KType> comparatorList = createStackWithRandomData(TEST_SIZE, 4871164545215L);
+        KTypeStack<KType> comparatorListOriginal = createStackWithRandomData(TEST_SIZE, 4871164545215L);
+        comparatorList.sort(comp);
+        assertOrder(comparatorListOriginal, comparatorList, 0, comparatorList.size());
         //B-2) Partial sort
-        comparatorStack = createStackWithRandomData(TEST_SIZE, 87771125444L);
-        comparatorStack.sort(53781, 818741, comp);
-        assertOrder(comparatorStack, 53781, 818741);
+        comparatorList = createStackWithRandomData(TEST_SIZE, 877521454L);
+        comparatorListOriginal = createStackWithRandomData(TEST_SIZE, 877521454L);
+        comparatorList.sort(9748, 99548, comp);
+        assertOrder(comparatorListOriginal, comparatorList, 9748, 99548);
     }
 
     /**
-     * Test natural ordering between [startIndex; endIndex[
+     * Test natural ordering between [startIndex; endIndex[, starting from original
      * @param expected
      * @param actual
      * @param length
      */
-    private void assertOrder(final KTypeStack<KType> order, final int startIndex, final int endIndex)
+    private void assertOrder(final KTypeStack<KType> original, final KTypeStack<KType> order, final int startIndex, final int endIndex)
     {
+        Assert.assertEquals(original.size(), order.size());
+
+        //A) check that the required range is ordered
         for (int i = startIndex + 1; i < endIndex; i++)
         {
             if (castType(order.get(i - 1)) > castType(order.get(i)))
             {
                 Assert.assertTrue(String.format("Not ordered: (previous, next) = (%d, %d) at index %d",
                         castType(order.get(i - 1)), castType(order.get(i)), i), false);
+            }
+        }
+
+        //B) Check that the rest is untouched also
+        for (int i = 0; i < startIndex; i++)
+        {
+            if (castType(original.get(i)) != castType(order.get(i)))
+            {
+                Assert.assertTrue(String.format("This index has been touched: (original, erroneously modified) = (%d, %d) at index %d",
+                        castType(original.get(i)), castType(order.get(i)), i), false);
+            }
+        }
+
+        for (int i = endIndex; i < original.size(); i++)
+        {
+            if (castType(original.get(i)) != castType(order.get(i)))
+            {
+                Assert.assertTrue(String.format("This index has been touched: (original, erroneously modified) = (%d, %d) at index %d",
+                        castType(original.get(i)), castType(order.get(i)), i), false);
             }
         }
     }

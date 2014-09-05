@@ -1107,23 +1107,27 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         /*! #if ($TemplateOptions.KTypePrimitive)
         //A-1) full sort
         KTypeArrayList<KType> primitiveList = createArrayWithRandomData(TEST_SIZE, 1515411541215L);
+         KTypeArrayList<KType> primitiveListOriginal = createArrayWithRandomData(TEST_SIZE, 1515411541215L);
         primitiveList.sort();
-        assertOrder(primitiveList, 0, primitiveList.size());
+        assertOrder(primitiveListOriginal, primitiveList, 0, primitiveList.size());
         //A-2) Partial sort
         primitiveList = createArrayWithRandomData(TEST_SIZE, 87454541215L);
-        primitiveList.sort(12150,789444);
-        assertOrder(primitiveList, 12150, 789444);
+        primitiveListOriginal = createArrayWithRandomData(TEST_SIZE, 87454541215L);
+        primitiveList.sort(12150,79444);
+        assertOrder(primitiveListOriginal, primitiveList, 12150, 79444);
         #end !*/
 
         //B) Sort with Comparator
         //B-1) Full sort
         KTypeArrayList<KType> comparatorList = createArrayWithRandomData(TEST_SIZE, 4871164545215L);
+        KTypeArrayList<KType> comparatorListOriginal = createArrayWithRandomData(TEST_SIZE, 4871164545215L);
         comparatorList.sort(comp);
-        assertOrder(comparatorList, 0, comparatorList.size());
+        assertOrder(comparatorListOriginal, comparatorList, 0, comparatorList.size());
         //B-2) Partial sort
         comparatorList = createArrayWithRandomData(TEST_SIZE, 877521454L);
-        comparatorList.sort(98748, 999548, comp);
-        assertOrder(comparatorList, 98748, 999548);
+        comparatorListOriginal = createArrayWithRandomData(TEST_SIZE, 877521454L);
+        comparatorList.sort(9748, 99548, comp);
+        assertOrder(comparatorListOriginal, comparatorList, 9748, 99548);
     }
 
     @Test
@@ -1166,19 +1170,42 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     }
 
     /**
-     * Test natural ordering between [startIndex; endIndex[
+     * Test natural ordering between [startIndex; endIndex[, starting from original
      * @param expected
      * @param actual
      * @param length
      */
-    private void assertOrder(final KTypeArrayList<KType> order, final int startIndex, final int endIndex)
+    private void assertOrder(final KTypeArrayList<KType> original, final KTypeArrayList<KType> order, final int startIndex, final int endIndex)
     {
+
+        Assert.assertEquals(original.size(), order.size());
+
+        //A) check that the required range is ordered
         for (int i = startIndex + 1; i < endIndex; i++)
         {
             if (castType(order.get(i - 1)) > castType(order.get(i)))
             {
                 Assert.assertTrue(String.format("Not ordered: (previous, next) = (%d, %d) at index %d",
                         castType(order.get(i - 1)), castType(order.get(i)), i), false);
+            }
+        }
+
+        //B) Check that the rest is untouched also
+        for (int i = 0; i < startIndex; i++)
+        {
+            if (castType(original.get(i)) != castType(order.get(i)))
+            {
+                Assert.assertTrue(String.format("This index has been touched: (original, erroneously modified) = (%d, %d) at index %d",
+                        castType(original.get(i)), castType(order.get(i)), i), false);
+            }
+        }
+
+        for (int i = endIndex; i < original.size(); i++)
+        {
+            if (castType(original.get(i)) != castType(order.get(i)))
+            {
+                Assert.assertTrue(String.format("This index has been touched: (original, erroneously modified) = (%d, %d) at index %d",
+                        castType(original.get(i)), castType(order.get(i)), i), false);
             }
         }
     }
@@ -1203,7 +1230,6 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
 
         for (int i = 0; i < size; i++)
         {
-
             newArray.add(cast(prng.nextInt()));
         }
 

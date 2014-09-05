@@ -420,21 +420,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
     /*! #if ($TemplateOptions.KTypePrimitive)
     public void sort()
     {
-        //sort full
-        super.sort();
-
-        //reverse all elements
-        final int size = size();
-        final int halfSize = size / 2;
-
-        KType tmpValue;
-
-        for (int i = 0; i < halfSize; i++)
-        {
-            tmpValue = this.buffer[i];
-            this.buffer[i] = this.buffer[size - i - 1];
-            this.buffer[size - i - 1] = tmpValue;
-        }
+        sort(0, this.elementsCount);
     }
     #end !*/
 
@@ -501,21 +487,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
             #end !*/
             comp)
     {
-        //sort full
-        super.sort(comp);
-
-        //reverse all elements
-        final int size = size();
-        final int halfSize = size / 2;
-
-        KType tmpValue;
-
-        for (int i = 0; i < halfSize; i++)
-        {
-            tmpValue = this.buffer[i];
-            this.buffer[i] = this.buffer[size - i - 1];
-            this.buffer[size - i - 1] = tmpValue;
-        }
+        sort(0, this.elementsCount, comp);
     }
 
     /**

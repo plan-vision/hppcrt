@@ -899,8 +899,8 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     /**
      * Sort the list from [beginIndex, endIndex[
      * by natural ordering (smaller first)
-     * @param beginIndex
-     * @param endIndex
+     * @param beginIndex the start index to be sorted
+     * @param endIndex the end index to be sorted (excluded)
      */
     /*! #if ($TemplateOptions.KTypePrimitive)
     public void sort(int beginIndex, int endIndex)
@@ -919,16 +919,11 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * <p><b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009]
      * </b></p>
-     * @param beginIndex
-     * @param endIndex
      */
     /*! #if ($TemplateOptions.KTypePrimitive)
     public void sort()
     {
-        if (elementsCount > 1)
-        {
-            KTypeSort.quicksort(buffer, 0, elementsCount);
-        }
+        sort(0, this.elementsCount);
     }
     #end !*/
 
@@ -939,6 +934,8 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * <p><b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
      * </b></p>
+     * @param beginIndex the start index to be sorted
+     * @param endIndex the end index to be sorted (excluded)
      */
     public void sort(
             final int beginIndex, final int endIndex,
@@ -972,9 +969,6 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
             #end !*/
             comp)
     {
-        if (this.elementsCount > 1)
-        {
-            KTypeSort.quicksort(this.buffer, 0, this.elementsCount, comp);
-        }
+        sort(0, this.elementsCount, comp);
     }
 }
