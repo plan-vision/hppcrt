@@ -1,15 +1,11 @@
 package com.carrotsearch.hppcrt.sets;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
+import java.util.*;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
+
+import static com.carrotsearch.hppcrt.TestUtils.*;
+import static org.junit.Assert.*;
 
 import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.lists.*;
@@ -864,10 +860,10 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         {
             //1) Choose a random number of elements
             /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
-            final int PREALLOCATED_SIZE = randomVK.nextInt(100000);
+            final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
             /*!
             #elseif ($TemplateOptions.isKType("SHORT", "CHAR"))
-             int PREALLOCATED_SIZE = randomVK.nextInt(15000);
+             int PREALLOCATED_SIZE = randomVK.nextInt(1500);
             #else
               int PREALLOCATED_SIZE = randomVK.nextInt(126);
             #end !*/

@@ -1,15 +1,11 @@
 package com.carrotsearch.hppcrt.maps;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Random;
+import java.util.*;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
+
+import static com.carrotsearch.hppcrt.TestUtils.*;
+import static org.junit.Assert.*;
 
 import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.lists.*;
@@ -470,6 +466,38 @@ public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKType
         this.map.put(this.key2, this.value1);
         this.map.clear();
         Assert.assertEquals(0, this.map.size());
+
+        // These are internals, but perhaps worth asserting too.
+        Assert.assertEquals(0, this.map.assigned);
+
+        // Check if the map behaves properly upon subsequent use.
+        testPutWithExpansions();
+    }
+
+    /* */
+    @Test
+    public void testClearViaKeySetView()
+    {
+        this.map.put(this.key3, this.value2);
+        this.map.put(this.key4, this.value4);
+        this.map.keys().clear();
+        Assert.assertEquals(0, this.map.keys().size());
+
+        // These are internals, but perhaps worth asserting too.
+        Assert.assertEquals(0, this.map.assigned);
+
+        // Check if the map behaves properly upon subsequent use.
+        testPutWithExpansions();
+    }
+
+    /* */
+    @Test
+    public void testClearViaValueSetView()
+    {
+        this.map.put(this.key5, this.value4);
+        this.map.put(this.key6, this.value1);
+        this.map.values().clear();
+        Assert.assertEquals(0, this.map.values().size());
 
         // These are internals, but perhaps worth asserting too.
         Assert.assertEquals(0, this.map.assigned);
@@ -952,7 +980,7 @@ public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKType
         //a) Check that 2 different sets filled the same way with same values and strategies = null
         //are indeed equal.
         final long TEST_SEED = 4987013210686416456L;
-        final int TEST_SIZE = (int) 500e3;
+        final int TEST_SIZE = (int) 100e3;
         final KTypeVTypeOpenCustomHashMap<KType, VType> refMap = createMapWithRandomData(TEST_SIZE, new KTypeStandardHash<KType>(), TEST_SEED);
         KTypeVTypeOpenCustomHashMap<KType, VType> refMap2 = createMapWithRandomData(TEST_SIZE, new KTypeStandardHash<KType>(), TEST_SEED);
 
@@ -1663,10 +1691,10 @@ public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKType
         {
             //1) Choose a random number of elements
             /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
-            final int PREALLOCATED_SIZE = randomVK.nextInt(100000);
+            final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
             /*!
             #elseif ($TemplateOptions.isKType("SHORT", "CHAR"))
-             int PREALLOCATED_SIZE = randomVK.nextInt(15000);
+             int PREALLOCATED_SIZE = randomVK.nextInt(1500);
             #else
               int PREALLOCATED_SIZE = randomVK.nextInt(126);
             #end !*/
@@ -1705,14 +1733,15 @@ public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKType
         //Test that the container do not resize if less that the initial size
 
         //1) Choose a map to build
-        /*! #if ($TemplateOptions.isKType("GENERIC", "int", "long", "float", "double")) !*/
+        /*! #if ($TemplateOptions.isKType("GENERIC", "int", "long", "float", "double") &&
+                $TemplateOptions.isVType("GENERIC", "int", "long", "float", "double")) !*/
         final int NB_ELEMENTS = 2000;
         /*!
-            #elseif ($TemplateOptions.isKType("short", "char"))
-             int NB_ELEMENTS = 1000;
+        #elseif($TemplateOptions.isKType("short", "char") && $TemplateOptions.isVType("short", "char"))
+             final int NB_ELEMENTS = 1000;
             #else
-              int NB_ELEMENTS = 126;
-            #end !*/
+             final int NB_ELEMENTS = 126;
+        #end !*/
 
         final KTypeVTypeOpenCustomHashMap<KType, VType> newMap = KTypeVTypeOpenCustomHashMap.newInstance(new KTypeStandardHash<KType>());
 
@@ -1918,14 +1947,15 @@ public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKType
         //Test that the container do not resize if less that the initial size
 
         //1) Choose a map to build
-        /*! #if ($TemplateOptions.isKType("GENERIC", "int", "long", "float", "double")) !*/
+        /*! #if ($TemplateOptions.isKType("GENERIC", "int", "long", "float", "double") &&
+                $TemplateOptions.isVType("GENERIC", "int", "long", "float", "double")) !*/
         final int NB_ELEMENTS = 2000;
         /*!
-            #elseif ($TemplateOptions.isKType("short", "char"))
-             int NB_ELEMENTS = 1000;
+        #elseif($TemplateOptions.isKType("short", "char") && $TemplateOptions.isVType("short", "char"))
+             final int NB_ELEMENTS = 1000;
             #else
-              int NB_ELEMENTS = 126;
-            #end !*/
+             final int NB_ELEMENTS = 126;
+        #end !*/
 
         final KTypeVTypeOpenCustomHashMap<KType, VType> newMap = KTypeVTypeOpenCustomHashMap.newInstance(new KTypeStandardHash<KType>());
 
@@ -1991,7 +2021,7 @@ public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKType
 
         //check that keyList/keyListTest and valueList/valueListTest are identical .
         Assert.assertEquals(keyList, keyListTest);
-        Assert.assertEquals(keyList, valueListTest);
+        Assert.assertEquals(valueList, valueListTest);
 
         //C) Run values().forEach(VType) : Beware, they are iterated in-order !
         keyListTest.clear();
@@ -2030,14 +2060,15 @@ public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKType
         //Test that the container do not resize if less that the initial size
 
         //1) Choose a map to build
-        /*! #if ($TemplateOptions.isKType("GENERIC", "int", "long", "float", "double")) !*/
+        /*! #if ($TemplateOptions.isKType("GENERIC", "int", "long", "float", "double") &&
+                $TemplateOptions.isVType("GENERIC", "int", "long", "float", "double")) !*/
         final int NB_ELEMENTS = 2000;
         /*!
-            #elseif ($TemplateOptions.isKType("short", "char"))
-             int NB_ELEMENTS = 1000;
+        #elseif($TemplateOptions.isKType("short", "char") && $TemplateOptions.isVType("short", "char"))
+             final int NB_ELEMENTS = 1000;
             #else
-              int NB_ELEMENTS = 126;
-            #end !*/
+             final int NB_ELEMENTS = 126;
+        #end !*/
 
         final KTypeVTypeOpenCustomHashMap<KType, VType> newMap = KTypeVTypeOpenCustomHashMap.newInstance(new KTypeStandardHash<KType>());
 

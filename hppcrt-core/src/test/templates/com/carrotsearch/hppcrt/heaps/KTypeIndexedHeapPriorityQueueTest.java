@@ -1011,7 +1011,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
     public void testSyntheticComparable()
     {
         //A) Fill
-        final int COUNT = (int) 1e5;
+        final int COUNT = (int) 1e4;
         final Random prng = new Random(10548708413L);
 
         final KTypeIndexedHeapPriorityQueue<KType> testPQ = new KTypeIndexedHeapPriorityQueue<KType>(10);
@@ -1032,7 +1032,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
                 testPQ.put(index, cast(value));
             }
 
-            if (i % 40701 == 0)
+            if (i % 4001 == 0)
             {
                 checkConsistency(this.prioq);
                 Assert.assertTrue(isMinHeap(this.prioq));
@@ -1277,7 +1277,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
         final Random prng = new Random(98754131654131L);
 
-        final int COUNT = (int) 1e5;
+        final int COUNT = (int) 1e4;
 
         //A) fill COUNT random values in prio-queue
         final KTypeIndexedHeapPriorityQueue<KType> testPQ = new KTypeIndexedHeapPriorityQueue<KType>(comp, 10);
@@ -1776,10 +1776,10 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         {
             //1) Choose a random number of elements
             /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
-            final int PREALLOCATED_SIZE = randomVK.nextInt(100000);
+            final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
             /*!
             #elseif ($TemplateOptions.isKType("SHORT", "CHAR"))
-             int PREALLOCATED_SIZE = randomVK.nextInt(15000);
+             int PREALLOCATED_SIZE = randomVK.nextInt(1500);
             #else
               int PREALLOCATED_SIZE = randomVK.nextInt(126);
             #end !*/

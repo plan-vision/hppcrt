@@ -721,7 +721,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
     {
         final Random prng = new Random(45874131463156464L);
 
-        final int COUNT = (int) 1e5;
+        final int COUNT = (int) 1e4;
 
         //A) fill COUNT random values in prio-queue
         final KTypeHeapPriorityQueue<KType> testPQ = new KTypeHeapPriorityQueue<KType>(10);
@@ -807,7 +807,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
 
         final Random prng = new Random(98754131654131L);
 
-        final int COUNT = (int) 1e5;
+        final int COUNT = (int) 1e4;
 
         //A) fill COUNT random values in prio-queue
         final KTypeHeapPriorityQueue<KType> testPQ = new KTypeHeapPriorityQueue<KType>(comp, 10);
@@ -1287,12 +1287,12 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         {
             //1) Choose a random number of elements
             /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
-            final int PREALLOCATED_SIZE = randomVK.nextInt(100000);
+            final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
             /*!
             #elseif ($TemplateOptions.isKType("SHORT", "CHAR"))
-             int PREALLOCATED_SIZE = randomVK.nextInt(100000);
+             int PREALLOCATED_SIZE = randomVK.nextInt(10000);
             #else
-              int PREALLOCATED_SIZE = randomVK.nextInt(100000);
+              int PREALLOCATED_SIZE = randomVK.nextInt(10000);
             #end !*/
 
             //2) Preallocate to PREALLOCATED_SIZE :

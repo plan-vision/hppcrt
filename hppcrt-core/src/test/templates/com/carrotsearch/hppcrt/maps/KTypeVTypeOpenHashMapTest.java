@@ -1449,10 +1449,10 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         {
             //1) Choose a random number of elements
             /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
-            final int PREALLOCATED_SIZE = randomVK.nextInt(100000);
+            final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
             /*!
             #elseif ($TemplateOptions.isKType("SHORT", "CHAR"))
-             int PREALLOCATED_SIZE = randomVK.nextInt(15000);
+             int PREALLOCATED_SIZE = randomVK.nextInt(1500);
             #else
               int PREALLOCATED_SIZE = randomVK.nextInt(126);
             #end !*/
@@ -1491,14 +1491,15 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         //Test that the container do not resize if less that the initial size
 
         //1) Choose a map to build
-        /*! #if ($TemplateOptions.isKType("GENERIC", "int", "long", "float", "double")) !*/
+        /*! #if ($TemplateOptions.isKType("GENERIC", "int", "long", "float", "double") &&
+                $TemplateOptions.isVType("GENERIC", "int", "long", "float", "double")) !*/
         final int NB_ELEMENTS = 2000;
         /*!
-            #elseif ($TemplateOptions.isKType("short", "char"))
-             int NB_ELEMENTS = 1000;
+        #elseif($TemplateOptions.isKType("short", "char") && $TemplateOptions.isVType("short", "char"))
+             final int NB_ELEMENTS = 1000;
             #else
-              int NB_ELEMENTS = 126;
-            #end !*/
+             final int NB_ELEMENTS = 126;
+        #end !*/
 
         final KTypeVTypeOpenHashMap<KType, VType> newMap = KTypeVTypeOpenHashMap.newInstance();
 
@@ -1704,14 +1705,15 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         //Test that the container do not resize if less that the initial size
 
         //1) Choose a map to build
-        /*! #if ($TemplateOptions.isKType("GENERIC", "int", "long", "float", "double")) !*/
+        /*! #if ($TemplateOptions.isKType("GENERIC", "int", "long", "float", "double") &&
+                $TemplateOptions.isVType("GENERIC", "int", "long", "float", "double")) !*/
         final int NB_ELEMENTS = 2000;
         /*!
-            #elseif ($TemplateOptions.isKType("short", "char"))
-             int NB_ELEMENTS = 1000;
+        #elseif($TemplateOptions.isKType("short", "char") && $TemplateOptions.isVType("short", "char"))
+             final int NB_ELEMENTS = 1000;
             #else
-              int NB_ELEMENTS = 126;
-            #end !*/
+             final int NB_ELEMENTS = 126;
+        #end !*/
 
         final KTypeVTypeOpenHashMap<KType, VType> newMap = KTypeVTypeOpenHashMap.newInstance();
 
@@ -1777,7 +1779,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
 
         //check that keyList/keyListTest and valueList/valueListTest are identical .
         Assert.assertEquals(keyList, keyListTest);
-        Assert.assertEquals(keyList, valueListTest);
+        Assert.assertEquals(valueList, valueListTest);
 
         //C) Run values().forEach(VType) : Beware, they are iterated in-order !
         keyListTest.clear();
@@ -1816,14 +1818,15 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         //Test that the container do not resize if less that the initial size
 
         //1) Choose a map to build
-        /*! #if ($TemplateOptions.isKType("GENERIC", "int", "long", "float", "double")) !*/
+        /*! #if ($TemplateOptions.isKType("GENERIC", "int", "long", "float", "double") &&
+                $TemplateOptions.isVType("GENERIC", "int", "long", "float", "double")) !*/
         final int NB_ELEMENTS = 2000;
         /*!
-            #elseif ($TemplateOptions.isKType("short", "char"))
-             int NB_ELEMENTS = 1000;
+        #elseif($TemplateOptions.isKType("short", "char") && $TemplateOptions.isVType("short", "char"))
+             final int NB_ELEMENTS = 1000;
             #else
-              int NB_ELEMENTS = 126;
-            #end !*/
+             final int NB_ELEMENTS = 126;
+        #end !*/
 
         final KTypeVTypeOpenHashMap<KType, VType> newMap = KTypeVTypeOpenHashMap.newInstance();
 

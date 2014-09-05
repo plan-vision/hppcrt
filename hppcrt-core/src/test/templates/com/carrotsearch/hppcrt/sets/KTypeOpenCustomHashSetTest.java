@@ -1,15 +1,11 @@
 package com.carrotsearch.hppcrt.sets;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
+import java.util.*;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
+
+import static com.carrotsearch.hppcrt.TestUtils.*;
+import static org.junit.Assert.*;
 
 
 import com.carrotsearch.hppcrt.*;
@@ -597,7 +593,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         //a) Check that 2 different sets filled the same way with same values and strategies = null
         //are indeed equal.
         final long TEST_SEED = 23167132166456L;
-        final int TEST_SIZE = (int) 500e3;
+        final int TEST_SIZE = (int) 100e3;
         final KTypeOpenCustomHashSet<KType> refSet = createSetWithRandomData(TEST_SIZE, new KTypeStandardHash<KType>(), TEST_SEED);
         KTypeOpenCustomHashSet<KType> refSet2 = createSetWithRandomData(TEST_SIZE, new KTypeStandardHash<KType>(), TEST_SEED);
 
@@ -1092,10 +1088,10 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         {
             //1) Choose a random number of elements
             /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
-            final int PREALLOCATED_SIZE = randomVK.nextInt(100000);
+            final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
             /*!
             #elseif ($TemplateOptions.isKType("SHORT", "CHAR"))
-             int PREALLOCATED_SIZE = randomVK.nextInt(15000);
+             int PREALLOCATED_SIZE = randomVK.nextInt(1500);
             #else
               int PREALLOCATED_SIZE = randomVK.nextInt(126);
             #end !*/

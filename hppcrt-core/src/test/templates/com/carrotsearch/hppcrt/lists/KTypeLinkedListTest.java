@@ -1127,7 +1127,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
             }
         };
 
-        final int TEST_SIZE = (int) 1e6;
+        final int TEST_SIZE = (int) 1e5;
         //A) Sort an array of random values of primitive types
 
         /*! #if ($TemplateOptions.KTypePrimitive)
@@ -2292,12 +2292,12 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         {
             //1) Choose a random number of elements
             /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
-            final int PREALLOCATED_SIZE = randomVK.nextInt(100000);
+            final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
             /*!
             #elseif ($TemplateOptions.isKType("SHORT", "CHAR"))
-             int PREALLOCATED_SIZE = randomVK.nextInt(100000);
+             int PREALLOCATED_SIZE = randomVK.nextInt(10000);
             #else
-              int PREALLOCATED_SIZE = randomVK.nextInt(100000);
+              int PREALLOCATED_SIZE = randomVK.nextInt(10000);
             #end !*/
 
             //2) Preallocate to PREALLOCATED_SIZE :
