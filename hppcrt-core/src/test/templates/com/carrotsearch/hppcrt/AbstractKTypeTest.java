@@ -20,16 +20,16 @@ public abstract class AbstractKTypeTest<KType>
 
     /* Ready to use key values. */
 
-    protected KType key0 = cast(0), k0 = key0;
-    protected KType key1 = cast(1), k1 = key1;
-    protected KType key2 = cast(2), k2 = key2;
-    protected KType key3 = cast(3), k3 = key3;
-    protected KType key4 = cast(4), k4 = key4;
-    protected KType key5 = cast(5), k5 = key5;
-    protected KType key6 = cast(6), k6 = key6;
-    protected KType key7 = cast(7), k7 = key7;
-    protected KType key8 = cast(8), k8 = key8;
-    protected KType key9 = cast(9), k9 = key9;
+    protected KType key0 = cast(0), k0 = this.key0;
+    protected KType key1 = cast(1), k1 = this.key1;
+    protected KType key2 = cast(2), k2 = this.key2;
+    protected KType key3 = cast(3), k3 = this.key3;
+    protected KType key4 = cast(4), k4 = this.key4;
+    protected KType key5 = cast(5), k5 = this.key5;
+    protected KType key6 = cast(6), k6 = this.key6;
+    protected KType key7 = cast(7), k7 = this.key7;
+    protected KType key8 = cast(8), k8 = this.key8;
+    protected KType key9 = cast(9), k9 = this.key9;
 
     /**
      * Convert int to target KType type.
@@ -120,6 +120,21 @@ public abstract class AbstractKTypeTest<KType>
 
         return values;
     }
+
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    public KType[] asArrayObjects(final Object... objects)
+    {
+        final KType[] values = Intrinsics.newKTypeArray(objects.length);
+
+        for (int i = 0; i < objects.length; i++)
+        {
+            values[i] = (KType) objects[i];
+        }
+
+        return values;
+    }
+
+    /*! #end !*/
 
     /**
      * Create a new array of a given type and copy the arguments to this array.

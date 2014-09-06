@@ -175,13 +175,17 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         for (int i = 0; i < COUNT; i++)
         {
             final int v = rnd.nextInt();
-            final boolean hadKey = values.contains(cast(v));
             values.add(cast(v));
 
-            Assert.assertEquals(hadKey, this.map.containsKey(cast(v)));
+            final boolean hadKey = values.contains(cast(v));
+            Assert.assertTrue(hadKey);
+
             this.map.put(cast(v), vcast(v));
+            Assert.assertEquals(hadKey, this.map.containsKey(cast(v)));
+
             Assert.assertEquals(values.size(), this.map.size());
         }
+
         Assert.assertEquals(values.size(), this.map.size());
     }
 

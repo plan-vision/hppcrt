@@ -89,20 +89,20 @@ public abstract class AbstractKTypeVTypeTest<KType, VType> extends AbstractKType
     }
 
     protected void assertSameMap(
+
             final KTypeVTypeMap<KType, VType> c1,
             final KTypeVTypeMap<KType, VType> c2)
     {
         Assert.assertEquals(c1.size(), c2.size());
 
         c1.forEach(new KTypeVTypeProcedure<KType, VType>()
-        {
+                {
             @Override
             public void apply(final KType key, final VType value)
             {
                 Assert.assertTrue(c2.containsKey(key));
                 TestUtils.assertEquals2(value, c2.get(key));
             }
-        });
+                });
     }
-
 }

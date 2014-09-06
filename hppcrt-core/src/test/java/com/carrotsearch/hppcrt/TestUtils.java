@@ -237,6 +237,23 @@ public abstract class TestUtils
     }
 
     /**
+     * Check if the array's content is identical to a given sequence of elements, compared by reference
+     */
+    public static void assertSortedListEqualsByReference(final Object[] array, final Object... elements)
+    {
+        Assert.assertEquals(elements.length, array.length);
+
+        Arrays.sort(array);
+
+        for (int i = 0; i < elements.length; i++) {
+
+            Assert.assertTrue(elements[i] == array[i]);
+        }
+
+        Assert.assertArrayEquals(elements, array);
+    }
+
+    /**
      * Check if the array's content is identical to a given sequence of elements.
      */
     public static void assertSortedListEquals(final Object[] array, final Object... elements)

@@ -13,6 +13,10 @@ HPPCRT-24: Bug in Heaps with contains()/removeAllOccurences() not using Comparab
 
 HPPCRT-25: KTypeLinkedList.descendingForEach(Predicate) is not working.
 
+** New features
+
+HPPCRT-26: Add specialized IdentityHash containers
+
 [0.6.5]
 ** API-breaking changes
 

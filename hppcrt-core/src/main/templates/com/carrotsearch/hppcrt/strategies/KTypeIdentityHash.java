@@ -6,7 +6,7 @@ import com.carrotsearch.hppcrt.Intrinsics;
 /**
  * Standard  {@link KTypeHashingStrategy} providing an 'identity'
  * behaviour for objects, where they are compared by reference, and their
- * hashCode() is the 'native' one obtained by  {@link System.identityHashCode}
+ * hashCode() is the 'native' one obtained by  {@link System#identityHashCode(Object)}
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeIdentityHash<KType> implements KTypeHashingStrategy<KType> {
