@@ -1,10 +1,17 @@
 [0.6.6]
+** API-breaking changes
+
+HPPCRT-23: Make KTtypeIndexedPriorityQueue a IntKTypeMap
 
 ** Bug fixes
 
 HPPC-92 : ObjectOpenHashSet/Generics -ClassCastException when accesing to keys[] array
 
 HPPCRT-22 : Follow-up of HPPCRT-18 for more Perturbation-free fixes in Hashs containers
+
+HPPCRT-24: Bug in Heaps with contains()/removeAllOccurences() not using Comparable/Comparator
+
+HPPCRT-25: KTypeLinkedList.descendingForEach(Predicate) is not working.
 
 [0.6.5]
 ** API-breaking changes
