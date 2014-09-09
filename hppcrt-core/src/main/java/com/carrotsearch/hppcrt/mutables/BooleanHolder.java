@@ -3,7 +3,7 @@ package com.carrotsearch.hppcrt.mutables;
 /**
  * <code>boolean</code> holder.
  */
-public class BooleanHolder
+public class BooleanHolder implements Comparable<BooleanHolder>
 {
     public boolean value;
 
@@ -19,12 +19,18 @@ public class BooleanHolder
     @Override
     public int hashCode()
     {
-        return value ? 1231 : 1237;
+        return this.value ? 1231 : 1237;
     }
 
     @Override
     public boolean equals(final Object other)
     {
-        return (other instanceof BooleanHolder) && value == ((BooleanHolder) other).value;
+        return (other instanceof BooleanHolder) && this.value == ((BooleanHolder) other).value;
+    }
+
+    @Override
+    public int compareTo(final BooleanHolder o) {
+
+        return (this.value == o.value) ? 0 : (this.value ? 1 : -1);
     }
 }

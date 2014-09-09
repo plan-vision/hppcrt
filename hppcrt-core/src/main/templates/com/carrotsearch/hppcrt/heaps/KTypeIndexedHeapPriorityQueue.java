@@ -599,7 +599,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     public KType get(final int key)
     {
         /*! #if($DEBUG) !*/
-        assert key >= this.pq.length || this.pq[key] > 0 : "Element of index " + " doesn't exist !";
+        assert key >= this.pq.length || this.pq[key] > 0 : "Element of index " + key + " doesn't exist ! (size=" + this.elementsCount + ")";
         /*! #end !*/
 
         KType elem = this.defaultValue;

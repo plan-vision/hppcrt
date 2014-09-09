@@ -3,7 +3,7 @@ package com.carrotsearch.hppcrt.mutables;
 /**
  * <code>double</code> holder.
  */
-public class DoubleHolder
+public class DoubleHolder implements Comparable<DoubleHolder>
 {
     public double value;
 
@@ -19,7 +19,7 @@ public class DoubleHolder
     @Override
     public int hashCode()
     {
-        final long bits = Double.doubleToLongBits(value);
+        final long bits = Double.doubleToLongBits(this.value);
         return (int) (bits ^ (bits >>> 32));
     }
 
@@ -27,7 +27,13 @@ public class DoubleHolder
     public boolean equals(final Object other)
     {
         return (other instanceof DoubleHolder) &&
-                Double.doubleToLongBits(value) ==
+                Double.doubleToLongBits(this.value) ==
                 Double.doubleToLongBits(((DoubleHolder) other).value);
+    }
+
+    @Override
+    public int compareTo(final DoubleHolder o) {
+
+        return Double.compare(this.value, o.value);
     }
 }

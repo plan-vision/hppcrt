@@ -1688,7 +1688,7 @@ public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKType
         Assert.assertEquals(startingPoolSize, testContainer.entryIteratorPool.size());
     }
 
-    @Repeat(iterations = 50)
+    @Repeat(iterations = 20)
     @Test
     public void testPreallocatedSize()
     {

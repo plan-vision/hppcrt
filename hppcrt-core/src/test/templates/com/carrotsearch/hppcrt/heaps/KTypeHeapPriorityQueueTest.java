@@ -776,6 +776,115 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertTrue(testPQ.isEmpty());
     }
 
+    @Repeat(iterations = 10)
+    @Test
+    public void testRefreshPrioritiesComparable()
+    {
+        final Random prng = RandomizedTest.getRandom();
+
+        final int COUNT = (int) 1e4;
+
+        //A) fill COUNT random values in prio-queue
+        final KTypeHeapPriorityQueue<KType> testPQ = new KTypeHeapPriorityQueue<KType>(10);
+
+        for (int i = 0; i < COUNT; i++)
+        {
+            //use unique values so that swapping values always disturb the heap property
+            testPQ.add(cast(COUNT - i));
+        }
+
+        Assert.assertEquals(COUNT, testPQ.size());
+        Assert.assertTrue(isMinHeap(testPQ));
+
+        //B) Shuffle elements of the buffer, so that the heap property is not respected anymore:
+        final int NB_SHUFFLES = prng.nextInt((int) (0.45 * COUNT));
+
+        for (int i = 0; i < NB_SHUFFLES; i++)
+        {
+            final int pos1 = RandomizedTest.randomIntBetween(1, COUNT - 1);
+            final int pos2 = RandomizedTest.randomIntBetween(1, COUNT - 1);
+
+            //swap pos1 and pos2
+            final KType tmp = testPQ.buffer[pos1];
+            testPQ.buffer[pos1] = testPQ.buffer[pos2];
+            testPQ.buffer[pos2] = tmp;
+        }
+
+        //no longer a heap
+        Assert.assertEquals(COUNT, testPQ.size());
+        Assert.assertFalse(isMinHeap(testPQ));
+
+        //C) Reestablish
+        testPQ.refreshPriorities();
+
+        Assert.assertTrue(isMinHeap(testPQ));
+    }
+
+    @Repeat(iterations = 10)
+    @Test
+    public void testRefreshPrioritiesComparator()
+    {
+        //Inverse natural ordering comparator
+        final KTypeComparator<KType> comp = new KTypeComparator<KType>() {
+
+            @Override
+            public int compare(final KType e1, final KType e2)
+            {
+                int res = 0;
+
+                if (castType(e1) < castType(e2))
+                {
+                    res = 1;
+                }
+                else if (castType(e1) > castType(e2))
+                {
+                    res = -1;
+                }
+
+                return res;
+            }
+        };
+
+        final Random prng = RandomizedTest.getRandom();
+
+        final int COUNT = (int) 1e4;
+
+        //A) fill COUNT random values in prio-queue
+        final KTypeHeapPriorityQueue<KType> testPQ = new KTypeHeapPriorityQueue<KType>(comp, 10);
+
+        for (int i = 0; i < COUNT; i++)
+        {
+            //use unique values so that swapping values always disturb the heap property
+            testPQ.add(cast(COUNT - i));
+        }
+
+        Assert.assertEquals(COUNT, testPQ.size());
+        Assert.assertTrue(isMinHeap(testPQ));
+
+        //B) Shuffle elements of the buffer, so that the heap property is not respected anymore:
+        final int NB_SHUFFLES = prng.nextInt((int) (0.45 * COUNT));
+
+        for (int i = 0; i < NB_SHUFFLES; i++)
+        {
+            final int pos1 = RandomizedTest.randomIntBetween(1, COUNT - 1);
+            final int pos2 = RandomizedTest.randomIntBetween(1, COUNT - 1);
+
+            //swap pos1 and pos2
+            final KType tmp = testPQ.buffer[pos1];
+            testPQ.buffer[pos1] = testPQ.buffer[pos2];
+            testPQ.buffer[pos2] = tmp;
+        }
+
+        //no longer a heap
+        Assert.assertEquals(COUNT, testPQ.size());
+        Assert.assertFalse(isMinHeap(testPQ));
+
+        //C) Reestablish
+        testPQ.refreshPriorities();
+
+        Assert.assertTrue(isMinHeap(testPQ));
+    }
+
     @Test
     public void testSyntheticComparator()
     {
@@ -1270,7 +1379,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertEquals(initialPoolSize, testContainer.valueIteratorPool.size());
     }
 
-    @Repeat(iterations = 50)
+    @Repeat(iterations = 20)
     @Test
     public void testPreallocatedSize()
     {
@@ -1304,7 +1413,205 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         }
 
         Assert.assertEquals(PREALLOCATED_SIZE, newHeap.size());
+    }
 
+    @Test
+    public void testForEachProcedureWithException()
+    {
+        //1) Choose a heap to build
+        final int NB_ELEMENTS = 2000;
+
+        final KTypeHeapPriorityQueue<KType> newHeap = new KTypeHeapPriorityQueue<KType>(null);
+
+        //add distinct number of elements to be able to search them later.
+        //add them backwards so that heap has some work to do.
+        for (int i = 0; i < NB_ELEMENTS; i++) {
+
+            final int KVpair = NB_ELEMENTS - i;
+
+            newHeap.add(cast(KVpair));
+        }
+
+        //List the elements of buffer
+        final ArrayList<Integer> keyList = new ArrayList<Integer>();
+
+        //Test forEach predicate and stop at each element in turn.
+        final ArrayList<Integer> keyListTest = new ArrayList<Integer>();
+
+        for (int k = 1; k < newHeap.size() + 1; k++) {
+
+            keyList.add(castType(newHeap.buffer[k]));
+        }
+
+        final int size = keyList.size();
+
+        for (int i = 0; i < size; i++)
+        {
+            final int currentPairIndexSizeToIterate = i + 1;
+
+            keyListTest.clear();
+
+            //A) Run forEach(KType)
+            try
+            {
+                newHeap.forEach(new KTypeProcedure<KType>() {
+
+                    @Override
+                    public void apply(final KType key)
+                    {
+                        keyListTest.add(castType(key));
+
+                        //when the stopping key/value pair is encountered, add to list and stop iteration
+                        if (castType(key) == keyList.get(currentPairIndexSizeToIterate - 1))
+                        {
+                            //interrupt iteration by an exception
+                            throw new RuntimeException("Interrupted treatment by test");
+                        }
+                    }
+                });
+            }
+            catch (final RuntimeException e)
+            {
+                if (!e.getMessage().equals("Interrupted treatment by test"))
+                {
+                    throw e;
+                }
+            }
+            finally
+            {
+                //despite the exception, the procedure terminates cleanly
+
+                //check that keyList/keyListTest are identical for the first
+                //currentPairIndexToIterate + 1 elements
+                Assert.assertEquals(currentPairIndexSizeToIterate, keyListTest.size());
+
+                for (int j = 0; j < currentPairIndexSizeToIterate; j++)
+                {
+                    Assert.assertEquals(keyList.get(j), keyListTest.get(j));
+                }
+            } //end finally
+        } //end for each index
+    }
+
+    @Test
+    public void testForEachProcedure()
+    {
+        final Random randomVK = new Random(9521455645L);
+
+        //Test that the container do not resize if less that the initial size
+
+        //1) Choose a heap to build
+        final int NB_ELEMENTS = 2000;
+
+        final KTypeHeapPriorityQueue<KType> newHeap = new KTypeHeapPriorityQueue<KType>(null);
+
+        //add distinct number of elements to be able to search them later.
+        //add them backwards so that heap has some work to do.
+        for (int i = 0; i < NB_ELEMENTS; i++) {
+
+            final int KVpair = NB_ELEMENTS - i;
+
+            newHeap.add(cast(KVpair));
+        }
+
+        //List the keys in the reverse-order of the internal buffer, since forEach() is iterating in reverse also:
+        final ArrayList<Integer> keyList = new ArrayList<Integer>();
+
+        for (int i = 1; i < newHeap.size() + 1; i++) {
+
+            keyList.add(castType(newHeap.buffer[i]));
+        }
+
+        //Test forEach predicate and stop at each key in turn.
+        final ArrayList<Integer> keyListTest = new ArrayList<Integer>();
+
+        keyListTest.clear();
+
+        //A) Run forEach(KType)
+
+        newHeap.forEach(new KTypeProcedure<KType>() {
+
+            @Override
+            public void apply(final KType key)
+            {
+                keyListTest.add(castType(key));
+            }
+        });
+
+        //check that keyList/keyListTest and valueList/valueListTest are identical.
+        Assert.assertEquals(keyList, keyListTest);
+    }
+
+    @Test
+    public void testForEachPredicate()
+    {
+        final Random randomVK = new Random(9521455645L);
+
+        //Test that the container do not resize if less that the initial size
+
+        //1) Choose a heap to build
+        final int NB_ELEMENTS = 2000;
+
+        final KTypeHeapPriorityQueue<KType> newHeap = new KTypeHeapPriorityQueue<KType>(null);
+
+        //add distinct number of elements to be able to search them later.
+        //add them backwards so that heap has some work to do.
+        for (int i = 0; i < NB_ELEMENTS; i++) {
+
+            final int KVpair = NB_ELEMENTS - i;
+
+            newHeap.add(cast(KVpair));
+        }
+
+        //List the keys in the reverse-order of the internal buffer, since forEach() is iterating in reverse also:
+        final ArrayList<Integer> keyList = new ArrayList<Integer>();
+
+        //Test forEach predicate and stop at each key in turn.
+        final ArrayList<Integer> keyListTest = new ArrayList<Integer>();
+
+        for (int k = 1; k < newHeap.size() + 1; k++) {
+
+            keyList.add(castType(newHeap.buffer[k]));
+        }
+
+        final int size = keyList.size();
+
+        for (int i = 0; i < size; i++)
+        {
+            final int currentPairIndexSizeToIterate = i + 1;
+
+            keyListTest.clear();
+
+            //A) Run forEach(KType)
+            newHeap.forEach(new KTypePredicate<KType>() {
+
+                @Override
+                public boolean apply(final KType key)
+                {
+                    keyListTest.add(castType(key));
+
+                    //when the stopping key/value pair is encountered, add to list and stop iteration
+                    if (castType(key) == keyList.get(currentPairIndexSizeToIterate - 1))
+                    {
+                        //interrupt iteration by returning false
+                        return false;
+                    }
+
+                    return true;
+                }
+            });
+
+            //despite the interruption, the procedure terminates cleanly
+
+            //check that keyList/keyListTest and valueList/valueListTest are identical for the first
+            //currentPairIndexToIterate + 1 elements
+            Assert.assertEquals(currentPairIndexSizeToIterate, keyListTest.size());
+
+            for (int j = 0; j < currentPairIndexSizeToIterate; j++)
+            {
+                Assert.assertEquals(keyList.get(j), keyListTest.get(j));
+            }
+        } //end for each index
     }
 
     /**

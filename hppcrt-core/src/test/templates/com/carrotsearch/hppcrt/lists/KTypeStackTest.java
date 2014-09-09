@@ -228,7 +228,7 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
                 + this.key1 + "]", KTypeStack.from(this.key1, this.key2, this.key3).toString());
     }
 
-    @Repeat(iterations = 50)
+    @Repeat(iterations = 20)
     @Test
     public void testPreallocatedSize()
     {

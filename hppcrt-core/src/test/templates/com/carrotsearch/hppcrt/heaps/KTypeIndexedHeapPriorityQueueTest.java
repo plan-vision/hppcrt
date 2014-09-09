@@ -1,23 +1,43 @@
 package com.carrotsearch.hppcrt.heaps;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Random;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-import static com.carrotsearch.hppcrt.TestUtils.*;
-import static org.junit.Assert.*;
-
-import com.carrotsearch.hppcrt.*;
-import com.carrotsearch.hppcrt.lists.*;
+import com.carrotsearch.hppcrt.AbstractKTypeTest;
+import com.carrotsearch.hppcrt.Intrinsics;
+import com.carrotsearch.hppcrt.IteratorPool;
 import com.carrotsearch.hppcrt.TestUtils;
-import com.carrotsearch.hppcrt.cursors.*;
-import com.carrotsearch.hppcrt.mutables.*;
-import com.carrotsearch.hppcrt.predicates.*;
-import com.carrotsearch.hppcrt.procedures.*;
-import com.carrotsearch.hppcrt.sets.*;
-import com.carrotsearch.hppcrt.sorting.*;
+import com.carrotsearch.hppcrt.cursors.IntCursor;
+import com.carrotsearch.hppcrt.cursors.IntKTypeCursor;
+import com.carrotsearch.hppcrt.cursors.KTypeCursor;
+import com.carrotsearch.hppcrt.maps.KTypeVTypeOpenHashMap;
+import com.carrotsearch.hppcrt.mutables.IntHolder;
+import com.carrotsearch.hppcrt.mutables.LongHolder;
+import com.carrotsearch.hppcrt.predicates.IntKTypePredicate;
+import com.carrotsearch.hppcrt.predicates.IntPredicate;
+import com.carrotsearch.hppcrt.predicates.KTypePredicate;
+import com.carrotsearch.hppcrt.predicates.KTypeVTypePredicate;
+import com.carrotsearch.hppcrt.procedures.IntKTypeProcedure;
+import com.carrotsearch.hppcrt.procedures.IntProcedure;
+import com.carrotsearch.hppcrt.procedures.KTypeProcedure;
+import com.carrotsearch.hppcrt.procedures.KTypeVTypeProcedure;
+import com.carrotsearch.hppcrt.sets.IntOpenHashSet;
+import com.carrotsearch.hppcrt.sets.KTypeOpenHashSet;
+import com.carrotsearch.hppcrt.sorting.KTypeComparator;
+import com.carrotsearch.hppcrt.sorting.KTypeSort;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
-import com.carrotsearch.randomizedtesting.annotations.*;
+import com.carrotsearch.randomizedtesting.annotations.Repeat;
 
 /**
  * Unit tests for {@link KTypeHeapPriorityQueue}.
@@ -49,8 +69,8 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
     @After
     public void checkConsistency()
     {
-        Assert.assertTrue(isMinHeap(this.prioq));
-        Assert.assertTrue(checkConsistency(this.prioq));
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(this.prioq));
 
         if (this.prioq != null)
         {
@@ -197,13 +217,13 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
             if (i % 11587 == 0)
             {
-                checkConsistency(this.prioq);
-                Assert.assertTrue(isMinHeap(this.prioq));
+                KTypeIndexedHeapPriorityQueueTest.checkConsistency(this.prioq);
+                Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
             }
         }
 
-        checkConsistency(this.prioq);
-        Assert.assertTrue(isMinHeap(this.prioq));
+        KTypeIndexedHeapPriorityQueueTest.checkConsistency(this.prioq);
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
 
         Assert.assertEquals(refSize, this.prioq.size());
 
@@ -222,13 +242,13 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
             if (i % 8450 == 0)
             {
-                checkConsistency(this.prioq);
-                Assert.assertTrue(isMinHeap(this.prioq));
+                KTypeIndexedHeapPriorityQueueTest.checkConsistency(this.prioq);
+                Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
             }
         }
 
-        checkConsistency(this.prioq);
-        Assert.assertTrue(isMinHeap(this.prioq));
+        KTypeIndexedHeapPriorityQueueTest.checkConsistency(this.prioq);
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
 
         //B-2) the remaining slots exists
         for (int index = 0; index < reference.length; index++)
@@ -242,8 +262,8 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
                 if (index % 5557 == 0)
                 {
-                    checkConsistency(this.prioq);
-                    Assert.assertTrue(isMinHeap(this.prioq));
+                    KTypeIndexedHeapPriorityQueueTest.checkConsistency(this.prioq);
+                    Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
                 }
             }
         }
@@ -282,13 +302,13 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
             if (i % 11587 == 0)
             {
-                checkConsistency(this.prioq);
-                Assert.assertTrue(isMinHeap(this.prioq));
+                KTypeIndexedHeapPriorityQueueTest.checkConsistency(this.prioq);
+                Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
             }
         }
 
-        checkConsistency(this.prioq);
-        Assert.assertTrue(isMinHeap(this.prioq));
+        KTypeIndexedHeapPriorityQueueTest.checkConsistency(this.prioq);
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
 
         Assert.assertEquals(reference.size(), this.prioq.size());
 
@@ -308,53 +328,53 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         assertPrioQueueEquals(this.prioq, 0, 10, /**/1, 9, /**/2, 8, /**/3, 7, /**/4, 6, /**/5, 5, /**/6, 4, /**/7, 3);
         Assert.assertEquals(8, this.prioq.size());
         Assert.assertEquals(3, castType(this.prioq.top()));
-        Assert.assertTrue(isMinHeap(this.prioq));
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
 
         Assert.assertEquals(3, castType(this.prioq.popTop()));
         assertPrioQueueEquals(this.prioq, 6, 4, /**/5, 5, /**/4, 6, /**/3, 7, /**/2, 8, /**/1, 9, /**/0, 10);
         Assert.assertEquals(7, this.prioq.size());
         Assert.assertEquals(4, castType(this.prioq.top()));
-        Assert.assertTrue(isMinHeap(this.prioq));
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
 
         Assert.assertEquals(4, castType(this.prioq.popTop()));
         assertPrioQueueEquals(this.prioq, /**/5, 5, /**/4, 6, /**/3, 7, /**/2, 8, /**/1, 9, /**/0, 10);
         Assert.assertEquals(6, this.prioq.size());
         Assert.assertEquals(5, castType(this.prioq.top()));
-        Assert.assertTrue(isMinHeap(this.prioq));
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
 
         Assert.assertEquals(5, castType(this.prioq.popTop()));
         assertPrioQueueEquals(this.prioq, /**/4, 6, /**/3, 7, /**/2, 8, /**/1, 9, /**/0, 10);
         Assert.assertEquals(5, this.prioq.size());
         Assert.assertEquals(6, castType(this.prioq.top()));
-        Assert.assertTrue(isMinHeap(this.prioq));
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
         Assert.assertFalse(this.prioq.isEmpty());
 
         Assert.assertEquals(6, castType(this.prioq.popTop()));
         assertPrioQueueEquals(this.prioq, /**/3, 7, /**/2, 8, /**/1, 9, /**/0, 10);
         Assert.assertEquals(4, this.prioq.size());
         Assert.assertEquals(7, castType(this.prioq.top()));
-        Assert.assertTrue(isMinHeap(this.prioq));
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
         Assert.assertFalse(this.prioq.isEmpty());
 
         Assert.assertEquals(7, castType(this.prioq.popTop()));
         assertPrioQueueEquals(this.prioq, /**/2, 8, /**/1, 9, /**/0, 10);
         Assert.assertEquals(3, this.prioq.size());
         Assert.assertEquals(8, castType(this.prioq.top()));
-        Assert.assertTrue(isMinHeap(this.prioq));
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
         Assert.assertFalse(this.prioq.isEmpty());
 
         Assert.assertEquals(8, castType(this.prioq.popTop()));
         assertPrioQueueEquals(this.prioq, /**/1, 9, /**/0, 10);
         Assert.assertEquals(2, this.prioq.size());
         Assert.assertEquals(9, castType(this.prioq.top()));
-        Assert.assertTrue(isMinHeap(this.prioq));
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
         Assert.assertFalse(this.prioq.isEmpty());
 
         Assert.assertEquals(9, castType(this.prioq.popTop()));
         assertPrioQueueEquals(this.prioq, /**/0, 10);
         Assert.assertEquals(1, this.prioq.size());
         Assert.assertEquals(10, castType(this.prioq.top()));
-        Assert.assertTrue(isMinHeap(this.prioq));
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
         Assert.assertFalse(this.prioq.isEmpty());
 
         Assert.assertEquals(10, castType(this.prioq.popTop()));
@@ -704,8 +724,8 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
             }
         }
 
-        Assert.assertTrue(checkConsistency(this.prioq));
-        Assert.assertTrue(isMinHeap(this.prioq));
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(this.prioq));
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
 
         Assert.assertEquals(reference.size(), this.prioq.size());
 
@@ -719,8 +739,8 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
             count++;
         }
 
-        Assert.assertTrue(checkConsistency(this.prioq));
-        Assert.assertTrue(isMinHeap(this.prioq));
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(this.prioq));
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
 
         Assert.assertEquals(reference.size(), count);
 
@@ -733,8 +753,8 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
             count++;
         }
 
-        Assert.assertTrue(checkConsistency(this.prioq));
-        Assert.assertTrue(isMinHeap(this.prioq));
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(this.prioq));
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
 
         Assert.assertEquals(reference.size(), count);
 
@@ -746,8 +766,8 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
             count++;
         }
 
-        Assert.assertTrue(checkConsistency(this.prioq));
-        Assert.assertTrue(isMinHeap(this.prioq));
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(this.prioq));
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
 
         Assert.assertEquals(reference.size(), count);
 
@@ -1031,13 +1051,13 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
             if (i % 4001 == 0)
             {
-                checkConsistency(this.prioq);
-                Assert.assertTrue(isMinHeap(this.prioq));
+                KTypeIndexedHeapPriorityQueueTest.checkConsistency(this.prioq);
+                Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
             }
         }
 
-        checkConsistency(this.prioq);
-        Assert.assertTrue(isMinHeap(this.prioq));
+        KTypeIndexedHeapPriorityQueueTest.checkConsistency(this.prioq);
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
 
         //fill reference array
         final int[] referenceArray = new int[reference.size()];
@@ -1072,8 +1092,8 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
             if (i % 30711 == 0)
             {
-                checkConsistency(this.prioq);
-                Assert.assertTrue(isMinHeap(this.prioq));
+                KTypeIndexedHeapPriorityQueueTest.checkConsistency(this.prioq);
+                Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
             }
 
             currentSize--;
@@ -1248,6 +1268,253 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         Assert.assertTrue(testPQSame.equals(testPQSame2));
     }
 
+    @Repeat(iterations = 10)
+    @Test
+    public void testRefreshPrioritiesComparable()
+    {
+        final Random prng = RandomizedTest.getRandom();
+
+        final int COUNT = (int) 1e4;
+
+        //A) fill COUNT random values in prio-queue
+        final KTypeIndexedHeapPriorityQueue<KType> testPQ = new KTypeIndexedHeapPriorityQueue<KType>(10);
+
+        for (int i = 0; i < COUNT; i++)
+        {
+            //use unique values so that swapping values always disturb the heap property
+            testPQ.put(i, cast(COUNT - i));
+        }
+
+        Assert.assertEquals(COUNT, testPQ.size());
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
+
+        //B) Shuffle elements of the buffer, so that the heap property is not respected anymore:
+        final int NB_SHUFFLES = prng.nextInt((int) (0.45 * COUNT));
+
+        for (int i = 0; i < NB_SHUFFLES; i++)
+        {
+            final int pos1 = RandomizedTest.randomIntBetween(1, COUNT - 1);
+            final int pos2 = RandomizedTest.randomIntBetween(1, COUNT - 1);
+
+            //swap pos1 and pos2
+            final KType tmp = testPQ.buffer[pos1];
+            testPQ.buffer[pos1] = testPQ.buffer[pos2];
+            testPQ.buffer[pos2] = tmp;
+        }
+
+        //no longer a heap
+        Assert.assertEquals(COUNT, testPQ.size());
+        Assert.assertFalse(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));
+
+        //but still consistent !
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
+
+        //C) Reestablish
+        testPQ.refreshPriorities();
+
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
+    }
+
+/*! #if ($TemplateOptions.KTypeGeneric) !*/
+    @Repeat(iterations = 10)
+    @Test
+    public void testChangePriorityComparable()
+    {
+        Assume.assumeTrue(Object[].class.isInstance(this.prioq.buffer));
+
+        final Random prng = RandomizedTest.getRandom();
+
+        final int COUNT = (int) 1e4;
+
+        //A) fill COUNT random values in prio-queue
+        final KTypeIndexedHeapPriorityQueue<IntHolder> testPQ = new KTypeIndexedHeapPriorityQueue<IntHolder>(10);
+
+        for (int i = 0; i < COUNT; i++)
+        {
+            //use unique values so that swapping values always disturb the heap property
+            //values are between [COUNT, 2* COUNT]
+            testPQ.put(i, new IntHolder(2 * COUNT - i));
+        }
+
+        Assert.assertEquals(COUNT, testPQ.size());
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
+
+        //B) Directly change elements of the buffer, so that the heap property is not respected anymore:
+        final int NB_CHANGES = prng.nextInt((int) (0.2 * COUNT));
+
+        // Reestablish on the flow
+        for (int i = 0; i < NB_CHANGES; i++)
+        {
+            final int changedIndex = RandomizedTest.randomIntBetween(0, COUNT - 1);
+            //values are between [COUNT, 2* COUNT], so change with a value < min, garanteed to destroy the heap property.
+            final int newValue = RandomizedTest.randomIntBetween(0, COUNT - 2);
+
+            testPQ.get(changedIndex).value = newValue;
+
+            //no longer a heap
+            Assert.assertFalse(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));
+
+            //but still consistent !
+            Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
+
+            //access back by index and reestablish the heap property
+            testPQ.changePriority(changedIndex);
+
+            //this is again a heap
+            Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));
+            Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
+        }
+    }
+
+/*! #end !*/
+
+    @Repeat(iterations = 10)
+    @Test
+    public void testRefreshPrioritiesComparator()
+    {
+        //Inverse natural ordering comparator
+        final KTypeComparator<KType> comp = new KTypeComparator<KType>() {
+
+            @Override
+            public int compare(final KType e1, final KType e2)
+            {
+                int res = 0;
+
+                if (castType(e1) < castType(e2))
+                {
+                    res = 1;
+                }
+                else if (castType(e1) > castType(e2))
+                {
+                    res = -1;
+                }
+
+                return res;
+            }
+        };
+
+        final Random prng = RandomizedTest.getRandom();
+
+        final int COUNT = (int) 1e4;
+
+        //A) fill COUNT random values in prio-queue
+        final KTypeIndexedHeapPriorityQueue<KType> testPQ = new KTypeIndexedHeapPriorityQueue<KType>(comp, 10);
+
+        for (int i = 0; i < COUNT; i++)
+        {
+            //use unique values so that swapping values always disturb the heap property
+            testPQ.put(i, cast(COUNT - i));
+        }
+
+        Assert.assertEquals(COUNT, testPQ.size());
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
+
+        //B) Shuffle elements of the buffer, so that the heap property is not respected anymore:
+        final int NB_SHUFFLES = prng.nextInt((int) (0.45 * COUNT));
+
+        for (int i = 0; i < NB_SHUFFLES; i++)
+        {
+            final int pos1 = RandomizedTest.randomIntBetween(1, COUNT - 1);
+            final int pos2 = RandomizedTest.randomIntBetween(1, COUNT - 1);
+
+            //swap pos1 and pos2
+            final KType tmp = testPQ.buffer[pos1];
+            testPQ.buffer[pos1] = testPQ.buffer[pos2];
+            testPQ.buffer[pos2] = tmp;
+        }
+
+        //no longer a heap
+        Assert.assertEquals(COUNT, testPQ.size());
+        Assert.assertFalse(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));
+
+        //but still consistent !
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
+
+        //C) Reestablish
+        testPQ.refreshPriorities();
+
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
+    }
+
+/*! #if ($TemplateOptions.KTypeGeneric) !*/
+    @Repeat(iterations = 10)
+    @Test
+    public void testChangePriorityComparator()
+    {
+        Assume.assumeTrue(Object[].class.isInstance(this.prioq.buffer));
+
+        //Inverse natural ordering comparator
+        final KTypeComparator<IntHolder> comp = new KTypeComparator<IntHolder>() {
+
+            @Override
+            public int compare(final IntHolder e1, final IntHolder e2)
+            {
+                int res = 0;
+
+                if (e1.value < e2.value)
+                {
+                    res = 1;
+                }
+                else if (e1.value > e2.value)
+                {
+                    res = -1;
+                }
+
+                return res;
+            }
+        };
+
+        final Random prng = RandomizedTest.getRandom();
+
+        final int COUNT = (int) 1e4;
+
+        //A) fill COUNT random values in prio-queue
+        final KTypeIndexedHeapPriorityQueue<IntHolder> testPQ = new KTypeIndexedHeapPriorityQueue<IntHolder>(comp, 10);
+
+        for (int i = 0; i < COUNT; i++)
+        {
+            //use unique values so that changing values always disturb the heap property
+            //values are between [COUNT, 2* COUNT]
+            testPQ.put(i, new IntHolder(2 * COUNT - i));
+        }
+
+        Assert.assertEquals(COUNT, testPQ.size());
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
+
+        final int NB_CHANGES = prng.nextInt((int) (0.2 * COUNT));
+
+        //Reestablish on the flow
+        for (int i = 0; i < NB_CHANGES; i++)
+        {
+            final int changedIndex = RandomizedTest.randomIntBetween(0, COUNT - 1);
+            //values are between [COUNT, 2* COUNT], so change with a value < min, garanteed to destroy the heap property.
+            final int newValue = RandomizedTest.randomIntBetween(0, COUNT - 2);
+
+            testPQ.get(changedIndex).value = newValue;
+
+            //no longer a heap
+            Assert.assertFalse(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));
+
+            //but still consistent !
+            Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
+
+            //access back by index and reestablish the heap property
+            testPQ.changePriority(changedIndex);
+
+            //this is again a heap
+            Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));
+            Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
+        }
+    }
+
+/*! #end !*/
+
     @Test
     public void testSyntheticComparator()
     {
@@ -1297,13 +1564,13 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
             if (i % 27001 == 0)
             {
-                checkConsistency(this.prioq);
-                Assert.assertTrue(isMinHeap(this.prioq));
+                KTypeIndexedHeapPriorityQueueTest.checkConsistency(this.prioq);
+                Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
             }
         }
 
-        checkConsistency(this.prioq);
-        Assert.assertTrue(isMinHeap(this.prioq));
+        KTypeIndexedHeapPriorityQueueTest.checkConsistency(this.prioq);
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
 
         //fill reference array
         final KType[] referenceArray = Intrinsics.newKTypeArray(reference.size());
@@ -1342,8 +1609,8 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
             if (i % 31117 == 0)
             {
-                checkConsistency(this.prioq);
-                Assert.assertTrue(isMinHeap(this.prioq));
+                KTypeIndexedHeapPriorityQueueTest.checkConsistency(this.prioq);
+                Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
             }
 
             currentSize--;
@@ -1761,7 +2028,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         Assert.assertEquals(initialPoolSize, testContainer.entryIteratorPool.size());
     }
 
-    @Repeat(iterations = 50)
+    @Repeat(iterations = 20)
     @Test
     public void testPreallocatedSize()
     {
@@ -1794,6 +2061,445 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         }
 
         Assert.assertEquals(PREALLOCATED_SIZE, newHeap.size());
+    }
+
+    @Test
+    public void testForEachProcedureWithException()
+    {
+        final Random randomVK = new Random(9521455645L);
+
+        //Test that the container do not resize if less that the initial size
+
+        //1) Choose a map to build
+        final int NB_ELEMENTS = 2000;
+
+        final KTypeIndexedHeapPriorityQueue<KType> newMap = new KTypeIndexedHeapPriorityQueue<KType>(null);
+
+        //add a randomized number of key/values pairs
+        //use the same value for keys and values to ease later analysis
+        for (int i = 0; i < NB_ELEMENTS; i++) {
+
+            final int KVpair = randomVK.nextInt((int) (0.7 * NB_ELEMENTS));
+
+            newMap.put(KVpair, cast(KVpair));
+        }
+
+        //List the keys in the reverse-order of the internal buffer, since forEach() is iterating in reverse also:
+        final ArrayList<Integer> keyList = new ArrayList<Integer>();
+        final ArrayList<Integer> valueList = new ArrayList<Integer>();
+
+        //Test forEach predicate and stop at each key in turn.
+        final ArrayList<Integer> keyListTest = new ArrayList<Integer>();
+        final ArrayList<Integer> valueListTest = new ArrayList<Integer>();
+
+        for (int k = 1; k < newMap.size() + 1; k++) {
+
+            //keys are int keys
+            keyList.add(newMap.qp[k]);
+
+            valueList.add(castType(newMap.buffer[k]));
+
+            //check that it matches the get()
+            Assert.assertEquals(castType(newMap.buffer[k]), castType(newMap.get(newMap.qp[k])));
+        }
+
+        final int size = keyList.size();
+
+        for (int i = 0; i < size; i++)
+        {
+            final int currentPairIndexSizeToIterate = i + 1;
+
+            keyListTest.clear();
+            valueListTest.clear();
+
+            //A) Run forEach(int KType)
+            try
+            {
+                newMap.forEach(new IntKTypeProcedure<KType>() {
+
+                    @Override
+                    public void apply(final int key, final KType value)
+                    {
+                        keyListTest.add(key);
+                        valueListTest.add(castType(value));
+
+                        //when the stopping key/value pair is encountered, add to list and stop iteration
+                        if (key == keyList.get(currentPairIndexSizeToIterate - 1))
+                        {
+                            //interrupt iteration by an exception
+                            throw new RuntimeException("Interrupted treatment by test");
+                        }
+                    }
+                });
+            }
+            catch (final RuntimeException e)
+            {
+                if (!e.getMessage().equals("Interrupted treatment by test"))
+                {
+                    throw e;
+                }
+            }
+            finally
+            {
+                //despite the exception, the procedure terminates cleanly
+
+                //check that keyList/keyListTest and valueList/valueListTest are identical for the first
+                //currentPairIndexToIterate + 1 elements
+                Assert.assertEquals(currentPairIndexSizeToIterate, keyListTest.size());
+                Assert.assertEquals(currentPairIndexSizeToIterate, valueListTest.size());
+
+                for (int j = 0; j < currentPairIndexSizeToIterate; j++)
+                {
+                    Assert.assertEquals(keyList.get(j), keyListTest.get(j));
+                    Assert.assertEquals(valueList.get(j), valueListTest.get(j));
+                }
+            } //end finally
+
+            //B) Run keys().forEach(int)
+            keyListTest.clear();
+            valueListTest.clear();
+            try
+            {
+                newMap.keys().forEach(new IntProcedure() {
+
+                    @Override
+                    public void apply(final int key)
+                    {
+                        keyListTest.add(key);
+
+                        //retreive value by get() on the map
+                        valueListTest.add(castType(newMap.get(key)));
+
+                        //when the stopping key/value pair is encountered, add to list and stop iteration
+                        if (key == keyList.get(currentPairIndexSizeToIterate - 1))
+                        {
+                            //interrupt iteration by an exception
+                            throw new RuntimeException("Interrupted treatment by test");
+                        }
+                    }
+                });
+            }
+            catch (final RuntimeException e)
+            {
+                if (!e.getMessage().equals("Interrupted treatment by test"))
+                {
+                    throw e;
+                }
+            }
+            finally
+            {
+                //despite the exception, the procedure terminates cleanly
+
+                //check that keyList/keyListTest and valueList/valueListTest are identical for the first
+                //currentPairIndexToIterate + 1 elements
+                Assert.assertEquals(currentPairIndexSizeToIterate, keyListTest.size());
+                Assert.assertEquals(currentPairIndexSizeToIterate, valueListTest.size());
+
+                for (int j = 0; j < currentPairIndexSizeToIterate; j++)
+                {
+                    Assert.assertEquals(keyList.get(j), keyListTest.get(j));
+                    Assert.assertEquals(valueList.get(j), valueListTest.get(j));
+                }
+            } //end finally
+
+            //C) Run values().forEach(KType)
+            keyListTest.clear();
+            valueListTest.clear();
+
+            try
+            {
+                newMap.values().forEach(new KTypeProcedure<KType>() {
+
+                    @Override
+                    public void apply(final KType value)
+                    {
+                        valueListTest.add(castType(value));
+
+                        //when the stopping key/value pair is encountered, add to list and stop iteration
+                        if (castType(value) == valueList.get(currentPairIndexSizeToIterate - 1))
+                        {
+                            //interrupt iteration by an exception
+                            throw new RuntimeException("Interrupted treatment by test");
+                        }
+                    }
+                });
+            }
+            catch (final RuntimeException e)
+            {
+                if (!e.getMessage().equals("Interrupted treatment by test"))
+                {
+                    throw e;
+                }
+            }
+            finally
+            {
+                //despite the exception, the procedure terminates cleanly
+
+                //check that  valueList/valueListTest are identical for the first
+                //currentPairIndexToIterate + 1 elements
+                Assert.assertEquals(currentPairIndexSizeToIterate, valueListTest.size());
+
+                for (int j = 0; j < currentPairIndexSizeToIterate; j++)
+                {
+                    Assert.assertEquals(valueList.get(j), valueListTest.get(j));
+                }
+            } //end finally
+
+        } //end for each index
+    }
+
+    @Test
+    public void testForEachProcedure()
+    {
+        final Random randomVK = new Random(9521455645L);
+
+        //Test that the container do not resize if less that the initial size
+
+        //1) Choose a map to build
+        final int NB_ELEMENTS = 2000;
+
+
+        final KTypeIndexedHeapPriorityQueue<KType> newMap = new KTypeIndexedHeapPriorityQueue<KType>(null);
+
+        //add a randomized number of key/values pairs
+        //use the same value for keys and values to ease later analysis
+        for (int i = 0; i < NB_ELEMENTS; i++) {
+
+            final int KVpair = randomVK.nextInt((int) (0.7 * NB_ELEMENTS));
+
+            newMap.put(KVpair, cast(KVpair));
+        }
+
+        //List the keys in the reverse-order of the internal buffer, since forEach() is iterating in reverse also:
+        final ArrayList<Integer> keyList = new ArrayList<Integer>();
+        final ArrayList<Integer> valueList = new ArrayList<Integer>();
+
+        for (int k = 1; k < newMap.size() + 1; k++) {
+
+            //keys are int keys
+            keyList.add(newMap.qp[k]);
+
+            valueList.add(castType(newMap.buffer[k]));
+
+            //check that it matches the get()
+            Assert.assertEquals(castType(newMap.buffer[k]), castType(newMap.get(newMap.qp[k])));
+        }
+
+        //Test forEach predicate and stop at each key in turn.
+        final ArrayList<Integer> keyListTest = new ArrayList<Integer>();
+        final ArrayList<Integer> valueListTest = new ArrayList<Integer>();
+
+        keyListTest.clear();
+        valueListTest.clear();
+
+        //A) Run forEach(int , VType)
+
+        newMap.forEach(new IntKTypeProcedure<KType>() {
+
+            @Override
+            public void apply(final int key, final KType value)
+            {
+                keyListTest.add(key);
+                valueListTest.add(castType(value));
+            }
+        });
+
+        //check that keyList/keyListTest and valueList/valueListTest are identical.
+        Assert.assertEquals(keyList, keyListTest);
+        Assert.assertEquals(valueList, valueListTest);
+
+        //B) Run keys().forEach(int)
+        keyListTest.clear();
+        valueListTest.clear();
+
+        newMap.keys().forEach(new IntProcedure() {
+
+            @Override
+            public void apply(final int key)
+            {
+                keyListTest.add(key);
+                //retreive value by get() on the map
+                valueListTest.add(castType(newMap.get(key)));
+            }
+        });
+
+        //check that keyList/keyListTest and valueList/valueListTest are identical .
+        Assert.assertEquals(keyList, keyListTest);
+        Assert.assertEquals(valueList, valueListTest);
+
+        //C) Run values().forEach(KType)
+        keyListTest.clear();
+        valueListTest.clear();
+
+        newMap.values().forEach(new KTypeProcedure<KType>() {
+
+            @Override
+            public void apply(final KType value)
+            {
+                valueListTest.add(castType(value));
+            }
+        });
+
+        //check that  valueList/valueListTest are identical .
+        Assert.assertEquals(valueList, valueListTest);
+    }
+
+    @Test
+    public void testForEachPredicate()
+    {
+        final Random randomVK = new Random(9521455645L);
+
+        //Test that the container do not resize if less that the initial size
+
+        //1) Choose a map to build
+        final int NB_ELEMENTS = 2000;
+
+        final KTypeIndexedHeapPriorityQueue<KType> newMap = new KTypeIndexedHeapPriorityQueue<KType>(null);
+
+        //add a randomized number of key/values pairs
+        //use the same value for keys and values to ease later analysis
+        for (int i = 0; i < NB_ELEMENTS; i++) {
+
+            final int KVpair = randomVK.nextInt((int) (0.7 * NB_ELEMENTS));
+
+            newMap.put(KVpair, cast(KVpair));
+        }
+
+        //List the keys in the reverse-order of the internal buffer, since forEach() is iterating in reverse also:
+        final ArrayList<Integer> keyList = new ArrayList<Integer>();
+        final ArrayList<Integer> valueList = new ArrayList<Integer>();
+
+        //Test forEach predicate and stop at each key in turn.
+        final ArrayList<Integer> keyListTest = new ArrayList<Integer>();
+        final ArrayList<Integer> valueListTest = new ArrayList<Integer>();
+
+        for (int k = 1; k < newMap.size() + 1; k++) {
+
+            //keys are int keys
+            keyList.add(newMap.qp[k]);
+
+            valueList.add(castType(newMap.buffer[k]));
+
+            //check that it matches the get()
+            Assert.assertEquals(castType(newMap.buffer[k]), castType(newMap.get(newMap.qp[k])));
+        }
+
+
+        final int size = keyList.size();
+
+        for (int i = 0; i < size; i++)
+        {
+            final int currentPairIndexSizeToIterate = i + 1;
+
+            keyListTest.clear();
+            valueListTest.clear();
+
+            //A) Run forEach(int, KType)
+
+            newMap.forEach(new IntKTypePredicate<KType>() {
+
+                @Override
+                public boolean apply(final int key, final KType value)
+                {
+                    keyListTest.add(key);
+                    valueListTest.add(castType(value));
+
+                    //when the stopping key/value pair is encountered, add to list and stop iteration
+                    if (key == keyList.get(currentPairIndexSizeToIterate - 1))
+                    {
+                        //interrupt iteration by an exception
+                        return false;
+                    }
+
+                    return true;
+                }
+            });
+
+            //despite the interruption, the procedure terminates cleanly
+
+            //check that keyList/keyListTest and valueList/valueListTest are identical for the first
+            //currentPairIndexToIterate + 1 elements
+            Assert.assertEquals(currentPairIndexSizeToIterate, keyListTest.size());
+            Assert.assertEquals(currentPairIndexSizeToIterate, valueListTest.size());
+
+            for (int j = 0; j < currentPairIndexSizeToIterate; j++)
+            {
+                Assert.assertEquals(keyList.get(j), keyListTest.get(j));
+                Assert.assertEquals(valueList.get(j), valueListTest.get(j));
+            }
+
+            //B) Run keys().forEach(int)
+            keyListTest.clear();
+            valueListTest.clear();
+
+            newMap.keys().forEach(new IntPredicate() {
+
+                @Override
+                public boolean apply(final int key)
+                {
+                    keyListTest.add(key);
+
+                    //retreive value by get() on the map
+                    valueListTest.add(castType(newMap.get(key)));
+
+                    //when the stopping key/value pair is encountered, add to list and stop iteration
+                    if (key == keyList.get(currentPairIndexSizeToIterate - 1))
+                    {
+                        //interrupt iteration
+                        return false;
+                    }
+
+                    return true;
+                }
+            });
+
+            //despite the interruption, the procedure terminates cleanly
+
+            //check that keyList/keyListTest and valueList/valueListTest are identical for the first
+            //currentPairIndexToIterate + 1 elements
+            Assert.assertEquals(currentPairIndexSizeToIterate, keyListTest.size());
+            Assert.assertEquals(currentPairIndexSizeToIterate, valueListTest.size());
+
+            for (int j = 0; j < currentPairIndexSizeToIterate; j++)
+            {
+                Assert.assertEquals(keyList.get(j), keyListTest.get(j));
+                Assert.assertEquals(valueList.get(j), valueListTest.get(j));
+            }
+
+            //C) Run values().forEach(KType)
+            keyListTest.clear();
+            valueListTest.clear();
+
+
+            newMap.values().forEach(new KTypePredicate<KType>() {
+
+                @Override
+                public boolean apply(final KType value)
+                {
+                    valueListTest.add(castType(value));
+
+                    //when the stopping key/value pair is encountered, add to list and stop iteration
+                    if (castType(value) == valueList.get(currentPairIndexSizeToIterate - 1))
+                    {
+                        //interrupt iteration
+                        return false;
+                    }
+
+                    return true;
+                }
+            });
+
+            //despite the interruption, the procedure terminates cleanly
+
+            //check that  valueList/valueListTest are identical for the first
+            //currentPairIndexToIterate + 1 elements
+            Assert.assertEquals(currentPairIndexSizeToIterate, valueListTest.size());
+
+            for (int j = 0; j < currentPairIndexSizeToIterate; j++)
+            {
+                Assert.assertEquals(valueList.get(j), valueListTest.get(j));
+            }
+        } //end for each index
     }
 
     /**
@@ -1853,7 +2559,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         Assert.assertEquals(elements.length / 2, pq.size());
     }
 
-    private boolean checkConsistency(final KTypeIndexedHeapPriorityQueue<KType> prio)
+    private static <KType> boolean checkConsistency(final KTypeIndexedHeapPriorityQueue<KType> prio)
     {
         if (prio.elementsCount > 0)
         {
@@ -1890,18 +2596,18 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
      * method to test heap invariant in assert expressions
      */
     // is buffer[1..N] a min heap?
-    private boolean isMinHeap(final KTypeIndexedHeapPriorityQueue<KType> prio)
+    private static <KType> boolean isMinHeap(final KTypeIndexedHeapPriorityQueue<KType> prio)
     {
         if (prio.comparator == null)
         {
-            return isMinHeapComparable(prio, 1);
+            return KTypeIndexedHeapPriorityQueueTest.isMinHeapComparable(prio, 1);
         }
 
-        return isMinHeapComparator(prio, 1);
+        return KTypeIndexedHeapPriorityQueueTest.isMinHeapComparator(prio, 1);
     }
 
     // is subtree of pq[1..N] rooted at k a min heap?
-    private boolean isMinHeapComparable(final KTypeIndexedHeapPriorityQueue<KType> prio, final int k)
+    private static <KType> boolean isMinHeapComparable(final KTypeIndexedHeapPriorityQueue<KType> prio, final int k)
     {
         final int N = prio.elementsCount;
         final KType[] buffer = prio.buffer;
@@ -1918,11 +2624,11 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
             return false;
         }
         //recursively test
-        return isMinHeapComparable(prio, left) && isMinHeapComparable(prio, right);
+        return KTypeIndexedHeapPriorityQueueTest.isMinHeapComparable(prio, left) && KTypeIndexedHeapPriorityQueueTest.isMinHeapComparable(prio, right);
     }
 
     // is subtree of pq[1..N] rooted at k a min heap?
-    private boolean isMinHeapComparator(final KTypeIndexedHeapPriorityQueue<KType> prio, final int k)
+    private static <KType> boolean isMinHeapComparator(final KTypeIndexedHeapPriorityQueue<KType> prio, final int k)
     {
         final int N = prio.elementsCount;
         final KType[] buffer = prio.buffer;
@@ -1945,6 +2651,6 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
             return false;
         }
         //recursively test
-        return isMinHeapComparator(prio, left) && isMinHeapComparator(prio, right);
+        return KTypeIndexedHeapPriorityQueueTest.isMinHeapComparator(prio, left) && KTypeIndexedHeapPriorityQueueTest.isMinHeapComparator(prio, right);
     }
 }

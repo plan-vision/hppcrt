@@ -1367,7 +1367,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
         assertOrder(comparatorDeque);
     }
 
-    @Repeat(iterations = 50)
+    @Repeat(iterations = 20)
     @Test
     public void testPreallocatedSize()
     {

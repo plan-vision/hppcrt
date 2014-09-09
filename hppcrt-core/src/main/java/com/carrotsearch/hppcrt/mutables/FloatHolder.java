@@ -3,7 +3,7 @@ package com.carrotsearch.hppcrt.mutables;
 /**
  * <code>float</code> holder.
  */
-public class FloatHolder
+public class FloatHolder implements Comparable<FloatHolder>
 {
     public float value;
 
@@ -19,14 +19,20 @@ public class FloatHolder
     @Override
     public int hashCode()
     {
-        return Float.floatToIntBits(value);
+        return Float.floatToIntBits(this.value);
     }
 
     @Override
     public boolean equals(final Object other)
     {
         return (other instanceof FloatHolder) &&
-                Float.floatToIntBits(value) ==
+                Float.floatToIntBits(this.value) ==
                 Float.floatToIntBits(((FloatHolder) other).value);
+    }
+
+    @Override
+    public int compareTo(final FloatHolder o) {
+
+        return Float.compare(this.value, o.value);
     }
 }
