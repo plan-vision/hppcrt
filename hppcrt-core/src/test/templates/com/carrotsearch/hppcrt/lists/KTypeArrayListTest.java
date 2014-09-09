@@ -1129,7 +1129,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         assertOrder(comparatorListOriginal, comparatorList, lowerRange, upperRange);
     }
 
-    @Repeat(iterations = 20)
+    @Repeat(iterations = 10)
     @Test
     public void testPreallocatedSize()
     {

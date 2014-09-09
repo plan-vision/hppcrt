@@ -1,43 +1,23 @@
 package com.carrotsearch.hppcrt.heaps;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Random;
+import java.util.*;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
-import com.carrotsearch.hppcrt.AbstractKTypeTest;
-import com.carrotsearch.hppcrt.Intrinsics;
-import com.carrotsearch.hppcrt.IteratorPool;
+import static com.carrotsearch.hppcrt.TestUtils.*;
+import static org.junit.Assert.*;
+
+import com.carrotsearch.hppcrt.*;
+import com.carrotsearch.hppcrt.lists.*;
 import com.carrotsearch.hppcrt.TestUtils;
-import com.carrotsearch.hppcrt.cursors.IntCursor;
-import com.carrotsearch.hppcrt.cursors.IntKTypeCursor;
-import com.carrotsearch.hppcrt.cursors.KTypeCursor;
-import com.carrotsearch.hppcrt.maps.KTypeVTypeOpenHashMap;
-import com.carrotsearch.hppcrt.mutables.IntHolder;
-import com.carrotsearch.hppcrt.mutables.LongHolder;
-import com.carrotsearch.hppcrt.predicates.IntKTypePredicate;
-import com.carrotsearch.hppcrt.predicates.IntPredicate;
-import com.carrotsearch.hppcrt.predicates.KTypePredicate;
-import com.carrotsearch.hppcrt.predicates.KTypeVTypePredicate;
-import com.carrotsearch.hppcrt.procedures.IntKTypeProcedure;
-import com.carrotsearch.hppcrt.procedures.IntProcedure;
-import com.carrotsearch.hppcrt.procedures.KTypeProcedure;
-import com.carrotsearch.hppcrt.procedures.KTypeVTypeProcedure;
-import com.carrotsearch.hppcrt.sets.IntOpenHashSet;
-import com.carrotsearch.hppcrt.sets.KTypeOpenHashSet;
-import com.carrotsearch.hppcrt.sorting.KTypeComparator;
-import com.carrotsearch.hppcrt.sorting.KTypeSort;
+import com.carrotsearch.hppcrt.cursors.*;
+import com.carrotsearch.hppcrt.mutables.*;
+import com.carrotsearch.hppcrt.predicates.*;
+import com.carrotsearch.hppcrt.procedures.*;
+import com.carrotsearch.hppcrt.sets.*;
+import com.carrotsearch.hppcrt.sorting.*;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
-import com.carrotsearch.randomizedtesting.annotations.Repeat;
+import com.carrotsearch.randomizedtesting.annotations.*;
 
 /**
  * Unit tests for {@link KTypeHeapPriorityQueue}.
@@ -46,6 +26,54 @@ import com.carrotsearch.randomizedtesting.annotations.Repeat;
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
 {
+
+/*! #if ($TemplateOptions.KTypeGeneric) !*/
+    /**
+     * Test class for mutable comparable type
+     */
+    public final class TestHolder implements Comparable<TestHolder>
+    {
+        public KType value;
+
+        public TestHolder()
+        {
+            //nothing
+        }
+
+        public TestHolder(final KType value)
+        {
+            this.value = value;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Internals.rehash(this.value);
+        }
+
+        @Override
+        public boolean equals(final Object other)
+        {
+            if (other instanceof KTypeIndexedHeapPriorityQueueTest.TestHolder) {
+
+                @SuppressWarnings("unchecked")
+                final TestHolder otherKType = (TestHolder) other;
+
+                return Intrinsics.equalsKType(this.value, otherKType.value);
+            }
+
+            return false;
+        }
+
+        @Override
+        public int compareTo(final TestHolder o) {
+
+            return Intrinsics.compareKTypeUnchecked(this.value, o.value);
+        }
+    }
+
+/*! #end !*/
+
     /**
      * Per-test fresh initialized instance.
      */
@@ -1268,13 +1296,17 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         Assert.assertTrue(testPQSame.equals(testPQSame2));
     }
 
-    @Repeat(iterations = 10)
+    @Repeat(iterations = 20)
     @Test
     public void testRefreshPrioritiesComparable()
     {
-        final Random prng = RandomizedTest.getRandom();
-
+        /*! #if ($TemplateOptions.isKType("GENERIC", "int", "long", "float", "double")) !*/
         final int COUNT = (int) 1e4;
+        /*! #elseif($TemplateOptions.isKType("short", "char"))
+         final int COUNT = (int) 1e3;
+        #else
+          final int COUNT = (int) (126 * 0.5);
+        #end !*/
 
         //A) fill COUNT random values in prio-queue
         final KTypeIndexedHeapPriorityQueue<KType> testPQ = new KTypeIndexedHeapPriorityQueue<KType>(10);
@@ -1282,60 +1314,8 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         for (int i = 0; i < COUNT; i++)
         {
             //use unique values so that swapping values always disturb the heap property
-            testPQ.put(i, cast(COUNT - i));
-        }
-
-        Assert.assertEquals(COUNT, testPQ.size());
-        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));
-        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
-
-        //B) Shuffle elements of the buffer, so that the heap property is not respected anymore:
-        final int NB_SHUFFLES = prng.nextInt((int) (0.45 * COUNT));
-
-        for (int i = 0; i < NB_SHUFFLES; i++)
-        {
-            final int pos1 = RandomizedTest.randomIntBetween(1, COUNT - 1);
-            final int pos2 = RandomizedTest.randomIntBetween(1, COUNT - 1);
-
-            //swap pos1 and pos2
-            final KType tmp = testPQ.buffer[pos1];
-            testPQ.buffer[pos1] = testPQ.buffer[pos2];
-            testPQ.buffer[pos2] = tmp;
-        }
-
-        //no longer a heap
-        Assert.assertEquals(COUNT, testPQ.size());
-        Assert.assertFalse(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));
-
-        //but still consistent !
-        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
-
-        //C) Reestablish
-        testPQ.refreshPriorities();
-
-        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));
-        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
-    }
-
-/*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @Repeat(iterations = 10)
-    @Test
-    public void testChangePriorityComparable()
-    {
-        Assume.assumeTrue(Object[].class.isInstance(this.prioq.buffer));
-
-        final Random prng = RandomizedTest.getRandom();
-
-        final int COUNT = (int) 1e4;
-
-        //A) fill COUNT random values in prio-queue
-        final KTypeIndexedHeapPriorityQueue<IntHolder> testPQ = new KTypeIndexedHeapPriorityQueue<IntHolder>(10);
-
-        for (int i = 0; i < COUNT; i++)
-        {
-            //use unique values so that swapping values always disturb the heap property
             //values are between [COUNT, 2* COUNT]
-            testPQ.put(i, new IntHolder(2 * COUNT - i));
+            testPQ.put(i, cast(2 * COUNT - i));
         }
 
         Assert.assertEquals(COUNT, testPQ.size());
@@ -1343,88 +1323,15 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
 
         //B) Directly change elements of the buffer, so that the heap property is not respected anymore:
-        final int NB_CHANGES = prng.nextInt((int) (0.2 * COUNT));
+        final int NB_CHANGES = RandomizedTest.randomIntBetween(2, (int) (0.5 * COUNT));
 
-        // Reestablish on the flow
         for (int i = 0; i < NB_CHANGES; i++)
         {
-            final int changedIndex = RandomizedTest.randomIntBetween(0, COUNT - 1);
-            //values are between [COUNT, 2* COUNT], so change with a value < min, garanteed to destroy the heap property.
+            final int changedIndex = RandomizedTest.randomIntBetween(2,  COUNT - 2);
+
             final int newValue = RandomizedTest.randomIntBetween(0, COUNT - 2);
 
-            testPQ.get(changedIndex).value = newValue;
-
-            //no longer a heap
-            Assert.assertFalse(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));
-
-            //but still consistent !
-            Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
-
-            //access back by index and reestablish the heap property
-            testPQ.changePriority(changedIndex);
-
-            //this is again a heap
-            Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));
-            Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
-        }
-    }
-
-/*! #end !*/
-
-    @Repeat(iterations = 10)
-    @Test
-    public void testRefreshPrioritiesComparator()
-    {
-        //Inverse natural ordering comparator
-        final KTypeComparator<KType> comp = new KTypeComparator<KType>() {
-
-            @Override
-            public int compare(final KType e1, final KType e2)
-            {
-                int res = 0;
-
-                if (castType(e1) < castType(e2))
-                {
-                    res = 1;
-                }
-                else if (castType(e1) > castType(e2))
-                {
-                    res = -1;
-                }
-
-                return res;
-            }
-        };
-
-        final Random prng = RandomizedTest.getRandom();
-
-        final int COUNT = (int) 1e4;
-
-        //A) fill COUNT random values in prio-queue
-        final KTypeIndexedHeapPriorityQueue<KType> testPQ = new KTypeIndexedHeapPriorityQueue<KType>(comp, 10);
-
-        for (int i = 0; i < COUNT; i++)
-        {
-            //use unique values so that swapping values always disturb the heap property
-            testPQ.put(i, cast(COUNT - i));
-        }
-
-        Assert.assertEquals(COUNT, testPQ.size());
-        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));
-        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
-
-        //B) Shuffle elements of the buffer, so that the heap property is not respected anymore:
-        final int NB_SHUFFLES = prng.nextInt((int) (0.45 * COUNT));
-
-        for (int i = 0; i < NB_SHUFFLES; i++)
-        {
-            final int pos1 = RandomizedTest.randomIntBetween(1, COUNT - 1);
-            final int pos2 = RandomizedTest.randomIntBetween(1, COUNT - 1);
-
-            //swap pos1 and pos2
-            final KType tmp = testPQ.buffer[pos1];
-            testPQ.buffer[pos1] = testPQ.buffer[pos2];
-            testPQ.buffer[pos2] = tmp;
+            testPQ.buffer[testPQ.pq[changedIndex]] = (KType) cast(newValue);
         }
 
         //no longer a heap
@@ -1441,31 +1348,83 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
     }
 
-/*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @Repeat(iterations = 10)
+    @Repeat(iterations = 20)
     @Test
-    public void testChangePriorityComparator()
+    public void testChangePriorityComparable()
     {
-        Assume.assumeTrue(Object[].class.isInstance(this.prioq.buffer));
+        /*! #if ($TemplateOptions.isKType("GENERIC", "int", "long", "float", "double")) !*/
+        final int COUNT = (int) 1e4;
+        /*! #elseif($TemplateOptions.isKType("short", "char"))
+         final int COUNT = (int) 1e3;
+        #else
+          final int COUNT = (int) (126 * 0.5);
+        #end !*/
 
-        //Inverse natural ordering comparator
-        final KTypeComparator<IntHolder> comp = new KTypeComparator<IntHolder>() {
+        //A) fill COUNT random values in prio-queue
+        final KTypeIndexedHeapPriorityQueue<KType> testPQ = new KTypeIndexedHeapPriorityQueue<KType>(10);
+
+        for (int i = 0; i < COUNT; i++)
+        {
+            //use unique values so that swapping values always disturb the heap property
+            //values are between [COUNT, 2* COUNT]
+            testPQ.put(i, cast(2 * COUNT - i));
+        }
+
+        Assert.assertEquals(COUNT, testPQ.size());
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
+
+        //B) Directly change elements of the buffer, so that the heap property is not respected anymore:
+        final int NB_CHANGES = RandomizedTest.randomIntBetween(2, (int) (0.5 * COUNT));
+
+        int minValue = COUNT - 2;
+
+        // Reestablish on the flow
+        for (int i = 0; i < NB_CHANGES; i++)
+        {
+            final int changedIndex = RandomizedTest.randomIntBetween(2,  COUNT - 2);
+            //values are between [COUNT, 2* COUNT], so change with a value < actual min value !, garanteed to destroy the heap property.
+            final int newValue = RandomizedTest.randomIntBetween(0, minValue);
+
+            if (newValue >= minValue) {
+
+                //the new min value is not < the previous one, so the test cannot continue.
+                break;
+            }
+
+            testPQ.buffer[testPQ.pq[changedIndex]] = (KType) cast(newValue);
+
+            //no longer a heap
+            Assert.assertFalse(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));
+
+            //but still consistent !
+            Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
+
+            //access back by index and reestablish the heap property
+            testPQ.changePriority(changedIndex);
+
+            //this is again a heap
+            Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));
+            Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
+
+            //Ah yes but we have a new min !
+            minValue = newValue;
+        }
+    }
+
+/*! #if ($TemplateOptions.KTypeGeneric) !*/
+
+    @Repeat(iterations = 20)
+    @Test
+    public void testRefreshPrioritiesComparator()
+    {
+        //INVERSE natural ordering comparator, so it will create a MAX priority queue !
+        final Comparator<? super TestHolder> comp = new Comparator<TestHolder>() {
 
             @Override
-            public int compare(final IntHolder e1, final IntHolder e2)
+            public int compare(final TestHolder e1, final TestHolder e2)
             {
-                int res = 0;
-
-                if (e1.value < e2.value)
-                {
-                    res = 1;
-                }
-                else if (e1.value > e2.value)
-                {
-                    res = -1;
-                }
-
-                return res;
+                return (-1) * Intrinsics.compareKTypeUnchecked(e1.value, e2.value);
             }
         };
 
@@ -1474,27 +1433,92 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         final int COUNT = (int) 1e4;
 
         //A) fill COUNT random values in prio-queue
-        final KTypeIndexedHeapPriorityQueue<IntHolder> testPQ = new KTypeIndexedHeapPriorityQueue<IntHolder>(comp, 10);
+        final KTypeIndexedHeapPriorityQueue<TestHolder> testPQ = new KTypeIndexedHeapPriorityQueue<TestHolder>(comp, 10);
 
         for (int i = 0; i < COUNT; i++)
         {
-            //use unique values so that changing values always disturb the heap property
-            //values are between [COUNT, 2* COUNT]
-            testPQ.put(i, new IntHolder(2 * COUNT - i));
+            //values are between [0, COUNT]
+            testPQ.put(i, new TestHolder(cast(COUNT - i)));
         }
 
         Assert.assertEquals(COUNT, testPQ.size());
         Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));
         Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
 
-        final int NB_CHANGES = prng.nextInt((int) (0.2 * COUNT));
+        //B) Directly change elements of the buffer, so that the heap property is not respected anymore:
+        final int NB_CHANGES = RandomizedTest.randomIntBetween(2, (int) (0.5 * COUNT));
+
+        for (int i = 0; i < NB_CHANGES; i++)
+        {
+            final int changedIndex = RandomizedTest.randomIntBetween(2,  COUNT - 2);
+            //values are between [0, COUNT], so change with a value >  max, garanteed to destroy the heap property.
+            final KType newValue = cast(RandomizedTest.randomIntBetween(COUNT, 2 * COUNT));
+
+            testPQ.get(changedIndex).value = newValue;
+        }
+
+        //no longer a heap
+        Assert.assertEquals(COUNT, testPQ.size());
+        Assert.assertFalse(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));
+
+        //but still consistent !
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
+
+        //C) Reestablish
+        testPQ.refreshPriorities();
+
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
+    }
+
+    @Repeat(iterations = 20)
+    @Test
+    public void testChangePriorityComparator()
+    {
+        //INVERSE natural ordering comparator, so it will create a MAX priority queue !
+        final Comparator<? super TestHolder> comp = new Comparator<TestHolder>() {
+
+            @Override
+            public int compare(final TestHolder e1, final TestHolder e2)
+            {
+                return (-1) * Intrinsics.compareKTypeUnchecked(e1.value, e2.value);
+            }
+        };
+
+        final Random prng = RandomizedTest.getRandom();
+
+        final int COUNT = (int) 1e4;
+
+        //A) fill COUNT random values in prio-queue
+        final KTypeIndexedHeapPriorityQueue<TestHolder> testPQ = new KTypeIndexedHeapPriorityQueue<TestHolder>(comp, 10);
+
+        for (int i = 0; i < COUNT; i++)
+        {
+            //use unique values so that changing values always disturb the heap property
+            //values are between [0,  COUNT]
+            testPQ.put(i, new TestHolder(cast(COUNT - i)));
+        }
+
+        Assert.assertEquals(COUNT, testPQ.size());
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));
+        Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
+
+        final int NB_CHANGES = RandomizedTest.randomIntBetween(2, (int) (0.25 * COUNT));
+
+        int maxValue = COUNT + 2;
 
         //Reestablish on the flow
         for (int i = 0; i < NB_CHANGES; i++)
         {
-            final int changedIndex = RandomizedTest.randomIntBetween(0, COUNT - 1);
-            //values are between [COUNT, 2* COUNT], so change with a value < min, garanteed to destroy the heap property.
-            final int newValue = RandomizedTest.randomIntBetween(0, COUNT - 2);
+            final int changedIndex = RandomizedTest.randomIntBetween(2, COUNT - 2);
+            //values are between [0,  COUNT], so change with a value > actual max !, garanteed to destroy the heap property.
+            final KType newValue = cast(RandomizedTest.randomIntBetween(maxValue, 2 * COUNT));
+
+            if (castType(newValue) <= maxValue) {
+
+                //the new max value is not > the previous one, so the test cannot continue.
+                break;
+            }
 
             testPQ.get(changedIndex).value = newValue;
 
@@ -1510,6 +1534,9 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
             //this is again a heap
             Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));
             Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
+
+            //Ah yes but we have a new max !
+            maxValue = castType(newValue);
         }
     }
 
@@ -2028,7 +2055,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         Assert.assertEquals(initialPoolSize, testContainer.entryIteratorPool.size());
     }
 
-    @Repeat(iterations = 20)
+    @Repeat(iterations = 10)
     @Test
     public void testPreallocatedSize()
     {
@@ -2071,7 +2098,14 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         //Test that the container do not resize if less that the initial size
 
         //1) Choose a map to build
+        /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
         final int NB_ELEMENTS = 2000;
+        /*!
+            #elseif ($TemplateOptions.isKType("SHORT", "CHAR"))
+             final int NB_ELEMENTS = 1000;
+            #else
+               final int NB_ELEMENTS = 126;
+            #end !*/
 
         final KTypeIndexedHeapPriorityQueue<KType> newMap = new KTypeIndexedHeapPriorityQueue<KType>(null);
 
@@ -2256,7 +2290,15 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         //Test that the container do not resize if less that the initial size
 
         //1) Choose a map to build
+        //1) Choose a map to build
+        /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
         final int NB_ELEMENTS = 2000;
+        /*!
+            #elseif ($TemplateOptions.isKType("SHORT", "CHAR"))
+             final int NB_ELEMENTS = 1000;
+            #else
+               final int NB_ELEMENTS = 126;
+            #end !*/
 
 
         final KTypeIndexedHeapPriorityQueue<KType> newMap = new KTypeIndexedHeapPriorityQueue<KType>(null);
@@ -2352,7 +2394,15 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         //Test that the container do not resize if less that the initial size
 
         //1) Choose a map to build
+        //1) Choose a map to build
+        /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
         final int NB_ELEMENTS = 2000;
+        /*!
+            #elseif ($TemplateOptions.isKType("SHORT", "CHAR"))
+             final int NB_ELEMENTS = 1000;
+            #else
+               final int NB_ELEMENTS = 126;
+            #end !*/
 
         final KTypeIndexedHeapPriorityQueue<KType> newMap = new KTypeIndexedHeapPriorityQueue<KType>(null);
 

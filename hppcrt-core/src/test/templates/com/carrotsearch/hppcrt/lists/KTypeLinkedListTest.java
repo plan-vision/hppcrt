@@ -2277,7 +2277,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertEquals(l1, l2);
     }
 
-    @Repeat(iterations = 20)
+    @Repeat(iterations = 10)
     @Test
     public void testPreallocatedSize()
     {

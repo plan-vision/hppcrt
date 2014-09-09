@@ -239,12 +239,18 @@ public final class TemplateProcessor
                 System.out.println("ERROR : parsing template '" + f.fullPath +
                         "' with KType = " + templateOptions.getKType() + " and VType =  " +
                         (templateOptions.hasVType() ? templateOptions.getVType().toString() : "null") + " with error: '" + e.getMessage() + "'");
+
+                //rethrow the beast to stop the thing dead.
+                throw e;
             }
             catch (final ResourceNotFoundException e) {
 
                 System.out.println("ERROR : resouce not found for template '" + f.fullPath +
                         "' with KType = " + templateOptions.getKType() + " and VType =  " +
                         (templateOptions.hasVType() ? templateOptions.getVType().toString() : "null") + " with error: '" + e.getMessage() + "'");
+
+                //rethrow the beast to stop the thing dead.
+                throw e;
             }
             catch (final MethodInvocationException e) {
 
@@ -264,6 +270,9 @@ public final class TemplateProcessor
                     System.out.println("ERROR : method invocation from template '" + f.fullPath +
                             "' with KType = " + templateOptions.getKType() + " and VType =  " +
                             (templateOptions.hasVType() ? templateOptions.getVType().toString() : "null") + " failed with error: '" + e.getMessage() + "'");
+
+                    //rethrow the beast to stop the thing dead.
+                    throw e;
                 }
 
             } //end MethodInvocationException
@@ -388,9 +397,25 @@ public final class TemplateProcessor
                     {
                         sb.append(String.format("(Float.compare(%1$s , %2$s))", params.toArray()));
                     }
-                    else if (templateOptions.isKTypeNumeric())
+                    else if (templateOptions.ktype == Type.BYTE)
                     {
-                        sb.append(String.format("(%1$s - %2$s)", params.toArray()));
+                        sb.append(String.format("(Byte.compare(%1$s , %2$s))", params.toArray()));
+                    }
+                    else if (templateOptions.ktype == Type.CHAR)
+                    {
+                        sb.append(String.format("(Character.compare(%1$s , %2$s))", params.toArray()));
+                    }
+                    else if (templateOptions.ktype == Type.SHORT)
+                    {
+                        sb.append(String.format("(Short.compare(%1$s , %2$s))", params.toArray()));
+                    }
+                    else if (templateOptions.ktype == Type.INT)
+                    {
+                        sb.append(String.format("(Integer.compare(%1$s , %2$s))", params.toArray()));
+                    }
+                    else if (templateOptions.ktype == Type.LONG)
+                    {
+                        sb.append(String.format("(Long.compare(%1$s , %2$s))", params.toArray()));
                     }
                     else
                     {
@@ -412,9 +437,25 @@ public final class TemplateProcessor
                     {
                         sb.append(String.format("(Float.compare(%1$s , %2$s))", params.toArray()));
                     }
-                    else if (templateOptions.isKTypeNumeric())
+                    else if (templateOptions.ktype == Type.BYTE)
                     {
-                        sb.append(String.format("(%1$s - %2$s)", params.toArray()));
+                        sb.append(String.format("(Byte.compare(%1$s , %2$s))", params.toArray()));
+                    }
+                    else if (templateOptions.ktype == Type.CHAR)
+                    {
+                        sb.append(String.format("(Character.compare(%1$s , %2$s))", params.toArray()));
+                    }
+                    else if (templateOptions.ktype == Type.SHORT)
+                    {
+                        sb.append(String.format("(Short.compare(%1$s , %2$s))", params.toArray()));
+                    }
+                    else if (templateOptions.ktype == Type.INT)
+                    {
+                        sb.append(String.format("(Integer.compare(%1$s , %2$s))", params.toArray()));
+                    }
+                    else if (templateOptions.ktype == Type.LONG)
+                    {
+                        sb.append(String.format("(Long.compare(%1$s , %2$s))", params.toArray()));
                     }
                     else
                     {

@@ -720,25 +720,11 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
      */
     public void changePriority(final int key)
     {
-        /*! #if ($TemplateOptions.KTypeNumeric)
-        if (this.comparator != null) {
-            //there is no point in calling changePriority()
-            //for primitives without a comparator set, because
-            //they are by nature immutable that way so their ordering
-            //stays always OK.
-
-        #end !*/
-
         if (key < this.pq.length && this.pq[key] > 0)
         {
             swim(this.pq[key]);
             sink(this.pq[key]);
         }
-
-        /*! #if ($TemplateOptions.KTypeNumeric)
-        }
-        #end !*/
-
     }
 
     /**
