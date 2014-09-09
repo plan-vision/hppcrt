@@ -1,31 +1,22 @@
 package com.carrotsearch.hppcrt.lists;
 
+import java.util.*;
+
+import org.junit.*;
+
 import static com.carrotsearch.hppcrt.TestUtils.*;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Random;
-
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.junit.Assert.*;
 
 import com.carrotsearch.hppcrt.*;
-import com.carrotsearch.hppcrt.lists.*;
-import com.carrotsearch.hppcrt.TestUtils;
 import com.carrotsearch.hppcrt.cursors.*;
 import com.carrotsearch.hppcrt.mutables.*;
 import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
 import com.carrotsearch.hppcrt.sets.*;
 import com.carrotsearch.hppcrt.sorting.*;
+import com.carrotsearch.randomizedtesting.RandomizedRunner;
+import com.carrotsearch.randomizedtesting.RandomizedTest;
+import com.carrotsearch.randomizedtesting.annotations.Repeat;
 
 // ${TemplateOptions.doNotGenerateKType("BOOLEAN")}
 /**
@@ -1077,6 +1068,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertEquals(initialPoolSize, testContainer.valueIteratorPool.size());
     }
 
+    @Repeat(iterations = 100)
     @Test
     public void testSort()
     {
@@ -1101,72 +1093,75 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
             }
         };
 
-        final int TEST_SIZE = (int) 1e5;
+        final int TEST_SIZE = (int) 1e4;
+
+        //get a new seed for the current iteration
+        final long currentSeed = RandomizedTest.randomLong();
+
+        final int upperRange = RandomizedTest.randomInt(TEST_SIZE);
+        final int lowerRange = RandomizedTest.randomInt(upperRange);
+
         //A) Sort an array of random values of primitive types
 
-        /*! #if ($TemplateOptions.KTypePrimitive)
+/*! #if ($TemplateOptions.KTypePrimitive)
         //A-1) full sort
-        KTypeArrayList<KType> primitiveList = createArrayWithRandomData(TEST_SIZE, 1515411541215L);
-         KTypeArrayList<KType> primitiveListOriginal = createArrayWithRandomData(TEST_SIZE, 1515411541215L);
+        KTypeArrayList<KType> primitiveList = createArrayWithRandomData(TEST_SIZE, currentSeed);
+         KTypeArrayList<KType> primitiveListOriginal = createArrayWithRandomData(TEST_SIZE, currentSeed);
         primitiveList.sort();
         assertOrder(primitiveListOriginal, primitiveList, 0, primitiveList.size());
         //A-2) Partial sort
-        primitiveList = createArrayWithRandomData(TEST_SIZE, 87454541215L);
-        primitiveListOriginal = createArrayWithRandomData(TEST_SIZE, 87454541215L);
-        primitiveList.sort(12150,79444);
-        assertOrder(primitiveListOriginal, primitiveList, 12150, 79444);
-        #end !*/
+        primitiveList = createArrayWithRandomData(TEST_SIZE, currentSeed);
+        primitiveListOriginal = createArrayWithRandomData(TEST_SIZE, currentSeed);
+        primitiveList.sort(lowerRange, upperRange);
+        assertOrder(primitiveListOriginal, primitiveList, lowerRange, upperRange);
+#end !*/
 
         //B) Sort with Comparator
         //B-1) Full sort
-        KTypeArrayList<KType> comparatorList = createArrayWithRandomData(TEST_SIZE, 4871164545215L);
-        KTypeArrayList<KType> comparatorListOriginal = createArrayWithRandomData(TEST_SIZE, 4871164545215L);
+        KTypeArrayList<KType> comparatorList = createArrayWithRandomData(TEST_SIZE, currentSeed);
+        KTypeArrayList<KType> comparatorListOriginal = createArrayWithRandomData(TEST_SIZE, currentSeed);
         comparatorList.sort(comp);
         assertOrder(comparatorListOriginal, comparatorList, 0, comparatorList.size());
         //B-2) Partial sort
-        comparatorList = createArrayWithRandomData(TEST_SIZE, 877521454L);
-        comparatorListOriginal = createArrayWithRandomData(TEST_SIZE, 877521454L);
-        comparatorList.sort(9748, 99548, comp);
-        assertOrder(comparatorListOriginal, comparatorList, 9748, 99548);
+        comparatorList = createArrayWithRandomData(TEST_SIZE, currentSeed);
+        comparatorListOriginal = createArrayWithRandomData(TEST_SIZE, currentSeed);
+        comparatorList.sort(lowerRange, upperRange, comp);
+        assertOrder(comparatorListOriginal, comparatorList, lowerRange, upperRange);
     }
 
+    @Repeat(iterations = 50)
     @Test
     public void testPreallocatedSize()
     {
-        final Random randomVK = new Random(315451248541L);
+        final Random randomVK = RandomizedTest.getRandom();
         //Test that the container do not resize if less that the initial size
 
-        final int NB_TEST_RUNS = 50;
-
-        for (int run = 0; run < NB_TEST_RUNS; run++)
-        {
-            //1) Choose a random number of elements
-            /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
-            final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
-            /*!
+        //1) Choose a random number of elements
+        /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
+        final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
+        /*!
             #elseif ($TemplateOptions.isKType("SHORT", "CHAR"))
              int PREALLOCATED_SIZE = randomVK.nextInt(10000);
             #else
               int PREALLOCATED_SIZE = randomVK.nextInt(10000);
             #end !*/
 
-            //2) Preallocate to PREALLOCATED_SIZE :
-            final KTypeArrayList<KType> newList = KTypeArrayList.newInstanceWithCapacity(PREALLOCATED_SIZE);
+        //2) Preallocate to PREALLOCATED_SIZE :
+        final KTypeArrayList<KType> newList = KTypeArrayList.newInstanceWithCapacity(PREALLOCATED_SIZE);
 
-            //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
-            //and internal buffer/allocated must not have changed of size
-            final int contructorBufferSize = newList.buffer.length;
+        //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
+        //and internal buffer/allocated must not have changed of size
+        final int contructorBufferSize = newList.buffer.length;
 
-            for (int i = 0; i < PREALLOCATED_SIZE; i++)
-            {
-                newList.add(cast(randomVK.nextInt()));
+        for (int i = 0; i < PREALLOCATED_SIZE; i++)
+        {
+            newList.add(cast(randomVK.nextInt()));
 
-                //internal size has not changed.
-                Assert.assertEquals(contructorBufferSize, newList.buffer.length);
-            }
+            //internal size has not changed.
+            Assert.assertEquals(contructorBufferSize, newList.buffer.length);
+        }
 
-            Assert.assertEquals(PREALLOCATED_SIZE, newList.size());
-        } //end for test runs
+        Assert.assertEquals(PREALLOCATED_SIZE, newList.size());
     }
 
     /**
@@ -1222,9 +1217,9 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         return newArray;
     }
 
-    private KTypeArrayList<KType> createArrayWithRandomData(final int size, final long randomSeed)
+    private KTypeArrayList<KType> createArrayWithRandomData(final int size, final long currentSeed)
     {
-        final Random prng = new Random(randomSeed);
+        final Random prng = new Random(currentSeed);
 
         final KTypeArrayList<KType> newArray = KTypeArrayList.newInstanceWithCapacity(KTypeArrayList.DEFAULT_CAPACITY);
 

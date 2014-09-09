@@ -1,11 +1,11 @@
 package com.carrotsearch.hppcrt.lists;
 
-import static com.carrotsearch.hppcrt.TestUtils.*;
-import static org.junit.Assert.*;
-
-import java.util.Random;
+import java.util.*;
 
 import org.junit.*;
+
+import static com.carrotsearch.hppcrt.TestUtils.*;
+import static org.junit.Assert.*;
 
 import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.lists.*;
@@ -16,6 +16,8 @@ import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
 import com.carrotsearch.hppcrt.sets.*;
 import com.carrotsearch.hppcrt.sorting.*;
+import com.carrotsearch.randomizedtesting.RandomizedTest;
+import com.carrotsearch.randomizedtesting.annotations.Repeat;
 
 /**
  * Unit tests for {@link KTypeStack}.
@@ -226,44 +228,40 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
                 + this.key1 + "]", KTypeStack.from(this.key1, this.key2, this.key3).toString());
     }
 
+    @Repeat(iterations = 50)
     @Test
     public void testPreallocatedSize()
     {
-        final Random randomVK = new Random(96321587L);
+        final Random randomVK = RandomizedTest.getRandom();
         //Test that the container do not resize if less that the initial size
 
-        final int NB_TEST_RUNS = 50;
-
-        for (int run = 0; run < NB_TEST_RUNS; run++)
-        {
-            //1) Choose a random number of elements
-            /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
-            final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
-            /*!
+        //1) Choose a random number of elements
+        /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
+        final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
+        /*!
             #elseif ($TemplateOptions.isKType("SHORT", "CHAR"))
              int PREALLOCATED_SIZE = randomVK.nextInt(10000);
             #else
               int PREALLOCATED_SIZE = randomVK.nextInt(10000);
             #end !*/
 
-            //2) Preallocate to PREALLOCATED_SIZE :
-            final KTypeStack<KType> newStack = KTypeStack.newInstanceWithCapacity(PREALLOCATED_SIZE);
+        //2) Preallocate to PREALLOCATED_SIZE :
+        final KTypeStack<KType> newStack = KTypeStack.newInstanceWithCapacity(PREALLOCATED_SIZE);
 
-            //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
-            //and internal buffer/allocated must not have changed of size
-            final int contructorBufferSize = newStack.buffer.length;
+        //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
+        //and internal buffer/allocated must not have changed of size
+        final int contructorBufferSize = newStack.buffer.length;
 
-            for (int i = 0; i < PREALLOCATED_SIZE; i++)
-            {
+        for (int i = 0; i < PREALLOCATED_SIZE; i++)
+        {
 
-                newStack.add(cast(randomVK.nextInt()));
+            newStack.add(cast(randomVK.nextInt()));
 
-                //internal size has not changed.
-                Assert.assertEquals(contructorBufferSize, newStack.buffer.length);
-            }
+            //internal size has not changed.
+            Assert.assertEquals(contructorBufferSize, newStack.buffer.length);
+        }
 
-            Assert.assertEquals(PREALLOCATED_SIZE, newStack.size());
-        } //end for test runs
+        Assert.assertEquals(PREALLOCATED_SIZE, newStack.size());
     }
 
     /////////////////////
@@ -417,6 +415,7 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
         TestUtils.assertListEquals(this.stack.toArray(), 5, 3, 2, 1, 0);
     }
 
+    @Repeat(iterations = 100)
     @Test
     public void testSort()
     {
@@ -441,33 +440,39 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
             }
         };
 
-        final int TEST_SIZE = (int) 1e5;
+        final int TEST_SIZE = (int) 1e4;
+        //get a new seed for the current iteration
+        final long currentSeed = RandomizedTest.randomLong();
+
+        final int upperRange = RandomizedTest.randomInt(TEST_SIZE);
+        final int lowerRange = RandomizedTest.randomInt(upperRange);
+
         //A) Sort a stack of random values of primitive types
 
-        /*! #if ($TemplateOptions.KTypePrimitive)
+/*! #if ($TemplateOptions.KTypePrimitive)
         //A-1) full sort
-        KTypeStack<KType> primitiveList = createStackWithRandomData(TEST_SIZE, 1515411541215L);
-        KTypeStack<KType> primitiveListOriginal = createStackWithRandomData(TEST_SIZE, 1515411541215L);
+        KTypeStack<KType> primitiveList = createStackWithRandomData(TEST_SIZE, currentSeed);
+        KTypeStack<KType> primitiveListOriginal = createStackWithRandomData(TEST_SIZE, currentSeed);
         primitiveList.sort();
         assertOrder(primitiveListOriginal, primitiveList, 0, primitiveList.size());
         //A-2) Partial sort
-        primitiveList = createStackWithRandomData(TEST_SIZE, 87454541215L);
-        primitiveListOriginal = createStackWithRandomData(TEST_SIZE, 87454541215L);
-        primitiveList.sort(12150,79444);
-        assertOrder(primitiveListOriginal, primitiveList, 12150, 79444);
-        #end !*/
+        primitiveList = createStackWithRandomData(TEST_SIZE, currentSeed);
+        primitiveListOriginal = createStackWithRandomData(TEST_SIZE, currentSeed);
+        primitiveList.sort(lowerRange, upperRange);
+        assertOrder(primitiveListOriginal, primitiveList, lowerRange, upperRange);
+#end !*/
 
         //B) Sort with Comparator
         //B-1) Full sort
-        KTypeStack<KType> comparatorList = createStackWithRandomData(TEST_SIZE, 4871164545215L);
-        KTypeStack<KType> comparatorListOriginal = createStackWithRandomData(TEST_SIZE, 4871164545215L);
+        KTypeStack<KType> comparatorList = createStackWithRandomData(TEST_SIZE, currentSeed);
+        KTypeStack<KType> comparatorListOriginal = createStackWithRandomData(TEST_SIZE, currentSeed);
         comparatorList.sort(comp);
         assertOrder(comparatorListOriginal, comparatorList, 0, comparatorList.size());
         //B-2) Partial sort
-        comparatorList = createStackWithRandomData(TEST_SIZE, 877521454L);
-        comparatorListOriginal = createStackWithRandomData(TEST_SIZE, 877521454L);
-        comparatorList.sort(9748, 99548, comp);
-        assertOrder(comparatorListOriginal, comparatorList, 9748, 99548);
+        comparatorList = createStackWithRandomData(TEST_SIZE, currentSeed);
+        comparatorListOriginal = createStackWithRandomData(TEST_SIZE, currentSeed);
+        comparatorList.sort(lowerRange, upperRange, comp);
+        assertOrder(comparatorListOriginal, comparatorList, lowerRange, upperRange);
     }
 
     /**

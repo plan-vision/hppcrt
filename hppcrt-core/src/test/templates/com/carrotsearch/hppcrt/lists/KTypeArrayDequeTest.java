@@ -1,11 +1,11 @@
 package com.carrotsearch.hppcrt.lists;
 
-import static com.carrotsearch.hppcrt.TestUtils.*;
-import static org.junit.Assert.*;
-
 import java.util.*;
 
 import org.junit.*;
+
+import static com.carrotsearch.hppcrt.TestUtils.*;
+import static org.junit.Assert.*;
 
 import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.lists.*;
@@ -16,6 +16,8 @@ import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
 import com.carrotsearch.hppcrt.sets.*;
 import com.carrotsearch.hppcrt.sorting.*;
+import com.carrotsearch.randomizedtesting.RandomizedTest;
+import com.carrotsearch.randomizedtesting.annotations.Repeat;
 
 // ${TemplateOptions.doNotGenerateKType("BOOLEAN")}
 /**
@@ -867,7 +869,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testAgainstArrayDeque()
     {
-        final Random rnd = new Random();
+        final Random rnd = new Random(78461644457454L);
         final int rounds = 10000;
         final int modulo = 100;
 
@@ -1319,6 +1321,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertEquals(startingPoolSize, testContainer.valueIteratorPool.size());
     }
 
+    @Repeat(iterations = 100)
     @Test
     public void testSort()
     {
@@ -1343,60 +1346,60 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
             }
         };
 
-        final int TEST_SIZE = (int) 1e5;
+        final int TEST_SIZE = (int) 1e4;
+
+        //get a new seed for the current iteration
+        final long currentSeed = RandomizedTest.randomLong();
+
         //A) Sort a deque of random values of primitive types
 
-        /*! #if ($TemplateOptions.KTypePrimitive)
+/*! #if ($TemplateOptions.KTypePrimitive)
         //A-1) full sort
-        KTypeArrayDeque<KType> primitiveDeque = creatDequeWithRandomData(TEST_SIZE, 7882316546154612L);
+        KTypeArrayDeque<KType> primitiveDeque = creatDequeWithRandomData(TEST_SIZE, currentSeed);
         primitiveDeque.sort();
         assertOrder(primitiveDeque);
-        #end !*/
+#end !*/
 
         //B) Sort with Comparator
         //B-1) Full sort
-        final KTypeArrayDeque<KType> comparatorDeque = creatDequeWithRandomData(TEST_SIZE, 8784163166131549L);
+        final KTypeArrayDeque<KType> comparatorDeque = creatDequeWithRandomData(TEST_SIZE, currentSeed);
         comparatorDeque.sort(comp);
         assertOrder(comparatorDeque);
     }
 
+    @Repeat(iterations = 50)
     @Test
     public void testPreallocatedSize()
     {
-        final Random randomVK = new Random(125455411L);
+        final Random randomVK = RandomizedTest.getRandom();
         //Test that the container do not resize if less that the initial size
 
-        final int NB_TEST_RUNS = 50;
-
-        for (int run = 0; run < NB_TEST_RUNS; run++)
-        {
-            //1) Choose a random number of elements
-            /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
-            final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
-            /*!
+        //1) Choose a random number of elements
+        /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
+        final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
+        /*!
             #elseif ($TemplateOptions.isKType("SHORT", "CHAR"))
              int PREALLOCATED_SIZE = randomVK.nextInt(10000);
             #else
               int PREALLOCATED_SIZE = randomVK.nextInt(10000);
             #end !*/
 
-            //2) Preallocate to PREALLOCATED_SIZE :
-            final KTypeArrayDeque<KType> newDequeue = KTypeArrayDeque.newInstanceWithCapacity(PREALLOCATED_SIZE);
+        //2) Preallocate to PREALLOCATED_SIZE :
+        final KTypeArrayDeque<KType> newDequeue = KTypeArrayDeque.newInstanceWithCapacity(PREALLOCATED_SIZE);
 
-            //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
-            //and internal buffer/allocated must not have changed of size
-            final int contructorBufferSize = newDequeue.buffer.length;
+        //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
+        //and internal buffer/allocated must not have changed of size
+        final int contructorBufferSize = newDequeue.buffer.length;
 
-            for (int i = 0; i < PREALLOCATED_SIZE; i++)
-            {
-                newDequeue.addLast(cast(randomVK.nextInt()));
+        for (int i = 0; i < PREALLOCATED_SIZE; i++)
+        {
+            newDequeue.addLast(cast(randomVK.nextInt()));
 
-                //internal size has not changed.
-                Assert.assertEquals(contructorBufferSize, newDequeue.buffer.length);
-            }
+            //internal size has not changed.
+            Assert.assertEquals(contructorBufferSize, newDequeue.buffer.length);
+        }
 
-            Assert.assertEquals(PREALLOCATED_SIZE, newDequeue.size());
-        } //end for test runs
+        Assert.assertEquals(PREALLOCATED_SIZE, newDequeue.size());
     }
 
     /**
@@ -1444,7 +1447,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
             final boolean insertInTail = prng.nextInt() % 7 == 0;
             final boolean deleteHead = prng.nextInt() % 17 == 0;
 
-            if (deleteHead)
+            if (deleteHead && !newDeque.isEmpty())
             {
                 newDeque.removeFirst();
             }

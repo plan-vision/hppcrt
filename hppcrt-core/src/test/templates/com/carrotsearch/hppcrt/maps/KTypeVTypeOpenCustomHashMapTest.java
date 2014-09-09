@@ -8,15 +8,14 @@ import static com.carrotsearch.hppcrt.TestUtils.*;
 import static org.junit.Assert.*;
 
 import com.carrotsearch.hppcrt.*;
-import com.carrotsearch.hppcrt.lists.*;
-import com.carrotsearch.hppcrt.TestUtils;
 import com.carrotsearch.hppcrt.cursors.*;
-import com.carrotsearch.hppcrt.mutables.*;
+import com.carrotsearch.hppcrt.lists.*;
 import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
 import com.carrotsearch.hppcrt.sets.*;
-import com.carrotsearch.hppcrt.sorting.*;
 import com.carrotsearch.hppcrt.strategies.*;
+import com.carrotsearch.randomizedtesting.RandomizedTest;
+import com.carrotsearch.randomizedtesting.annotations.*;
 
 /**
  * Tests for {@link KTypeVTypeOpenCustomHashMap}.
@@ -41,6 +40,12 @@ public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKType
      * Per-test fresh initialized instance.
      */
     public KTypeVTypeOpenCustomHashMap<KType, VType> map = KTypeVTypeOpenCustomHashMap.newInstance(new KTypeStandardHash<KType>());
+
+    @Before
+    public void initialize() {
+
+        this.map = KTypeVTypeOpenCustomHashMap.newInstance(new KTypeStandardHash<KType>());
+    }
 
     /**
      * Check that the set is consistent, i.e all allocated slots are reachable by get(),
@@ -1122,11 +1127,11 @@ public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKType
         Assert.assertFalse(refMap5.equals(refMap5alwaysDifferent));
     }
 
+    @Repeat(iterations = 10)
     @Test
     public void testHashingStrategyAddContainsGetRemove() {
 
-        final long TEST_SEED = 15249155965216185L;
-        final int TEST_SIZE = (int) 500e3;
+        final int TEST_SIZE = (int) 50e3;
 
         //those following 3  maps behave indeed the same in the test context:
         final KTypeVTypeOpenCustomHashMap<KType, VType> refMap = KTypeVTypeOpenCustomHashMap.newInstance(new KTypeStandardHash<KType>());
@@ -1157,7 +1162,7 @@ public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKType
                 });
 
         //compute the iterations doing multiple operations
-        final Random prng = new Random(TEST_SEED);
+        final Random prng = RandomizedTest.getRandom();
 
         for (int i = 0; i < TEST_SIZE; i++) {
 
@@ -1683,50 +1688,46 @@ public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKType
         Assert.assertEquals(startingPoolSize, testContainer.entryIteratorPool.size());
     }
 
+    @Repeat(iterations = 50)
     @Test
     public void testPreallocatedSize()
     {
-        final Random randomVK = new Random(16465131545L);
+        final Random randomVK = RandomizedTest.getRandom();
         //Test that the container do not resize if less that the initial size
 
-        final int NB_TEST_RUNS = 50;
-
-        for (int run = 0; run < NB_TEST_RUNS; run++)
-        {
-            //1) Choose a random number of elements
-            /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
-            final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
-            /*!
+        //1) Choose a random number of elements
+        /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
+        final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
+        /*!
             #elseif ($TemplateOptions.isKType("SHORT", "CHAR"))
              int PREALLOCATED_SIZE = randomVK.nextInt(1500);
             #else
               int PREALLOCATED_SIZE = randomVK.nextInt(126);
             #end !*/
 
-            //2) Preallocate to PREALLOCATED_SIZE :
-            final KTypeVTypeOpenCustomHashMap<KType, VType> newMap = KTypeVTypeOpenCustomHashMap.newInstance(PREALLOCATED_SIZE,
-                    KTypeVTypeOpenCustomHashMap.DEFAULT_LOAD_FACTOR, new KTypeStandardHash<KType>());
+        //2) Preallocate to PREALLOCATED_SIZE :
+        final KTypeVTypeOpenCustomHashMap<KType, VType> newMap = KTypeVTypeOpenCustomHashMap.newInstance(PREALLOCATED_SIZE,
+                KTypeVTypeOpenCustomHashMap.DEFAULT_LOAD_FACTOR, new KTypeStandardHash<KType>());
 
-            //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
-            //and internal buffer/allocated must not have changed of size
-            final int contructorBufferSize = newMap.keys.length;
+        //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
+        //and internal buffer/allocated must not have changed of size
+        final int contructorBufferSize = newMap.keys.length;
 
+        Assert.assertEquals(contructorBufferSize, newMap.allocated.length);
+        Assert.assertEquals(contructorBufferSize, newMap.values.length);
+
+        for (int i = 0; i < PREALLOCATED_SIZE; i++)
+        {
+
+            newMap.put(cast(i), vcast(randomVK.nextInt()));
+
+            //internal size has not changed.
+            Assert.assertEquals(contructorBufferSize, newMap.keys.length);
             Assert.assertEquals(contructorBufferSize, newMap.allocated.length);
             Assert.assertEquals(contructorBufferSize, newMap.values.length);
+        }
 
-            for (int i = 0; i < PREALLOCATED_SIZE; i++)
-            {
-
-                newMap.put(cast(i), vcast(randomVK.nextInt()));
-
-                //internal size has not changed.
-                Assert.assertEquals(contructorBufferSize, newMap.keys.length);
-                Assert.assertEquals(contructorBufferSize, newMap.allocated.length);
-                Assert.assertEquals(contructorBufferSize, newMap.values.length);
-            }
-
-            Assert.assertEquals(PREALLOCATED_SIZE, newMap.size());
-        } //end for test runs
+        Assert.assertEquals(PREALLOCATED_SIZE, newMap.size());
     }
 
     @Test

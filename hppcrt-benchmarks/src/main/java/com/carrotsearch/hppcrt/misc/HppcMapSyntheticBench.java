@@ -32,6 +32,8 @@ public final class HppcMapSyntheticBench
 
     private static final boolean RUN_INTEGERS = true;
 
+    private static final boolean RUN_IDENTITY = true;
+
     private static final boolean RUN_BIG_OBJECTS = true;
 
     public Random prng = new XorShiftRandom();
@@ -758,6 +760,141 @@ public final class HppcMapSyntheticBench
     }
 
     /**
+     * Bench for HPPC Identity map (ComparableInt) ==> long).
+     *
+     */
+    public void runMapIdentityObjectLong(final String additionalInfo, final ObjectLongMap<ComparableInt> testMap,
+            final int minPushedElements, final float loadFactor, final MAP_LOOKUP_TEST getKind)
+    {
+
+        long sum = 0;
+        long tBeforePut = 0;
+        long tAfterPut = 0;
+        long tBeforeGet = 0;
+        long tAfterGet = 0;
+        long tBeforeClear = 0;
+        long tAfterClear = 0;
+
+        long tBeforeRemove = 0;
+        long tAfterRemove = 0;
+
+        //////////////////////////////////
+        int nbWarmups = 0;
+
+        int putSize = 0;
+
+        final int initialCapacity = testMap.capacity();
+
+        //Do a dry run for pre-boxing the values that are to be put in map :
+        final ObjectArrayList<ComparableInt> Klist = new ObjectArrayList<ComparableInt>();
+        final LongArrayList Vlist = new LongArrayList();
+
+        this.prng.setSeed(HppcMapSyntheticBench.RAND_SEED);
+
+        final Generator gene = getGenerator(Distribution.RANDOM, minPushedElements);
+
+        while (testMap.size() < minPushedElements || testMap.size() < testMap.capacity())
+        {
+            //put all, then for even key number, delete by key
+            final ComparableInt K = new ComparableInt(gene.getNext(), HASH_QUALITY.NORMAL);
+            final long V = this.prng.nextLong();
+            Klist.add(K);
+            Vlist.add(V);
+
+            testMap.put(K, V);
+        }
+
+        testMap.clear();
+        System.gc();
+
+        //The main measuring loop
+        while (nbWarmups <= this.nbWarmupsRuns)
+        {
+            testMap.clear();
+
+            nbWarmups++;
+
+            tBeforePut = System.nanoTime();
+
+            //A) fill until the capacity, and at least minPushedElements
+            for (int ii = 0; ii < Klist.size(); ii++)
+            {
+                //put all, then for even key number, delete by key
+                testMap.put(Klist.get(ii), Vlist.get(ii));
+            }
+
+            tAfterPut = System.nanoTime();
+
+            putSize = testMap.size();
+
+            tBeforeGet = System.nanoTime();
+
+            // B) Process by get/contains
+            final ComparableInt tmpAbsentIntHolder = new ComparableInt(0, HASH_QUALITY.NORMAL);
+
+            //Rerun to compute a containsKey lget() pattern
+            for (int ii = 0; ii < Klist.size(); ii++)
+            {
+                if ((getKind == MAP_LOOKUP_TEST.MOSTLY_TRUE || getKind == MAP_LOOKUP_TEST.MIXED) && this.prng.nextBoolean())
+                {
+                    sum += testMap.get(Klist.get(ii));
+                }
+                else if (getKind == MAP_LOOKUP_TEST.MOSTLY_FALSE || getKind == MAP_LOOKUP_TEST.MIXED)
+                {
+                    //this element may or may not be in the set
+                    tmpAbsentIntHolder.value = this.prng.nextInt();
+                    sum += testMap.get(tmpAbsentIntHolder);
+                }
+            }
+
+            tAfterGet = System.nanoTime();
+            ///////////////////////////////////////
+
+            //C) Remove Op
+            tBeforeRemove = System.nanoTime();
+
+            for (int ii = 0; ii < Klist.size(); ii++)
+            {
+
+                if ((getKind == MAP_LOOKUP_TEST.MOSTLY_TRUE || getKind == MAP_LOOKUP_TEST.MIXED) && this.prng.nextBoolean())
+                {
+                    sum += testMap.remove(Klist.get(ii));
+                }
+                else if (getKind == MAP_LOOKUP_TEST.MOSTLY_FALSE || getKind == MAP_LOOKUP_TEST.MIXED)
+                {
+                    //this element may or may not be in the set
+                    tmpAbsentIntHolder.value = this.prng.nextInt();
+                    sum += testMap.remove(tmpAbsentIntHolder);
+                }
+            }
+
+            tAfterRemove = System.nanoTime();
+
+            //clear op
+            tBeforeClear = System.nanoTime();
+
+            testMap.clear();
+
+            tAfterClear = System.nanoTime();
+
+        } //end while
+
+        System.out.format(">>>> BENCH: HPPC Identity Map (ComparableInt) object, long), (%s), capacity = %d, load factor = %f, %d elements pushed\n"
+                + " Put = %f ms, Get (%s) = %f ms, Remove (%s) = %f ms,  Clear =  %f ms (dummy = %d)\n\n",
+                additionalInfo,
+                testMap.capacity(),
+                loadFactor,
+                putSize,
+                (tAfterPut - tBeforePut) / 1e6,
+                getKind,
+                (tAfterGet - tBeforeGet) / 1e6,
+                getKind,
+                (tAfterRemove - tBeforeRemove) / 1e6,
+                (tAfterClear - tBeforeClear) / 1e6,
+                sum); //outputs the results to defeat optimizations
+    }
+
+    /**
      * Bench for HPPC (ComparableAsciiString ==> long).
      *
      */
@@ -1038,11 +1175,22 @@ public final class HppcMapSyntheticBench
                 testClass.runMapSyntheticBenchPrimitives(MAP_LOOKUP_TEST.MOSTLY_TRUE);
                 System.gc();
             }
+
+            if (HppcMapSyntheticBench.RUN_IDENTITY) {
+                System.out.println("\n");
+
+                testClass.runMapIdentityObjectLong("ObjectLongOpenIdentityHashMap",
+                        ObjectLongOpenIdentityHashMap.<ComparableInt> newInstance(HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
+                        HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR, MAP_LOOKUP_TEST.MOSTLY_TRUE);
+                System.gc();
+            }
+
             if (HppcMapSyntheticBench.RUN_INTEGERS) {
                 System.out.println("\n");
                 testClass.runMapSyntheticBenchIntegers(MAP_LOOKUP_TEST.MOSTLY_TRUE);
                 System.gc();
             }
+
             if (HppcMapSyntheticBench.RUN_BIG_OBJECTS) {
                 System.out.println("\n");
                 testClass.runMapSyntheticBenchObjects(MAP_LOOKUP_TEST.MOSTLY_TRUE);
@@ -1051,6 +1199,15 @@ public final class HppcMapSyntheticBench
             if (HppcMapSyntheticBench.RUN_PRIMITIVES) {
                 System.out.println("\n\n");
                 testClass.runMapSyntheticBenchPrimitives(MAP_LOOKUP_TEST.MIXED);
+                System.gc();
+            }
+
+            if (HppcMapSyntheticBench.RUN_IDENTITY) {
+                System.out.println("\n");
+
+                testClass.runMapIdentityObjectLong("ObjectLongOpenIdentityHashMap",
+                        ObjectLongOpenIdentityHashMap.<ComparableInt> newInstance(HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
+                        HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR, MAP_LOOKUP_TEST.MIXED);
                 System.gc();
             }
 
@@ -1070,11 +1227,22 @@ public final class HppcMapSyntheticBench
                 testClass.runMapSyntheticBenchPrimitives(MAP_LOOKUP_TEST.MOSTLY_FALSE);
                 System.gc();
             }
+
+            if (HppcMapSyntheticBench.RUN_IDENTITY) {
+                System.out.println("\n");
+
+                testClass.runMapIdentityObjectLong("ObjectLongOpenIdentityHashMap",
+                        ObjectLongOpenIdentityHashMap.<ComparableInt> newInstance(HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
+                        HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR, MAP_LOOKUP_TEST.MOSTLY_FALSE);
+                System.gc();
+            }
+
             if (HppcMapSyntheticBench.RUN_INTEGERS) {
                 System.out.println("\n");
                 testClass.runMapSyntheticBenchIntegers(MAP_LOOKUP_TEST.MOSTLY_FALSE);
                 System.gc();
             }
+
             if (HppcMapSyntheticBench.RUN_BIG_OBJECTS) {
                 System.out.println("\n");
                 testClass.runMapSyntheticBenchObjects(MAP_LOOKUP_TEST.MOSTLY_FALSE);

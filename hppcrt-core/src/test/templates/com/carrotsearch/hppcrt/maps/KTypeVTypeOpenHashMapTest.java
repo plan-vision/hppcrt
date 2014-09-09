@@ -17,6 +17,8 @@ import com.carrotsearch.hppcrt.procedures.*;
 import com.carrotsearch.hppcrt.sets.*;
 import com.carrotsearch.hppcrt.sorting.*;
 import com.carrotsearch.hppcrt.strategies.*;
+import com.carrotsearch.randomizedtesting.RandomizedTest;
+import com.carrotsearch.randomizedtesting.annotations.*;
 
 /**
  * Tests for {@link KTypeVTypeOpenHashMap}.
@@ -41,6 +43,12 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
      * Per-test fresh initialized instance.
      */
     public KTypeVTypeOpenHashMap<KType, VType> map = KTypeVTypeOpenHashMap.newInstance();
+
+    @Before
+    public void initialize() {
+
+        this.map = KTypeVTypeOpenHashMap.newInstance();
+    }
 
     /**
      * Check that the set is consistent, i.e all allocated slots are reachable by get(),
@@ -1441,50 +1449,46 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         Assert.assertEquals(startingPoolSize, testContainer.entryIteratorPool.size());
     }
 
+    @Repeat(iterations = 50)
     @Test
     public void testPreallocatedSize()
     {
-        final Random randomVK = new Random(16465131545L);
+        final Random randomVK = RandomizedTest.getRandom();
         //Test that the container do not resize if less that the initial size
 
-        final int NB_TEST_RUNS = 50;
-
-        for (int run = 0; run < NB_TEST_RUNS; run++)
-        {
-            //1) Choose a random number of elements
-            /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
-            final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
-            /*!
+        //1) Choose a random number of elements
+        /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
+        final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
+        /*!
             #elseif ($TemplateOptions.isKType("SHORT", "CHAR"))
              int PREALLOCATED_SIZE = randomVK.nextInt(1500);
             #else
               int PREALLOCATED_SIZE = randomVK.nextInt(126);
             #end !*/
 
-            //2) Preallocate to PREALLOCATED_SIZE :
-            final KTypeVTypeOpenHashMap<KType, VType> newMap = KTypeVTypeOpenHashMap.newInstance(PREALLOCATED_SIZE,
-                    KTypeVTypeOpenHashMap.DEFAULT_LOAD_FACTOR);
+        //2) Preallocate to PREALLOCATED_SIZE :
+        final KTypeVTypeOpenHashMap<KType, VType> newMap = KTypeVTypeOpenHashMap.newInstance(PREALLOCATED_SIZE,
+                KTypeVTypeOpenHashMap.DEFAULT_LOAD_FACTOR);
 
-            //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
-            //and internal buffer/allocated must not have changed of size
-            final int contructorBufferSize = newMap.keys.length;
+        //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
+        //and internal buffer/allocated must not have changed of size
+        final int contructorBufferSize = newMap.keys.length;
 
+        Assert.assertEquals(contructorBufferSize, newMap.allocated.length);
+        Assert.assertEquals(contructorBufferSize, newMap.values.length);
+
+        for (int i = 0; i < PREALLOCATED_SIZE; i++)
+        {
+            newMap.put(cast(i), vcast(randomVK.nextInt()));
+
+            //internal size has not changed.
+            Assert.assertEquals(contructorBufferSize, newMap.keys.length);
             Assert.assertEquals(contructorBufferSize, newMap.allocated.length);
             Assert.assertEquals(contructorBufferSize, newMap.values.length);
+        }
 
-            for (int i = 0; i < PREALLOCATED_SIZE; i++)
-            {
+        Assert.assertEquals(PREALLOCATED_SIZE, newMap.size());
 
-                newMap.put(cast(i), vcast(randomVK.nextInt()));
-
-                //internal size has not changed.
-                Assert.assertEquals(contructorBufferSize, newMap.keys.length);
-                Assert.assertEquals(contructorBufferSize, newMap.allocated.length);
-                Assert.assertEquals(contructorBufferSize, newMap.values.length);
-            }
-
-            Assert.assertEquals(PREALLOCATED_SIZE, newMap.size());
-        } //end for test runs
     }
 
     @Test

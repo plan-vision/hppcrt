@@ -11,12 +11,14 @@ import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.lists.*;
 import com.carrotsearch.hppcrt.TestUtils;
 import com.carrotsearch.hppcrt.cursors.*;
+import com.carrotsearch.hppcrt.maps.*;
 import com.carrotsearch.hppcrt.mutables.*;
 import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
+import com.carrotsearch.hppcrt.mutables.*;
 import com.carrotsearch.hppcrt.sets.*;
-import com.carrotsearch.hppcrt.sorting.*;
-import com.carrotsearch.hppcrt.strategies.*;
+import com.carrotsearch.randomizedtesting.RandomizedTest;
+import com.carrotsearch.randomizedtesting.annotations.*;
 
 /**
  * Unit tests for {@link KTypeOpenIdentityHashSetTest}.
@@ -43,6 +45,9 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
     public void initialize()
     {
         this.set = KTypeOpenIdentityHashSet.newInstance();
+
+        //The identity set is only valid for Object keys anyway
+        Assume.assumeTrue(Object[].class.isInstance(this.set.keys));
     }
 
     /**
@@ -432,8 +437,7 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
     @Test
     public void testToString()
     {
-        Assume.assumeTrue(
-                Object[].class.isInstance(this.set.keys));
+        Assume.assumeTrue(Object[].class.isInstance(this.set.keys));
 
         this.set.add(this.key1, this.key2);
         String asString = this.set.toString();
@@ -450,7 +454,7 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
         //must accommodate even the smallest primitive type
         //so that the iteration do not break before it should...
         final int TEST_SIZE = 126;
-        final long TEST_ROUNDS = 5000;
+        final long TEST_ROUNDS = 500;
 
         final KTypeOpenIdentityHashSet<KType> testContainer = createSetWithOrderedData(TEST_SIZE);
 
@@ -707,50 +711,45 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
         Assert.assertEquals(startingPoolSize, testContainer.entryIteratorPool.size());
     }
 
+    @Repeat(iterations = 50)
     @Test
     public void testPreallocatedSize()
     {
-        final Random randomVK = new Random(154894154851L);
+        final Random randomVK = RandomizedTest.getRandom();
         //Test that the container do not resize if less that the initial size
 
-        final int NB_TEST_RUNS = 50;
-
-        for (int run = 0; run < NB_TEST_RUNS; run++)
-        {
-            //1) Choose a random number of elements
-            /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
-            final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
-            /*!
+        //1) Choose a random number of elements
+        /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
+        final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
+        /*!
             #elseif ($TemplateOptions.isKType("SHORT", "CHAR"))
              int PREALLOCATED_SIZE = randomVK.nextInt(1500);
             #else
               int PREALLOCATED_SIZE = randomVK.nextInt(126);
             #end !*/
 
-            //2) Preallocate to PREALLOCATED_SIZE :
-            final KTypeOpenIdentityHashSet<KType> newSet = KTypeOpenIdentityHashSet.newInstanceWithCapacity(PREALLOCATED_SIZE,
-                    KTypeOpenIdentityHashSet.DEFAULT_LOAD_FACTOR);
+        //2) Preallocate to PREALLOCATED_SIZE :
+        final KTypeOpenIdentityHashSet<KType> newSet = KTypeOpenIdentityHashSet.newInstanceWithCapacity(PREALLOCATED_SIZE,
+                KTypeOpenIdentityHashSet.DEFAULT_LOAD_FACTOR);
 
-            //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
-            //and internal buffer/allocated must not have changed of size
-            final int contructorBufferSize = newSet.keys.length;
+        //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
+        //and internal buffer/allocated must not have changed of size
+        final int contructorBufferSize = newSet.keys.length;
 
+        Assert.assertEquals(contructorBufferSize, newSet.allocated.length);
+
+        for (int i = 0; i < PREALLOCATED_SIZE; i++) {
+
+            newSet.add(cast(i));
+
+            //internal size has not changed.
+            Assert.assertEquals(contructorBufferSize, newSet.keys.length);
             Assert.assertEquals(contructorBufferSize, newSet.allocated.length);
+        }
 
-            for (int i = 0; i < PREALLOCATED_SIZE; i++) {
+        Assert.assertEquals(PREALLOCATED_SIZE, newSet.size());
 
-                newSet.add(cast(i));
-
-                //internal size has not changed.
-                Assert.assertEquals(contructorBufferSize, newSet.keys.length);
-                Assert.assertEquals(contructorBufferSize, newSet.allocated.length);
-            }
-
-            Assert.assertEquals(PREALLOCATED_SIZE, newSet.size());
-        } //end for test runs
     }
-
-/*! #if ($TemplateOptions.KTypeGeneric) !*/
 
     @Test
     public void testForEachProcedureWithException()
@@ -1012,7 +1011,46 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
         } //end for each index
     }
 
-/*! #end !*/
+    @Test
+    public void testNotEqualsButIdentical()
+    {
+        //the goal of this test is to demonstrate that keys are really treated with "identity",
+        //not using the equals() / hashCode().
+        //So attempt to fill the container with lots of "equals" instances, which are by definition different objects.
+
+        /*! #if ($TemplateOptions.isVType("GENERIC", "int", "long", "float", "double")) !*/
+        final int NB_ELEMENTS = 2000;
+        /*!
+            #elseif ($TemplateOptions.isVType("short", "char"))
+             int NB_ELEMENTS = 1000;
+            #else
+              int NB_ELEMENTS = 126;
+            #end !*/
+
+        final KTypeOpenIdentityHashSet<Object> newSet = KTypeOpenIdentityHashSet.newInstance();
+
+        Assert.assertEquals(0, newSet.size());
+
+        //A) fill
+        for (int i = 0; i < NB_ELEMENTS; i++) {
+
+            final Object newObject = new IntHolder(0xAF);
+
+            Assert.assertTrue(newSet.add(newObject));
+
+            //Equals key, but not the same object
+            Assert.assertFalse(newSet.contains(new IntHolder(0xAF)));
+
+            //Really the same object
+            Assert.assertTrue(newSet.contains(newObject));
+
+            //lkey() really return the previously stored object
+            Assert.assertSame(newObject, newSet.lkey());
+        } //end for
+
+        //objects are all different, so size is really NB_ELEMENTS
+        Assert.assertEquals(NB_ELEMENTS, newSet.size());
+    }
 
     private KTypeOpenIdentityHashSet<KType> createSetWithOrderedData(final int size)
     {

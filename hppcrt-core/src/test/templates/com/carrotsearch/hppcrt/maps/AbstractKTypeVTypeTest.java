@@ -6,9 +6,9 @@ import org.junit.Rule;
 import org.junit.rules.MethodRule;
 
 import com.carrotsearch.hppcrt.*;
-import com.carrotsearch.hppcrt.AbstractKTypeTest;
 import com.carrotsearch.hppcrt.TestUtils;
-import com.carrotsearch.hppcrt.procedures.KTypeVTypeProcedure;
+import com.carrotsearch.hppcrt.procedures.*;
+import com.carrotsearch.randomizedtesting.annotations.*;
 
 /**
  * Unit helpers for <code>KType</code> and <code>VType</code> pair containers

@@ -14,8 +14,10 @@ import com.carrotsearch.hppcrt.cursors.*;
 import com.carrotsearch.hppcrt.mutables.*;
 import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
+import com.carrotsearch.hppcrt.mutables.*;
 import com.carrotsearch.hppcrt.sets.*;
-import com.carrotsearch.hppcrt.sorting.*;
+import com.carrotsearch.randomizedtesting.RandomizedTest;
+import com.carrotsearch.randomizedtesting.annotations.*;
 
 /**
  * Tests for {@link KTypeVTypeOpenIdentityHashMap}.
@@ -36,6 +38,18 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
      * Per-test fresh initialized instance.
      */
     public KTypeVTypeOpenIdentityHashMap<KType, VType> map = KTypeVTypeOpenIdentityHashMap.newInstance();
+
+
+    /**
+     * The identity map is only valid for Object keys anyway
+     */
+    @Before
+    public void initialize() {
+
+        this.map = KTypeVTypeOpenIdentityHashMap.newInstance();
+
+        Assume.assumeTrue(Object[].class.isInstance(this.map.keys));
+    }
 
     /**
      * Check that the set is consistent, i.e all allocated slots are reachable by get(),
@@ -737,13 +751,10 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
     @Test
     public void testToString()
     {
-        Assume.assumeTrue(
-                Object[].class.isInstance(this.map.keys) &&
-                (int[].class.isInstance(this.map.values) ||
-                        byte[].class.isInstance(this.map.values) ||
-                        short[].class.isInstance(this.map.values) ||
-                        long[].class.isInstance(this.map.values) ||
-                        Object[].class.isInstance(this.map.values)));
+        Assume.assumeTrue(Object[].class.isInstance(this.map.keys) &&
+                (!float[].class.isInstance(this.map.values) &&
+                        !double[].class.isInstance(this.map.values) &&
+                        !char[].class.isInstance(this.map.values)));
 
         this.map.put(this.key1, this.value1);
         this.map.put(this.key2, this.value2);
@@ -1310,53 +1321,47 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
         Assert.assertEquals(startingPoolSize, testContainer.entryIteratorPool.size());
     }
 
+    @Repeat(iterations = 50)
     @Test
     public void testPreallocatedSize()
     {
-        final Random randomVK = new Random(16465131545L);
+        final Random randomVK = RandomizedTest.getRandom();
         //Test that the container do not resize if less that the initial size
 
-        final int NB_TEST_RUNS = 50;
-
-        for (int run = 0; run < NB_TEST_RUNS; run++)
-        {
-            //1) Choose a random number of elements
-            /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
-            final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
-            /*!
+        //1) Choose a random number of elements
+        /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
+        final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
+        /*!
             #elseif ($TemplateOptions.isKType("SHORT", "CHAR"))
              int PREALLOCATED_SIZE = randomVK.nextInt(1500);
             #else
               int PREALLOCATED_SIZE = randomVK.nextInt(126);
             #end !*/
 
-            //2) Preallocate to PREALLOCATED_SIZE :
-            final KTypeVTypeOpenIdentityHashMap<KType, VType> newMap = KTypeVTypeOpenIdentityHashMap.newInstance(PREALLOCATED_SIZE,
-                    KTypeVTypeOpenIdentityHashMap.DEFAULT_LOAD_FACTOR);
+        //2) Preallocate to PREALLOCATED_SIZE :
+        final KTypeVTypeOpenIdentityHashMap<KType, VType> newMap = KTypeVTypeOpenIdentityHashMap.newInstance(PREALLOCATED_SIZE,
+                KTypeVTypeOpenIdentityHashMap.DEFAULT_LOAD_FACTOR);
 
-            //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
-            //and internal buffer/allocated must not have changed of size
-            final int contructorBufferSize = newMap.keys.length;
+        //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
+        //and internal buffer/allocated must not have changed of size
+        final int contructorBufferSize = newMap.keys.length;
 
+        Assert.assertEquals(contructorBufferSize, newMap.allocated.length);
+        Assert.assertEquals(contructorBufferSize, newMap.values.length);
+
+        for (int i = 0; i < PREALLOCATED_SIZE; i++)
+        {
+            newMap.put(cast(i), vcast(randomVK.nextInt()));
+
+            //internal size has not changed.
+            Assert.assertEquals(contructorBufferSize, newMap.keys.length);
             Assert.assertEquals(contructorBufferSize, newMap.allocated.length);
             Assert.assertEquals(contructorBufferSize, newMap.values.length);
+        }
 
-            for (int i = 0; i < PREALLOCATED_SIZE; i++)
-            {
+        Assert.assertEquals(PREALLOCATED_SIZE, newMap.size());
 
-                newMap.put(cast(i), vcast(randomVK.nextInt()));
-
-                //internal size has not changed.
-                Assert.assertEquals(contructorBufferSize, newMap.keys.length);
-                Assert.assertEquals(contructorBufferSize, newMap.allocated.length);
-                Assert.assertEquals(contructorBufferSize, newMap.values.length);
-            }
-
-            Assert.assertEquals(PREALLOCATED_SIZE, newMap.size());
-        } //end for test runs
     }
-
-/*! #if ($TemplateOptions.KTypeGeneric) !*/
 
     @Test
     public void testForEachProcedureWithException()
@@ -1886,7 +1891,51 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
         } //end for each index
     }
 
-/*! #end !*/
+    @Test
+    public void testNotEqualsButIdentical()
+    {
+        //the goal of this test is to demonstrate that keys are really treated with "identity",
+        //not using the equals() / hashCode().
+        //So attempt to fill the container with lots of "equals" instances, which are by definition different objects.
+
+        /*! #if ($TemplateOptions.isVType("GENERIC", "int", "long", "float", "double")) !*/
+        final int NB_ELEMENTS = 2000;
+        /*!
+            #elseif ($TemplateOptions.isVType("short", "char"))
+             int NB_ELEMENTS = 1000;
+            #else
+              int NB_ELEMENTS = 126;
+            #end !*/
+
+        final KTypeVTypeOpenIdentityHashMap<Object, VType> newMap = KTypeVTypeOpenIdentityHashMap.newInstance();
+
+        Assert.assertEquals(0, newMap.size());
+
+        //A) fill
+        for (int i = 0; i < NB_ELEMENTS; i++) {
+
+            final Object newObject = new IntHolder(0xAF);
+
+            Assert.assertTrue(Intrinsics.<VType> defaultVTypeValue() == newMap.put(newObject, vcast(i)));
+
+            //Equals key, but not the same object
+            Assert.assertFalse(newMap.containsKey(new IntHolder(0xAF)));
+            Assert.assertTrue(newMap.get(new IntHolder(0xAF)) == Intrinsics.<VType> defaultVTypeValue());
+
+            //Really the same object
+            Assert.assertEquals(i, vcastType(newMap.get(newObject)));
+
+            Assert.assertTrue(newMap.containsKey(newObject));
+
+            //lkey() really return the previously stored object
+            Assert.assertSame(newObject, newMap.lkey());
+
+            Assert.assertEquals(i, vcastType(newMap.lget()));
+        } //end for
+
+        //objects are all different, so size is really NB_ELEMENTS
+        Assert.assertEquals(NB_ELEMENTS, newMap.size());
+    }
 
     private KTypeVTypeOpenIdentityHashMap<KType, VType> createMapWithOrderedData(final int size)
     {

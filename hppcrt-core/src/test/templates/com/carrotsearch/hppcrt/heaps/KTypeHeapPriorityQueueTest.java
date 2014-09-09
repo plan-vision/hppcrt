@@ -1,28 +1,23 @@
 package com.carrotsearch.hppcrt.heaps;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Random;
+import java.util.*;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import static com.carrotsearch.hppcrt.TestUtils.*;
+import static org.junit.Assert.*;
 
 import com.carrotsearch.hppcrt.*;
-import com.carrotsearch.hppcrt.cursors.KTypeCursor;
-import com.carrotsearch.hppcrt.heaps.KTypeHeapPriorityQueue.ValueIterator;
-import com.carrotsearch.hppcrt.lists.KTypeArrayList;
-import com.carrotsearch.hppcrt.mutables.IntHolder;
-import com.carrotsearch.hppcrt.mutables.LongHolder;
-import com.carrotsearch.hppcrt.predicates.KTypePredicate;
-import com.carrotsearch.hppcrt.procedures.KTypeProcedure;
-import com.carrotsearch.hppcrt.sets.KTypeOpenHashSet;
-import com.carrotsearch.hppcrt.sorting.KTypeComparator;
-import com.carrotsearch.hppcrt.sorting.KTypeSort;
+import com.carrotsearch.hppcrt.lists.*;
+import com.carrotsearch.hppcrt.TestUtils;
+import com.carrotsearch.hppcrt.cursors.*;
+import com.carrotsearch.hppcrt.mutables.*;
+import com.carrotsearch.hppcrt.predicates.*;
+import com.carrotsearch.hppcrt.procedures.*;
+import com.carrotsearch.hppcrt.sets.*;
+import com.carrotsearch.hppcrt.sorting.*;
+import com.carrotsearch.randomizedtesting.RandomizedTest;
+import com.carrotsearch.randomizedtesting.annotations.*;
 
 /**
  * Unit tests for {@link KTypeHeapPriorityQueue}.
@@ -1275,43 +1270,41 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertEquals(initialPoolSize, testContainer.valueIteratorPool.size());
     }
 
+    @Repeat(iterations = 50)
     @Test
     public void testPreallocatedSize()
     {
-        final Random randomVK = new Random(234654984616L);
+        final Random randomVK = RandomizedTest.getRandom();
         //Test that the container do not resize if less that the initial size
 
-        final int NB_TEST_RUNS = 50;
 
-        for (int run = 0; run < NB_TEST_RUNS; run++)
-        {
-            //1) Choose a random number of elements
-            /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
-            final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
-            /*!
+        //1) Choose a random number of elements
+        /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
+        final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
+        /*!
             #elseif ($TemplateOptions.isKType("SHORT", "CHAR"))
              int PREALLOCATED_SIZE = randomVK.nextInt(10000);
             #else
               int PREALLOCATED_SIZE = randomVK.nextInt(10000);
             #end !*/
 
-            //2) Preallocate to PREALLOCATED_SIZE :
-            final KTypeHeapPriorityQueue<KType> newHeap = new KTypeHeapPriorityQueue<KType>(PREALLOCATED_SIZE);
+        //2) Preallocate to PREALLOCATED_SIZE :
+        final KTypeHeapPriorityQueue<KType> newHeap = new KTypeHeapPriorityQueue<KType>(PREALLOCATED_SIZE);
 
-            //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
-            //and internal buffer/allocated must not have changed of size
-            final int contructorBufferSize = newHeap.buffer.length;
+        //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
+        //and internal buffer/allocated must not have changed of size
+        final int contructorBufferSize = newHeap.buffer.length;
 
-            for (int i = 0; i < PREALLOCATED_SIZE; i++)
-            {
-                newHeap.add(cast(randomVK.nextInt()));
+        for (int i = 0; i < PREALLOCATED_SIZE; i++)
+        {
+            newHeap.add(cast(randomVK.nextInt()));
 
-                //internal size has not changed.
-                Assert.assertEquals(contructorBufferSize, newHeap.buffer.length);
-            }
+            //internal size has not changed.
+            Assert.assertEquals(contructorBufferSize, newHeap.buffer.length);
+        }
 
-            Assert.assertEquals(PREALLOCATED_SIZE, newHeap.size());
-        } //end for test runs
+        Assert.assertEquals(PREALLOCATED_SIZE, newHeap.size());
+
     }
 
     /**
