@@ -93,8 +93,6 @@
       <groupId>org.apache.mahout</groupId>
       <artifactId>mahout-math</artifactId>
       <version>0.9</version>
-      <scope>system</scope>
-      <systemPath>${libs}/mahout-math-0.9.jar</systemPath>
     </dependency>
 
     <dependency>
