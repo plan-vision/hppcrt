@@ -470,6 +470,21 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
     /* */
     @Test
+    public void testRemoveAllFromContainerKeys()
+    {
+        insertElements(this.prioq, 10, 0, 11, 1, 12, 2, 13, 1, 0, 0);
+
+        final IntArrayList list2 = IntArrayList.newInstance();
+        list2.add(0, 10, 12);
+
+        Assert.assertEquals(3, this.prioq.removeAll(list2));
+        Assert.assertEquals(0, this.prioq.removeAll(list2));
+
+        assertPrioQueueEquals(this.prioq, 11, 1, 13, 1);
+    }
+
+    /* */
+    @Test
     public void testRemoveAllWithPredicateValues()
     {
         insertElements(this.prioq, 0, 0, 1, 1, 2, 2, 11, 1, 44, 4);
