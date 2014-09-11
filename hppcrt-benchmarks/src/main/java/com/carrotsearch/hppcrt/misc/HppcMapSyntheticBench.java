@@ -14,11 +14,11 @@ import com.carrotsearch.hppcrt.strategies.*;
 
 public final class HppcMapSyntheticBench
 {
-    public static final int COUNT = (int) 4e6;
+    public static final int COUNT = (int) 5e6;
 
     public static final int COUNT_BIG_OBJECTS = (int) 300e3;
 
-    public static final long RANDOM_SEED = 5487911234761188L;
+    private static final long RANDOM_SEED = 5487911234761188L;
     private static final long RAND_SEED = 15487012316864131L;
     private static final long RAND_SEED2 = 9988713416546546L;
     private static final long RAND_SEED3 = 412316451315451545L;
@@ -49,9 +49,14 @@ public final class HppcMapSyntheticBench
         MIXED
     }
 
+    /**
+     * Those are global distribution property, nothing to do with insertion order !
+     * @author Vincent
+     *
+     */
     public enum Distribution
     {
-        RANDOM, LINEAR, LINEAR_DECREMENT, HIGHBITS;
+        RANDOM, CONTIGUOUS, HIGHBITS;
     }
 
     enum HASH_QUALITY
@@ -81,115 +86,92 @@ public final class HppcMapSyntheticBench
     // inner comparator class
     public final class InverseComparator implements Comparator<ComparableLong>
     {
-
         @Override
         public int compare(final ComparableLong o1, final ComparableLong o2)
         {
-
-            int res = 0;
-
             if (o1.value > o2.value)
             {
-
-                res = -1;
-
+                return -1;
             }
             else if (o1.value < o2.value)
             {
-
-                res = 1;
+                return 1;
             }
 
-            return res;
+            return 0;
         }
     }
 
     public static final class NaturalComparator implements Comparator<ComparableLong>
     {
-
         @Override
         public int compare(final ComparableLong o1, final ComparableLong o2)
         {
-
-            int res = 0;
-
             if (o1.value < o2.value)
             {
-
-                res = -1;
-
+                return -1;
             }
             else if (o1.value > o2.value)
             {
-
-                res = 1;
+                return 1;
             }
 
-            return res;
+            return 0;
         }
     }
 
     // create comparable type
     public static class ComparableLong implements Comparable<ComparableLong>
     {
-
         public long value;
 
         public ComparableLong(final long initValue)
         {
-
             this.value = initValue;
         }
 
         @Override
         public int compareTo(final ComparableLong other)
         {
-            int res = 0;
-
             if (this.value < other.value)
             {
-                res = -1;
+                return -1;
             }
 
             else if (this.value > other.value)
             {
-                res = 1;
+                return 1;
             }
 
-            return res;
+            return 0;
         }
 
         @Override
         public Object clone() throws CloneNotSupportedException
         {
-
             return new ComparableLong(this.value);
         }
 
         @Override
         public boolean equals(final Object obj)
         {
-
             return this.value == ((ComparableLong) obj).value;
         }
 
         @Override
         public int hashCode()
         {
-
             return (int) this.value;
         }
     }
 
     public static class ComparableInt implements Comparable<ComparableInt>
     {
-
         public int value;
         public final int bitshift;
 
         public ComparableInt(final int initValue, final HASH_QUALITY quality)
         {
-
             this.value = initValue;
             this.bitshift = quality.shift;
         }
@@ -197,35 +179,29 @@ public final class HppcMapSyntheticBench
         @Override
         public int compareTo(final ComparableInt other)
         {
-            int res = 0;
-
             if (this.value < other.value)
             {
-                res = -1;
+                return -1;
             }
-
             else if (this.value > other.value)
             {
-                res = 1;
+                return 1;
             }
 
-            return res;
+            return 0;
         }
 
         @Override
         public int hashCode()
         {
-
             return this.value << this.bitshift;
         }
 
         @Override
         public boolean equals(final Object obj)
         {
-
             if (obj instanceof ComparableInt)
             {
-
                 return ((ComparableInt) obj).value == this.value;
             }
 
@@ -236,7 +212,6 @@ public final class HppcMapSyntheticBench
     // create comparable type
     public static class ComparableAsciiString implements Comparable<ComparableAsciiString>
     {
-
         public final int[] value;
         public final int bitshift;
 
@@ -245,7 +220,6 @@ public final class HppcMapSyntheticBench
          */
         public ComparableAsciiString(final int[] characters, final HASH_QUALITY quality)
         {
-
             this.bitshift = quality.shift;
 
             this.value = characters;
@@ -254,33 +228,25 @@ public final class HppcMapSyntheticBench
         @Override
         public int compareTo(final ComparableAsciiString other)
         {
-
             if (this.value.length < other.value.length)
             {
-
                 return -1;
             }
             else if (this.value.length > other.value.length)
             {
-
                 return 1;
-
             }
             else
             {
                 //both length are equal
                 for (int ii = 0; ii < this.value.length; ii++)
                 {
-
                     if (this.value[ii] < other.value[ii])
                     {
-
                         return -1;
-
                     }
                     else if (this.value[ii] > other.value[ii])
                     {
-
                         return 1;
                     }
                 } //end for
@@ -292,14 +258,12 @@ public final class HppcMapSyntheticBench
         @Override
         public boolean equals(final Object obj)
         {
-
             return Arrays.equals(this.value, ((ComparableAsciiString) obj).value);
         }
 
         // djb2 hash function
         public int goodHashCode()
         {
-
             int hash = 5381;
 
             for (final int character : this.value)
@@ -313,7 +277,6 @@ public final class HppcMapSyntheticBench
         @Override
         public int hashCode()
         {
-
             return goodHashCode() << this.bitshift;
         }
     }
@@ -357,7 +320,6 @@ public final class HppcMapSyntheticBench
      */
     public HppcMapSyntheticBench(final int nbWarmups)
     {
-
         this.nbWarmupsRuns = nbWarmups;
         this.prng.setSeed(HppcMapSyntheticBench.RANDOM_SEED);
     }
@@ -368,7 +330,7 @@ public final class HppcMapSyntheticBench
      * @param additionalInfo
      * @param nbWarmupRuns
      */
-    private void runMapIterationBench(final String additionalInfo, final IntLongMap testMap,
+    public void runMapIterationBench(final String additionalInfo, final IntLongMap testMap,
             final int minPushedElements, final float loadFactor)
     {
         long tBefore = 0;
@@ -526,6 +488,10 @@ public final class HppcMapSyntheticBench
             testMap.put(K, V);
         }
 
+        //don't make things too easy, shuffle it so the bench do some pointer chasing in memory...
+        //except that it should have no effect because of primitives, so there is no pointer to chase... :)
+        Util.shuffle(Klist, this.prng);
+
         testMap.clear();
         System.gc();
 
@@ -661,6 +627,9 @@ public final class HppcMapSyntheticBench
             testMap.put(K, V);
         }
 
+        //don't make things too easy, shuffle it so the bench do some pointer chasing in memory...
+        Util.shuffle(Klist, this.prng);
+
         testMap.clear();
         System.gc();
 
@@ -719,12 +688,10 @@ public final class HppcMapSyntheticBench
 
                 if ((getKind == MAP_LOOKUP_TEST.MOSTLY_TRUE || getKind == MAP_LOOKUP_TEST.MIXED) && this.prng.nextBoolean())
                 {
-
                     sum += testMap.remove(Klist.get(ii));
                 }
                 else if (getKind == MAP_LOOKUP_TEST.MOSTLY_FALSE || getKind == MAP_LOOKUP_TEST.MIXED)
                 {
-
                     //this element may or may not be in the set
                     tmpAbsentIntHolder.value = this.prng.nextInt();
                     sum += testMap.remove(tmpAbsentIntHolder);
@@ -803,6 +770,11 @@ public final class HppcMapSyntheticBench
 
             testMap.put(K, V);
         }
+
+        //don't make things too easy, shuffle it so the bench do some pointer chasing in memory...
+        //Except that this should have no effect, since Object identity make it beahave like primitive
+        // (no pointer chasing needed)
+        Util.shuffle(Klist, this.prng);
 
         testMap.clear();
         System.gc();
@@ -930,7 +902,6 @@ public final class HppcMapSyntheticBench
 
         while (testMap.size() < minPushedElements || testMap.size() < testMap.capacity())
         {
-
             //put all, then for even key number, delete by key
             final ComparableAsciiString K = new ComparableAsciiString(gene.prepare(stringSize), quality);
             final long V = this.prng.nextLong();
@@ -940,11 +911,13 @@ public final class HppcMapSyntheticBench
             testMap.put(K, V);
         }
 
+        //don't make things too easy, shuffle it so the bench do some pointer chasing in memory...
+        Util.shuffle(Klist, this.prng);
+
         final ObjectArrayList<ComparableAsciiString> KlistNotFound = new ObjectArrayList<ComparableAsciiString>();
 
         for (int ii = 0; ii < testMap.capacity() * 0.7; ii++)
         {
-
             KlistNotFound.add(new ComparableAsciiString(gene.prepare(stringSize), quality));
         }
 
@@ -954,7 +927,6 @@ public final class HppcMapSyntheticBench
         //The main measuring loop
         while (nbWarmups <= this.nbWarmupsRuns)
         {
-
             testMap.clear();
 
             nbWarmups++;
@@ -964,8 +936,7 @@ public final class HppcMapSyntheticBench
             //A) fill until the capacity, and at least minPushedElements
             for (int ii = 0; ii < Klist.size(); ii++)
             {
-
-                //put all, then for even key number, delete by key
+                //put all
                 testMap.put(Klist.get(ii), Vlist.get(ii));
             }
 
@@ -981,15 +952,12 @@ public final class HppcMapSyntheticBench
             //Rerun to compute a containsKey lget() pattern
             for (int ii = 0; ii < Klist.size(); ii++)
             {
-
                 if ((getKind == MAP_LOOKUP_TEST.MOSTLY_TRUE || getKind == MAP_LOOKUP_TEST.MIXED) && this.prng.nextBoolean())
                 {
-
                     sum += testMap.get(Klist.get(ii));
                 }
                 else if (getKind == MAP_LOOKUP_TEST.MOSTLY_FALSE || getKind == MAP_LOOKUP_TEST.MIXED)
                 {
-
                     //this element is not in the set
                     sum += testMap.get(KlistNotFound.get(notFoundCount));
                 }
@@ -1003,15 +971,12 @@ public final class HppcMapSyntheticBench
 
             for (int ii = 0; ii < Klist.size(); ii++)
             {
-
                 if ((getKind == MAP_LOOKUP_TEST.MOSTLY_TRUE || getKind == MAP_LOOKUP_TEST.MIXED) && this.prng.nextBoolean())
                 {
-
                     sum += testMap.remove(Klist.get(ii));
                 }
                 else if (getKind == MAP_LOOKUP_TEST.MOSTLY_FALSE || getKind == MAP_LOOKUP_TEST.MIXED)
                 {
-
                     //this element is not in the set
                     sum += testMap.remove(KlistNotFound.get(notFoundCount));
                 }
@@ -1108,7 +1073,6 @@ public final class HppcMapSyntheticBench
 
     public void runMapIterationBench()
     {
-
         runMapIterationBench("IntLongOpenHashMap", new IntLongOpenHashMap(HppcMapSyntheticBench.COUNT_ITERATION), HppcMapSyntheticBench.COUNT_ITERATION, IntLongOpenHashMap.DEFAULT_LOAD_FACTOR);
         System.gc();
     }
@@ -1121,17 +1085,12 @@ public final class HppcMapSyntheticBench
 
         switch (disKind)
         {
-
             case RANDOM:
                 generator = disGene.RANDOM;
                 break;
 
-            case LINEAR:
+            case CONTIGUOUS:
                 generator = disGene.LINEAR;
-                break;
-
-            case LINEAR_DECREMENT:
-                generator = disGene.LINEAR_DECREMENT;
                 break;
 
             case HIGHBITS:

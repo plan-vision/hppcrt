@@ -3,6 +3,7 @@ package com.carrotsearch.hppcrt.misc;
 import java.util.Comparator;
 import java.util.Random;
 
+import com.carrotsearch.hppcrt.Util;
 import com.carrotsearch.hppcrt.XorShiftRandom;
 import com.carrotsearch.hppcrt.heaps.LongHeapPriorityQueue;
 import com.carrotsearch.hppcrt.heaps.LongIndexedHeapPriorityQueue;
@@ -149,7 +150,7 @@ public class HppcHeapsSyntheticBench
     /**
      * Bench for insert / popTop() Primitive longs
      */
-    private void runIndexedPrioQueuePrimitiveLong(final String additionalInfo, final LongIndexedHeapPriorityQueue pq,
+    public void runIndexedPrioQueuePrimitiveLong(final String additionalInfo, final LongIndexedHeapPriorityQueue pq,
             final int nbPreallocated)
     {
 
@@ -206,7 +207,7 @@ public class HppcHeapsSyntheticBench
     /**
      * Bench for insert / popTop() for primitive longs
      */
-    private void runIndexedPrioQueueClearPrimitiveLong(final String additionalInfo, final LongIndexedHeapPriorityQueue pq,
+    public void runIndexedPrioQueueClearPrimitiveLong(final String additionalInfo, final LongIndexedHeapPriorityQueue pq,
             final int nbPreallocated)
     {
 
@@ -251,7 +252,7 @@ public class HppcHeapsSyntheticBench
     /**
      * Bench for insert / popTop() of Comparable Longs
      */
-    private void runIndexedPrioQueueLongObjects(final String additionalInfo, final ObjectIndexedHeapPriorityQueue<ComparableLong> pq,
+    public void runIndexedPrioQueueLongObjects(final String additionalInfo, final ObjectIndexedHeapPriorityQueue<ComparableLong> pq,
             final int nbPreallocated)
     {
 
@@ -273,6 +274,10 @@ public class HppcHeapsSyntheticBench
         {
             referenceArray[ii] = new ComparableLong(this.prng.nextLong());
         }
+
+        //don't make things too easy, shuffle it so the bench do some pointer chasing in memory...
+        Util.shuffle(referenceArray, this.prng);
+
 
         while (nbWarmups <= this.nbWarmupsRuns)
         {
@@ -316,7 +321,7 @@ public class HppcHeapsSyntheticBench
     /**
      * Bench for clear() of Comparable Longs
      */
-    private void runIndexedPrioQueueClearLongObjects(final String additionalInfo, final ObjectIndexedHeapPriorityQueue<ComparableLong> pq,
+    public void runIndexedPrioQueueClearLongObjects(final String additionalInfo, final ObjectIndexedHeapPriorityQueue<ComparableLong> pq,
             final int nbPreallocated)
     {
         final long sum = 0;
@@ -335,6 +340,9 @@ public class HppcHeapsSyntheticBench
         {
             referenceArray[ii] = new ComparableLong(this.prng.nextLong());
         }
+
+        //don't make things too easy, shuffle it so the bench do some pointer chasing in memory...
+        Util.shuffle(referenceArray, this.prng);
 
         while (nbWarmups <= this.nbWarmupsRuns)
         {
@@ -369,7 +377,7 @@ public class HppcHeapsSyntheticBench
     /**
      * Bench for insert / popTop() Primitive longs
      */
-    private void runPrioQueuePrimitiveLong(final String additionalInfo, final LongHeapPriorityQueue pq,
+    public void runPrioQueuePrimitiveLong(final String additionalInfo, final LongHeapPriorityQueue pq,
             final int nbPreallocated)
     {
 
@@ -428,7 +436,7 @@ public class HppcHeapsSyntheticBench
     /**
      * Bench for Filtering odd values out by removeAll(Predicate)
      */
-    private void runPrioQueuesPrimitiveLongFilterPredicate(final String additionalInfo,
+    public void runPrioQueuesPrimitiveLongFilterPredicate(final String additionalInfo,
             final int nbInserted)
     {
         long sum = 0;
@@ -513,7 +521,7 @@ public class HppcHeapsSyntheticBench
     /**
      * Bench for Filtering odd values out by retainAll(Predicate)
      */
-    private void runPrioQueuesPrimitiveLongRetainPredicate(final String additionalInfo,
+    public void runPrioQueuesPrimitiveLongRetainPredicate(final String additionalInfo,
             final int nbInserted)
     {
         long sum = 0;
@@ -597,7 +605,7 @@ public class HppcHeapsSyntheticBench
     /**
      * Bench for insert / popTop() for primitive longs
      */
-    private void runPrioQueueClearPrimitiveLong(final String additionalInfo, final LongHeapPriorityQueue pq,
+    public void runPrioQueueClearPrimitiveLong(final String additionalInfo, final LongHeapPriorityQueue pq,
             final int nbPreallocated)
     {
 
@@ -665,6 +673,10 @@ public class HppcHeapsSyntheticBench
             referenceArray[ii] = new ComparableLong(this.prng.nextLong());
         }
 
+        //don't make things too easy, shuffle it so the bench do some pointer chasing in memory...
+        Util.shuffle(referenceArray, this.prng);
+
+
         while (nbWarmups <= this.nbWarmupsRuns)
         {
             pq.clear();
@@ -724,6 +736,9 @@ public class HppcHeapsSyntheticBench
         {
             referenceArray[ii] = new ComparableLong(this.prng.nextLong());
         }
+
+        //don't make things too easy, shuffle it so the bench do some pointer chasing in memory...
+        Util.shuffle(referenceArray, this.prng);
 
         while (nbWarmups <= this.nbWarmupsRuns)
         {

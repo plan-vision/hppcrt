@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Random;
 
+import com.carrotsearch.hppcrt.Util;
 import com.carrotsearch.hppcrt.XorShiftRandom;
 import com.carrotsearch.hppcrt.sorting.DoubleSort;
 import com.carrotsearch.hppcrt.sorting.LongSort;
@@ -122,7 +123,7 @@ public class HppcSortSyntheticBench
     }
 
 
-    private void runBenchTypeComparator(final String benchType, final int nbwarmupRuns, final ComparableLong[] inputArray)
+    public void runBenchTypeComparator(final String benchType, final int nbwarmupRuns, final ComparableLong[] inputArray)
     {
         // a shallow copy is enough
         final ComparableLong[] arrayToSort = inputArray.clone();
@@ -161,7 +162,7 @@ public class HppcSortSyntheticBench
                 arrayToSort.length, "external Comparator<> Long - " + benchType, stdSortRunMS, quicksortSortRunMS, dummyValue));
     }
 
-    private void runBenchTypeComparable(final String benchType, final int nbwarmupRuns, final ComparableLong[] inputArray)
+    public void runBenchTypeComparable(final String benchType, final int nbwarmupRuns, final ComparableLong[] inputArray)
     {
         // a shallow copy is enough
         final ComparableLong[] arrayToSort = inputArray.clone();
@@ -201,7 +202,7 @@ public class HppcSortSyntheticBench
                 arrayToSort.length, "Comparable<> Long-" + benchType, stdSortRunMS, quicksortSortRunMS, dummyValue));
     }
 
-    private void runBenchTypeLong(final String benchType, final int nbwarmupRuns, final ComparableLong[] inputArray)
+    public void runBenchTypeLong(final String benchType, final int nbwarmupRuns, final ComparableLong[] inputArray)
     {
         // a shallow copy is enough
         final long[] arrayToSortReference = new long[inputArray.length];
@@ -253,7 +254,7 @@ public class HppcSortSyntheticBench
                 arrayToSort.length, "long-" + benchType, stdSortRunMS, quicksortSortRunMS, dummyValue));
     }
 
-    private void runBenchTypeDouble(final String benchType, final int nbwarmupRuns, final ComparableLong[] inputArray)
+    public void runBenchTypeDouble(final String benchType, final int nbwarmupRuns, final ComparableLong[] inputArray)
     {
         // a shallow copy is enough
         final double[] arrayToSortReference = new double[inputArray.length];
@@ -322,6 +323,9 @@ public class HppcSortSyntheticBench
 
             referenceArray[ii] = new ComparableLong(randValue);
         }
+
+        //don't make things too easy, shuffle it so the bench do some pointer chasing in memory...
+        Util.shuffle(referenceArray, randGenerator);
 
         // A) Rendom sample
         runBenchTypeLong("uniform random", this.nbWarmupsRuns, referenceArray);
