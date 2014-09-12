@@ -15,6 +15,7 @@ public class SyntheticBenchmarkSuite
      * List of synthetic benchmarks
      */
     private final static Class<?>[] ALL_BENCHMARKS = new Class[] {
+
         HppcSortSyntheticBench.class,
         HppcListSyntheticBench.class,
         HppcHeapsSyntheticBench.class,

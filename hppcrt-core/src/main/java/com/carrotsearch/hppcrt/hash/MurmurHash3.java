@@ -9,8 +9,15 @@ package com.carrotsearch.hppcrt.hash;
 public final class MurmurHash3
 {
 
-    public static final int BOOLEAN_FALSE_HASH = 0;
-    public static final int BOOLEAN_TRUE_HASH = 1364076727;
+    /**
+     * = MurmurHash3.hash(0)
+     */
+    public static final int HASH_0 = 0;
+
+    /**
+     * = MurmurHash3.hash(1)
+     */
+    public static final int HASH_1 = 1364076727;
 
     private MurmurHash3()
     {

@@ -38,26 +38,13 @@ public final class Internals
         Arrays.fill(Internals.BLANKING_INT_ARRAY_MINUS_ONE, -1);
     }
 
+
     /**
-     * rehash() with perturbation, version inlined for KType in generated code.
+     * Rehash with perturbations methods
      * @param o
      * @param p
      * @return
      */
-    public static <T> int rehashKType(final T o, final int p) {
-        return o == null ? 0 : MurmurHash3.hash(o.hashCode() ^ p);
-    }
-
-    /**
-     * rehash() with perturbation, version inlined for VType in generated code.
-     * @param o
-     * @param p
-     * @return
-     */
-    public static <T> int rehashVType(final T o, final int p) {
-        return o == null ? 0 : MurmurHash3.hash(o.hashCode() ^ p);
-    }
-
     public static int rehash(final Object o, final int p) {
         return o == null ? 0 : MurmurHash3.hash(o.hashCode() ^ p);
     }
@@ -98,24 +85,6 @@ public final class Internals
         return o == null ? 0 : MurmurHash3.hash(o.hashCode());
     }
 
-    /**
-     * rehash() version inlined for KType in generated code.
-     * @param o
-     * @return
-     */
-    public static <T> int rehashKType(final T o) {
-        return o == null ? 0 : MurmurHash3.hash(o.hashCode());
-    }
-
-    /**
-     * rehash() version inlined for VType in generated code.
-     * @param o
-     * @return
-     */
-    public static <T> int rehashVType(final T o) {
-        return o == null ? 0 : MurmurHash3.hash(o.hashCode());
-    }
-
     public static int rehash(final byte v) {
         return MurmurHash3.hash(v);
     }
@@ -145,7 +114,7 @@ public final class Internals
     }
 
     public static int rehash(final boolean b) {
-        return (b ? MurmurHash3.BOOLEAN_TRUE_HASH : MurmurHash3.BOOLEAN_FALSE_HASH);
+        return (b ? MurmurHash3.HASH_1 : MurmurHash3.HASH_0);
     }
 
     /**

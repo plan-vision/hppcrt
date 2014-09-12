@@ -33,7 +33,6 @@ public final class TemplateProcessor
 {
 
     private final Pattern INTRINSICS_METHOD_CALL;
-    private final Pattern INTERNALS_METHOD_CALL;
 
     private final Pattern IMPORT_DECLARATION;
 
@@ -57,9 +56,6 @@ public final class TemplateProcessor
 
         //compile basic patterns
         this.INTRINSICS_METHOD_CALL = Pattern.compile("(Intrinsics.\\s*)(<[^>]+>\\s*)?([a-zA-Z]+)",
-                Pattern.MULTILINE | Pattern.DOTALL);
-
-        this.INTERNALS_METHOD_CALL = Pattern.compile("(Internals.\\s*)(<[^>]+>\\s*)?([a-zA-Z]+)",
                 Pattern.MULTILINE | Pattern.DOTALL);
 
         this.IMPORT_DECLARATION = Pattern.compile("(import\\s+[\\w.\\*\\s]*;)",
@@ -216,18 +212,16 @@ public final class TemplateProcessor
                 //1) Apply inlining
                 input = filterInlines(f, input, templateOptions);
 
-                //2) Filter Internals
-
-                input = filterInternals(f, input, templateOptions);
-
-                //3) filter intrinsics last, low-level calls replacements
+                //2) filter intrinsics last, low-level calls replacements
                 input = filterIntrinsics(f, input, templateOptions);
 
                 this.timeIntrinsics += (t0 = System.currentTimeMillis()) - t1;
 
-                //4) convert signatures
+                //3) convert signatures
                 input = filterTypeClassRefs(f, input, templateOptions);
                 this.timeTypeClassRefs += (t1 = System.currentTimeMillis()) - t0;
+
+                //4) Filter comments
                 input = filterComments(f, input, templateOptions);
                 this.timeComments += (t0 = System.currentTimeMillis()) - t1;
 
@@ -383,49 +377,13 @@ public final class TemplateProcessor
                         sb.append(String.format("((%1$s) == (%2$s))", params.toArray()));
                     }
                 }
-                else if ("compareKType".equals(method))
+                else if ("compareKType".equals(method) || "compareKTypeUnchecked".equals(method))
                 {
-                    if (templateOptions.isKTypeGeneric())
+                    if (templateOptions.isKTypeGeneric() && "compareKType".equals(method))
                     {
                         sb.append(String.format("((%1$s).compareTo(%2$s))", params.toArray()));
                     }
-                    else if (templateOptions.ktype == Type.DOUBLE)
-                    {
-                        sb.append(String.format("(Double.compare(%1$s , %2$s))", params.toArray()));
-                    }
-                    else if (templateOptions.ktype == Type.FLOAT)
-                    {
-                        sb.append(String.format("(Float.compare(%1$s , %2$s))", params.toArray()));
-                    }
-                    else if (templateOptions.ktype == Type.BYTE)
-                    {
-                        sb.append(String.format("(Byte.compare(%1$s , %2$s))", params.toArray()));
-                    }
-                    else if (templateOptions.ktype == Type.CHAR)
-                    {
-                        sb.append(String.format("(Character.compare(%1$s , %2$s))", params.toArray()));
-                    }
-                    else if (templateOptions.ktype == Type.SHORT)
-                    {
-                        sb.append(String.format("(Short.compare(%1$s , %2$s))", params.toArray()));
-                    }
-                    else if (templateOptions.ktype == Type.INT)
-                    {
-                        sb.append(String.format("(Integer.compare(%1$s , %2$s))", params.toArray()));
-                    }
-                    else if (templateOptions.ktype == Type.LONG)
-                    {
-                        sb.append(String.format("(Long.compare(%1$s , %2$s))", params.toArray()));
-                    }
-                    else
-                    {
-                        //particular case for booleans
-                        sb.append(String.format("((%1$s == %2$s) ? 0 : (%1$s ? 1 : -1))", params.toArray()));
-                    }
-                }
-                else if ("compareKTypeUnchecked".equals(method))
-                {
-                    if (templateOptions.isKTypeGeneric())
+                    else if (templateOptions.isKTypeGeneric() && "compareKTypeUnchecked".equals(method))
                     {
                         sb.append(String.format("(((Comparable<? super KType>)%1$s).compareTo(%2$s))", params.toArray()));
                     }
@@ -463,33 +421,13 @@ public final class TemplateProcessor
                         sb.append(String.format("((%1$s == %2$s) ? 0 : (%1$s ? 1 : -1))", params.toArray()));
                     }
                 }
-                else if ("isCompSupKType".equals(method))
+                else if ("isCompSupKType".equals(method) || "isCompSupKTypeUnchecked".equals(method))
                 {
-                    if (templateOptions.isKTypeGeneric())
+                    if (templateOptions.isKTypeGeneric() && "isCompSupKType".equals(method))
                     {
                         sb.append(String.format("((%1$s).compareTo(%2$s) > 0)", params.toArray()));
                     }
-                    else if (templateOptions.ktype == Type.DOUBLE)
-                    {
-                        sb.append(String.format("(Double.compare(%1$s , %2$s) > 0)", params.toArray()));
-                    }
-                    else if (templateOptions.ktype == Type.FLOAT)
-                    {
-                        sb.append(String.format("(Float.compare(%1$s , %2$s) > 0)", params.toArray()));
-                    }
-                    else if (templateOptions.isKTypeNumeric())
-                    {
-                        sb.append(String.format("(%1$s > %2$s)", params.toArray()));
-                    }
-                    else
-                    {
-                        //particular case for booleans
-                        sb.append(String.format("((%1$s == %2$s) ? false : %1$s)", params.toArray()));
-                    }
-                }
-                else if ("isCompSupKTypeUnchecked".equals(method))
-                {
-                    if (templateOptions.isKTypeGeneric())
+                    else if (templateOptions.isKTypeGeneric() && "isCompSupKTypeUnchecked".equals(method))
                     {
                         sb.append(String.format("(((Comparable<? super KType>)%1$s).compareTo(%2$s) > 0)", params.toArray()));
                     }
@@ -511,33 +449,13 @@ public final class TemplateProcessor
                         sb.append(String.format("((%1$s == %2$s) ? false : %1$s)", params.toArray()));
                     }
                 }
-                else if ("isCompInfKType".equals(method))
+                else if ("isCompInfKType".equals(method) || "isCompInfKTypeUnchecked".equals(method))
                 {
-                    if (templateOptions.isKTypeGeneric())
+                    if (templateOptions.isKTypeGeneric() && "isCompInfKType".equals(method))
                     {
                         sb.append(String.format("((%1$s).compareTo(%2$s) < 0)", params.toArray()));
                     }
-                    else if (templateOptions.ktype == Type.DOUBLE)
-                    {
-                        sb.append(String.format("(Double.compare(%1$s , %2$s) < 0)", params.toArray()));
-                    }
-                    else if (templateOptions.ktype == Type.FLOAT)
-                    {
-                        sb.append(String.format("(Float.compare(%1$s , %2$s) < 0)", params.toArray()));
-                    }
-                    else if (templateOptions.isKTypeNumeric())
-                    {
-                        sb.append(String.format("(%1$s < %2$s)", params.toArray()));
-                    }
-                    else
-                    {
-                        //particular case for booleans
-                        sb.append(String.format("((%1$s == %2$s) ? false : %2$s)", params.toArray()));
-                    }
-                }
-                else if ("isCompInfKTypeUnchecked".equals(method))
-                {
-                    if (templateOptions.isKTypeGeneric())
+                    else if (templateOptions.isKTypeGeneric() && "isCompInfKTypeUnchecked".equals(method))
                     {
                         sb.append(String.format("(((Comparable<? super KType>)%1$s).compareTo(%2$s) < 0)", params.toArray()));
                     }
@@ -559,28 +477,13 @@ public final class TemplateProcessor
                         sb.append(String.format("((%1$s == %2$s) ? false : %2$s)", params.toArray()));
                     }
                 }
-                else if ("isCompEqualKType".equals(method))
+                else if ("isCompEqualKType".equals(method) || "isCompEqualKTypeUnchecked".equals(method))
                 {
-                    if (templateOptions.isKTypeGeneric())
+                    if (templateOptions.isKTypeGeneric() && "isCompEqualKType".equals(method))
                     {
                         sb.append(String.format("((%1$s).compareTo(%2$s) == 0)", params.toArray()));
                     }
-                    else if (templateOptions.ktype == Type.DOUBLE)
-                    {
-                        sb.append(String.format("(Double.doubleToLongBits(%1$s) == Double.doubleToLongBits(%2$s))", params.toArray()));
-                    }
-                    else if (templateOptions.ktype == Type.FLOAT)
-                    {
-                        sb.append(String.format("(Float.floatToIntBits(%1$s) == Float.floatToIntBits(%2$s))", params.toArray()));
-                    }
-                    else
-                    {
-                        sb.append(String.format("(%1$s == %2$s)", params.toArray()));
-                    }
-                }
-                else if ("isCompEqualKTypeUnchecked".equals(method))
-                {
-                    if (templateOptions.isKTypeGeneric())
+                    else if (templateOptions.isKTypeGeneric() && "isCompEqualKTypeUnchecked".equals(method))
                     {
                         sb.append(String.format("(((Comparable<? super KType>)%1$s).compareTo(%2$s) == 0)", params.toArray()));
                     }
@@ -624,230 +527,6 @@ public final class TemplateProcessor
             }
             else
             {
-                sb.append(input);
-                break;
-            }
-        }
-
-        return sb.toString();
-    }
-
-    /**
-     * Convert Internals.rehash() to their inlined form.
-     * @throws Exception
-     */
-    private String filterInternals(final TemplateFile f, String input,
-            final TemplateOptions templateOptions)
-    {
-        final StringBuffer sb = new StringBuffer();
-
-        while (true)
-        {
-            //0) First, check for imports
-            Matcher m = this.IMPORT_DECLARATION.matcher(input);
-
-            while (m.find())
-            {
-                //append what is before
-                sb.append(input.substring(0, m.end()));
-
-                //truncate after the found region
-                input = input.substring(m.end());
-
-                //restart search :
-                m = this.IMPORT_DECLARATION.matcher(input);
-            }
-
-            //1) Now try to find real method calls
-            m = this.INTERNALS_METHOD_CALL.matcher(input);
-
-            String unTransformedMethod = "";
-
-            if (m.find())
-            {
-                sb.append(input.substring(0, m.start()));
-
-                final String method = m.group(3);
-
-                int bracketCount = 0;
-                int last = m.end() + 1;
-                final ArrayList<String> params = new ArrayList<String>();
-                outer: for (int i = m.end(); i < input.length(); i++)
-                {
-                    switch (input.charAt(i))
-                    {
-                        case '(':
-                            bracketCount++;
-                            break;
-                        case ')':
-                            bracketCount--;
-                            if (bracketCount == 0)
-                            {
-                                params.add(input.substring(last, i).trim());
-                                unTransformedMethod = input.substring(m.start(), i + 1);
-                                input = input.substring(i + 1);
-                                break outer;
-                            }
-                            break;
-                        case ',':
-                            if (bracketCount == 1)
-                            {
-                                params.add(input.substring(last, i));
-                                last = i + 1;
-                            }
-                            break;
-                    }
-                }
-
-                //
-                //System.out.println(">>>>> found Internals = " + method + " , params = " + params.toString() + " length = " + params.toArray().length + ", for type "
-                //        + templateOptions.ktype);
-
-                //A) two argument rehash()
-                String replacementString = "";
-
-                if ("rehashKType".equals(method) && params.toArray().length == 2)
-                {
-                    if (templateOptions.isKTypeGeneric())
-                    {
-                        replacementString = String.format("( (%1$s) == null ? 0 : MurmurHash3.hash((%1$s).hashCode() ^ (%2$s)) )",
-                                params.toArray());
-                    }
-                    else if (templateOptions.ktype == Type.DOUBLE)
-                    {
-                        replacementString = String.format("( (int) MurmurHash3.hash(Double.doubleToLongBits(%1$s) ^ (%2$s)) )", params.toArray());
-                    }
-                    else if (templateOptions.ktype == Type.FLOAT)
-                    {
-                        replacementString = String.format("( MurmurHash3.hash(Float.floatToIntBits(%1$s) ^ (%2$s)) )", params.toArray());
-                    }
-                    else if (templateOptions.ktype == Type.LONG)
-                    {
-                        replacementString = String.format("( (int) MurmurHash3.hash((%1$s) ^ (%2$s)) )", params.toArray());
-                    }
-                    else if (templateOptions.ktype == Type.BOOLEAN)
-                    {
-                        replacementString = String.format("( MurmurHash3.hash((%1$s)?1:0) ^ (%2$s)) )", params.toArray());
-                    }
-                    else if (templateOptions.isKTypeNumeric())
-                    {
-                        replacementString = String.format("( MurmurHash3.hash((%1$s) ^ (%2$s)) )", params.toArray());
-                    }
-
-                    sb.append(replacementString);
-
-                    //
-                    //  System.out.println(">>>>> Internals.rehashKType(o,p) replacement = " + replacementString + ", for type " + templateOptions.ktype);
-
-                }
-                // B) 1 arg rehash()
-                else if ("rehashKType".equals(method) && params.toArray().length == 1) {
-
-                    if (templateOptions.isKTypeGeneric())
-                    {
-                        replacementString = String.format("( (%1$s) == null ? 0 : MurmurHash3.hash((%1$s).hashCode()) )",
-                                params.toArray());
-                    }
-                    else if (templateOptions.ktype == Type.DOUBLE)
-                    {
-                        replacementString = String.format("( (int) MurmurHash3.hash(Double.doubleToLongBits(%1$s)) )", params.toArray());
-                    }
-                    else if (templateOptions.ktype == Type.FLOAT)
-                    {
-                        replacementString = String.format("( MurmurHash3.hash(Float.floatToIntBits(%1$s)) )", params.toArray());
-                    }
-                    else if (templateOptions.ktype == Type.LONG)
-                    {
-                        replacementString = String.format("( (int) MurmurHash3.hash(%1$s) )", params.toArray());
-                    }
-                    else if (templateOptions.ktype == Type.BOOLEAN)
-                    {
-                        replacementString = String.format("((%1$s)?MurmurHash3.BOOLEAN_TRUE_HASH:MurmurHash3.BOOLEAN_FALSE_HASH)", params.toArray());
-                    }
-                    else if (templateOptions.isKTypeNumeric())
-                    {
-                        replacementString = String.format("( MurmurHash3.hash(%1$s) )", params.toArray());
-                    }
-
-                    sb.append(replacementString);
-
-                    //  System.out.println(">>>>> Internals.rehashKType(o) replacement = " + replacementString + ", for type " + templateOptions.ktype);
-                }
-                else if ("rehashVType".equals(method) && params.toArray().length == 2)
-                {
-                    if (templateOptions.isVTypeGeneric())
-                    {
-                        replacementString = String.format("( (%1$s) == null ? 0 : MurmurHash3.hash((%1$s).hashCode() ^ (%2$s)) )",
-                                params.toArray());
-                    }
-                    else if (templateOptions.vtype == Type.DOUBLE)
-                    {
-                        replacementString = String.format("( (int) MurmurHash3.hash(Double.doubleToLongBits(%1$s) ^ (%2$s)) )", params.toArray());
-                    }
-                    else if (templateOptions.vtype == Type.FLOAT)
-                    {
-                        replacementString = String.format("( MurmurHash3.hash(Float.floatToIntBits(%1$s) ^ (%2$s)) )", params.toArray());
-                    }
-                    else if (templateOptions.vtype == Type.LONG)
-                    {
-                        replacementString = String.format("( (int) MurmurHash3.hash((%1$s) ^ (%2$s)) )", params.toArray());
-                    }
-                    else if (templateOptions.vtype == Type.BOOLEAN)
-                    {
-                        replacementString = String.format("( MurmurHash3.hash((%1$s)?1:0) ^ (%2$s)) )", params.toArray());
-                    }
-                    else if (templateOptions.isVTypeNumeric())
-                    {
-                        replacementString = String.format("( MurmurHash3.hash((%1$s) ^ (%2$s)) )", params.toArray());
-                    }
-
-                    sb.append(replacementString);
-
-                    //  System.out.println(">>>>> Internals.rehashVType(o,p) replacement = " + replacementString + ", for type " + templateOptions.ktype);
-
-                }
-                // B) 1 arg rehash()
-                else if ("rehashVType".equals(method) && params.toArray().length == 1) {
-
-                    if (templateOptions.isVTypeGeneric())
-                    {
-                        replacementString = String.format("( (%1$s) == null ? 0 : MurmurHash3.hash((%1$s).hashCode()) )",
-                                params.toArray());
-                    }
-                    else if (templateOptions.vtype == Type.DOUBLE)
-                    {
-                        replacementString = String.format("( (int) MurmurHash3.hash(Double.doubleToLongBits(%1$s)) )", params.toArray());
-                    }
-                    else if (templateOptions.vtype == Type.FLOAT)
-                    {
-                        replacementString = String.format("( MurmurHash3.hash(Float.floatToIntBits(%1$s)) )", params.toArray());
-                    }
-                    else if (templateOptions.vtype == Type.LONG)
-                    {
-                        replacementString = String.format("( (int) MurmurHash3.hash(%1$s) )", params.toArray());
-                    }
-                    else if (templateOptions.vtype == Type.BOOLEAN)
-                    {
-                        replacementString = String.format("((%1$s)?MurmurHash3.BOOLEAN_TRUE_HASH:MurmurHash3.BOOLEAN_FALSE_HASH)", params.toArray());
-                    }
-                    else if (templateOptions.isVTypeNumeric())
-                    {
-                        replacementString = String.format("( MurmurHash3.hash(%1$s) )", params.toArray());
-                    }
-
-                    sb.append(replacementString);
-
-                    //  System.out.println(">>>>> Internals.rehashVType(o) replacement = " + replacementString + ", for type " + templateOptions.ktype);
-                }
-                else
-                {
-                    //not reworked Internals call, append directly, do not convert the call
-                    sb.append(unTransformedMethod);
-                }
-            }
-            else
-            {
-                //not Internals call, append directly
                 sb.append(input);
                 break;
             }
@@ -1261,9 +940,8 @@ public final class TemplateProcessor
     /**
      * Collect all template files from this and subdirectories.
      */
-    private List<TemplateFile> collectTemplateFiles(final List<TemplateFile> list,
-            final File dir)
-            {
+    private List<TemplateFile> collectTemplateFiles(final List<TemplateFile> list, final File dir)
+    {
         for (final File file : dir.listFiles(new FilenameFilter()
         {
             @Override
@@ -1283,7 +961,7 @@ public final class TemplateProcessor
             list.add(new TemplateFile(file));
         }
         return list;
-            }
+    }
 
     static File canonicalFile(final File target)
     {
