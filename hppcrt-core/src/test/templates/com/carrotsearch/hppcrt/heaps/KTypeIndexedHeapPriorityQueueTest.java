@@ -1424,7 +1424,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
             Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
 
             //access back by index and reestablish the heap property
-            testPQ.changePriority(changedIndex);
+            testPQ.updatePriority(changedIndex);
 
             //this is again a heap
             Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));
@@ -1572,7 +1572,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
             Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.checkConsistency(testPQ));
 
             //access back by index and reestablish the heap property
-            testPQ.changePriority(changedIndex);
+            testPQ.updatePriority(changedIndex);
 
             //this is again a heap
             Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(testPQ));

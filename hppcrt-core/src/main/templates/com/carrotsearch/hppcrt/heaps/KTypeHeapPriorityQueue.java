@@ -209,7 +209,7 @@ implements KTypePriorityQueue<KType>, Cloneable
      * #else
      * natural ordering if no
      * #end
-     * custom comparator is given, else it uses the {@link #getComparator()} criteria.
+     * custom comparator is given, else it uses the {@link #comparator()} criteria.
      */
     @Override
     public int removeAllOccurrences(final KType e1)
@@ -261,7 +261,7 @@ implements KTypePriorityQueue<KType>, Cloneable
         {
             this.elementsCount = elementsCount;
             //reestablish heap
-            refreshPriorities();
+            updatePriorities();
         }
 
         /*! #if($DEBUG) !*/
@@ -336,7 +336,7 @@ implements KTypePriorityQueue<KType>, Cloneable
      * #else
      * natural ordering if no
      * #end
-     * custom comparator is given, else it uses the {@link #getComparator()} criteria.
+     * custom comparator is given, else it uses the {@link #comparator()} criteria.
      */
     @Override
     public boolean contains(final KType element)
@@ -538,7 +538,7 @@ implements KTypePriorityQueue<KType>, Cloneable
         this.elementsCount = count;
 
         //restore heap
-        refreshPriorities();
+        updatePriorities();
         /*! #if($DEBUG) !*/
         assert isMinHeap();
         /*! #end !*/
@@ -568,7 +568,7 @@ implements KTypePriorityQueue<KType>, Cloneable
      * {@inheritDoc}
      */
     @Override
-    public void refreshPriorities()
+    public void updatePriorities()
     {
         if (this.comparator == null)
         {
@@ -721,7 +721,7 @@ implements KTypePriorityQueue<KType>, Cloneable
     /*! #else
                                                             public KTypeComparator<? super KType>
                                                             #end !*/
-    getComparator() {
+    comparator() {
 
         return this.comparator;
     }

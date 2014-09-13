@@ -17,7 +17,7 @@ public interface KTypePriorityQueue<KType> extends KTypeCollection<KType>
 
     /**
      * Retrieve, but not remove, the top element of the queue,
-     * i.e. the min/max element with respect to the comparison criteria
+     * i.e. the min element with respect to the comparison criteria
      * (implementation defined)
      * of the queue. Returns the default value if empty.
      */
@@ -26,7 +26,7 @@ public interface KTypePriorityQueue<KType> extends KTypeCollection<KType>
 
     /**
      * Retrieve, and remove the top element of the queue,
-     * i.e. the min/max element with respect to the comparison criteria
+     * i.e. the min element with respect to the comparison criteria
      * (implementation defined) Returns the default value if empty.
      */
     KType popTop();
@@ -35,5 +35,5 @@ public interface KTypePriorityQueue<KType> extends KTypeCollection<KType>
      * Update priorities of all the elements of the queue, to re-establish the correct priorities
      * towards the comparison criteria.
      */
-    void refreshPriorities();
+    void updatePriorities();
 }

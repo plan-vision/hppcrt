@@ -16,7 +16,7 @@ import com.carrotsearch.hppcrt.sorting.*;
  * It assures O(log2(N)) complexity for insertion, deletion of the first element,
  * and constant time to examine the first element.
  * As it is <code>int</code> indexed, it also supports {@link #containsKey()} in constant time, {@link #remove()}
- * and {@link #changePriority(int)} in O(log2(N)) time.
+ * and {@link #updatePriority(int)} in O(log2(N)) time.
  * <p><b>Important: </b>
  * Ordering of elements must be defined either
  * #if ($TemplateOptions.KTypeGeneric)
@@ -404,7 +404,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
      * Whenever a new (key, value) pair is inserted, or
      * a value is updated with an already present key as specified by the  {@link IntKTypeMap#put()}
      * contract, the inserted value priority is always consistent towards the comparison criteria.
-     * In other words, there is no need to call {@link #changePriority(int)} after a {@link #put(int, KType)}.
+     * In other words, there is no need to call {@link #updatePriority(int)} after a {@link #put(int, KType)}.
      */
     @Override
     public KType put(final int key, final KType element)
@@ -718,7 +718,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
      * towards the comparison criteria.
      * cost: O(log2(N))
      */
-    public void changePriority(final int key)
+    public void updatePriority(final int key)
     {
         if (key < this.pq.length && this.pq[key] > 0)
         {
@@ -1212,7 +1212,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
          * #else
          * natural ordering if no
          * #end
-         * custom comparator is given, else it uses the {@link #getComparator()} criteria.
+         * custom comparator is given, else it uses the {@link #comparator()} criteria.
          */
         @Override
         public boolean contains(final KType value)
@@ -1301,7 +1301,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
          *  #else
          * natural ordering if no
          *  #end
-         * custom comparator is given, else it uses the {@link #getComparator()} criteria.
+         * custom comparator is given, else it uses the {@link #comparator()} criteria.
          */
         @Override
         public int removeAllOccurrences(final KType e)
@@ -1459,7 +1459,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     /*! #else
                                                     public KTypeComparator<? super KType>
                                                     #end !*/
-    getComparator() {
+    comparator() {
 
         return this.comparator;
     }

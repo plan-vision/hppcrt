@@ -813,7 +813,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertFalse(isMinHeap(testPQ));
 
         //C) Reestablish
-        testPQ.refreshPriorities();
+        testPQ.updatePriorities();
 
         Assert.assertTrue(isMinHeap(testPQ));
     }
@@ -878,7 +878,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertFalse(isMinHeap(testPQ));
 
         //C) Reestablish
-        testPQ.refreshPriorities();
+        testPQ.updatePriorities();
 
         Assert.assertTrue(isMinHeap(testPQ));
     }
