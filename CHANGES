@@ -3,6 +3,8 @@
 
 HPPCRT-23: Make KTtypeIndexedPriorityQueue a IntKTypeMap plus API additions
 
+HPPCRT-27: Removed Guava adapter classes, which had very little value anyway
+
 ** Bug fixes
 
 HPPC-92 : ObjectOpenHashSet/Generics -ClassCastException when accesing to keys[] array

@@ -29,7 +29,7 @@ especially noticable for big container sizes.
 
 7.  Custom hashing strategies to override the usual equals()/hashCode() in Hash containers, in specific CustomHash classes
 
-8.  Heaps : Priority queues, and Indexed priority queues
+8.  Heaps : Priority queues, and Indexed (a.k.a indirect) priority queues
 
 9.  Double linked-lists, supporting all operations common to lists and dequeues, with rich bi-derectional iterating methods.
 
