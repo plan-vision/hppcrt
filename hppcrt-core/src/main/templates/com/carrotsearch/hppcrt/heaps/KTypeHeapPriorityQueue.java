@@ -587,6 +587,19 @@ implements KTypePriorityQueue<KType>, Cloneable
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateTopPriority()
+    {
+        //only attempt to sink if there is at least 2 elements....
+        if (this.elementsCount > 1) {
+
+            sink(1);
+        }
+    }
+
+    /**
      * Clone this object. The returned clone will use the same resizing strategy and comparator.
      * It also realizes a trim-to- this.size() in the process.
      */

@@ -554,8 +554,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
     /**
      * Retrieve, but not remove, the top element of the queue,
-     * i.e. the min/max element with respect to the comparison criteria
-     * (implementation defined)
+     * i.e. the min. element with respect to the comparison criteria
      * of the queue. Returns the default value if empty.
      * cost: O(1)
      */
@@ -569,6 +568,24 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         }
 
         return elem;
+    }
+
+    /**
+     * Retrieve the key corresponding to the top element of the queue,
+     * i.e. the min element with respect to the comparison criteria
+     * of the queue. Returns -1 if empty.
+     * cost: O(1)
+     */
+    public int topKey()
+    {
+        int key = -1;
+
+        if (this.elementsCount > 0)
+        {
+            key = this.qp[1];
+        }
+
+        return key;
     }
 
     /**
@@ -724,6 +741,20 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         {
             swim(this.pq[key]);
             sink(this.pq[key]);
+        }
+    }
+
+    /**
+     * Update the priority of the {@link #top()} element, to re-establish its actual priority
+     * towards the comparison criteria when it may have changed such that it is no longer the
+     *  min element with respect to the comparison criteria.
+     */
+    public void updateTopPriority()
+    {
+        //only attempt to sink if there is at least 2 elements....
+        if (this.elementsCount > 1) {
+
+            sink(1);
         }
     }
 
@@ -916,7 +947,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
      * Update priorities of all the elements of the queue, to re-establish the correct priorities
      * towards the comparison criteria.
      */
-    public void refreshPriorities()
+    public void updatePriorities()
     {
         if (this.comparator == null)
         {
@@ -1770,7 +1801,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         {
             this.elementsCount = elementsCount;
             //reestablish heap
-            refreshPriorities();
+            updatePriorities();
         }
 
         /*! #if($DEBUG) !*/

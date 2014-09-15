@@ -36,4 +36,11 @@ public interface KTypePriorityQueue<KType> extends KTypeCollection<KType>
      * towards the comparison criteria.
      */
     void updatePriorities();
+
+    /**
+     * Update the priority of the {@link #top()} element, to re-establish its actual priority
+     * towards the comparison criteria when it may have changed such that it is no longer the
+     *  min element with respect to the comparison criteria.
+     */
+    void updateTopPriority();
 }

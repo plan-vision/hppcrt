@@ -1,7 +1,7 @@
 [0.6.6]
 ** API-breaking changes
 
-HPPCRT-23: Make KTtypeIndexedPriorityQueue a IntKTypeMap
+HPPCRT-23: Make KTtypeIndexedPriorityQueue a IntKTypeMap plus API additions
 
 ** Bug fixes
 
@@ -14,6 +14,8 @@ HPPCRT-24: Bug in Heaps with contains()/removeAllOccurences() not using Comparab
 HPPCRT-25: KTypeLinkedList.descendingForEach(Predicate) is not working.
 
 ** New features
+
+HPPCRT-23: Make KTtypeIndexedPriorityQueue a IntKTypeMap plus API additions
 
 HPPCRT-26: Add specialized IdentityHash containers
 

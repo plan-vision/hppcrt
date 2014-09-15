@@ -49,8 +49,6 @@ Stable version is published on Maven:
     <version>0.6.5</version>
 </dependency>
 ````
-Current developpement version is in '0.7x-RT' branch.
-Pre-built binaries, (including both Java 1.5 and Java 1.6 ones) sources and Javadoc are provided in the 'hppc/binaries' 
-for convenience when more recent than Maven artifacts.
+
 
 
