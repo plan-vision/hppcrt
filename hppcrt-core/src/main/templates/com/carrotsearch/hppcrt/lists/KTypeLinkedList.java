@@ -1847,7 +1847,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * Sort the dequeue from [beginIndex, endIndex[
      * by natural ordering (smaller first)
      * <p><b>
-     * WARNING: This method runs in O(n² *log(n)). Consider yourself warned.
+     * WARNING: This method runs in O(n*n*log(n)). Consider yourself warned.
      * </b></p>
      * @param beginIndex the start index to be sorted
      * @param endIndex the end index to be sorted (excluded)
@@ -1871,7 +1871,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
      * </b></p>
      * <p><b>
-     * WARNING: This method runs in O(n² *log(n)). Consider yourself warned.
+     * WARNING: This method runs in O(n*n*log(n)). Consider yourself warned.
      * </b></p>
      * @param beginIndex the start index to be sorted
      * @param endIndex the end index to be sorted (excluded)

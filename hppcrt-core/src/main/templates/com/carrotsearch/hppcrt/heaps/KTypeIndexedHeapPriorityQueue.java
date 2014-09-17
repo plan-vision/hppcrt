@@ -77,7 +77,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
      * i.e for a priority buffer position pos, qp[pos] is the index of the value.,
      * ie qp[pq|i]] = i
      */
-    protected int[] qp;
+    public int[] qp;
 
     /**
      * Number of elements in the queue.

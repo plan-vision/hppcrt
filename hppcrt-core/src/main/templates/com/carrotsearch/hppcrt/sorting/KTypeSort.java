@@ -6,7 +6,7 @@ import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.Intrinsics;
 
 /**
- * Utility class for sorting algorithms of <code>KType</code>s arrays.
+ * Utility class gathering sorting algorithms for <code>KType</code>s structures.
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 
@@ -15,7 +15,7 @@ public final class KTypeSort
     /**
      * Minimum window length to apply insertion sort in quick sort.
      */
-    private static final int MIN_LENGTH_FOR_INSERTION_SORT_IN_QSORT = 17;
+    private static final int MIN_LENGTH_FOR_INSERTION_SORT = 17;
 
     private static final int DIST_SIZE_DUALQSORT = 13;
 
@@ -189,7 +189,7 @@ public final class KTypeSort
 
         //insertion sort
         //to prevent too-big recursion, swap to insertion sort below a certain size
-        if (len < KTypeSort.MIN_LENGTH_FOR_INSERTION_SORT_IN_QSORT)
+        if (len < KTypeSort.MIN_LENGTH_FOR_INSERTION_SORT)
         { // insertion sort on tiny array
             for (int i = left + 1; i <= right; i++)
             {
@@ -397,7 +397,7 @@ public final class KTypeSort
 
         //insertion sort
         //to prevent too-big recursion, swap to insertion sort below a certain size
-        if (len < KTypeSort.MIN_LENGTH_FOR_INSERTION_SORT_IN_QSORT)
+        if (len < KTypeSort.MIN_LENGTH_FOR_INSERTION_SORT)
         { // insertion sort on tiny array
             for (int i = left + 1; i <= right; i++)
             {
@@ -626,7 +626,7 @@ public final class KTypeSort
 
         //insertion sort
         //to prevent too-big recursion, swap to insertion sort below a certain size
-        if (len < KTypeSort.MIN_LENGTH_FOR_INSERTION_SORT_IN_QSORT)
+        if (len < KTypeSort.MIN_LENGTH_FOR_INSERTION_SORT)
         { // insertion sort on tiny array
             for (int i = left + 1; i <= right; i++)
             {
@@ -841,7 +841,7 @@ public final class KTypeSort
 
         //insertion sort
         //to prevent too-big recursion, swap to insertion sort below a certain size
-        if (len < KTypeSort.MIN_LENGTH_FOR_INSERTION_SORT_IN_QSORT)
+        if (len < KTypeSort.MIN_LENGTH_FOR_INSERTION_SORT)
         { // insertion sort on tiny array
             for (int i = left + 1; i <= right; i++)
             {
