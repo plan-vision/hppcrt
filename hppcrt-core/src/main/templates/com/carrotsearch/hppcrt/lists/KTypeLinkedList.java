@@ -1844,6 +1844,56 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     }
 
     /**
+     * Sort the dequeue from [beginIndex, endIndex[
+     * by natural ordering (smaller first)
+     * <p><b>
+     * WARNING: This method runs in O(n² *log(n)). Consider yourself warned.
+     * </b></p>
+     * @param beginIndex the start index to be sorted
+     * @param endIndex the end index to be sorted (excluded)
+     */
+    /*! #if ($TemplateOptions.KTypePrimitive)
+    public void sort(int beginIndex, int endIndex)
+    {
+         assert endIndex <= size();
+
+        if (endIndex - beginIndex > 1)
+        {
+            KTypeSort.quicksort(this, beginIndex, endIndex);
+        }
+    }
+    #end !*/
+
+    /**
+     * Sort linked-list of <code>KType</code>s from [beginIndex, endIndex[
+     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
+     * <p><b>
+     * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
+     * </b></p>
+     * <p><b>
+     * WARNING: This method runs in O(n² *log(n)). Consider yourself warned.
+     * </b></p>
+     * @param beginIndex the start index to be sorted
+     * @param endIndex the end index to be sorted (excluded)
+     */
+    public void sort(
+            final int beginIndex, final int endIndex,
+            /*! #if ($TemplateOptions.KTypeGeneric) !*/
+            final Comparator<? super KType>
+            /*! #else
+            KTypeComparator<? super KType>
+            #end !*/
+            comp)
+    {
+        assert endIndex <= size();
+
+        if (endIndex - beginIndex > 1)
+        {
+            KTypeSort.quicksort(this, beginIndex, endIndex, comp);
+        }
+    }
+
+    /**
      * Sort the whole list by natural ordering (smaller first)
      * <p><b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009]

@@ -1068,7 +1068,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertEquals(initialPoolSize, testContainer.valueIteratorPool.size());
     }
 
-    @Repeat(iterations = 100)
+    @Repeat(iterations = 20)
     @Test
     public void testSort()
     {
@@ -1164,46 +1164,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertEquals(PREALLOCATED_SIZE, newList.size());
     }
 
-    /**
-     * Test natural ordering between [startIndex; endIndex[, starting from original
-     * @param expected
-     * @param actual
-     * @param length
-     */
-    private void assertOrder(final KTypeArrayList<KType> original, final KTypeArrayList<KType> order, final int startIndex, final int endIndex)
-    {
 
-        Assert.assertEquals(original.size(), order.size());
-
-        //A) check that the required range is ordered
-        for (int i = startIndex + 1; i < endIndex; i++)
-        {
-            if (castType(order.get(i - 1)) > castType(order.get(i)))
-            {
-                Assert.assertTrue(String.format("Not ordered: (previous, next) = (%d, %d) at index %d",
-                        castType(order.get(i - 1)), castType(order.get(i)), i), false);
-            }
-        }
-
-        //B) Check that the rest is untouched also
-        for (int i = 0; i < startIndex; i++)
-        {
-            if (castType(original.get(i)) != castType(order.get(i)))
-            {
-                Assert.assertTrue(String.format("This index has been touched: (original, erroneously modified) = (%d, %d) at index %d",
-                        castType(original.get(i)), castType(order.get(i)), i), false);
-            }
-        }
-
-        for (int i = endIndex; i < original.size(); i++)
-        {
-            if (castType(original.get(i)) != castType(order.get(i)))
-            {
-                Assert.assertTrue(String.format("This index has been touched: (original, erroneously modified) = (%d, %d) at index %d",
-                        castType(original.get(i)), castType(order.get(i)), i), false);
-            }
-        }
-    }
 
     private KTypeArrayList<KType> createArrayWithOrderedData(final int size)
     {

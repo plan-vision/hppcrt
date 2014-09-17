@@ -626,6 +626,8 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
 
     /**
      * Compact the internal buffer to prepare sorting
+     * Beware, this changes the relative order of elements, so is only useful to
+     * not-stable sorts while sorting the WHOLE buffer !
      */
     private void compactBeforeSorting()
     {
@@ -1178,6 +1180,51 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
     KTypeArrayDeque<KType> from(final KTypeArrayDeque<KType> container)
     {
         return new KTypeArrayDeque<KType>(container);
+    }
+
+    ////////////////////////////
+    /**
+     * Sort the dequeue from [beginIndex, endIndex[
+     * by natural ordering (smaller first)
+     * @param beginIndex the start index to be sorted
+     * @param endIndex the end index to be sorted (excluded)
+     */
+    /*! #if ($TemplateOptions.KTypePrimitive)
+    public void sort(int beginIndex, int endIndex)
+    {
+         assert endIndex <= size();
+
+        if (endIndex - beginIndex > 1)
+        {
+            KTypeSort.quicksort(this, beginIndex, endIndex);
+        }
+    }
+    #end !*/
+
+    /**
+     * Sort the dequeue of <code>KType</code>s from [beginIndex, endIndex[
+     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
+     * <p><b>
+     * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
+     * </b></p>
+     * @param beginIndex the start index to be sorted
+     * @param endIndex the end index to be sorted (excluded)
+     */
+    public void sort(
+            final int beginIndex, final int endIndex,
+            /*! #if ($TemplateOptions.KTypeGeneric) !*/
+            final Comparator<? super KType>
+            /*! #else
+            KTypeComparator<? super KType>
+            #end !*/
+            comp)
+    {
+        assert endIndex <= size();
+
+        if (endIndex - beginIndex > 1)
+        {
+            KTypeSort.quicksort(this, beginIndex, endIndex, comp);
+        }
     }
 
     /**

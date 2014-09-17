@@ -1321,7 +1321,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertEquals(startingPoolSize, testContainer.valueIteratorPool.size());
     }
 
-    @Repeat(iterations = 100)
+    @Repeat(iterations = 20)
     @Test
     public void testSort()
     {
@@ -1351,20 +1351,35 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
         //get a new seed for the current iteration
         final long currentSeed = RandomizedTest.randomLong();
 
+        final int upperRange = RandomizedTest.randomInt(TEST_SIZE);
+        final int lowerRange = RandomizedTest.randomInt(upperRange);
+
         //A) Sort a deque of random values of primitive types
 
 /*! #if ($TemplateOptions.KTypePrimitive)
         //A-1) full sort
         KTypeArrayDeque<KType> primitiveDeque = creatDequeWithRandomData(TEST_SIZE, currentSeed);
+        KTypeArrayDeque<KType> primitiveDequeOriginal = creatDequeWithRandomData(TEST_SIZE, currentSeed);
         primitiveDeque.sort();
-        assertOrder(primitiveDeque);
+        assertOrder(primitiveDequeOriginal, primitiveDeque, 0, primitiveDequeOriginal.size());
+         //A-2) Partial sort
+        primitiveDeque = creatDequeWithRandomData(TEST_SIZE, currentSeed);
+        primitiveDequeOriginal = creatDequeWithRandomData(TEST_SIZE, currentSeed);
+        primitiveDeque.sort(lowerRange, upperRange);
+        assertOrder(primitiveDequeOriginal, primitiveDeque, lowerRange, upperRange);
 #end !*/
 
         //B) Sort with Comparator
         //B-1) Full sort
-        final KTypeArrayDeque<KType> comparatorDeque = creatDequeWithRandomData(TEST_SIZE, currentSeed);
+        KTypeArrayDeque<KType> comparatorDeque = creatDequeWithRandomData(TEST_SIZE, currentSeed);
+        KTypeArrayDeque<KType> comparatorDequeOriginal = creatDequeWithRandomData(TEST_SIZE, currentSeed);
         comparatorDeque.sort(comp);
-        assertOrder(comparatorDeque);
+        assertOrder(comparatorDequeOriginal, comparatorDeque, 0, comparatorDequeOriginal.size());
+        //B-2) Partial sort
+        comparatorDeque = creatDequeWithRandomData(TEST_SIZE, currentSeed);
+        comparatorDequeOriginal = creatDequeWithRandomData(TEST_SIZE, currentSeed);
+        comparatorDeque.sort(lowerRange, upperRange, comp);
+        assertOrder(comparatorDequeOriginal, comparatorDeque, lowerRange, upperRange);
     }
 
     @Repeat(iterations = 10)
@@ -1400,27 +1415,6 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
         }
 
         Assert.assertEquals(PREALLOCATED_SIZE, newDequeue.size());
-    }
-
-    /**
-     * Test natural ordering in the deque
-     * @param expected
-     * @param actual
-     * @param length
-     */
-    private void assertOrder(final KTypeArrayDeque<KType> order)
-    {
-        //first, export to an array
-        final KType[] export = (KType[]) order.toArray();
-
-        for (int i = 1; i < export.length; i++)
-        {
-            if (castType(export[i - 1]) > castType(export[i]))
-            {
-                Assert.assertTrue(String.format("Not ordered: (previous, next) = (%d, %d) at index %d",
-                        castType(export[i - 1]), castType(export[i]), i), false);
-            }
-        }
     }
 
     private KTypeArrayDeque<KType> createDequeWithOrderedData(final int size)

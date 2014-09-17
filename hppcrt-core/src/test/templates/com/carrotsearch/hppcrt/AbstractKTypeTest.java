@@ -1,5 +1,6 @@
 package com.carrotsearch.hppcrt;
 
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.rules.MethodRule;
 
@@ -198,5 +199,46 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
         }
 
         return values;
+    }
+
+    /**
+     * Test natural ordering for a KTypeIndexedContainer between [startIndex; endIndex[, starting from original
+     * @param expected
+     * @param actual
+     * @param length
+     */
+    public void assertOrder(final KTypeIndexedContainer<KType> original, final KTypeIndexedContainer<KType> order, final int startIndex, final int endIndex)
+    {
+
+        Assert.assertEquals(original.size(), order.size());
+
+        //A) check that the required range is ordered
+        for (int i = startIndex + 1; i < endIndex; i++)
+        {
+            if (castType(order.get(i - 1)) > castType(order.get(i)))
+            {
+                Assert.assertTrue(String.format("Not ordered: (previous, next) = (%d, %d) at index %d",
+                        castType(order.get(i - 1)), castType(order.get(i)), i), false);
+            }
+        }
+
+        //B) Check that the rest is untouched also
+        for (int i = 0; i < startIndex; i++)
+        {
+            if (castType(original.get(i)) != castType(order.get(i)))
+            {
+                Assert.assertTrue(String.format("This index has been touched: (original, erroneously modified) = (%d, %d) at index %d",
+                        castType(original.get(i)), castType(order.get(i)), i), false);
+            }
+        }
+
+        for (int i = endIndex; i < original.size(); i++)
+        {
+            if (castType(original.get(i)) != castType(order.get(i)))
+            {
+                Assert.assertTrue(String.format("This index has been touched: (original, erroneously modified) = (%d, %d) at index %d",
+                        castType(original.get(i)), castType(order.get(i)), i), false);
+            }
+        }
     }
 }

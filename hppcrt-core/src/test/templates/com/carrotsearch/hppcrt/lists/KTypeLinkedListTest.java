@@ -1095,7 +1095,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertEquals(initialPoolSize, testContainer.valueIteratorPool.size());
     }
 
-    @Repeat(iterations = 100)
+    @Repeat(iterations = 20)
     @Test
     public void testSort()
     {
@@ -1120,25 +1120,41 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
             }
         };
 
-        final int TEST_SIZE = (int) 1e4;
+        final int TEST_SIZE = (int) 2e3;
 
         //get a new seed for the current iteration
         final long currentSeed = RandomizedTest.randomLong();
 
+        final int upperRange = RandomizedTest.randomInt(TEST_SIZE);
+        final int lowerRange = RandomizedTest.randomInt(upperRange);
+
+
         //A) Sort an array of random values of primitive types
 
-        /*! #if ($TemplateOptions.KTypePrimitive)
+/*! #if ($TemplateOptions.KTypePrimitive)
         //A-1) full sort
         KTypeLinkedList<KType> primitiveList = createArrayWithRandomData(TEST_SIZE, currentSeed);
+        KTypeLinkedList<KType> primitiveListOriginal = createArrayWithRandomData(TEST_SIZE, currentSeed);
         primitiveList.sort();
-        assertOrder(primitiveList);
-        #end !*/
+        assertOrder(primitiveListOriginal, primitiveList, 0, primitiveListOriginal.size());
+         //A-2) Partial sort
+        primitiveList = createArrayWithRandomData(TEST_SIZE, currentSeed);
+        primitiveListOriginal = createArrayWithRandomData(TEST_SIZE, currentSeed);
+        primitiveList.sort(lowerRange, upperRange);
+        assertOrder(primitiveListOriginal, primitiveList, lowerRange, upperRange);
+#end !*/
 
         //B) Sort with Comparator
         //B-1) Full sort
-        final KTypeLinkedList<KType> comparatorList = createArrayWithRandomData(TEST_SIZE, currentSeed);
+        KTypeLinkedList<KType> comparatorList = createArrayWithRandomData(TEST_SIZE, currentSeed);
+        KTypeLinkedList<KType> comparatorListOriginal = createArrayWithRandomData(TEST_SIZE, currentSeed);
         comparatorList.sort(comp);
-        assertOrder(comparatorList);
+        assertOrder(comparatorListOriginal, comparatorList, 0, comparatorListOriginal.size());
+        //B-2) Partial sort
+        comparatorList = createArrayWithRandomData(TEST_SIZE, currentSeed);
+        comparatorListOriginal = createArrayWithRandomData(TEST_SIZE, currentSeed);
+        comparatorList.sort(lowerRange, upperRange, comp);
+        assertOrder(comparatorListOriginal, comparatorList, lowerRange, upperRange);
     }
 
     private KTypeLinkedList<KType> createArrayWithOrderedData(final int size)
@@ -2396,26 +2412,5 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
 
         //Both Dequeues are indeed equal: explicitely cast it in KTypeDeque
         Assert.assertTrue(this.list.equals((KTypeDeque<KType>) deque2));
-    }
-
-    /**
-     * Test natural ordering in the deque
-     * @param expected
-     * @param actual
-     * @param length
-     */
-    private void assertOrder(final KTypeLinkedList<KType> order)
-    {
-        //first, export to an array
-        final KType[] export = (KType[]) order.toArray();
-
-        for (int i = 1; i < export.length; i++)
-        {
-            if (castType(export[i - 1]) > castType(export[i]))
-            {
-                Assert.assertTrue(String.format("Not ordered: (previous, next) = (%d, %d) at index %d",
-                        castType(export[i - 1]), castType(export[i]), i), false);
-            }
-        }
     }
 }
