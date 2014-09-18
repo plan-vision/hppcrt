@@ -3,7 +3,6 @@ package com.carrotsearch.hppcrt.sorting;
 import java.util.Comparator;
 
 import com.carrotsearch.hppcrt.*;
-import com.carrotsearch.hppcrt.Intrinsics;
 
 /**
  * Utility class gathering sorting algorithms for <code>KType</code>s structures.
@@ -108,7 +107,6 @@ public final class KTypeSort
              #end !*/
             comp)
     {
-
         if (endIndex - beginIndex > 1)
         {
             KTypeSort.dualPivotQuicksort(table, beginIndex, endIndex - 1, comp);
@@ -149,7 +147,6 @@ public final class KTypeSort
              #end !*/
             comp)
     {
-
         if (endIndex - beginIndex > 1)
         {
             KTypeSort.dualPivotQuicksort(table, beginIndex, endIndex - 1, comp);
@@ -175,6 +172,27 @@ public final class KTypeSort
     }
 
     /**
+     * Insertion sort for smaller arrays, for Comparable
+     * @param a
+     * @param left
+     * @param right
+     */
+    private static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType extends Comparable<? super KType>> /*! #end !*/void insertionsort(final KType[] a, final int left, final int right)
+    {
+        KType x;
+        // insertion sort on tiny array
+        for (int i = left + 1; i <= right; i++)
+        {
+            for (int j = i; j > left && Intrinsics.isCompInfKType(a[j], a[j - 1]); j--)
+            {
+                x = a[j - 1];
+                a[j - 1] = a[j];
+                a[j] = x;
+            }
+        }
+    }
+
+    /**
      * Private recursive sort method, [left, right] inclusive for Comparable objects
      * or natural ordering for primitives.
      * @param a
@@ -190,16 +208,9 @@ public final class KTypeSort
         //insertion sort
         //to prevent too-big recursion, swap to insertion sort below a certain size
         if (len < KTypeSort.MIN_LENGTH_FOR_INSERTION_SORT)
-        { // insertion sort on tiny array
-            for (int i = left + 1; i <= right; i++)
-            {
-                for (int j = i; j > left && Intrinsics.isCompInfKType(a[j], a[j - 1]); j--)
-                {
-                    x = a[j - 1];
-                    a[j - 1] = a[j];
-                    a[j] = x;
-                }
-            }
+        {
+            // insertion sort on tiny array
+            KTypeSort.insertionsort(a, left, right);
             return;
         }
 
@@ -382,6 +393,28 @@ public final class KTypeSort
     }
 
     /**
+     * Insertion sort for smaller arrays, for KTypeIndexedContainer
+     * @param a
+     * @param left
+     * @param right
+     */
+    private static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType extends Comparable<? super KType>> /*! #end !*/void insertionsort(final KTypeIndexedContainer<KType> a, final int left,
+            final int right)
+    {
+        KType x;
+
+        for (int i = left + 1; i <= right; i++)
+        {
+            for (int j = i; j > left && Intrinsics.isCompInfKType(a.get(j), a.get(j - 1)); j--)
+            {
+                x = a.get(j - 1);
+                a.set(j - 1, a.get(j));
+                a.set(j, x);
+            }
+        }
+    }
+
+    /**
      * Private recursive sort method for KTypeIndexedContainer, [left, right] inclusive for Comparable objects
      * or natural ordering for primitives.
      * @param a
@@ -398,16 +431,9 @@ public final class KTypeSort
         //insertion sort
         //to prevent too-big recursion, swap to insertion sort below a certain size
         if (len < KTypeSort.MIN_LENGTH_FOR_INSERTION_SORT)
-        { // insertion sort on tiny array
-            for (int i = left + 1; i <= right; i++)
-            {
-                for (int j = i; j > left && Intrinsics.isCompInfKType(a.get(j), a.get(j - 1)); j--)
-                {
-                    x = a.get(j - 1);
-                    a.set(j - 1, a.get(j));
-                    a.set(j, x);
-                }
-            }
+        {
+            // insertion sort on tiny array
+            KTypeSort.insertionsort(a, left, right);
             return;
         }
 
@@ -604,6 +630,35 @@ public final class KTypeSort
     }
 
     /**
+     * Insertion sort for smaller arrays, with Comparator
+     * @param a
+     * @param left
+     * @param right
+     */
+    private static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void insertionsort(
+            final KType[] a,
+            final int left, final int right,
+            /*! #if ($TemplateOptions.KTypeGeneric) !*/
+            final Comparator<? super KType>
+            /*! #else
+            KTypeComparator<? super KType>
+             #end !*/
+            comp)
+    {
+        KType x;
+
+        for (int i = left + 1; i <= right; i++)
+        {
+            for (int j = i; j > left && comp.compare(a[j], a[j - 1]) < 0; j--)
+            {
+                x = a[j - 1];
+                a[j - 1] = a[j];
+                a[j] = x;
+            }
+        }
+    }
+
+    /**
      * Private recursive sort method, [left, right] inclusive using KTypeComparator
      * for comparison.
      * @param a
@@ -627,16 +682,9 @@ public final class KTypeSort
         //insertion sort
         //to prevent too-big recursion, swap to insertion sort below a certain size
         if (len < KTypeSort.MIN_LENGTH_FOR_INSERTION_SORT)
-        { // insertion sort on tiny array
-            for (int i = left + 1; i <= right; i++)
-            {
-                for (int j = i; j > left && comp.compare(a[j], a[j - 1]) < 0; j--)
-                {
-                    x = a[j - 1];
-                    a[j - 1] = a[j];
-                    a[j] = x;
-                }
-            }
+        {
+            // insertion sort on tiny array
+            KTypeSort.insertionsort(a, left, right, comp);
             return;
         }
 
@@ -819,6 +867,35 @@ public final class KTypeSort
     }
 
     /**
+     * Insertion sort for smaller KTypeIndexedContainer, Comparator version
+     * @param a
+     * @param left
+     * @param right
+     */
+    private static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void insertionsort(
+            final KTypeIndexedContainer<KType> a,
+            final int left, final int right,
+            /*! #if ($TemplateOptions.KTypeGeneric) !*/
+            final Comparator<? super KType>
+            /*! #else
+            KTypeComparator<? super KType>
+             #end !*/
+            comp)
+    {
+        KType x;
+
+        for (int i = left + 1; i <= right; i++)
+        {
+            for (int j = i; j > left && comp.compare(a.get(j), a.get(j - 1)) < 0; j--)
+            {
+                x = a.get(j - 1);
+                a.set(j - 1, a.get(j));
+                a.set(j, x);
+            }
+        }
+    }
+
+    /**
      * Private recursive sort method for KTypeIndexedContainer<KType> a , [left, right] inclusive using KTypeComparator
      * for comparison.
      * @param a
@@ -842,16 +919,9 @@ public final class KTypeSort
         //insertion sort
         //to prevent too-big recursion, swap to insertion sort below a certain size
         if (len < KTypeSort.MIN_LENGTH_FOR_INSERTION_SORT)
-        { // insertion sort on tiny array
-            for (int i = left + 1; i <= right; i++)
-            {
-                for (int j = i; j > left && comp.compare(a.get(j), a.get(j - 1)) < 0; j--)
-                {
-                    x = a.get(j - 1);
-                    a.set(j - 1, a.get(j));
-                    a.set(j, x);
-                }
-            }
+        {
+            // insertion sort on tiny array
+            KTypeSort.insertionsort(a, left, right, comp);
             return;
         }
 
@@ -1046,5 +1116,4 @@ public final class KTypeSort
             KTypeSort.dualPivotQuicksort(a, less, great, comp);
         }
     }
-
 }

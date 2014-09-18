@@ -4,90 +4,133 @@ import java.util.Arrays;
 import java.util.Random;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
-import com.carrotsearch.hppcrt.maps.*;
-import com.carrotsearch.hppcrt.sets.*;
-import com.carrotsearch.hppcrt.lists.*;
-import com.carrotsearch.hppcrt.sorting.*;
+import com.carrotsearch.hppcrt.lists.DoubleArrayList;
+import com.carrotsearch.hppcrt.lists.FloatArrayList;
+import com.carrotsearch.hppcrt.maps.DoubleObjectOpenHashMap;
+import com.carrotsearch.hppcrt.maps.FloatObjectOpenHashMap;
+import com.carrotsearch.hppcrt.maps.IntDoubleOpenHashMap;
+import com.carrotsearch.hppcrt.maps.IntFloatOpenHashMap;
+import com.carrotsearch.hppcrt.sets.DoubleOpenHashSet;
+import com.carrotsearch.hppcrt.sets.FloatOpenHashSet;
+import com.carrotsearch.hppcrt.sorting.DoubleSort;
+import com.carrotsearch.hppcrt.sorting.FloatSort;
+import com.carrotsearch.randomizedtesting.RandomizedTest;
+import com.carrotsearch.randomizedtesting.annotations.Repeat;
 
-public class NaNCornerCaseTest
+public class NaNCornerCaseTest extends RandomizedTest
 {
+    private double[] nanListD;
+    private float[] nanListF;
+
+    @Before
+    public void init() {
+        final double NaN1d = Double.NaN;
+
+        final double NaN2d = Double.longBitsToDouble(0x7ff8000000000001L);
+        final double NaN3d = Double.longBitsToDouble(0x7ff8000000000010L);
+        final double NaN4d = Double.longBitsToDouble(0x7ff8000000000011L);
+        final double NaN5d = Double.longBitsToDouble(0x7ff8000000000111L);
+        final double NaN6d = Double.longBitsToDouble(0x7ff8000000001111L);
+        final double NaN7d = Double.longBitsToDouble(0x7ff8000000011111L);
+        final double NaN8d = Double.longBitsToDouble(0x7ff8000000111111L);
+        final double NaN9d = Double.longBitsToDouble(0x7ff8000000101101L);
+        final double NaN10d = Double.longBitsToDouble(0x7ff8000011111111L);
+
+        this.nanListD = new double[] { NaN1d, NaN2d, NaN3d, NaN4d, NaN5d, NaN6d, NaN7d, NaN8d, NaN9d, NaN10d };
+
+        final float NaN1f = Float.NaN;
+
+        final float NaN2f = Float.intBitsToFloat(0x7fc00011);
+        final float NaN3f = Float.intBitsToFloat(0x7fc00001);
+        final float NaN4f = Float.intBitsToFloat(0x7fc00010);
+        final float NaN5f = Float.intBitsToFloat(0x7fc00101);
+        final float NaN6f = Float.intBitsToFloat(0x7fc00110);
+        final float NaN7f = Float.intBitsToFloat(0x7fc00111);
+        final float NaN8f = Float.intBitsToFloat(0x7fc01011);
+        final float NaN9f = Float.intBitsToFloat(0x7fc01111);
+        final float NaN10f = Float.intBitsToFloat(0x7fc10001);
+
+        this.nanListF = new float[] { NaN1f, NaN2f, NaN3f, NaN4f, NaN5f, NaN6f, NaN7f, NaN8f, NaN9f, NaN10f };
+    }
 
     /** @see "http://issues.carrot2.org/browse/HPPC-93" */
     @Test
     public void testDoubleNaNInfinitesComparison()
     {
-        final double NaN1 = Double.NaN;
+        System.out.println(Arrays.toString(this.nanListD));
 
-        final double NaN2 = Double.longBitsToDouble(0x7ff8000000000001L);
-        final double NaN3 = Double.longBitsToDouble(0x7ff8000000000010L);
-        final double NaN4 = Double.longBitsToDouble(0x7ff8000000000011L);
-        final double NaN5 = Double.longBitsToDouble(0x7ff8000000000111L);
-        final double NaN6 = Double.longBitsToDouble(0x7ff8000000001111L);
-        final double NaN7 = Double.longBitsToDouble(0x7ff8000000011111L);
-        final double NaN8 = Double.longBitsToDouble(0x7ff8000000111111L);
-        final double NaN9 = Double.longBitsToDouble(0x7ff8000000101101L);
-        final double NaN10 = Double.longBitsToDouble(0x7ff8000011111111L);
+        for (int i = 0; i < this.nanListD.length; i++) {
 
-        final double[] nanList = new double[] { NaN1, NaN2, NaN3, NaN4, NaN5, NaN6, NaN7, NaN8, NaN9, NaN10 };
+            System.out.println(Double.doubleToLongBits(this.nanListD[i]) + " raw : " + Double.doubleToRawLongBits(this.nanListD[i]));
 
-        System.out.println(Arrays.toString(nanList));
-
-        for (int i = 0; i < nanList.length; i++) {
-
-            System.out.println(Double.doubleToLongBits(nanList[i]) + " raw : " + Double.doubleToRawLongBits(nanList[i]));
-
-            if (i < nanList.length - 1) {
+            if (i < this.nanListD.length - 1) {
 
                 //All NaN are equal by doubleToLongBits
-                Assert.assertTrue(Double.doubleToLongBits(nanList[i]) == Double.doubleToLongBits(nanList[i + 1]));
+                Assert.assertTrue(Double.doubleToLongBits(this.nanListD[i]) == Double.doubleToLongBits(this.nanListD[i + 1]));
 
                 //Even if they are indeed binary different
-                Assert.assertFalse(Double.doubleToRawLongBits(nanList[i]) == Double.doubleToRawLongBits(nanList[i + 1]));
+                Assert.assertFalse(Double.doubleToRawLongBits(this.nanListD[i]) == Double.doubleToRawLongBits(this.nanListD[i + 1]));
 
                 //All NaNs are equals by compare
-                Assert.assertTrue(Double.compare(nanList[i], nanList[i + 1]) == 0);
+                Assert.assertTrue(Double.compare(this.nanListD[i], this.nanListD[i + 1]) == 0);
             }
 
             //Double NaN are considered superior to everything by compare(), so support ordering
-            Assert.assertTrue(Double.compare(nanList[i], Double.NEGATIVE_INFINITY) > 0);
-            Assert.assertTrue(Double.compare(nanList[i], 0.0) > 0);
-            Assert.assertTrue(Double.compare(nanList[i], 10.0) > 0);
-            Assert.assertTrue(Double.compare(nanList[i], 1e89) > 0);
-            Assert.assertTrue(Double.compare(nanList[i], Double.POSITIVE_INFINITY) > 0);
+            Assert.assertTrue(Double.compare(this.nanListD[i], Double.NEGATIVE_INFINITY) > 0);
+            Assert.assertTrue(Double.compare(this.nanListD[i], 0.0) > 0);
+            Assert.assertTrue(Double.compare(this.nanListD[i], 10.0) > 0);
+            Assert.assertTrue(Double.compare(this.nanListD[i], 1e89) > 0);
+            Assert.assertTrue(Double.compare(this.nanListD[i], Double.POSITIVE_INFINITY) > 0);
         } //end for
+    }
 
+    @Repeat(iterations = 20)
+    @Test
+    public void testDoubleNaNSortingArray()
+    {
         //Try to sort
         final int NB_SORT_ELEMENTS = (int) 1e6;
 
-        final double[] referenceArray = new double[NB_SORT_ELEMENTS];
-        final double[] testArray = new double[NB_SORT_ELEMENTS];
-        final Random prng = new Random(11841548441L);
-        final Random prngNaN = new Random(78995021461145L);
+        final DoubleArrayList referenceList = new DoubleArrayList(NB_SORT_ELEMENTS);
 
-        for (int i = 0; i < NB_SORT_ELEMENTS; i++) {
+        final Random prng = RandomizedTest.getRandom();
 
-            final double testValue = prng.nextDouble() * NB_SORT_ELEMENTS;
+        while (true) {
 
-            if (i % 111 == 0) {
+            final boolean AddNaN = (prng.nextInt(13) % 5 == 0);
 
-                //salt with different NaN values
-                final int prngNaNIndex = prngNaN.nextInt(nanList.length);
-                referenceArray[i] = nanList[prngNaNIndex];
-                testArray[i] = nanList[prngNaNIndex];
+            if (!AddNaN) {
+
+                referenceList.add(prng.nextDouble() * NB_SORT_ELEMENTS);
+
+            } else {
+
+                final int chunkSize = RandomizedTest.randomIntBetween(1, 5);
+
+                for (int j = 0; j < chunkSize;  j++) {
+
+                    referenceList.add(this.nanListD[j]);
+                }
             }
-            else {
-                referenceArray[i] = testValue;
-                testArray[i] = testValue;
+
+            if (referenceList.size() > NB_SORT_ELEMENTS) {
+
+                break;
             }
-        }
+        } //end while
+
+        //duplicate
+        final double[] testArray = referenceList.toArray();
+        final double[] referenceArray = referenceList.toArray();
 
         //Compare the sorts JDK vs. HPPC
         Arrays.sort(referenceArray);
         DoubleSort.quicksort(testArray);
 
-        for (int i = 0; i < NB_SORT_ELEMENTS; i++) {
+        for (int i = 0; i < referenceArray.length; i++) {
 
             Assert.assertEquals(Double.doubleToLongBits(referenceArray[i]), Double.doubleToLongBits(testArray[i]));
             Assert.assertTrue(Double.compare(referenceArray[i], testArray[i]) == 0);
@@ -99,74 +142,44 @@ public class NaNCornerCaseTest
         }
     }
 
-    /** @see "http://issues.carrot2.org/browse/HPPC-93" */
+    @Repeat(iterations = 20)
     @Test
-    public void testFloatNaNInfinitesComparison()
+    public void testFloatNaNSortingArray()
     {
-        final float NaN1 = Float.NaN;
-
-        final float NaN2 = Float.intBitsToFloat(0x7fc00011);
-        final float NaN3 = Float.intBitsToFloat(0x7fc00001);
-        final float NaN4 = Float.intBitsToFloat(0x7fc00010);
-        final float NaN5 = Float.intBitsToFloat(0x7fc00101);
-        final float NaN6 = Float.intBitsToFloat(0x7fc00110);
-        final float NaN7 = Float.intBitsToFloat(0x7fc00111);
-        final float NaN8 = Float.intBitsToFloat(0x7fc01011);
-        final float NaN9 = Float.intBitsToFloat(0x7fc01111);
-        final float NaN10 = Float.intBitsToFloat(0x7fc10001);
-
-        final float[] nanList = new float[] { NaN1, NaN2, NaN3, NaN4, NaN5, NaN6, NaN7, NaN8, NaN9, NaN10 };
-
-        System.out.println(Arrays.toString(nanList));
-
-        for (int i = 0; i < nanList.length; i++) {
-
-            System.out.println(Float.floatToIntBits(nanList[i]) + " raw : " + Float.floatToRawIntBits(nanList[i]));
-
-            if (i < nanList.length - 1) {
-
-                //All NaN are equal by floatToIntBits
-                Assert.assertTrue(Float.floatToIntBits(nanList[i]) == Float.floatToIntBits(nanList[i + 1]));
-
-                //Even if they are indeed binary different
-                Assert.assertFalse(Float.floatToRawIntBits(nanList[i]) == Float.floatToRawIntBits(nanList[i + 1]));
-
-                //All NaNs are equals by compare
-                Assert.assertTrue(Float.compare(nanList[i], nanList[i + 1]) == 0);
-            }
-
-            //Float NaN are considered superior to everything by compare(), so support ordering
-            Assert.assertTrue(Float.compare(nanList[i], Float.NEGATIVE_INFINITY) > 0);
-            Assert.assertTrue(Float.compare(nanList[i], 0f) > 0);
-            Assert.assertTrue(Float.compare(nanList[i], 10f) > 0);
-            Assert.assertTrue(Float.compare(nanList[i], 44887774f) > 0);
-            Assert.assertTrue(Float.compare(nanList[i], Float.POSITIVE_INFINITY) > 0);
-        } //end for
-
         //Try to sort
         final int NB_SORT_ELEMENTS = (int) 1e6;
 
-        final float[] referenceArray = new float[NB_SORT_ELEMENTS];
-        final float[] testArray = new float[NB_SORT_ELEMENTS];
-        final Random prng = new Random(97456114L);
-        final Random prngNaN = new Random(12544885441L);
+        final FloatArrayList referenceList = new FloatArrayList(NB_SORT_ELEMENTS);
 
-        for (int i = 0; i < NB_SORT_ELEMENTS; i++) {
+        final Random prng = RandomizedTest.getRandom();
 
-            final float testValue = prng.nextFloat() * NB_SORT_ELEMENTS;
+        while (true) {
 
-            if (i % 111 == 0) {
+            final boolean AddNaN = (prng.nextInt(13) % 5 == 0);
 
-                //salt with different NaN values
-                final int prngNaNIndex = prngNaN.nextInt(nanList.length);
-                referenceArray[i] = nanList[prngNaNIndex];
-                testArray[i] = nanList[prngNaNIndex];
+            if (!AddNaN) {
+
+                referenceList.add(prng.nextFloat() * NB_SORT_ELEMENTS);
             }
             else {
-                referenceArray[i] = testValue;
-                testArray[i] = testValue;
+
+                final int chunkSize = RandomizedTest.randomIntBetween(1, 5);
+
+                for (int j = 0; j < chunkSize; j++) {
+
+                    referenceList.add(this.nanListF[j]);
+                }
             }
-        }
+
+            if (referenceList.size() > NB_SORT_ELEMENTS) {
+
+                break;
+            }
+        } //end while
+
+        //duplicate
+        final float[] testArray = referenceList.toArray();
+        final float[] referenceArray = referenceList.toArray();
 
         //Compare the sorts JDK vs. HPPC
         Arrays.sort(referenceArray);
@@ -182,6 +195,37 @@ public class NaNCornerCaseTest
                 Assert.assertTrue(referenceArray[i] == testArray[i]);
             }
         }
+    }
+
+    /** @see "http://issues.carrot2.org/browse/HPPC-93" */
+    @Test
+    public void testFloatNaNInfinitesComparison()
+    {
+        System.out.println(Arrays.toString(this.nanListF));
+
+        for (int i = 0; i < this.nanListF.length; i++) {
+
+            System.out.println(Float.floatToIntBits(this.nanListF[i]) + " raw : " + Float.floatToRawIntBits(this.nanListF[i]));
+
+            if (i < this.nanListF.length - 1) {
+
+                //All NaN are equal by floatToIntBits
+                Assert.assertTrue(Float.floatToIntBits(this.nanListF[i]) == Float.floatToIntBits(this.nanListF[i + 1]));
+
+                //Even if they are indeed binary different
+                Assert.assertFalse(Float.floatToRawIntBits(this.nanListF[i]) == Float.floatToRawIntBits(this.nanListF[i + 1]));
+
+                //All NaNs are equals by compare
+                Assert.assertTrue(Float.compare(this.nanListF[i], this.nanListF[i + 1]) == 0);
+            }
+
+            //Float NaN are considered superior to everything by compare(), so support ordering
+            Assert.assertTrue(Float.compare(this.nanListF[i], Float.NEGATIVE_INFINITY) > 0);
+            Assert.assertTrue(Float.compare(this.nanListF[i], 0f) > 0);
+            Assert.assertTrue(Float.compare(this.nanListF[i], 10f) > 0);
+            Assert.assertTrue(Float.compare(this.nanListF[i], 44887774f) > 0);
+            Assert.assertTrue(Float.compare(this.nanListF[i], Float.POSITIVE_INFINITY) > 0);
+        } //end for
     }
 
     /** @see "http://issues.carrot2.org/browse/HPPC-93" */
@@ -275,7 +319,6 @@ public class NaNCornerCaseTest
         }
 
         {
-
             final DoubleArrayList l1 = DoubleArrayList.newInstance();
             l1.add(0, Double.NaN, 1);
             final DoubleArrayList l2 = DoubleArrayList.newInstance();
