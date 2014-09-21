@@ -122,8 +122,7 @@ public class HppcSortSyntheticBench
         this.nbWarmupsRuns = nbWarmups;
     }
 
-
-    public void runBenchTypeComparator(final String benchType, final int nbwarmupRuns, final ComparableLong[] inputArray)
+    private void runBenchTypeComparator(final String benchType, final int nbwarmupRuns, final ComparableLong[] inputArray)
     {
         // a shallow copy is enough
         final ComparableLong[] arrayToSort = inputArray.clone();
@@ -162,7 +161,7 @@ public class HppcSortSyntheticBench
                 arrayToSort.length, "external Comparator<> Long - " + benchType, stdSortRunMS, quicksortSortRunMS, dummyValue));
     }
 
-    public void runBenchTypeComparable(final String benchType, final int nbwarmupRuns, final ComparableLong[] inputArray)
+    private void runBenchTypeComparable(final String benchType, final int nbwarmupRuns, final ComparableLong[] inputArray)
     {
         // a shallow copy is enough
         final ComparableLong[] arrayToSort = inputArray.clone();
@@ -202,7 +201,7 @@ public class HppcSortSyntheticBench
                 arrayToSort.length, "Comparable<> Long-" + benchType, stdSortRunMS, quicksortSortRunMS, dummyValue));
     }
 
-    public void runBenchTypeLong(final String benchType, final int nbwarmupRuns, final ComparableLong[] inputArray)
+    private void runBenchTypeLong(final String benchType, final int nbwarmupRuns, final ComparableLong[] inputArray)
     {
         // a shallow copy is enough
         final long[] arrayToSortReference = new long[inputArray.length];
@@ -254,7 +253,7 @@ public class HppcSortSyntheticBench
                 arrayToSort.length, "long-" + benchType, stdSortRunMS, quicksortSortRunMS, dummyValue));
     }
 
-    public void runBenchTypeDouble(final String benchType, final int nbwarmupRuns, final ComparableLong[] inputArray)
+    private void runBenchTypeDouble(final String benchType, final int nbwarmupRuns, final ComparableLong[] inputArray)
     {
         // a shallow copy is enough
         final double[] arrayToSortReference = new double[inputArray.length];

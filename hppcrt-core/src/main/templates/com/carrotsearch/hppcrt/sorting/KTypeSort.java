@@ -2,19 +2,22 @@ package com.carrotsearch.hppcrt.sorting;
 
 import java.util.Comparator;
 
-import com.carrotsearch.hppcrt.*;
+import com.carrotsearch.hppcrt.Intrinsics;
+import com.carrotsearch.hppcrt.KTypeIndexedContainer;
 
 /**
- * Utility class gathering sorting algorithms for <code>KType</code>s structures.
+ * Utility class gathering sorting algorithms for <code>KType</code>s containers.
+ * It is a replacement for {@link java.util.Arrays} sorting routines, with
+ * memory and speed guarantees documented in Javadoc.
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 
 public final class KTypeSort
 {
     /**
-     * Minimum window length to apply insertion sort in quick sort.
+     * Minimum window length to apply insertion sort.
      */
-    private static final int MIN_LENGTH_FOR_INSERTION_SORT = 17;
+    private static final int MIN_LENGTH_FOR_INSERTION_SORT = 32;
 
     private static final int DIST_SIZE_DUALQSORT = 13;
 
@@ -24,7 +27,7 @@ public final class KTypeSort
     }
 
     /**
-     * Sort by  dual-pivot quicksort an array of naturally comparable <code>KType</code>s from [beginIndex, endIndex[
+     * In-place sort by dual-pivot quicksort an array of naturally comparable <code>KType</code>s from [beginIndex, endIndex[
      * <p>
      * <b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
@@ -43,7 +46,7 @@ public final class KTypeSort
     }
 
     /**
-     * Sort by  dual-pivot quicksort a entire array of of naturally Comparable <code>KType</code>s
+     * In-place sort by dual-pivot quicksort a entire array of of naturally Comparable <code>KType</code>s
      * <p>
      * <b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
@@ -57,7 +60,7 @@ public final class KTypeSort
     }
 
     /**
-     * Sort by  dual-pivot quicksort a {@link KTypeIndexedContainer} of naturally Comparable <code>KType</code>s from [beginIndex, endIndex[
+     * In-place sort by dual-pivot quicksort a {@link KTypeIndexedContainer} of naturally Comparable <code>KType</code>s from [beginIndex, endIndex[
      * <p>
      * <b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
@@ -77,7 +80,7 @@ public final class KTypeSort
     }
 
     /**
-     * Sort by  dual-pivot quicksort a entire {@link KTypeIndexedContainer} of naturally Comparable <code>KType</code>s
+     * In-place sort by dual-pivot quicksort a entire {@link KTypeIndexedContainer} of naturally Comparable <code>KType</code>s
      * <p>
      * <b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
@@ -92,7 +95,7 @@ public final class KTypeSort
 
     ////////////////////////////
     /**
-     * Sort by  dual-pivot quicksort an array of <code>KType</code>s from [beginIndex, endIndex[
+     * In-place sort by  dual-pivot quicksort an array of <code>KType</code>s from [beginIndex, endIndex[
      * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
      * <p><b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
@@ -114,7 +117,7 @@ public final class KTypeSort
     }
 
     /**
-     * Sort by  dual-pivot quicksort an entire array of <code>KType</code>s
+     * In-place sort by dual-pivot quicksort an entire array of <code>KType</code>s
      * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
      * <p><b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
@@ -123,16 +126,16 @@ public final class KTypeSort
     public static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void quicksort(final KType[] table,
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
-    /*! #else
+            /*! #else
                     KTypeComparator<? super KType>
-                    #end !*/
-    comp)
+                       #end !*/
+            comp)
     {
         KTypeSort.quicksort(table, 0, table.length, comp);
     }
 
     /**
-     * Sort by  dual-pivot quicksort a generic {@link KTypeIndexedContainer} from [beginIndex, endIndex[
+     * In-place sort by dual-pivot quicksort a generic {@link KTypeIndexedContainer} from [beginIndex, endIndex[
      * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
      * <p><b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
@@ -154,7 +157,7 @@ public final class KTypeSort
     }
 
     /**
-     * Sort by  dual-pivot quicksort an entire generic {@link KTypeIndexedContainer}
+     * In-place sort by dual-pivot quicksort an entire generic {@link KTypeIndexedContainer}
      * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
      * <p><b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
@@ -163,10 +166,10 @@ public final class KTypeSort
     public static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void quicksort(final KTypeIndexedContainer<KType> table,
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
-    /*! #else
-                            KTypeComparator<? super KType>
-                            #end !*/
-    comp)
+            /*! #else
+                    KTypeComparator<? super KType>
+                    #end !*/
+            comp)
     {
         KTypeSort.quicksort(table, 0, table.size(), comp);
     }
@@ -175,7 +178,7 @@ public final class KTypeSort
      * Insertion sort for smaller arrays, for Comparable
      * @param a
      * @param left
-     * @param right
+     * @param right inclusive
      */
     private static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType extends Comparable<? super KType>> /*! #end !*/void insertionsort(final KType[] a, final int left, final int right)
     {
@@ -197,7 +200,7 @@ public final class KTypeSort
      * or natural ordering for primitives.
      * @param a
      * @param left
-     * @param right
+     * @param right inclusive
      */
     private static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType extends Comparable<? super KType>> /*! #end !*/void dualPivotQuicksort(final KType[] a, final int left, final int right)
     {
@@ -396,7 +399,7 @@ public final class KTypeSort
      * Insertion sort for smaller arrays, for KTypeIndexedContainer
      * @param a
      * @param left
-     * @param right
+     * @param right inclusive
      */
     private static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType extends Comparable<? super KType>> /*! #end !*/void insertionsort(final KTypeIndexedContainer<KType> a, final int left,
             final int right)
@@ -419,7 +422,7 @@ public final class KTypeSort
      * or natural ordering for primitives.
      * @param a
      * @param left
-     * @param right
+     * @param right inclusive
      */
     private static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType extends Comparable<? super KType>> /*! #end !*/void dualPivotQuicksort(final KTypeIndexedContainer<KType> a, final int left,
             final int right)
@@ -633,7 +636,7 @@ public final class KTypeSort
      * Insertion sort for smaller arrays, with Comparator
      * @param a
      * @param left
-     * @param right
+     * @param right inclusive
      */
     private static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void insertionsort(
             final KType[] a,
@@ -663,7 +666,7 @@ public final class KTypeSort
      * for comparison.
      * @param a
      * @param left
-     * @param right
+     * @param right inclusive
      */
     private static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void dualPivotQuicksort(
             final KType[] a,
@@ -870,7 +873,7 @@ public final class KTypeSort
      * Insertion sort for smaller KTypeIndexedContainer, Comparator version
      * @param a
      * @param left
-     * @param right
+     * @param right inclusive
      */
     private static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void insertionsort(
             final KTypeIndexedContainer<KType> a,
@@ -900,7 +903,7 @@ public final class KTypeSort
      * for comparison.
      * @param a
      * @param left
-     * @param right
+     * @param right inclusive
      */
     private static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void dualPivotQuicksort(
             final KTypeIndexedContainer<KType> a,
@@ -1116,4 +1119,236 @@ public final class KTypeSort
             KTypeSort.dualPivotQuicksort(a, less, great, comp);
         }
     }
+
+    //Stable sort methods for objects only
+/////////////////////////////////////////////////////////////////////////////////////////////
+/*! #if ($TemplateOptions.KTypeGeneric) !*/
+
+    /**
+     * Private recursive method
+     * @param table
+     * @param left
+     * @param right inclusive
+     */
+    private static <KType extends Comparable<? super KType>> void stableMergeSort(final KType[] table, final int left, final int right) {
+
+        final int len = right - left;
+
+        //insertion sort
+        //to prevent too-big recursion, swap to insertion sort below a certain size
+        if (len < KTypeSort.MIN_LENGTH_FOR_INSERTION_SORT)
+        {
+            // insertion sort on tiny array
+            KTypeSort.insertionsort(table, left, right);
+            return;
+        }
+
+        //TODO
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    /**
+     * Private recursive method
+     * @param table
+     * @param left
+     * @param right inclusive
+     */
+    private static <KType extends Comparable<? super KType>> void stableMergeSort(final KTypeIndexedContainer<KType> table, final int left, final int right) {
+
+        final int len = right - left;
+
+        //insertion sort
+        //to prevent too-big recursion, swap to insertion sort below a certain size
+        if (len < KTypeSort.MIN_LENGTH_FOR_INSERTION_SORT)
+        {
+            // insertion sort on tiny array
+            KTypeSort.insertionsort(table, left, right);
+            return;
+        }
+
+        //TODO
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    /**
+     * Private recursive method
+     * @param table
+     * @param left
+     * @param right inclusive
+     */
+    private static <KType> void stableMergeSort(final KType[] table, final int left, final int right,
+
+            final Comparator<? super KType> comp) {
+
+        final int len = right - left;
+
+        //insertion sort
+        //to prevent too-big recursion, swap to insertion sort below a certain size
+        if (len < KTypeSort.MIN_LENGTH_FOR_INSERTION_SORT)
+        {
+            // insertion sort on tiny array
+            KTypeSort.insertionsort(table, left, right, comp);
+            return;
+        }
+
+        //TODO
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    /**
+     * Private recursive method
+     * @param table
+     * @param left
+     * @param right inclusive
+     */
+    private static <KType> void stableMergeSort(final KTypeIndexedContainer<KType> table, final int left, final int right,
+            final Comparator<? super KType> comp) {
+
+        final int len = right - left;
+
+        //insertion sort
+        //to prevent too-big recursion, swap to insertion sort below a certain size
+        if (len < KTypeSort.MIN_LENGTH_FOR_INSERTION_SORT)
+        {
+            // insertion sort on tiny array
+            KTypeSort.insertionsort(table, left, right, comp);
+            return;
+        }
+
+        //TODO
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    /**
+     * In-place stable sort an array of naturally comparable <code>KType</code>s from [beginIndex, endIndex[
+     * <p>
+     * <b>
+     * This routine uses a stable, in-place, merge sort from TODO
+     * </b>
+     * </p>
+     * @param table
+     * @param beginIndex
+     * @param endIndex
+     */
+    public static <KType extends Comparable<? super KType>> void mergesort(final KType[] table, final int beginIndex, final int endIndex)
+    {
+        if (endIndex - beginIndex > 1)
+        {
+            KTypeSort.stableMergeSort(table, beginIndex, endIndex - 1);
+        }
+    }
+
+    /**
+     * In-place stable sort an entire array of of naturally Comparable <code>KType</code>s
+     * <p>
+     * <b>
+     * This routine uses a stable, in-place, merge sort from TODO
+     * </b>
+     * </p>
+     * @param table
+     */
+    public static <KType extends Comparable<? super KType>> void mergesort(final KType[] table)
+    {
+        KTypeSort.mergesort(table, 0, table.length);
+    }
+
+    /**
+     * In-place stable sort a {@link KTypeIndexedContainer} of naturally Comparable <code>KType</code>s from [beginIndex, endIndex[
+     * <p>
+     * <b>
+     * This routine uses a stable, in-place, merge sort from TODO
+     * </b>
+     * </p>
+     * @param table
+     * @param beginIndex
+     * @param endIndex
+     */
+    public static <KType extends Comparable<? super KType>> void mergesort(final KTypeIndexedContainer<KType> table, final int beginIndex,
+            final int endIndex)
+    {
+        if (endIndex - beginIndex > 1)
+        {
+            KTypeSort.stableMergeSort(table, beginIndex, endIndex - 1);
+        }
+    }
+
+    /**
+     * In-place stable sort an entire {@link KTypeIndexedContainer} of naturally Comparable <code>KType</code>s
+     * <p>
+     * <b>
+     * This routine uses a stable, in-place, merge sort from TODO
+     * </b>
+     * </p>
+     * @param table
+     */
+    public static <KType extends Comparable<? super KType>> void mergesort(final KTypeIndexedContainer<KType> table)
+    {
+        KTypeSort.mergesort(table, 0, table.size());
+    }
+
+    ////////////////////////////
+    /**
+     * In-place stable sort an array of <code>KType</code>s from [beginIndex, endIndex[
+     * using a <code>Comparator</code>
+     * <p><b>
+     * This routine uses a stable, in-place, merge sort from TODO
+     * </b></p>
+     */
+    public static <KType> void mergesort(
+            final KType[] table, final int beginIndex, final int endIndex,
+
+            final Comparator<? super KType> comp)
+    {
+        if (endIndex - beginIndex > 1)
+        {
+            KTypeSort.stableMergeSort(table, beginIndex, endIndex - 1, comp);
+        }
+    }
+
+    /**
+     * In-place stable sort an entire array of <code>KType</code>s
+     * using a <code>Comparator</code>
+     * <p><b>
+     * This routine uses a stable, in-place, merge sort from TODO
+     * </b></p>
+     */
+    public static <KType> void mergesort(final KType[] table,
+
+            final Comparator<? super KType> comp)
+    {
+        KTypeSort.mergesort(table, 0, table.length, comp);
+    }
+
+    /**
+     * In-place stable sort a generic {@link KTypeIndexedContainer} from [beginIndex, endIndex[
+     * using a <code>Comparator</code>
+     * <p><b>
+     * This routine uses a stable, in-place, merge sort from TODO
+     * </b></p>
+     */
+    public static <KType> void mergesort(
+            final KTypeIndexedContainer<KType> table, final int beginIndex, final int endIndex,
+            final Comparator<? super KType> comp)
+    {
+        if (endIndex - beginIndex > 1)
+        {
+            KTypeSort.stableMergeSort(table, beginIndex, endIndex - 1, comp);
+        }
+    }
+
+    /**
+     * In-place stable sort an entire generic {@link KTypeIndexedContainer}
+     * using a <code>Comparator</code>
+     * <p><b>
+     * This routine uses a stable, in-place, merge sort from TODO
+     * </b></p>
+     */
+    public static <KType> void mergesort(final KTypeIndexedContainer<KType> table,
+            final Comparator<? super KType> comp)
+    {
+        KTypeSort.mergesort(table, 0, table.size(), comp);
+    }
+
+/*! #end !*///end stable object sorts
+
 }

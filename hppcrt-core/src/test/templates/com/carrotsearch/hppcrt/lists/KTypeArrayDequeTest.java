@@ -58,15 +58,11 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
 
     /**
      * Move one index to the right, wrapping around buffer of size modulus
-     * Code is actually inlined in generated code
      */
-    /*! #if ($TemplateOptions.inline("oneRight","(index, modulus)", "(index + 1 == modulus) ? 0 : index + 1")) !*/
     private int oneRight(final int index, final int modulus)
     {
         return (index + 1 == modulus) ? 0 : index + 1;
     }
-
-    /*! #end !*/
 
     @After
     public void checkConsistency()
@@ -566,13 +562,13 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
         this.deque.addLast(newArray(this.k0, this.k1, this.k2, this.k1, this.k4));
 
         Assert.assertEquals(3, this.deque.removeAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeArrayDequeTest.this.key1 || v == KTypeArrayDequeTest.this.key2;
             };
-                }));
+        }));
 
         TestUtils.assertListEquals(this.deque.toArray(), 0, 4);
     }
@@ -590,7 +586,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size
             Assert.assertEquals(5, this.deque.removeAll(new KTypePredicate<KType>()
-                    {
+            {
                 @Override
                 public boolean apply(final KType v)
                 {
@@ -599,7 +595,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
                     }
                     return v == KTypeArrayDequeTest.this.key1;
                 };
-                    }));
+            }));
             Assert.fail();
         }
         catch (final RuntimeException e)

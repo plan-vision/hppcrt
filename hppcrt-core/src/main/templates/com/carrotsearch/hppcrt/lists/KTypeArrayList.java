@@ -48,7 +48,7 @@ import com.carrotsearch.hppcrt.sorting.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayList<KType>
-extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, Cloneable
+        extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, Cloneable
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -860,7 +860,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeArrayList<KType> newInstance()
+            KTypeArrayList<KType> newInstance()
     {
         return new KTypeArrayList<KType>();
     }
@@ -870,7 +870,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeArrayList<KType> newInstanceWithCapacity(final int initialCapacity)
+            KTypeArrayList<KType> newInstanceWithCapacity(final int initialCapacity)
     {
         return new KTypeArrayList<KType>(initialCapacity);
     }
@@ -880,7 +880,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * The elements are copied from the argument to the internal buffer.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeArrayList<KType> from(final KType... elements)
+            KTypeArrayList<KType> from(final KType... elements)
     {
         final KTypeArrayList<KType> list = new KTypeArrayList<KType>(elements.length);
         list.add(elements);
@@ -891,13 +891,13 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * Create a list from elements of another container.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeArrayList<KType> from(final KTypeContainer<KType> container)
+            KTypeArrayList<KType> from(final KTypeContainer<KType> container)
     {
         return new KTypeArrayList<KType>(container);
     }
 
     /**
-     * Sort the list from [beginIndex, endIndex[
+     * In-place sort the list from [beginIndex, endIndex[
      * by natural ordering (smaller first)
      * @param beginIndex the start index to be sorted
      * @param endIndex the end index to be sorted (excluded)
@@ -915,7 +915,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     #end !*/
 
     /**
-     * Sort the whole list by natural ordering (smaller first)
+     * In-place sort the whole list by natural ordering (smaller first)
      * <p><b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009]
      * </b></p>
@@ -929,7 +929,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
 
     ////////////////////////////
     /**
-     * Sort the list of <code>KType</code>s from [beginIndex, endIndex[
+     * In-place sort the list from [beginIndex, endIndex[
      * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
      * <p><b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
@@ -955,7 +955,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     }
 
     /**
-     * Sort by  dual-pivot quicksort an entire list
+     * In-place sort the whole list
      * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
      * <p><b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end

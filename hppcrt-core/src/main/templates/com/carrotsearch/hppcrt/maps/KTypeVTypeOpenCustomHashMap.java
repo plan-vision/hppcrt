@@ -46,7 +46,7 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenCustomHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -796,8 +796,8 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
             }
 
             if (/*! #if ($RH) !*/
-            allocated[slotCurr] == -1
-            /*! #else
+                    allocated[slotCurr] == -1
+                    /*! #else
             !allocated[slotCurr]
             #end !*/)
             {
@@ -1248,7 +1248,7 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     KTypeVTypeOpenCustomHashMap.this.allocated[i] == -1
-                    /*! #else
+            /*! #else
             !allocated[i]
             #end  !*/)
             {
@@ -1376,7 +1376,7 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
      * A view of the keys inside this hash map.
      */
     public final class KeysContainer
-            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenCustomHashMap<KType, VType> owner =
                 KTypeVTypeOpenCustomHashMap.this;
@@ -1565,7 +1565,7 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     KTypeVTypeOpenCustomHashMap.this.allocated[i] == -1
-                    /*! #else
+            /*! #else
             !allocated[i]
             #end  !*/)
             {
@@ -1635,7 +1635,7 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
             for (int slot = 0; slot < states.length; slot++)
             {
                 if (/*! #if ($RH) !*/
-                states[slot] != -1
+                        states[slot] != -1
                         /*! #else
                         states[slot]
                         #end  !*/
@@ -1661,8 +1661,8 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
             for (int slot = 0; slot < states.length; slot++)
             {
                 if (/*! #if ($RH) !*/
-                states[slot] != -1
-                /*! #else
+                        states[slot] != -1
+                        /*! #else
                 states[slot]
                 #end  !*/) {
                     procedure.apply(values[slot]);
@@ -1686,8 +1686,8 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
             for (int slot = 0; slot < states.length; slot++)
             {
                 if (/*! #if ($RH) !*/
-                states[slot] != -1
-                /*! #else
+                        states[slot] != -1
+                        /*! #else
                 states[slot]
                 #end  !*/)
                 {
@@ -1864,7 +1864,7 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     KTypeVTypeOpenCustomHashMap.this.allocated[i] == -1
-                    /*! #else
+            /*! #else
             !allocated[i]
             #end  !*/)
             {
@@ -1897,7 +1897,7 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
         @SuppressWarnings("unchecked")
         final/* #end */
         KTypeVTypeOpenCustomHashMap<KType, VType> cloned =
-                new KTypeVTypeOpenCustomHashMap<KType, VType>(this.size(), this.loadFactor, this.hashStrategy);
+        new KTypeVTypeOpenCustomHashMap<KType, VType>(this.size(), this.loadFactor, this.hashStrategy);
 
         cloned.putAll(this);
 
@@ -2009,7 +2009,7 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
     "(slot, alloc)",
     "slot < alloc[slot] ? slot + alloc.length - alloc[slot] : slot - alloc[slot]")) !*/
     /**
-     * Resulting code in inlined in generated code
+     * (actual method is inlined in generated code)
      */
     private int probe_distance(final int slot, final int[] alloc) {
 

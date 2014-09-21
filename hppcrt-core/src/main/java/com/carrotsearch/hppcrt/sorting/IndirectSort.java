@@ -41,10 +41,10 @@ public final class IndirectSort
      * Take note this method generate temporaries.
      * </p>
      */
-    public static int [] mergesort(int start, int length, IndirectComparator comparator)
+    public static int[] mergesort(final int start, final int length, final IndirectComparator comparator)
     {
-        int[] sorted = new int[length];
-        mergesort(start, length, comparator, new int[length], sorted);
+        final int[] sorted = new int[length];
+        IndirectSort.mergesort(start, length, comparator, new int[length], sorted);
         return sorted;
     }
 
@@ -59,17 +59,17 @@ public final class IndirectSort
      * @param sorted : the sorted indices result. The array must be at least of size length,
      * and the real validity range is [0; length[
      */
-    public static void mergesort(int start, int length, IndirectComparator comparator, int[] tmpArray, int[] sorted)
+    public static void mergesort(final int start, final int length, final IndirectComparator comparator, final int[] tmpArray, final int[] sorted)
     {
         assert length <= sorted.length;
 
         //build an array of indices
-        fillOrderArray(start, length, tmpArray);
+        IndirectSort.fillOrderArray(start, length, tmpArray);
         System.arraycopy(tmpArray, 0, sorted, 0, length);
 
         if (length > 1)
         {
-            topDownMergeSort(tmpArray, sorted, 0, length, comparator);
+            IndirectSort.topDownMergeSort(tmpArray, sorted, 0, length, comparator);
         }
     }
 
@@ -83,16 +83,16 @@ public final class IndirectSort
      * @param sorted : the sorted indices result. The array must be at least of size length,
      * and the real validity range is [0; length[
      */
-    public static void quicksort(int start, int length, IndirectComparator comparator, int[] sorted)
+    public static void quicksort(final int start, final int length, final IndirectComparator comparator, final int[] sorted)
     {
         assert length <= sorted.length;
 
         //build an array of indices
-        fillOrderArray(start, length, sorted);
+        IndirectSort.fillOrderArray(start, length, sorted);
 
         if (length > 1)
         {
-            dualPivotQuicksort(sorted, start, start + length - 1, comparator);
+            IndirectSort.dualPivotQuicksort(sorted, start, start + length - 1, comparator);
         }
     }
 
@@ -106,10 +106,10 @@ public final class IndirectSort
      * </p>
      * Take note this method generate temporaries.
      */
-    public static <T> int [] mergesort(T [] input, int start, int length,
-            Comparator<? super T> comparator)
+    public static <T> int[] mergesort(final T[] input, final int start, final int length,
+            final Comparator<? super T> comparator)
     {
-        return mergesort(start, length, new IndirectComparator.DelegatingComparator<T>(
+        return IndirectSort.mergesort(start, length, new IndirectComparator.DelegatingComparator<T>(
                 input, comparator));
     }
 
@@ -119,18 +119,18 @@ public final class IndirectSort
      * @param fromIndex inclusive
      * @param toIndex exclusive
      */
-    private static void topDownMergeSort(int [] src, int [] dst, int fromIndex, int toIndex,
-            IndirectComparator comp)
+    private static void topDownMergeSort(final int[] src, final int[] dst, final int fromIndex, final int toIndex,
+            final IndirectComparator comp)
     {
-        if (toIndex - fromIndex <= MIN_LENGTH_FOR_INSERTION_SORT)
+        if (toIndex - fromIndex <= IndirectSort.MIN_LENGTH_FOR_INSERTION_SORT)
         {
-            insertionSort(fromIndex, toIndex - fromIndex, dst, comp);
+            IndirectSort.insertionSort(fromIndex, toIndex - fromIndex, dst, comp);
             return;
         }
 
         final int mid = (fromIndex + toIndex) >>> 1;
-        topDownMergeSort(dst, src, fromIndex, mid, comp);
-        topDownMergeSort(dst, src, mid, toIndex, comp);
+        IndirectSort.topDownMergeSort(dst, src, fromIndex, mid, comp);
+        IndirectSort.topDownMergeSort(dst, src, mid, toIndex, comp);
 
         /*
          * Both splits in of src are now sorted.
@@ -165,8 +165,8 @@ public final class IndirectSort
     /**
      * Internal insertion sort for <code>int</code>s.
      */
-    private static void insertionSort(final int off, final int len, int [] order,
-            IndirectComparator intComparator)
+    private static void insertionSort(final int off, final int len, final int[] order,
+            final IndirectComparator intComparator)
     {
         int v, j, t;
 
@@ -189,7 +189,7 @@ public final class IndirectSort
      * @param start
      * @param order
      */
-    private static void fillOrderArray(final int start, final int length, int[] order)
+    private static void fillOrderArray(final int start, final int length, final int[] order)
     {
         for (int i = 0; i < length; i++)
         {
@@ -204,27 +204,27 @@ public final class IndirectSort
      * @param left
      * @param right
      */
-    private static void dualPivotQuicksort(int[] a, int left, int right, IndirectComparator comp)
+    private static void dualPivotQuicksort(final int[] a, final int left, final int right, final IndirectComparator comp)
     {
-        int len = right - left;
+        final int len = right - left;
 
         int x;
 
         //insertion sort
         //to prevent too-big recursion, swap to insertion sort below a certain size
-        if (len <= MIN_LENGTH_FOR_INSERTION_SORT_IN_QSORT)
+        if (len <= IndirectSort.MIN_LENGTH_FOR_INSERTION_SORT_IN_QSORT)
         {
-            insertionSort(left, len + 1, a, comp);
+            IndirectSort.insertionSort(left, len + 1, a, comp);
             return;
         }
 
         // median indexes
-        int sixth = len / 6;
-        int m1 = left + sixth;
-        int m2 = m1 + sixth;
-        int m3 = m2 + sixth;
-        int m4 = m3 + sixth;
-        int m5 = m4 + sixth;
+        final int sixth = len / 6;
+        final int m1 = left + sixth;
+        final int m2 = m1 + sixth;
+        final int m3 = m2 + sixth;
+        final int m4 = m3 + sixth;
+        final int m5 = m4 + sixth;
 
         // 5-element sorting network
         if (comp.compare(a[m1], a[m2]) > 0 /* a[m1] > a[m2]*/)
@@ -283,10 +283,10 @@ public final class IndirectSort
         }
 
         // pivots: [ < pivot1 | pivot1 <= && <= pivot2 | > pivot2 ]
-        int pivot1 = a[m2];
-        int pivot2 = a[m4];
+        final int pivot1 = a[m2];
+        final int pivot2 = a[m4];
 
-        boolean diffPivots = comp.compare(pivot1, pivot2) != 0;
+        final boolean diffPivots = comp.compare(pivot1, pivot2) != 0;
 
         a[m2] = a[left];
         a[m4] = a[right];
@@ -361,11 +361,11 @@ public final class IndirectSort
         a[right] = a[great + 1];
         a[great + 1] = pivot2;
         // left and right parts
-        dualPivotQuicksort(a, left, less - 2, comp);
-        dualPivotQuicksort(a, great + 2, right, comp);
+        IndirectSort.dualPivotQuicksort(a, left, less - 2, comp);
+        IndirectSort.dualPivotQuicksort(a, great + 2, right, comp);
 
         // equal elements
-        if (great - less > len - DIST_SIZE_DUALQSORT && diffPivots)
+        if (great - less > len - IndirectSort.DIST_SIZE_DUALQSORT && diffPivots)
         {
             for (int k = less; k <= great; k++)
             {
@@ -392,9 +392,8 @@ public final class IndirectSort
         // center part
         if (diffPivots)
         {
-            dualPivotQuicksort(a, less, great, comp);
+            IndirectSort.dualPivotQuicksort(a, less, great, comp);
         }
     }
-
 
 }

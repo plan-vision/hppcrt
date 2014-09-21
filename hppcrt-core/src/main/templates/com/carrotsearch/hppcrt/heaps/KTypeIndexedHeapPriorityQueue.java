@@ -12,7 +12,7 @@ import com.carrotsearch.hppcrt.sorting.*;
  * A Heap-based, indexed min-priority queue of <code>KType</code>s,
  * i.e. top() is the smallest element of the queue.
  * as defined by Sedgewick: Algorithms 4th Edition (2011).
- * This class is also a {@link IntKTypeMap}, and acts like a (K,V) = (int, KType) map.
+ * This class is also a {@link IntKTypeMap}, and acts like a (K,V) = (int, KType) map with >= 0 keys.
  * It assures O(log2(N)) complexity for insertion, deletion of the first element,
  * and constant time to examine the first element.
  * As it is <code>int</code> indexed, it also supports {@link #containsKey()} in constant time, {@link #remove()}
@@ -152,7 +152,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
      * @see BoundedProportionalArraySizingStrategy
      */
     public KTypeIndexedHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp
-            /*! #else
+    /*! #else
     KTypeComparator<? super KType> comp
     #end !*/)
     {
@@ -405,11 +405,13 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
      * a value is updated with an already present key as specified by the  {@link IntKTypeMap#put()}
      * contract, the inserted value priority is always consistent towards the comparison criteria.
      * In other words, there is no need to call {@link #updatePriority(int)} after a {@link #put(int, KType)}.
+     * @param key the integer key, must be >= 0
+     * @param element the associated value
      */
     @Override
     public KType put(final int key, final KType element)
     {
-        assert key >= 0;
+        assert key >= 0 : "Keys must be >= 0";
 
         //1) Key already present, insert new value
         if (key < this.pq.length && this.pq[key] > 0)
@@ -1487,10 +1489,10 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
      */
 /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
-    /*! #else
-                                                    public KTypeComparator<? super KType>
-                                                    #end !*/
-    comparator() {
+            /*! #else
+                                                            public KTypeComparator<? super KType>
+                                                            #end !*/
+            comparator() {
 
         return this.comparator;
     }
@@ -1647,22 +1649,22 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
             //swap k and its parent
             parent = k >> 1;
 
-        //swap k and parent
-        tmp = buffer[k];
-        buffer[k] = buffer[parent];
-        buffer[parent] = tmp;
+            //swap k and parent
+            tmp = buffer[k];
+            buffer[k] = buffer[parent];
+            buffer[parent] = tmp;
 
-        //swap references
-        indexK = qp[k];
-        indexParent = qp[parent];
+            //swap references
+            indexK = qp[k];
+            indexParent = qp[parent];
 
-        pq[indexK] = parent;
-        pq[indexParent] = k;
+            pq[indexK] = parent;
+            pq[indexParent] = k;
 
-        qp[k] = indexParent;
-        qp[parent] = indexK;
+            qp[k] = indexParent;
+            qp[parent] = indexK;
 
-        k = parent;
+            k = parent;
         }
     }
 
@@ -1691,22 +1693,22 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
             //swap k and its parent
             parent = k >> 1;
 
-        //swap k and parent
-        tmp = buffer[k];
-        buffer[k] = buffer[parent];
-        buffer[parent] = tmp;
+            //swap k and parent
+            tmp = buffer[k];
+            buffer[k] = buffer[parent];
+            buffer[parent] = tmp;
 
-        //swap references
-        indexK = qp[k];
-        indexParent = qp[parent];
+            //swap references
+            indexK = qp[k];
+            indexParent = qp[parent];
 
-        pq[indexK] = parent;
-        pq[indexParent] = k;
+            pq[indexK] = parent;
+            pq[indexParent] = k;
 
-        qp[k] = indexParent;
-        qp[parent] = indexK;
+            qp[k] = indexParent;
+            qp[parent] = indexK;
 
-        k = parent;
+            k = parent;
         }
     }
 

@@ -27,7 +27,7 @@ import org.apache.velocity.runtime.RuntimeInstance;
 import com.carrotsearch.hppcrt.generator.TemplateOptions.DoNotGenerateTypeException;
 
 /**
- * Template processor for HPPC templates.
+ * Template processor for HPPC-RT templates.
  */
 public final class TemplateProcessor
 {

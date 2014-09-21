@@ -23,9 +23,9 @@ especially noticable for big container sizes.
 
 4.  toArray(existing array) for every container, good for array reuse in RealTime environnement
 
-5.  In hppc.sorting, primitive and Objects in-place array sorts, similar to java.util.Arrays with Comparable and Comparator versions
+5.  Primitive and Objects in-place array sorts, including a stable sort version for objects and similar to java.util.Arrays with Comparable and Comparator versions.
 
-6.  sort methods for ArrayLists, LinkedLists, ArrayDeques, Stacks
+6.  Optimized in-place sort methods for ArrayLists, LinkedLists, ArrayDeques, Stacks, including a stable sort versions for objects.
 
 7.  Custom hashing strategies to override the usual equals()/hashCode() in Hash containers, in specific CustomHash classes
 

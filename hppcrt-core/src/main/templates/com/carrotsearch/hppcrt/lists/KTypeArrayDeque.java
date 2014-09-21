@@ -1184,7 +1184,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
 
     ////////////////////////////
     /**
-     * Sort the dequeue from [beginIndex, endIndex[
+     * In-place sort the dequeue from [beginIndex, endIndex[
      * by natural ordering (smaller first)
      * @param beginIndex the start index to be sorted
      * @param endIndex the end index to be sorted (excluded)
@@ -1202,7 +1202,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
     #end !*/
 
     /**
-     * Sort the dequeue of <code>KType</code>s from [beginIndex, endIndex[
+     * In-place sort the dequeue from [beginIndex, endIndex[
      * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
      * <p><b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
@@ -1228,7 +1228,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
     }
 
     /**
-     * Sort the whole deque by natural ordering (smaller first)
+     * In-place sort the whole dequeue by natural ordering (smaller first)
      * <p><b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009].
      * </b></p>
@@ -1249,7 +1249,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
     ////////////////////////////
 
     /**
-     * Sort by  dual-pivot quicksort an entire deque
+     * In-place sort the whole dequeue
      * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
      * <p><b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
@@ -1298,7 +1298,9 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
     @Override
     public KType set(final int index, final KType e1) {
 
-        final int indexInBuffer = positionToBufferIndex(index);
+        assert (index >= 0 && index < size()) : "Index " + index + " out of bounds [" + 0 + ", " + size() + ").";
+
+        final int indexInBuffer = indexToBufferPosition(index);
 
         final KType previous = this.buffer[indexInBuffer];
 
@@ -1315,7 +1317,9 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
     @Override
     public KType get(final int index) {
 
-        return this.buffer[positionToBufferIndex(index)];
+        assert (index >= 0 && index < size()) : "Index " + index + " out of bounds [" + 0 + ", " + size() + ").";
+
+        return this.buffer[indexToBufferPosition(index)];
     }
 
     /**
@@ -1326,7 +1330,9 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
     @Override
     public KType remove(final int index) {
 
-        final int indexInBuffer = positionToBufferIndex(index);
+        assert (index >= 0 && index < size()) : "Index " + index + " out of bounds [" + 0 + ", " + size() + ").";
+
+        final int indexInBuffer = indexToBufferPosition(index);
 
         final KType previous = this.buffer[indexInBuffer];
 
@@ -1368,41 +1374,38 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
         return pos;
     }
 
+    /*! #if ($TemplateOptions.inline("indexToBufferPosition",
+    "(index)", "(index + this.head < this.buffer.length) ? index + this.head : index + this.head - this.buffer.length")) !*/
     /**
-     * convert the {@link #KTypeIndexedContainer}
-     * position to the internal {@link #buffer} index.
-     * position.
-     * @param bufferIndex
+     * Convert the {@link #KTypeIndexedContainer}
+     * index to the internal position in buffer{@link #buffer}.
+     * (actual method is inlined in generated code)
+     * @param index
      * @return
      */
-    private int positionToBufferIndex(final int position) {
+    private int indexToBufferPosition(final int index) {
 
-        int bufferIndex = -1;
+        assert (index >= 0 && index < size()) : "Index " + index + " out of bounds [" + 0 + ", " + size() + ").";
 
-        if (position >= 0) {
+        //yes, this can overflow. I don't care for now.
+        int bufferPos = index + this.head;
 
-            if (this.tail == this.head) {
+        if (bufferPos >= this.buffer.length) {
 
-                return -1;
-            }
-
-            bufferIndex = position + this.head;
-
-            if (bufferIndex >= this.buffer.length) {
-
-                //fold it
-                bufferIndex -= this.buffer.length;
-            }
+            //fold it
+            bufferPos -= this.buffer.length;
         }
 
-        return bufferIndex;
+        return bufferPos;
     }
+
+    /*! #end !*/
 
     /*! #if ($TemplateOptions.inline("KTypeArrayDeque.oneLeft",
      "(index, modulus)", "(index >= 1) ? index - 1 : modulus - 1")) !*/
     /**
      * Move one index to the left, wrapping around buffer of size modulus.
-     * Code is actually inlined in generated code
+     * (actual method is inlined in generated code)
      */
     private static int oneLeft(final int index, final int modulus)
     {
@@ -1415,7 +1418,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
        "(index + 1 == modulus) ? 0 : index + 1")) !*/
     /**
      * Move one index to the right, wrapping around buffer of size modulus
-     * Code is actually inlined in generated code
+     * (actual method is inlined in generated code)
      */
     private static int oneRight(final int index, final int modulus)
     {

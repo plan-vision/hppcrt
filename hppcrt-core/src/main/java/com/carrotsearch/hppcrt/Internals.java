@@ -38,7 +38,6 @@ public final class Internals
         Arrays.fill(Internals.BLANKING_INT_ARRAY_MINUS_ONE, -1);
     }
 
-
     /**
      * Rehash with perturbations methods
      * @param o
@@ -211,4 +210,21 @@ public final class Internals
         }
     }
 
+    /**
+     * Returns the greatest common divisor between m and n (Euclid method)
+     * @param m
+     * @param n
+     * @return
+     */
+    public static int gcd(int m, int n) {
+
+        while (n != 0) {
+
+            final int t = m % n;
+            m = n;
+            n = t;
+        }
+
+        return m;
+    }
 }

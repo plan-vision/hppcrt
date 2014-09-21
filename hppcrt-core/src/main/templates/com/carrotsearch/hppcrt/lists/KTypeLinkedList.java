@@ -827,7 +827,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
 
     /**
      * Traverse the list to index, return the position in buffer
-     * when reached
+     * when reached. This is a O(n) operation !.
      * @param index
      * @return
      */
@@ -1844,7 +1844,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     }
 
     /**
-     * Sort the dequeue from [beginIndex, endIndex[
+     * In-place sort the list from [beginIndex, endIndex[
      * by natural ordering (smaller first)
      * <p><b>
      * WARNING: This method runs in O(n*n*log(n)). Consider yourself warned.
@@ -1865,7 +1865,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     #end !*/
 
     /**
-     * Sort linked-list of <code>KType</code>s from [beginIndex, endIndex[
+     * In-place sort the list from [beginIndex, endIndex[
      * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
      * <p><b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
@@ -1894,7 +1894,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     }
 
     /**
-     * Sort the whole list by natural ordering (smaller first)
+     * In-place sort the whole list by natural ordering (smaller first)
      * <p><b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009]
      * </b></p>
@@ -1933,7 +1933,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
 ////////////////////////////
 
     /**
-     * Sort by  dual-pivot quicksort an entire list
+     * In-place sort the whole list
      * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
      * <p><b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
@@ -2107,7 +2107,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
       "((long) beforeIndex << 32) | afterIndex")) !*/
     /**
      * Builds a LinkList node value from its before an after links.
-     * Code is actually inlined in generated code.
+     * (actual method is inlined in generated code)
      * @param beforeIndex
      * @param afterIndex
      * @return long

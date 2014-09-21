@@ -71,8 +71,8 @@ import com.carrotsearch.hppcrt.procedures.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -610,8 +610,8 @@ public class KTypeOpenHashSet<KType>
             }
 
             if (/*! #if ($RH) !*/
-            allocated[slotCurr] == -1
-            /*! #else
+                    allocated[slotCurr] == -1
+                    /*! #else
             !allocated[slotCurr]
             #end !*/)
             {
@@ -857,7 +857,7 @@ public class KTypeOpenHashSet<KType>
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     KTypeOpenHashSet.this.allocated[i] == -1
-            /*! #else
+                    /*! #else
             !allocated[i]
             #end  !*/)
             {
@@ -1084,7 +1084,7 @@ public class KTypeOpenHashSet<KType>
     "(slot, alloc)",
     "slot < alloc[slot] ? slot + alloc.length - alloc[slot] : slot - alloc[slot]")) !*/
     /**
-     * Resulting code in inlined in generated code
+     * (actual method is inlined in generated code)
      */
     private int probe_distance(final int slot, final int[] alloc) {
 

@@ -373,7 +373,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
     }
 
     /**
-     * Sort the stack from [beginIndex, endIndex[
+     * In-place sort the stack from [beginIndex, endIndex[
      * by natural ordering (smaller first, from top to bottom of stack)
      * @param beginIndex
      * @param endIndex
@@ -394,23 +394,14 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
 
             KTypeSort.quicksort(buffer, startSortingRange, endSortingRange);
 
-            //reverse [startSortingRange, endSortingRange [
-            KType tmpValue;
-
-            final int halfSize = (endSortingRange - startSortingRange) / 2;
-
-            for (int i = 0; i < halfSize; i++)
-            {
-                tmpValue = this.buffer[i + startSortingRange];
-                this.buffer[i + startSortingRange] = this.buffer[endSortingRange - i - 1];
-                this.buffer[endSortingRange - i - 1] = tmpValue;
-            }
+           //reverse [startSortingRange, endSortingRange [
+            KTypeArrays.reverse(this.buffer, startSortingRange, endSortingRange);
         }
     }
     #end !*/
 
     /**
-     * Sort the whole stack by natural ordering (smaller first, from top to bottom of stack)
+     * In-place sort the whole stack by natural ordering (smaller first, from top to bottom of stack)
      * <p><b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009]
      * </b></p>
@@ -425,7 +416,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
     #end !*/
 
     /**
-     * Sort the stack of <code>KType</code>s from [beginIndex, endIndex[
+     * In-place sort the stack from [beginIndex, endIndex[
      * where [beginIndex, endIndex[ is counted from the top of the stack, i.e top is = index 0, bottom is endIndex[. That way,
      * the smallest elements are at the top of the stack.
      * It uses a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
@@ -457,21 +448,12 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
             KTypeSort.quicksort(this.buffer, startSortingRange, endSortingRange, comp);
 
             //reverse [startSortingRange, endSortingRange [
-            KType tmpValue;
-
-            final int halfSize = (endSortingRange - startSortingRange) / 2;
-
-            for (int i = 0; i < halfSize; i++)
-            {
-                tmpValue = this.buffer[i + startSortingRange];
-                this.buffer[i + startSortingRange] = this.buffer[endSortingRange - i - 1];
-                this.buffer[endSortingRange - i - 1] = tmpValue;
-            }
+            KTypeArrays.reverse(this.buffer, startSortingRange, endSortingRange);
         }
     }
 
     /**
-     * Sort by dual-pivot quicksort an entire stack of <code>KType</code>s, the way
+     * In-place sort the whole stack, the way
      * the smallest elements are at the top of the stack.
      * It uses a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
      * <p><b>

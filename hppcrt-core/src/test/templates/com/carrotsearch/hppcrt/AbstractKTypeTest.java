@@ -93,9 +93,10 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
 
         if (type instanceof Character) {
 
-            k = ((Character)type).charValue();
+            k = ((Character) type).charValue();
 
-        } else if (type instanceof Number) {
+        }
+        else if (type instanceof Number) {
 
             k = ((Number) type).longValue();
         }
@@ -104,9 +105,9 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
         /*! #end !*/
     }
 
-    public KType [] asArray(final int... ints)
+    public KType[] asArray(final int... ints)
     {
-        final KType [] values = Intrinsics.newKTypeArray(ints.length);
+        final KType[] values = Intrinsics.newKTypeArray(ints.length);
 
         for (int i = 0; i < ints.length; i++)
         {
@@ -209,7 +210,6 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
      */
     public void assertOrder(final KTypeIndexedContainer<KType> original, final KTypeIndexedContainer<KType> order, final int startIndex, final int endIndex)
     {
-
         Assert.assertEquals(original.size(), order.size());
 
         //A) check that the required range is ordered
