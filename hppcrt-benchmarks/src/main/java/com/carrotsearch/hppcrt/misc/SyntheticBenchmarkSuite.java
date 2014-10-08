@@ -16,10 +16,11 @@ public class SyntheticBenchmarkSuite
      */
     private final static Class<?>[] ALL_BENCHMARKS = new Class[] {
 
-        HppcSortSyntheticBench.class,
-        HppcListSyntheticBench.class,
-        HppcHeapsSyntheticBench.class,
-        HppcMapSyntheticBench.class
+            HppcArraysBench.class,
+            HppcSortSyntheticBench.class,
+            HppcListSyntheticBench.class,
+            HppcHeapsSyntheticBench.class,
+            HppcMapSyntheticBench.class
     };
 
     public static void main(final String[] args) throws Exception

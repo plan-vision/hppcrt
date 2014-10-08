@@ -102,7 +102,7 @@ public class Util
         for (final Object key : new TreeSet<Object>(p.keySet()))
         {
             System.out.println(key + ": "
-                    + StringEscapeUtils.escapeJava((String) p.getProperty((String) key)));
+                    + StringEscapeUtils.escapeJava(p.getProperty((String) key)));
         }
 
         Util.printHeader("CPU");

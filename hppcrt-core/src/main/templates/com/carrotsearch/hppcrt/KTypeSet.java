@@ -1,8 +1,7 @@
 package com.carrotsearch.hppcrt;
 
-import java.util.Set;
-
 import com.carrotsearch.hppcrt.KTypeCollection;
+
 /**
  * A set of <code>KType</code>s.
  */

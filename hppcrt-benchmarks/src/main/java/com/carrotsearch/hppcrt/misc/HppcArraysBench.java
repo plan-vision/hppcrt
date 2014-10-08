@@ -8,7 +8,7 @@ import com.carrotsearch.hppcrt.XorShiftRandom;
 
 public class HppcArraysBench
 {
-    public static final int COUNT = (int) 1e6;
+    public static final int COUNT = (int) 5e6;
 
     public static final long RANDOM_SEED = 5487911234761188L;
     private static final long RAND_SEED = 15487012316864131L;
@@ -195,7 +195,7 @@ public class HppcArraysBench
         }
 
         // A) Test Rotation
-        runBenchLongsRotateRandom(10000, this.nbWarmupsRuns, referenceArray);
+        runBenchLongsRotateRandom(3000, this.nbWarmupsRuns, referenceArray);
         System.gc();
     }
 

@@ -21,7 +21,7 @@ HPPCRT-23: Make KTtypeIndexedPriorityQueue a IntKTypeMap, plus API additions
 
 HPPCRT-26: Add specialized IdentityHash containers
 
-HPPCRT-28: Sort improvements : stable sort, generic KTypeIndexedContainer sorts
+HPPCRT-28: Sort improvements : generic KTypeIndexedContainer sort methods
 
 [0.6.5]
 ** API-breaking changes
