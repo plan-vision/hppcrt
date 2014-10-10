@@ -36,8 +36,8 @@ import com.carrotsearch.hppcrt.procedures.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenIdentityHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -209,10 +209,12 @@ public class KTypeOpenIdentityHashSet<KType>
     public int add(final KType e1, final KType e2)
     {
         int count = 0;
-        if (add(e1))
+        if (add(e1)) {
             count++;
-        if (add(e2))
+        }
+        if (add(e2)) {
             count++;
+        }
         return count;
     }
 
@@ -227,9 +229,11 @@ public class KTypeOpenIdentityHashSet<KType>
     public int add(final KType... elements)
     {
         int count = 0;
-        for (final KType e : elements)
-            if (add(e))
+        for (final KType e : elements) {
+            if (add(e)) {
                 count++;
+            }
+        }
         return count;
     }
 
@@ -255,8 +259,9 @@ public class KTypeOpenIdentityHashSet<KType>
         int count = 0;
         for (final KTypeCursor<? extends KType> cursor : iterable)
         {
-            if (add(cursor.value))
+            if (add(cursor.value)) {
                 count++;
+            }
         }
         return count;
     }
@@ -401,14 +406,16 @@ public class KTypeOpenIdentityHashSet<KType>
                 if (slotPrev <= slotCurr)
                 {
                     // We are on the right of the original slot.
-                    if (slotPrev >= slotOther || slotOther > slotCurr)
+                    if (slotPrev >= slotOther || slotOther > slotCurr) {
                         break;
+                    }
                 }
                 else
                 {
                     // We have wrapped around.
-                    if (slotPrev >= slotOther && slotOther > slotCurr)
+                    if (slotPrev >= slotOther && slotOther > slotCurr) {
                         break;
+                    }
                 }
                 slotCurr = (slotCurr + 1) & mask;
             }
@@ -507,7 +514,7 @@ public class KTypeOpenIdentityHashSet<KType>
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         //Faster than Arrays.fill(keys, null); // Help the GC.
-        Internals.blankObjectArray(this.keys, 0, this.keys.length);
+        KTypeArrays.<KType> blankArray(this.keys, 0, this.keys.length);
         /*! #end !*/
     }
 
@@ -566,8 +573,9 @@ public class KTypeOpenIdentityHashSet<KType>
     {
         if (obj != null)
         {
-            if (obj == this)
+            if (obj == this) {
                 return true;
+            }
 
             if (!(obj instanceof KTypeOpenIdentityHashSet)) {
 
@@ -622,8 +630,9 @@ public class KTypeOpenIdentityHashSet<KType>
                 i--;
             }
 
-            if (i == -1)
+            if (i == -1) {
                 return done();
+            }
 
             this.cursor.index = i;
             this.cursor.value = KTypeOpenIdentityHashSet.this.keys[i];
@@ -679,8 +688,9 @@ public class KTypeOpenIdentityHashSet<KType>
         //in another hash, in case apply() is actually used to fill another hash container.
         for (int i = states.length - 1; i >= 0; i--)
         {
-            if (states[i])
+            if (states[i]) {
                 procedure.apply(keys[i]);
+            }
         }
 
         return procedure;
@@ -741,8 +751,9 @@ public class KTypeOpenIdentityHashSet<KType>
         {
             if (states[i])
             {
-                if (!predicate.apply(keys[i]))
+                if (!predicate.apply(keys[i])) {
                     break;
+                }
             }
         }
 

@@ -1095,7 +1095,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         //Faster than Arrays.fill(keys, null); // Help the GC.
-        Internals.blankObjectArray(this.keys, 0, this.keys.length);
+        KTypeArrays.blankArray(this.keys, 0, this.keys.length);
         /*! #end !*/
 
         /*! #if ($TemplateOptions.VTypeGeneric) !*/
@@ -1248,7 +1248,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     KTypeVTypeOpenCustomHashMap.this.allocated[i] == -1
-            /*! #else
+                    /*! #else
             !allocated[i]
             #end  !*/)
             {
@@ -1565,7 +1565,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     KTypeVTypeOpenCustomHashMap.this.allocated[i] == -1
-            /*! #else
+                    /*! #else
             !allocated[i]
             #end  !*/)
             {
@@ -1864,7 +1864,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     KTypeVTypeOpenCustomHashMap.this.allocated[i] == -1
-            /*! #else
+                    /*! #else
             !allocated[i]
             #end  !*/)
             {

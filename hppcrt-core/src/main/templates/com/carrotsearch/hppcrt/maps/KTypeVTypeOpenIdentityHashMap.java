@@ -764,7 +764,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         //Faster than Arrays.fill(keys, null); // Help the GC.
-        Internals.blankObjectArray(this.keys, 0, this.keys.length);
+        KTypeArrays.blankArray(this.keys, 0, this.keys.length);
         /*! #end !*/
 
         /*! #if ($TemplateOptions.VTypeGeneric) !*/

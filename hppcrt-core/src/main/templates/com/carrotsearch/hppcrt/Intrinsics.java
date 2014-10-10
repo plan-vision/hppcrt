@@ -73,6 +73,14 @@ public final class Intrinsics
     }
 
     /**
+     * Compare key e1 for equality with {@link #defaultKTypeValue}.
+     */
+    public static <T> boolean equalsKTypeDefault(final Object e1)
+    {
+        return e1 == (T) null;
+    }
+
+    /**
      * Compare two keys by Comparable<T>.
      * Primitive types comparison result is <code>e1 - e2</code>, except for floating-point types
      * where they're compared by their actual representation bits using the integrated comparison methods

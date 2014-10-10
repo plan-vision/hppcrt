@@ -47,8 +47,8 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenCustomHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -301,10 +301,12 @@ public class KTypeOpenCustomHashSet<KType>
     public int add(final KType e1, final KType e2)
     {
         int count = 0;
-        if (add(e1))
+        if (add(e1)) {
             count++;
-        if (add(e2))
+        }
+        if (add(e2)) {
             count++;
+        }
         return count;
     }
 
@@ -319,9 +321,11 @@ public class KTypeOpenCustomHashSet<KType>
     public int add(final KType... elements)
     {
         int count = 0;
-        for (final KType e : elements)
-            if (add(e))
+        for (final KType e : elements) {
+            if (add(e)) {
                 count++;
+            }
+        }
         return count;
     }
 
@@ -347,8 +351,9 @@ public class KTypeOpenCustomHashSet<KType>
         int count = 0;
         for (final KTypeCursor<? extends KType> cursor : iterable)
         {
-            if (add(cursor.value))
+            if (add(cursor.value)) {
                 count++;
+            }
         }
         return count;
     }
@@ -599,21 +604,23 @@ public class KTypeOpenCustomHashSet<KType>
                 if (slotPrev <= slotCurr)
                 {
                     // We are on the right of the original slot.
-                    if (slotPrev >= slotOther || slotOther > slotCurr)
+                    if (slotPrev >= slotOther || slotOther > slotCurr) {
                         break;
+                    }
                 }
                 else
                 {
                     // We have wrapped around.
-                    if (slotPrev >= slotOther && slotOther > slotCurr)
+                    if (slotPrev >= slotOther && slotOther > slotCurr) {
                         break;
+                    }
                 }
                 slotCurr = (slotCurr + 1) & mask;
             }
 
             if (/*! #if ($RH) !*/
-            allocated[slotCurr] == -1
-            /*! #else
+                    allocated[slotCurr] == -1
+                    /*! #else
             !allocated[slotCurr]
             #end !*/)
             {
@@ -747,7 +754,7 @@ public class KTypeOpenCustomHashSet<KType>
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         //Faster than Arrays.fill(keys, null); // Help the GC.
-        Internals.blankObjectArray(this.keys, 0, this.keys.length);
+        KTypeArrays.<KType> blankArray(this.keys, 0, this.keys.length);
         /*! #end !*/
     }
 
@@ -813,8 +820,9 @@ public class KTypeOpenCustomHashSet<KType>
     {
         if (obj != null)
         {
-            if (obj == this)
+            if (obj == this) {
                 return true;
+            }
 
             if (!(obj instanceof KTypeOpenCustomHashSet)) {
 
@@ -872,15 +880,16 @@ public class KTypeOpenCustomHashSet<KType>
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     KTypeOpenCustomHashSet.this.allocated[i] == -1
-            /*! #else
+                    /*! #else
             !allocated[i]
             #end  !*/)
             {
                 i--;
             }
 
-            if (i == -1)
+            if (i == -1) {
                 return done();
+            }
 
             this.cursor.index = i;
             this.cursor.value = KTypeOpenCustomHashSet.this.keys[i];
@@ -940,8 +949,9 @@ public class KTypeOpenCustomHashSet<KType>
         //in another hash, in case apply() is actually used to fill another hash container.
         for (int i = states.length - 1; i >= 0; i--)
         {
-            if (states[i] /*! #if ($RH) !*/!= -1 /*! #end !*/)
+            if (states[i] /*! #if ($RH) !*/!= -1 /*! #end !*/) {
                 procedure.apply(keys[i]);
+            }
         }
 
         return procedure;
@@ -1011,8 +1021,9 @@ public class KTypeOpenCustomHashSet<KType>
         {
             if (states[i]/*! #if ($RH) !*/!= -1 /*! #end !*/)
             {
-                if (!predicate.apply(keys[i]))
+                if (!predicate.apply(keys[i])) {
                     break;
+                }
             }
         }
 

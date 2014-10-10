@@ -48,7 +48,7 @@ import com.carrotsearch.hppcrt.sorting.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayList<KType>
-        extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, Cloneable
+extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, Cloneable
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -321,7 +321,7 @@ public class KTypeArrayList<KType>
         this.elementsCount -= count;
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        Internals.blankObjectArray(this.buffer, this.elementsCount, this.elementsCount + count);
+        KTypeArrays.blankArray(this.buffer, this.elementsCount, this.elementsCount + count);
         /*! #end !*/
     }
 
@@ -481,7 +481,7 @@ public class KTypeArrayList<KType>
                 //resetting is needed for GC in case of Objects because they may become "free"
                 //if not referenced anywhere else.
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                Internals.blankObjectArray(this.buffer, newSize, this.elementsCount);
+                KTypeArrays.blankArray(this.buffer, newSize, this.elementsCount);
                 /*! #end !*/
             }
             else
@@ -538,7 +538,7 @@ public class KTypeArrayList<KType>
     public void clear()
     {
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        Internals.blankObjectArray(this.buffer, 0, this.elementsCount);
+        KTypeArrays.blankArray(this.buffer, 0, this.elementsCount);
         /*! #end !*/
         this.elementsCount = 0;
     }
@@ -860,7 +860,7 @@ public class KTypeArrayList<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayList<KType> newInstance()
+    KTypeArrayList<KType> newInstance()
     {
         return new KTypeArrayList<KType>();
     }
@@ -870,7 +870,7 @@ public class KTypeArrayList<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayList<KType> newInstanceWithCapacity(final int initialCapacity)
+    KTypeArrayList<KType> newInstanceWithCapacity(final int initialCapacity)
     {
         return new KTypeArrayList<KType>(initialCapacity);
     }
@@ -880,7 +880,7 @@ public class KTypeArrayList<KType>
      * The elements are copied from the argument to the internal buffer.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayList<KType> from(final KType... elements)
+    KTypeArrayList<KType> from(final KType... elements)
     {
         final KTypeArrayList<KType> list = new KTypeArrayList<KType>(elements.length);
         list.add(elements);
@@ -891,7 +891,7 @@ public class KTypeArrayList<KType>
      * Create a list from elements of another container.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayList<KType> from(final KTypeContainer<KType> container)
+    KTypeArrayList<KType> from(final KTypeContainer<KType> container)
     {
         return new KTypeArrayList<KType>(container);
     }
