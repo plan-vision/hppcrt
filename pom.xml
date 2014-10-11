@@ -12,7 +12,7 @@
   <!-- Project info. -->
   <groupId>com.github.vsonnier</groupId>
   <artifactId>hppcrt-parent</artifactId>
-  <version>0.6.6</version>
+  <version>0.6.7-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>HPPC-RT (parent POM)</name>
@@ -108,7 +108,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-clean-plugin</artifactId>
-          <version>2.5</version>
+          <version>2.6</version>
         </plugin>
 
         <plugin>
@@ -165,18 +165,19 @@
  		<plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>2.9.1</version>
+          <version>2.10.1</version>
           <configuration>
             <detectJavaApiLink>true</detectJavaApiLink>
             <detectLinks>false</detectLinks>
             <detectOfflineLinks>false</detectOfflineLinks>
+            <failOnError>false</failOnError>
           </configuration>
         </plugin>
 
  		<plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-release-plugin</artifactId>
-          <version>2.5</version>
+          <version>2.5.1</version>
           <configuration>
             <useReleaseProfile>true</useReleaseProfile>
             <releaseProfiles>release</releaseProfiles>
@@ -189,7 +190,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
-          <version>2.6</version>
+          <version>2.7</version>
         </plugin>
         
          <plugin>
@@ -243,7 +244,7 @@
         <plugin>
           <groupId>com.carrotsearch.randomizedtesting</groupId>
           <artifactId>junit4-maven-plugin</artifactId>
-          <version>2.1.6</version>
+          <version>2.1.9</version>
         </plugin>
 
         <plugin>
