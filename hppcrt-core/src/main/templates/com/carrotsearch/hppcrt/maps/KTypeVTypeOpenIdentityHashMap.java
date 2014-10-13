@@ -7,7 +7,6 @@ import com.carrotsearch.hppcrt.cursors.*;
 import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
 
-
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN", "BYTE", "CHAR", "SHORT", "INT", "LONG", "FLOAT", "DOUBLE")} !*/
 /*! #set( $DEBUG = true) !*/
 /**
@@ -88,7 +87,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     public VType[] values;
 
     /**
-     * Information if an entry (slot) in the {@link #values} table is allocated
+     * Information if an entry (slot) in the {@link #keys} table is allocated
      * or empty.
      * @see #assigned
      */
@@ -743,6 +742,9 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             slot = (slot + 1) & mask;
 
         } //end while true
+
+        //unsuccessful search
+        this.lastSlot = -1;
 
         return false;
     }

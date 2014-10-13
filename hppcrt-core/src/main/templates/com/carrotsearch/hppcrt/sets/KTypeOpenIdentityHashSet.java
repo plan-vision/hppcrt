@@ -454,7 +454,6 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     /**
      * @return Returns the slot of the last key looked up in a call to {@link #contains} if
      * it returned <code>true</code>.
-     * Precondition : {@link #contains} must have been called previously !
      * @see #contains
      */
     public int lslot()
@@ -494,6 +493,9 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
             slot = (slot + 1) & mask;
 
         } //end while true
+
+        //unsuccessful search
+        this.lastSlot = -1;
 
         return false;
     }

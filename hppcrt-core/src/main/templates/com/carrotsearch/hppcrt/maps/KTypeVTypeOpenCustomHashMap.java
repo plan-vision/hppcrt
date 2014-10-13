@@ -106,7 +106,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     public VType[] values;
 
     /**
-     * Information if an entry (slot) in the {@link #values} table is allocated
+     * Information if an entry (slot) in the {@link #keys} table is allocated
      * or empty.
      * #if ($RH)
      * In addition it caches hash value :  If = -1, it means not allocated, else = HASH(keys[i]) & mask
@@ -1071,6 +1071,9 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             dist++;
             /*! #end !*/
         } //end while true
+
+        //unsuccessful search
+        this.lastSlot = -1;
 
         return false;
     }

@@ -112,14 +112,20 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * recommended to use a {@link #iterator()} instead.
      * </pre>
     #end
+    #if ($SA)
      * <p>
-     * Direct map iteration: iterate  {keys[i], values[i]} for i in [0; keys.length[ where this.allocated[i] is true.
+     * Direct map iteration: iterate  {keys[i], values[i]} for i in [0; keys.length[ where keys[i] != 0, then also
+     * {0, this.defaultKeyValue} is in the set if this.allocatedDefaultKey = true.
      * </p>
+    #else
+     * <p>
+     * Direct map iteration: iterate  {keys[i]} for i in [0; keys.length[ where this.allocated[i] is true.
+     * </p>
+    #end
      * 
      * <p><b>Direct iteration warning: </b>
      * If the iteration goal is to fill another hash container, please iterate {@link #keys} in reverse to prevent performance losses.
      * @see #values
-     * @see #allocated
      */
     public KType[] keys;
 
@@ -141,8 +147,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      */
     public VType[] values;
 
+    /*! #if (!$SA) !*/
     /**
-     * Information if an entry (slot) in the {@link #values} table is allocated
+     * Information if an entry (slot) in the {@link #keys} table is allocated
      * or empty.
      * #if ($RH)
      * In addition it caches hash value :  If = -1, it means not allocated, else = HASH(keys[i]) & mask
@@ -150,10 +157,13 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * #end
      * @see #assigned
      */
+    /*! #end !*/
     /*! #if ($RH) !*/
     public int[] allocated;
     /*! #elseif ($SA)
+     //True if key = 0 is in the map.
      public boolean allocatedDefaultKey = false;
+     //if allocatedDefaultKey = true, contains the associated V to the key = 0
      public VType defaultKeyValue;
     #else
     public boolean[] allocated;
@@ -448,13 +458,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     @Override
     public VType putOrAdd(KType key, VType putValue, VType additionValue)
     {
-        #if (!$SA)
-        assert this.assigned < this.keys.length ;
-        #end
-
      #if ($SA)
-
-        assert this.assigned <= this.keys.length ;
 
         if (Intrinsics.equalsKTypeDefault(key)) {
 
@@ -754,7 +758,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         //allocate so that there is at least one slot that remains allocated = false
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (capacity * this.loadFactor)) - 2;
-
     }
 
     /**
@@ -763,8 +766,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     @Override
     public VType remove(final KType key)
     {
-        final int mask = this.keys.length - 1;
-
 /*! #if ($SA)
         if (Intrinsics.equalsKTypeDefault(key)) {
 
@@ -780,6 +781,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             return this.defaultValue;
         }
 #end !*/
+        final int mask = this.keys.length - 1;
 
         int slot = Internals.rehash(key) & mask;
 
@@ -983,8 +985,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     @Override
     public VType get(final KType key)
     {
-        final int mask = this.keys.length - 1;
-
 /*! #if ($SA)
         if (Intrinsics.equalsKTypeDefault(key)) {
 
@@ -996,6 +996,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             return this.defaultValue;
         }
 #end !*/
+        final int mask = this.keys.length - 1;
 
         int slot = Internals.rehash(key) & mask;
 
@@ -1126,8 +1127,10 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
     /**
      * @return Returns the slot of the last key looked up in a call to {@link #containsKey} if
-     * it returned <code>true</code>.
-     * 
+     * it returned <code>true</code>
+     * #if ($SA)
+     * or else -2 if {@link #containsKey} were successful on key = 0
+     * #end
      * @see #containsKey
      */
     public int lslot()
@@ -1160,8 +1163,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     @Override
     public boolean containsKey(final KType key)
     {
-        final int mask = this.keys.length - 1;
-
 /*! #if ($SA)
         if (Intrinsics.equalsKTypeDefault(key)) {
 
@@ -1174,6 +1175,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             return this.allocatedDefaultKey;
         }
 #end !*/
+
+        final int mask = this.keys.length - 1;
 
         int slot = Internals.rehash(key) & mask;
 
@@ -1460,7 +1463,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     @Override
     public <T extends KTypeVTypeProcedure<? super KType, ? super VType>> T forEach(final T procedure)
     {
-
 /*! #if ($SA)
         if (this.allocatedDefaultKey) {
 
