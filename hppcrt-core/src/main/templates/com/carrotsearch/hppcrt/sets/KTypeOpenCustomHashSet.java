@@ -23,7 +23,7 @@ import com.carrotsearch.hppcrt.strategies.*;
  * the built-in hashCode() /  equals(). In particular, the management of <code>null</code>
  * keys is up to the {@link KTypeHashingStrategy} implementation.
  * <p>
- * The internal buffers of this implementation ({@link #keys}), {@link #allocated})
+ * The internal buffers of this implementation ({@link #keys}, etc...)
  * are always allocated to the nearest size that is a power of two. When
  * the capacity exceeds the given load factor, the buffer size is doubled.
  * </p>
@@ -32,7 +32,11 @@ import com.carrotsearch.hppcrt.strategies.*;
  * not properly distributed. Therefore, it is up to the {@link KTypeHashingStrategy} to
  * assure good performance.</p>
  * 
- * 
+ *
+#if ($TemplateOptions.KTypeGeneric)
+ * <p><code>null</code> keys support is up to the {@link KTypeHashingStrategy} implementation. </p>
+#end
+ *
  * @author This code is inspired by the collaboration and implementation in the <a
  *         href="http://fastutil.dsi.unimi.it/">fastutil</a> project.
  * 
@@ -44,6 +48,7 @@ import com.carrotsearch.hppcrt.strategies.*;
  *  <p> - <a href="cliff@leaninto.it">MoonPolySoft/Cliff Moon</a> for the initial Robin-hood on HPPC implementation,</p>
  *  <p> - <a href="vsonnier@gmail.com" >Vincent Sonnier</a> for the present implementation using cached hashes.</p>
 #end
+ *
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenCustomHashSet<KType>

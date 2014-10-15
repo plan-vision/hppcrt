@@ -6,6 +6,7 @@ import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.cursors.*;
 import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
+import com.carrotsearch.hppcrt.strategies.KTypeHashingStrategy;
 
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
 /*! #set( $ROBIN_HOOD_FOR_GENERICS = true) !*/
@@ -21,7 +22,7 @@ import com.carrotsearch.hppcrt.procedures.*;
  * 
  * <p>
  * The internal buffers of this implementation ({@link #keys}, {@link #values},
- * {@link #allocated}) are always allocated to the nearest size that is a power of two. When
+ * etc...) are always allocated to the nearest size that is a power of two. When
  * the capacity exceeds the given load factor, the buffer size is doubled.
  * </p>
  *
@@ -52,9 +53,6 @@ import com.carrotsearch.hppcrt.procedures.*;
  * Collections.
 #end
  * 
-#if ($TemplateOptions.KTypeGeneric)
- * <p>This implementation supports <code>null</code> keys.</p>
- * 
  * </tbody>
  * </table>
  * <p><b>Important note.</b> The implementation uses power-of-two tables and linear
@@ -62,11 +60,15 @@ import com.carrotsearch.hppcrt.procedures.*;
  * not properly distributed.
  * This implementation uses rehashing
  * using {@link MurmurHash3}.</p>
+ * 
+ * 
+#if ($TemplateOptions.KTypeGeneric)
+ * <p>This implementation supports <code>null</code> keys. </p>
 #end
 #if ($TemplateOptions.VTypeGeneric)
  * <p>This implementation supports <code>null</code> values.</p>
 #end
- * 
+ *
  * @author This code is inspired by the collaboration and implementation in the <a
  *         href="http://fastutil.dsi.unimi.it/">fastutil</a> project.
  * 
@@ -78,10 +80,11 @@ import com.carrotsearch.hppcrt.procedures.*;
  *  <p> - <a href="cliff@leaninto.it">MoonPolySoft/Cliff Moon</a> for the initial Robin-hood on HPPC implementation,</p>
  *  <p> - <a href="vsonnier@gmail.com" >Vincent Sonnier</a> for the present implementation using cached hashes.</p>
 #end
+ *
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -119,7 +122,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * </p>
     #else
      * <p>
-     * Direct map iteration: iterate  {keys[i]} for i in [0; keys.length[ where this.allocated[i] is true.
+     * Direct map iteration: iterate  {keys[i], values[i]} for i in [0; keys.length[ where this.allocated[i] is true.
      * </p>
     #end
      * 
@@ -1545,7 +1548,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * A view of the keys inside this hash map.
      */
     public final class KeysContainer
-            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenHashMap<KType, VType> owner =
                 KTypeVTypeOpenHashMap.this;

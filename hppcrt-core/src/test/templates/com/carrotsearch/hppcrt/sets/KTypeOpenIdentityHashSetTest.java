@@ -368,6 +368,7 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
 
     }
 
+
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     @Test
     public void testNullKey()

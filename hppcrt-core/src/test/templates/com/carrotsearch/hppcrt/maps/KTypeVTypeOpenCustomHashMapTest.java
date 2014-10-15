@@ -735,6 +735,23 @@ public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKType
         Assert.assertEquals(castType(key1_), castType(this.map.lkey()));
     }
 
+    @Test
+    public void testLkey2()
+    {
+        this.map.put(this.key8, vcast(5));
+        this.map.put(this.key9, vcast(25));
+        this.map.put(this.key0, vcast(11));
+
+        Assert.assertTrue(this.map.containsKey(this.key0));
+
+        /*! #if ($SA)
+        Assert.assertEquals(-2, this.map.lslot());
+         #end !*/
+
+        TestUtils.assertEquals2(this.key0, this.map.lkey());
+        Assert.assertEquals(11, vcastType(this.map.lget()));
+    }
+
     /*! #if ($TemplateOptions.VTypeGeneric) !*/
     @Test
     public void testNullValue()

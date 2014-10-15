@@ -68,13 +68,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
 
             for (int i = 0; i < this.map.keys.length; i++)
             {
-                if (/*! #if ($RH) !*/
-                        this.map.allocated[i] == -1
-                        /*!#elseif ($SA)
-                Intrinsics.equalsKTypeDefault(map.keys[i])
-                #else
-                !map.allocated[i]
-                #end !*/)
+                if (!is_allocated(this.map.allocated, i, this.map.keys))
                 {
                     //if not allocated, generic version if patched to null for GC sake
 
@@ -110,7 +104,22 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             }
 
             /*! #if ($SA)
+
             if (map.allocatedDefaultKey) {
+
+                //try to reach the key by contains()
+                Assert.assertTrue(this.map.containsKey(Intrinsics.defaultKTypeValue()));
+
+                //check slot
+                Assert.assertEquals(-2, this.map.lslot());
+
+                //get() test
+                Assert.assertEquals(vcastType(this.map.defaultKeyValue), vcastType(this.map.get(Intrinsics.defaultKTypeValue())));
+
+                //Retrieve again by lkey(), lget() :
+
+                TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), this.map.lkey());
+                Assert.assertEquals(vcastType(this.map.defaultKeyValue), vcastType(this.map.lget()));
 
                 occupied++;
             }
@@ -131,6 +140,13 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
 
         assertSameMap(this.map, KTypeVTypeOpenHashMap.from(this.map));
         assertSameMap(this.map, new KTypeVTypeOpenHashMap<KType, VType>(this.map));
+
+        /*! #if (($TemplateOptions.KTypeGeneric) && $SA ) !*/
+        this.map.put(null, this.value7);
+        assertSameMap(this.map, KTypeVTypeOpenHashMap.from(this.map));
+        assertSameMap(this.map, new KTypeVTypeOpenHashMap<KType, VType>(this.map));
+        /*! #end !*/
+
     }
 
     /* */
@@ -265,6 +281,10 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         Assert.assertTrue(this.map.putIfAbsent(this.key1, this.value1));
         Assert.assertFalse(this.map.putIfAbsent(this.key1, this.value2));
         TestUtils.assertEquals2(this.value1, this.map.get(this.key1));
+        Assert.assertTrue(this.map.putIfAbsent(this.key0, this.value0));
+        Assert.assertFalse(this.map.putIfAbsent(this.key0, this.value3));
+        TestUtils.assertEquals2(this.value0, this.map.get(this.key0));
+
     }
 
     /*! #if ($TemplateOptions.VTypeNumeric)
@@ -880,7 +900,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         Assert.assertEquals(-2, this.map.lslot());
          #end !*/
 
-        Assert.assertEquals(0, castType(this.map.lkey()));
+        TestUtils.assertEquals2(this.key0, this.map.lkey());
         Assert.assertEquals(11, vcastType(this.map.lget()));
     }
 

@@ -1,13 +1,13 @@
 package com.carrotsearch.hppcrt;
 
-import static org.junit.Assert.*;
-
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.Assert;
 
 import com.carrotsearch.hppcrt.hash.MurmurHash3;
-import com.carrotsearch.hppcrt.lists.*;
+import com.carrotsearch.hppcrt.lists.IntArrayList;
 
 /**
  * Test utilities.
@@ -238,12 +238,37 @@ public abstract class TestUtils
 
     /**
      * Check if the array's content is identical to a given sequence of elements, compared by reference
+     * If expected, null objects must be before all others in elements args
      */
-    public static void assertSortedListEqualsByReference(final Object[] array, final Object... elements)
+    public static void assertSortedListEqualsByReference(Object[] array, final Object... elements)
     {
         Assert.assertEquals(elements.length, array.length);
 
-        Arrays.sort(array);
+        int countNulls = 0;
+        final ArrayList<Object> array2 = new ArrayList<Object>();
+
+        for (int i = 0; i < array.length; i++) {
+
+            if (array[i] == null) {
+
+                countNulls++;
+            }
+            else {
+
+                array2.add(array[i]);
+            }
+        }
+
+        //put back the nulls at the beginning
+        for (int i = 0; i < countNulls; i++) {
+
+            array2.add(0, null);
+        }
+
+        array = array2.toArray();
+
+        //only attempt to sort the not-null objects
+        Arrays.sort(array, countNulls, array.length);
 
         for (int i = 0; i < elements.length; i++) {
 
@@ -255,11 +280,39 @@ public abstract class TestUtils
 
     /**
      * Check if the array's content is identical to a given sequence of elements.
+     * If expected, null objects must be before all others in elements args
      */
-    public static void assertSortedListEquals(final Object[] array, final Object... elements)
+    public static void assertSortedListEquals(Object[] array, final Object... elements)
     {
         Assert.assertEquals(elements.length, array.length);
-        Arrays.sort(array);
+
+        //Put the null values at the begining of the array
+        int countNulls = 0;
+        final ArrayList<Object> array2 = new ArrayList<Object>();
+
+        for (int i = 0; i < array.length; i++) {
+
+            if (array[i] == null) {
+
+                countNulls++;
+            }
+            else {
+
+                array2.add(array[i]);
+            }
+        }
+
+        //put back the nulls at the beginning
+        for (int i = 0; i < countNulls; i++) {
+
+            array2.add(0, null);
+        }
+
+        array = array2.toArray();
+
+        //only sort the not-null range
+        Arrays.sort(array, countNulls, array.length);
+
         Assert.assertArrayEquals(elements, array);
     }
 
@@ -472,8 +525,9 @@ public abstract class TestUtils
             if (hash == maskedSeed)
             {
                 hashChain.add(i);
-                if (hashChain.size() > values)
+                if (hashChain.size() > values) {
                     break;
+                }
             }
         }
 

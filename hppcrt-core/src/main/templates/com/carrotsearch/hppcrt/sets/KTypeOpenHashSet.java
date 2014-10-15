@@ -20,7 +20,7 @@ import com.carrotsearch.hppcrt.procedures.*;
  * addressing with linear probing for collision resolution.
  * 
  * <p>
- * The internal buffers of this implementation ({@link #keys}), {@link #allocated})
+ * The internal buffers of this implementation ({@link #keys}, etc...)
  * are always allocated to the nearest size that is a power of two. When
  * the capacity exceeds the given load factor, the buffer size is doubled.
  * </p>
@@ -47,7 +47,6 @@ import com.carrotsearch.hppcrt.procedures.*;
  * </tbody>
  * </table>
  * 
- * <p>This implementation supports <code>null</code> keys.</p>
  * <p><b>Important note.</b> The implementation uses power-of-two tables and linear
  * probing, which may cause poor performance (many collisions) if hash values are
  * not properly distributed.
@@ -58,6 +57,9 @@ import com.carrotsearch.hppcrt.procedures.*;
  * Collections.
 #end
  * 
+#if ($TemplateOptions.KTypeGeneric)
+ * <p>This implementation supports <code>null</code> keys.</p>
+#end
  * 
  * @author This code is inspired by the collaboration and implementation in the <a
  *         href="http://fastutil.dsi.unimi.it/">fastutil</a> project.
@@ -70,6 +72,7 @@ import com.carrotsearch.hppcrt.procedures.*;
  *  <p> - <a href="cliff@leaninto.it">MoonPolySoft/Cliff Moon</a> for the initial Robin-hood on HPPC implementation,</p>
  *  <p> - <a href="vsonnier@gmail.com" >Vincent Sonnier</a> for the present implementation using cached hashes.</p>
 #end
+ *
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenHashSet<KType>

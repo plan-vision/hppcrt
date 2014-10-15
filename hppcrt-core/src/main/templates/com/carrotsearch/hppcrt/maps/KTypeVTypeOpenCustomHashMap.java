@@ -31,10 +31,16 @@ import com.carrotsearch.hppcrt.strategies.*;
  * not properly distributed. Therefore, it is up to the {@link KTypeHashingStrategy} to
  * assure good performance.</p>
  * 
+#if ($TemplateOptions.KTypeGeneric)
+ * <p><code>null</code> keys support is up to the {@link KTypeHashingStrategy} implementation. </p>
+#end
+#if ($TemplateOptions.VTypeGeneric)
+ * <p>This implementation supports <code>null</code> values.</p>
+#end
  * 
  * @author This code is inspired by the collaboration and implementation in the <a
  *         href="http://fastutil.dsi.unimi.it/">fastutil</a> project.
- * 
+ *
 #if ($RH)
  *   <p> Robin-Hood hashing algorithm is also used to minimize variance
  *  in insertion and search-related operations, for an all-around smother operation at the cost
@@ -43,6 +49,7 @@ import com.carrotsearch.hppcrt.strategies.*;
  *  <p> - <a href="cliff@leaninto.it">MoonPolySoft/Cliff Moon</a> for the initial Robin-hood on HPPC implementation,</p>
  *  <p> - <a href="vsonnier@gmail.com" >Vincent Sonnier</a> for the present implementation using cached hashes.</p>
 #end
+ *
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenCustomHashMap<KType, VType>
