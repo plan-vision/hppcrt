@@ -705,13 +705,12 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     public KType lkey()
     {
         /*! #if ($SA)
-
         if (this.lastSlot == -2) {
 
             return Intrinsics.defaultKTypeValue();
         }
-
         #end !*/
+
         assert this.lastSlot >= 0 : "Call containsKey() first.";
         /*! #if ($RH) !*/
         assert this.allocated[this.lastSlot] != -1 : "Last call to exists did not have any associated value.";
@@ -952,9 +951,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
                     } else {
                         //no value associated with the default key, continue iteration...
+                         this.cursor.index = KTypeOpenHashSet.this.keys.length;
                     }
-
-                    this.cursor.index = KTypeOpenHashSet.this.keys.length;
                 }
 
              #end !*/

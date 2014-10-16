@@ -146,7 +146,12 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
 
         for (int i = 0; i < objects.length; i++)
         {
-            values[i] = (KType) objects[i];
+            if (objects[i] != null) {
+
+                values[i] = (KType) objects[i];
+            } else {
+                values[i] = null;
+            }
         }
 
         return values;

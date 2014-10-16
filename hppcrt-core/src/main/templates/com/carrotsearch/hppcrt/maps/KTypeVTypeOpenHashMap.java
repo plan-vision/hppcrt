@@ -1397,9 +1397,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
                    } else {
                        //no value associated with the default key, continue iteration...
+                       this.cursor.index = KTypeVTypeOpenHashMap.this.keys.length;
                    }
-
-                   this.cursor.index = KTypeVTypeOpenHashMap.this.keys.length;
                }
 
             #end !*/
@@ -1767,9 +1766,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
                 } else {
                     //no value associated with the default key, continue iteration...
+                    this.cursor.index = KTypeVTypeOpenHashMap.this.keys.length;
                 }
-
-                this.cursor.index = KTypeVTypeOpenHashMap.this.keys.length;
             }
 
             #end !*/
@@ -2126,9 +2124,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
                 } else {
                     //no value associated with the default key, continue iteration...
+                    this.cursor.index = KTypeVTypeOpenHashMap.this.keys.length;
                 }
-
-                this.cursor.index = KTypeVTypeOpenHashMap.this.keys.length;
             }
 
             #end !*/

@@ -24,6 +24,9 @@ import com.carrotsearch.randomizedtesting.annotations.*;
  * Unit tests for {@link KTypeOpenIdentityHashSetTest}.
  */
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN", "BYTE", "CHAR", "SHORT", "INT", "LONG", "FLOAT", "DOUBLE")} !*/
+/*! #set( $SINGLE_ARRAY = true) !*/
+//If SA is defined, no allocated array is used but instead default sentinel values
+/*! #set( $SA =  $SINGLE_ARRAY ) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType>
 {
@@ -62,14 +65,14 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
         {
             int occupied = 0;
 
-            final int mask = this.set.allocated.length - 1;
+            final int mask = this.set.keys.length - 1;
 
             for (int i = 0; i < this.set.keys.length; i++)
             {
-                if (!this.set.allocated[i])
+                if (!is_allocated(this.set.allocated, i, this.set.keys))
                 {
                     //if not allocated, generic version if patched to null for GC sake
-                    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+                    /*! #if (($TemplateOptions.KTypeGeneric)  || $SA  ) !*/
                     TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), this.set.keys[i]);
                     /*! #end !*/
                 }
@@ -87,6 +90,21 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
                     occupied++;
                 }
             }
+
+            /*! #if ($SA)
+            if (set.allocatedDefaultKey) {
+
+                //try to reach the key by contains()
+                Assert.assertTrue(this.set.contains(Intrinsics.defaultKTypeValue()));
+
+                //check slot
+               Assert.assertEquals(-2, this.set.lslot());
+
+                //Retrieve again by lkey() :
+                TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), this.set.lkey());
+                occupied++;
+             }
+            #end !*/
 
             Assert.assertEquals(occupied, this.set.assigned);
             Assert.assertEquals(occupied, this.set.size());
@@ -108,6 +126,16 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
         Assert.assertTrue(this.set.add(this.key1));
         Assert.assertFalse(this.set.add(this.key1));
         Assert.assertEquals(1, this.set.size());
+
+        Assert.assertTrue(this.set.add(this.key0));
+        Assert.assertFalse(this.set.add(this.key0));
+
+        Assert.assertEquals(2, this.set.size());
+
+        Assert.assertTrue(this.set.add(this.key2));
+        Assert.assertFalse(this.set.add(this.key2));
+
+        Assert.assertEquals(3, this.set.size());
     }
 
     /* */
@@ -118,15 +146,17 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
         Assert.assertEquals(1, this.set.size());
         Assert.assertEquals(1, this.set.add(this.key1, this.key2));
         Assert.assertEquals(2, this.set.size());
+        Assert.assertEquals(1, this.set.add(this.key0, this.key1));
+        Assert.assertEquals(3, this.set.size());
     }
 
     /* */
     @Test
     public void testAddVarArgs()
     {
-        this.set.add(asArrayObjects(this.k0, this.k1, this.k2, this.k1, this.k0));
+        this.set.add(asArray(0, 1, 2, 1, 0));
         Assert.assertEquals(3, this.set.size());
-        TestUtils.assertSortedListEqualsByReference(this.set.toArray(), this.k0, this.k1, this.k2);
+        TestUtils.assertSortedListEquals(this.set.toArray(), 0, 1, 2);
     }
 
     /* */
@@ -182,7 +212,7 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
         // Fit in the byte key range.
         final int capacity = 0x80;
         final int max = capacity - 2;
-        for (int i = 0; i < max; i++)
+        for (int i = 1; i <= max; i++)
         {
             this.set.add(cast(i));
         }
@@ -191,7 +221,7 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
         Assert.assertEquals(max, this.set.size());
         Assert.assertEquals(capacity, this.set.keys.length);
         // Won't expand (existing key).
-        this.set.add(cast(0));
+        this.set.add(cast(1));
         Assert.assertEquals(capacity, this.set.keys.length);
         // Expanded.
         this.set.add(cast(0xff));
@@ -205,7 +235,7 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
         this.set = new KTypeOpenIdentityHashSet<KType>(1, 1f);
         final int capacity = 0x80;
         final int max = capacity - 2;
-        for (int i = 0; i < max; i++)
+        for (int i = 1; i <= max; i++)
         {
             this.set.add(cast(i));
         }
@@ -218,12 +248,12 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
         Assert.assertFalse(this.set.contains(cast(max + 1)));
 
         // Should not expand because we're replacing an existing element.
-        Assert.assertFalse(this.set.add(cast(0)));
+        Assert.assertFalse(this.set.add(cast(1)));
         Assert.assertEquals(max, this.set.size());
         Assert.assertEquals(capacity, this.set.keys.length);
 
         // Remove from a full set.
-        this.set.remove(cast(0));
+        this.set.remove(cast(1));
         Assert.assertEquals(max - 1, this.set.size());
         Assert.assertEquals(capacity, this.set.keys.length);
     }
@@ -336,15 +366,55 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
         this.set.remove(this.k2);
         Assert.assertEquals(3, this.set.size());
 
-        int count = 0;
+        int counted = 0;
         for (final KTypeCursor<KType> cursor : this.set)
         {
-            count++;
+            /*! #if ($SA)
+            if (cursor.index == this.set.keys.length) {
+
+                TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), cursor.value);
+                counted++;
+                continue;
+            }
+            #end !*/
+
+            counted++;
             Assert.assertTrue(this.set.contains(cursor.value));
 
             TestUtils.assertEquals2(cursor.value, this.set.lkey());
         }
-        Assert.assertEquals(count, this.set.size());
+        Assert.assertEquals(counted, this.set.size());
+
+        this.set.clear();
+        Assert.assertFalse(this.set.iterator().hasNext());
+    }
+
+    /* */
+    @Test
+    public void testIterable2()
+    {
+        this.set.add(asArrayObjects(this.key0, this.k2, this.k2, this.k3, this.k4));
+        this.set.remove(this.k2);
+        Assert.assertEquals(3, this.set.size());
+
+        int counted = 0;
+        for (final KTypeCursor<KType> cursor : this.set)
+        {
+            /*! #if ($SA)
+            if (cursor.index == this.set.keys.length) {
+
+                TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), cursor.value);
+                counted++;
+                continue;
+            }
+            #end !*/
+
+            counted++;
+            Assert.assertTrue(this.set.contains(cursor.value));
+
+            TestUtils.assertEquals2(cursor.value, this.set.lkey());
+        }
+        Assert.assertEquals(counted, this.set.size());
 
         this.set.clear();
         Assert.assertFalse(this.set.iterator().hasNext());
@@ -366,6 +436,22 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
         Assert.assertSame(this.key1, this.set.lkey());
         /*! #end !*/
 
+    }
+
+    @Test
+    public void testLkey2()
+    {
+        this.set.add(this.key8);
+        this.set.add(this.key9);
+        this.set.add(this.key0);
+
+        Assert.assertTrue(this.set.contains(this.key0));
+
+        /*! #if ($SA)
+        Assert.assertEquals(-2, this.set.lslot());
+        #end !*/
+
+        TestUtils.assertEquals2(this.key0, this.set.lkey());
     }
 
 
@@ -423,13 +509,13 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
     @Test
     public void testClone()
     {
-        this.set.add(this.key1, this.key2, this.key3);
+        this.set.add(this.key1, this.key2, this.key3, this.key0);
 
         final KTypeOpenIdentityHashSet<KType> cloned = this.set.clone();
         cloned.removeAllOccurrences(this.key1);
 
-        TestUtils.assertSortedListEqualsByReference(this.set.toArray(), this.key1, this.key2, this.key3);
-        TestUtils.assertSortedListEqualsByReference(cloned.toArray(), this.key2, this.key3);
+        TestUtils.assertSortedListEqualsByReference(this.set.toArray(), this.key0, this.key1, this.key2, this.key3);
+        TestUtils.assertSortedListEqualsByReference(cloned.toArray(), this.key0, this.key2, this.key3);
     }
 
     /*
@@ -737,7 +823,7 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
         //and internal buffer/allocated must not have changed of size
         final int contructorBufferSize = newSet.keys.length;
 
-        Assert.assertEquals(contructorBufferSize, newSet.allocated.length);
+        Assert.assertEquals(contructorBufferSize, newSet.keys.length);
 
         for (int i = 0; i < PREALLOCATED_SIZE; i++) {
 
@@ -745,7 +831,6 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
 
             //internal size has not changed.
             Assert.assertEquals(contructorBufferSize, newSet.keys.length);
-            Assert.assertEquals(contructorBufferSize, newSet.allocated.length);
         }
 
         Assert.assertEquals(PREALLOCATED_SIZE, newSet.size());
@@ -785,9 +870,9 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
         //Test forEach predicate and stop at each key in turn.
         final ArrayList<Integer> keyListTest = new ArrayList<Integer>();
 
-        for (int k = newSet.allocated.length - 1; k >= 0; k--) {
+        for (int k = newSet.keys.length - 1; k >= 0; k--) {
 
-            if (newSet.allocated[k]) {
+            if (is_allocated(newSet.allocated, k, newSet.keys)) {
 
                 keyList.add((Integer) (newSet.keys[k]));
             }
@@ -803,9 +888,9 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
 
             keyList.clear();
 
-            for (int k = newSet.allocated.length - 1; k >= 0; k--) {
+            for (int k = newSet.keys.length - 1; k >= 0; k--) {
 
-                if (newSet.allocated[k]) {
+                if (is_allocated(newSet.allocated, k, newSet.keys)) {
 
                     keyList.add((Integer) newSet.keys[k]);
                 }
@@ -839,6 +924,13 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
             }
             finally
             {
+                /*! #if ($SA)
+                if (newSet.allocatedDefaultKey && keyListTest.size() > 0) {
+
+                    keyListTest.remove(0);
+                }
+                #end !*/
+
                 //despite the exception, the procedure terminates cleanly
 
                 //check that keyList/keyListTest are identical for the first
@@ -885,9 +977,9 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
         //List the keys in the reverse-order of the internal buffer, since forEach() is iterating in reverse also:
         final ArrayList<Integer> keyList = new ArrayList<Integer>();
 
-        for (int i = newSet.allocated.length - 1; i >= 0; i--) {
+        for (int i = newSet.keys.length - 1; i >= 0; i--) {
 
-            if (newSet.allocated[i]) {
+            if (is_allocated(newSet.allocated, i, newSet.keys)) {
 
                 keyList.add((Integer) newSet.keys[i]);
             }
@@ -908,6 +1000,13 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
                 keyListTest.add((Integer) key);
             }
         });
+
+        /*! #if ($SA)
+        if (newSet.allocatedDefaultKey && keyListTest.size() > 0) {
+
+            keyListTest.remove(0);
+        }
+        #end !*/
 
         //check that keyList/keyListTest  are identical.
         Assert.assertEquals(keyList.size(), keyListTest.size());
@@ -953,9 +1052,9 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
         //Test forEach predicate and stop at each key in turn.
         final ArrayList<Integer> keyListTest = new ArrayList<Integer>();
 
-        for (int k = newSet.allocated.length - 1; k >= 0; k--) {
+        for (int k = newSet.keys.length - 1; k >= 0; k--) {
 
-            if (newSet.allocated[k]) {
+            if (is_allocated(newSet.allocated, k, newSet.keys)) {
 
                 keyList.add((Integer) newSet.keys[k]);
             }
@@ -970,9 +1069,9 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
             keyListTest.clear();
             keyList.clear();
 
-            for (int k = newSet.allocated.length - 1; k >= 0; k--) {
+            for (int k = newSet.keys.length - 1; k >= 0; k--) {
 
-                if (newSet.allocated[k]) {
+                if (is_allocated(newSet.allocated, k, newSet.keys)) {
 
                     keyList.add((Integer) newSet.keys[k]);
                 }
@@ -997,6 +1096,13 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
                     return true;
                 }
             });
+
+            /*! #if ($SA)
+            if (newSet.allocatedDefaultKey && keyListTest.size() > 0) {
+
+                keyListTest.remove(0);
+            }
+            #end !*/
 
             //despite the interruption, the procedure terminates cleanly
 
@@ -1066,4 +1172,29 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
         return newSet;
     }
 
+/*! #if (!$SA) !*/
+    //Test for existence in template
+
+    /*! #if ($TemplateOptions.inline("is_allocated",
+    "(alloc, slot, keys)",
+    "alloc[slot]")) !*/
+    /**
+     * template version
+     * (actual method is inlined in generated code)
+     */
+    private boolean is_allocated(final boolean[] alloc, final int slot, final Object[] keys) {
+
+        return alloc[slot];
+    }
+    /*! #end !*/
+
+/*! #else
+  //Test for existence with default value sentinels
+
+     #if ($TemplateOptions.inline("is_allocated",
+    "(alloc, slot, keys)",
+    "!Intrinsics.equalsKTypeDefault(keys[slot])"))
+    //nothing !
+    #end
+#end !*/
 }
