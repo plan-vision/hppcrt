@@ -118,7 +118,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     #end
 
     /**
-     * Cached number of assigned slots in {@link #allocated}.
+     * Cached number of assigned slots in {@link #keys}.
      */
     protected int assigned;
 
@@ -229,7 +229,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             }
 
             this.defaultKeyValue = value;
-            this.assigned++;
+
             this.allocatedDefaultKey = true;
 
             return this.defaultValue;
@@ -293,13 +293,13 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     @Override
     public int putAll(final Iterable<? extends KTypeVTypeCursor<? extends KType, ? extends VType>> iterable)
     {
-        final int count = this.assigned;
+        final int count = this.size();
 
         for (final KTypeVTypeCursor<? extends KType, ? extends VType> c : iterable)
         {
             put(c.key, c.value);
         }
-        return this.assigned - count;
+        return this.size() - count;
     }
 
     /**
@@ -344,23 +344,22 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     @Override
     public VType putOrAdd(KType key, VType putValue, VType additionValue)
     {
-    #if ($SA)
+     #if ($SA)
 
         if (Intrinsics.equalsKTypeDefault(key)) {
 
             if (this.allocatedDefaultKey) {
 
-                VType previousValue = this.defaultKeyValue;
-                this.defaultKeyValue = putValue;
+                this.defaultKeyValue += additionValue;
 
-                return previousValue;
+                return this.defaultKeyValue;
             }
 
             this.defaultKeyValue = putValue;
-            this.assigned++;
+
             this.allocatedDefaultKey = true;
 
-            return this.defaultValue;
+            return this.defaultKeyValue;
         }
     #end
 
@@ -552,7 +551,6 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
                 VType previousValue = this.defaultKeyValue;
 
-                this.assigned--;
                 this.allocatedDefaultKey = false;
                 return previousValue;
             }
@@ -661,14 +659,14 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     @Override
     public int removeAll(final KTypeContainer<? extends KType> container)
     {
-        final int before = this.assigned;
+        final int before = this.size();
 
         for (final KTypeCursor<? extends KType> cursor : container)
         {
             remove(cursor.value);
         }
 
-        return before - this.assigned;
+        return before - this.size();
     }
 
     /**
@@ -679,7 +677,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     @Override
     public int removeAll(final KTypePredicate<? super KType> predicate)
     {
-        final int before = this.assigned;
+        final int before = this.size();
 
 /*! #if ($SA)
         if (this.allocatedDefaultKey) {
@@ -687,7 +685,6 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             if (predicate.apply(Intrinsics.defaultKTypeValue()))
             {
                  this.allocatedDefaultKey = false;
-                 this.assigned--;
             }
         }
 #end !*/
@@ -712,7 +709,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             }
             i++;
         }
-        return before - this.assigned;
+        return before - this.size();
     }
 
     /**
@@ -966,7 +963,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     @Override
     public int size()
     {
-        return this.assigned;
+        return this.assigned /*! #if ($SA) + (this.allocatedDefaultKey?1:0) #end !*/;
     }
 
     /**
@@ -1432,7 +1429,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                 }
             }
 
-            assert count == this.owner.assigned;
+            assert count == this.owner.size();
             return target;
         }
     };
@@ -1638,14 +1635,13 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         @Override
         public int removeAllOccurrences(final VType e)
         {
-            final int before = this.owner.assigned;
+            final int before = this.owner.size();
 
             /*! #if ($SA)
             if (this.owner.allocatedDefaultKey) {
 
                 if(Intrinsics.equalsVType(e, this.owner.defaultKeyValue)) {
 
-                    this.owner.assigned--;
                     this.owner.allocatedDefaultKey = false;
                 }
             }
@@ -1672,7 +1668,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                 }
                 slot++;
             }
-            return before - this.owner.assigned;
+            return before - this.owner.size();
         }
 
         /**
@@ -1683,14 +1679,13 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         @Override
         public int removeAll(final KTypePredicate<? super VType> predicate)
         {
-            final int before = this.owner.assigned;
+            final int before = this.owner.size();
 
             /*! #if ($SA)
             if (this.owner.allocatedDefaultKey) {
 
                 if(predicate.apply(this.owner.defaultKeyValue)) {
 
-                    this.owner.assigned--;
                     this.owner.allocatedDefaultKey = false;
                 }
             }
@@ -1717,7 +1712,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                 }
                 slot++;
             }
-            return before - this.owner.assigned;
+            return before - this.owner.size();
         }
 
         /**
@@ -1783,13 +1778,13 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                 }
             }
 
-            assert count == this.owner.assigned;
+            assert count == this.owner.size();
             return target;
         }
     }
 
     /**
-     * An iterator over the set of assigned values.
+     * An iterator over the set of values.
      */
     public final class ValuesIterator extends AbstractIterator<KTypeCursor<VType>>
     {

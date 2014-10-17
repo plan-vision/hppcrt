@@ -9,7 +9,7 @@ import com.carrotsearch.hppcrt.procedures.*;
 
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN", "BYTE", "CHAR", "SHORT", "INT", "LONG", "FLOAT", "DOUBLE")} !*/
 /*! #set( $SINGLE_ARRAY = true) !*/
-/*! #set( $DEBUG = true) !*/
+/*! #set( $DEBUG = false) !*/
 //If SA is defined, no allocated array is used but instead default sentinel values
 /*! #set( $SA = $SINGLE_ARRAY ) !*/
 /**
@@ -103,7 +103,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     #end !*/
 
     /**
-     * Cached number of assigned slots in {@link #allocated}.
+     * Cached number of assigned slots in {@link #keys}.
      */
     protected int assigned;
 
@@ -197,7 +197,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
             }
 
             this.allocatedDefaultKey = true;
-            this.assigned++;
+
             return true;
         }
         #end !*/
@@ -417,7 +417,6 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
             if (this.allocatedDefaultKey) {
 
-                this.assigned--;
                 this.allocatedDefaultKey = false;
                 return true;
             }
@@ -630,7 +629,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     @Override
     public int size()
     {
-        return this.assigned;
+        return this.assigned /*! #if ($SA) + (this.allocatedDefaultKey?1:0) #end !*/;
     }
 
     /**
@@ -932,7 +931,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     @Override
     public int removeAll(final KTypePredicate<? super KType> predicate)
     {
-        final int before = this.assigned;
+        final int before = this.size();
 
         /*! #if ($SA)
         if (this.allocatedDefaultKey) {
@@ -940,7 +939,6 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
             if (predicate.apply(Intrinsics.defaultKTypeValue()))
             {
                  this.allocatedDefaultKey = false;
-                 this.assigned--;
             }
         }
         #end !*/
@@ -966,7 +964,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
             i++;
         }
 
-        return before - this.assigned;
+        return before - this.size();
     }
 
     /**

@@ -14,7 +14,6 @@ import com.carrotsearch.randomizedtesting.annotations.Seed;
 /**
  * Unit tests for {@link KTypeArrays}.
  */
-//${TemplateOptions.doNotGenerateKType("BOOLEAN")}
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArraysTest<KType> extends AbstractKTypeTest<KType>
 {

@@ -152,6 +152,19 @@ public abstract class TestUtils
     /**
      * Check if the array's content is identical to a given sequence of elements.
      */
+    public static void assertListEquals(final boolean[] array, final boolean... elements)
+    {
+        Assert.assertEquals(elements.length, array.length);
+
+        for (int i = 0 ; i < array.length; i++) {
+
+            Assert.assertEquals("index = " + array[i], elements[i], array[i]);
+        }
+    }
+
+    /**
+     * Check if the array's content is identical to a given sequence of elements.
+     */
     public static void assertListEquals(final double[] array, final double... elements)
     {
         Assert.assertEquals(elements.length, array.length);
@@ -286,7 +299,7 @@ public abstract class TestUtils
     {
         Assert.assertEquals(elements.length, array.length);
 
-        //Put the null values at the begining of the array
+        //Put the null values at the beginning of the array
         int countNulls = 0;
         final ArrayList<Object> array2 = new ArrayList<Object>();
 
