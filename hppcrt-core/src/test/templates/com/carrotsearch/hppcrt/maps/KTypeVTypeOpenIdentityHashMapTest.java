@@ -282,11 +282,22 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
     @Test
     public void testPutOrAdd()
     {
-        assertEquals2(value1, map.putOrAdd(key1, value1, value2));
-        assertEquals2(value1 + value2, map.putOrAdd(key1, value1, value2));
+        assertEquals2(value3, map.putOrAdd(key1, value3, value2));
+        assertEquals2(value3 + value2, map.putOrAdd(key1, value7, value2));
 
-        assertEquals2(value0, map.putOrAdd(key0, value0, value2));
-        assertEquals2(value0 + value2, map.putOrAdd(key0, value0, value2));
+        assertEquals2(value4, map.putOrAdd(key0, value4, value2));
+        assertEquals2(value4 + value3, map.putOrAdd(key0, value5, value3));
+
+        //trigger reallocs
+        for (int i = 2 ; i < 126; i++) {
+
+            KType keyRef = cast(i);
+
+            //force to reference the same key because of identity tests
+            assertEquals2("i = " + i, value3, map.putOrAdd(keyRef, value3, value6));
+
+            assertEquals2("i = " + i, value3 + value5, map.putOrAdd(keyRef, value7, value5));
+        }
     }
     #end !*/
 
@@ -294,11 +305,11 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
     @Test
     public void testAddTo()
     {
-        assertEquals2(value1, map.addTo(key1, value1));
-        assertEquals2(value1 + value2, map.addTo(key1, value2));
+        assertEquals2(value3, map.addTo(key1, value3));
+        assertEquals2(value3 + value2, map.addTo(key1, value2));
 
-        assertEquals2(value0, map.addTo(key0, value0));
-        assertEquals2(value0 + value2, map.addTo(key0, value2));
+        assertEquals2(value3, map.addTo(key0, value3));
+        assertEquals2(value3 + value2, map.addTo(key0, value2));
     }
     #end !*/
 
@@ -961,8 +972,8 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
         Assert.assertFalse(l1.equals(l3));
         Assert.assertFalse(l2.equals(l3));
 
-        l1.put(this.key0, this.value0);
-        l2.put(this.key0, this.value0);
+        l1.put(this.key0, this.value4);
+        l2.put(this.key0, this.value4);
 
         Assert.assertEquals(l1.hashCode(), l2.hashCode());
         Assert.assertEquals(l1, l2);
@@ -1738,7 +1749,12 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
 
         //add a ordered number of key/values pairs (needed for IdentityMap here)
         //use the same value for keys and values to ease later analysis
-        for (int i = 0; i < NB_ELEMENTS; i++) {
+
+        /*! #if ($SA)
+        newMap.put(this.key0, this.value0);
+        #end !*/
+
+        for (int i = 1; i < NB_ELEMENTS; i++) {
 
             final Integer KVpair = i;
 
@@ -1752,8 +1768,8 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
         /*! #if ($SA)
         if (newMap.allocatedDefaultKey) {
 
-            keyList.add(Intrinsics.defaultKTypeValue());
-            valueList.add(vcastType(newMap.defaultKeyValue));
+            keyList.add(this.key0);
+            valueList.add(0);
         }
         #end !*/
 
@@ -1784,8 +1800,8 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
             /*! #if ($SA)
             if (newMap.allocatedDefaultKey) {
 
-                keyList.add(Intrinsics.defaultKTypeValue());
-                valueList.add(vcastType(newMap.defaultKeyValue));
+                keyList.add(this.key0);
+                valueList.add(0);
             }
             #end !*/
 
@@ -1827,7 +1843,6 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
             }
             finally
             {
-
 
                 //despite the exception, the procedure terminates cleanly
 
@@ -1878,7 +1893,6 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
             finally
             {
 
-
                 //despite the exception, the procedure terminates cleanly
 
                 //check that keyList/keyListTest and valueList/valueListTest are identical for the first
@@ -1903,8 +1917,8 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
             /*! #if ($SA)
             if (newMap.allocatedDefaultKey) {
 
-                keyList.add(Intrinsics.defaultKTypeValue());
-                valueList.add(vcastType(newMap.defaultKeyValue));
+                keyList.add(this.key0);
+                valueList.add(0);
             }
             #end !*/
 
@@ -1982,7 +1996,12 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
 
         ///add a ordered number of key/values pairs (needed for IdentityMap here)
         //use the same value for keys and values to ease later analysis
-        for (int i = 0; i < NB_ELEMENTS; i++) {
+
+        /*! #if ($SA)
+        newMap.put(this.key0, this.value0);
+        #end !*/
+
+        for (int i = 1; i < NB_ELEMENTS; i++) {
 
             final Integer KVpair = i;
 
@@ -1996,8 +2015,8 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
         /*! #if ($SA)
         if (newMap.allocatedDefaultKey) {
 
-            keyList.add(Intrinsics.defaultKTypeValue());
-            valueList.add(vcastType(newMap.defaultKeyValue));
+            keyList.add(this.key0);
+            valueList.add(0);
         }
         #end !*/
 
@@ -2076,8 +2095,8 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
         /*! #if ($SA)
         if (newMap.allocatedDefaultKey) {
 
-            keyList.add(Intrinsics.defaultKTypeValue());
-            valueList.add(vcastType(newMap.defaultKeyValue));
+            keyList.add(this.key0);
+            valueList.add(0);
         }
         #end !*/
 
@@ -2126,7 +2145,12 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
 
         //add a ordered number of key/values pairs (needed for IdentityMap here)
         //use the same value for keys and values to ease later analysis
-        for (int i = 0; i < NB_ELEMENTS; i++) {
+
+        /*! #if ($SA)
+        newMap.put(this.key0, this.value0);
+        #end !*/
+
+        for (int i = 1; i < NB_ELEMENTS; i++) {
 
             final Integer KVpair = i;
 
@@ -2140,8 +2164,8 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
         /*! #if ($SA)
         if (newMap.allocatedDefaultKey) {
 
-            keyList.add(Intrinsics.defaultKTypeValue());
-            valueList.add(vcastType(newMap.defaultKeyValue));
+            keyList.add(this.key0);
+            valueList.add(0);
         }
         #end !*/
 
@@ -2172,8 +2196,8 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
             /*! #if ($SA)
             if (newMap.allocatedDefaultKey) {
 
-                keyList.add(Intrinsics.defaultKTypeValue());
-                valueList.add(vcastType(newMap.defaultKeyValue));
+                keyList.add(this.key0);
+                valueList.add(0);
             }
             #end !*/
 
@@ -2269,8 +2293,8 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
             /*! #if ($SA)
             if (newMap.allocatedDefaultKey) {
 
-                keyList.add(Intrinsics.defaultKTypeValue());
-                valueList.add(vcastType(newMap.defaultKeyValue));
+                keyList.add(this.key0);
+                valueList.add(0);
             }
             #end !*/
 

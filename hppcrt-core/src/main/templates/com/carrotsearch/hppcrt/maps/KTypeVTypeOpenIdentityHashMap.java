@@ -359,7 +359,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
             this.allocatedDefaultKey = true;
 
-            return this.defaultKeyValue;
+            return putValue;
         }
     #end
 
@@ -372,9 +372,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         #end
 
         final KType[] keys = this.keys;
-
         final VType[] values = this.values;
-        VType value  = this.defaultValue;
 
         while (is_allocated(allocated, slot, keys))
         {

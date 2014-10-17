@@ -475,7 +475,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
             this.allocatedDefaultKey = true;
 
-            return this.defaultKeyValue;
+            return putValue;
         }
     #end
 
@@ -489,11 +489,10 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         final boolean[] allocated = this.allocated;
         #end
 
-
         final KType[] keys = this.keys;
 
         final VType[] values = this.values;
-        VType value  = this.defaultValue;
+        VType value =  putValue;
 
     	#if ($RH)
         KType tmpKey;
@@ -543,7 +542,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         }
 
         if (assigned == resizeAt) {
-            expandAndPut(key, putValue, slot);
+            expandAndPut(key, value, slot);
         } else {
 
             assigned++;
@@ -554,8 +553,9 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             #end
 
             keys[slot] = key;
-            values[slot] = putValue;
+            values[slot] = value;
         }
+
         return putValue;
     }
     #end !*/

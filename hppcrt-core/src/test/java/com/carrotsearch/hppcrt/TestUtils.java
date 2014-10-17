@@ -156,7 +156,7 @@ public abstract class TestUtils
     {
         Assert.assertEquals(elements.length, array.length);
 
-        for (int i = 0 ; i < array.length; i++) {
+        for (int i = 0; i < array.length; i++) {
 
             Assert.assertEquals("index = " + array[i], elements[i], array[i]);
         }
@@ -491,9 +491,19 @@ public abstract class TestUtils
         org.junit.Assert.assertEquals(a, b, TestUtils.delta);
     }
 
+    public static void assertEquals2(final String msg, final double a, final double b)
+    {
+        org.junit.Assert.assertEquals(msg, a, b, TestUtils.delta);
+    }
+
     public static void assertEquals2(final int a, final int b)
     {
         org.junit.Assert.assertEquals(a, b);
+    }
+
+    public static void assertEquals2(final String msg, final int a, final int b)
+    {
+        org.junit.Assert.assertEquals(msg, a, b);
     }
 
     public static void assertEquals2(final char a, final char b)
@@ -501,14 +511,29 @@ public abstract class TestUtils
         org.junit.Assert.assertEquals(a, b);
     }
 
+    public static void assertEquals2(final String msg, final char a, final char b)
+    {
+        org.junit.Assert.assertEquals(msg, a, b);
+    }
+
     public static void assertEquals2(final short a, final short b)
     {
         org.junit.Assert.assertEquals(a, b);
     }
 
+    public static void assertEquals2(final String msg, final short a, final short b)
+    {
+        org.junit.Assert.assertEquals(msg, a, b);
+    }
+
     public static void assertEquals2(final byte a, final byte b)
     {
         org.junit.Assert.assertEquals(a, b);
+    }
+
+    public static void assertEquals2(final String msg, final byte a, final byte b)
+    {
+        org.junit.Assert.assertEquals(msg, a, b);
     }
 
     /** Override for generated templates. */
@@ -517,10 +542,20 @@ public abstract class TestUtils
         org.junit.Assert.assertEquals(a, b, TestUtils.delta);
     }
 
+    public static void assertEquals2(final String msg, final float a, final float b)
+    {
+        org.junit.Assert.assertEquals(msg, a, b, TestUtils.delta);
+    }
+
     /** Override for generated templates. */
     public static void assertEquals2(final Object a, final Object b)
     {
         org.junit.Assert.assertEquals(a, b);
+    }
+
+    public static void assertEquals2(final String msg, final Object a, final Object b)
+    {
+        org.junit.Assert.assertEquals(msg, a, b);
     }
 
     /**
