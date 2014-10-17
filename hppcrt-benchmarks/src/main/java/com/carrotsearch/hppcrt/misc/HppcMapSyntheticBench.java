@@ -30,11 +30,11 @@ public final class HppcMapSyntheticBench
 
     private static final boolean RUN_PRIMITIVES = true;
 
-    private static final boolean RUN_INTEGERS = false;
+    private static final boolean RUN_INTEGERS = true;
 
-    private static final boolean RUN_IDENTITY = false;
+    private static final boolean RUN_IDENTITY = true;
 
-    private static final boolean RUN_BIG_OBJECTS = false;
+    private static final boolean RUN_BIG_OBJECTS = true;
 
     public Random prng = new XorShiftRandom();
 
@@ -996,21 +996,21 @@ public final class HppcMapSyntheticBench
         System.out.format(
                 ">>>> BENCH: HPPC Map (ComparableAsciiString %d ints long of dis %s, hash %s, long), (%s), initial capacity = %d, load factor = %f, %d elements pushed\n"
                         + " Put = %f ms, Get (%s) = %f ms, Remove (%s) = %f ms, Clear =  %f ms (dummy = %d)\n\n",
-                stringSize,
-                dis,
-                quality,
-                additionalInfo,
-                testMap.capacity(),
-                loadFactor,
-                putSize,
+                        stringSize,
+                        dis,
+                        quality,
+                        additionalInfo,
+                        testMap.capacity(),
+                        loadFactor,
+                        putSize,
 
-                (tAfterPut - tBeforePut) / 1e6,
-                getKind,
-                (tAfterGet - tBeforeGet) / 1e6,
-                getKind,
-                (tAfterRemove - tBeforeRemove) / 1e6,
-                (tAfterClear - tBeforeClear) / 1e6,
-                sum); //outputs the results to defeat optimizations
+                        (tAfterPut - tBeforePut) / 1e6,
+                        getKind,
+                        (tAfterGet - tBeforeGet) / 1e6,
+                        getKind,
+                        (tAfterRemove - tBeforeRemove) / 1e6,
+                        (tAfterClear - tBeforeClear) / 1e6,
+                        sum); //outputs the results to defeat optimizations
     }
 
     //public methods
@@ -1044,7 +1044,7 @@ public final class HppcMapSyntheticBench
                 ObjectLongOpenCustomHashMap.<ComparableInt> newInstance(
                         HppcMapSyntheticBench.COUNT, IntLongOpenHashMap.DEFAULT_LOAD_FACTOR,
                         this.INTHOLDER_TRIVIAL_STRATEGY),
-                HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR, getKind, HASH_QUALITY.BAD, Distribution.HIGHBITS);
+                        HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR, getKind, HASH_QUALITY.BAD, Distribution.HIGHBITS);
         System.gc();
     }
 
@@ -1066,8 +1066,8 @@ public final class HppcMapSyntheticBench
             runMapAsciiStringObjectLong("ObjectLongOpenCustomHashMap with strategy",
                     ObjectLongOpenCustomHashMap.<ComparableAsciiString> newInstance(HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
                             this.ASCIISTRING_TRIVIAL_STRATEGY),
-                    HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
-                    getKind, stringSize, HASH_QUALITY.BAD, Distribution.HIGHBITS);
+                            HppcMapSyntheticBench.COUNT_BIG_OBJECTS, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR,
+                            getKind, stringSize, HASH_QUALITY.BAD, Distribution.HIGHBITS);
         }
     }
 
