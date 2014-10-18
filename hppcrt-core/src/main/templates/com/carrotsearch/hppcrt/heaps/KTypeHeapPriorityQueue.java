@@ -12,8 +12,8 @@ import com.carrotsearch.hppcrt.sorting.*;
  * A Heap-based, min-priority queue of <code>KType</code>s.
  * i.e. top() is the smallest element,
  * as defined by Sedgewick: Algorithms 4th Edition (2011).
- * It assure O(log2(N)) complexity for insertion, deletion of min element,
- * and constant time to examine the first element.
+ * It assure O(log(N)) complexity for insertion,  deletion and update priority of the first element,
+ * and constant time to examine the first element by {@link #top()}.
  * <p><b>Important: </b>
  * Ordering of elements must be defined either
  * #if ($TemplateOptions.KTypeGeneric)
@@ -22,14 +22,14 @@ import com.carrotsearch.hppcrt.sorting.*;
  * by natural ordering
  * #end
  *  or by a custom comparator provided in constructors,
- * see {@link #getComparator} .
+ * see {@link #comparator()} .
  * @author <a href="https://github.com/vsonnier" >Vincent Sonnier</a>
  */
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
 /*! #set( $DEBUG = false) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType>
-implements KTypePriorityQueue<KType>, Cloneable
+        implements KTypePriorityQueue<KType>, Cloneable
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -163,7 +163,7 @@ implements KTypePriorityQueue<KType>, Cloneable
      * @see BoundedProportionalArraySizingStrategy
      */
     public KTypeHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp
-            /*! #else
+    /*! #else
     KTypeComparator<? super KType> comp
     #end !*/)
     {
@@ -431,7 +431,7 @@ implements KTypePriorityQueue<KType>, Cloneable
 
     /**
      * Insert a KType into the queue.
-     * cost: O(log2(N)) for a N sized queue
+     * cost: O(log(N)) for a N sized queue
      */
     @Override
     public void add(final KType element)
@@ -465,7 +465,7 @@ implements KTypePriorityQueue<KType>, Cloneable
 
     /**
      * {@inheritDoc}
-     * cost: O(log2(N)) for a N sized queue
+     * cost: O(log(N)) for a N sized queue
      */
     @Override
     public KType popTop()
@@ -510,7 +510,7 @@ implements KTypePriorityQueue<KType>, Cloneable
 
     /**
      * Adds all elements from another container.
-     * cost: O(N*log2(N)) for N elements
+     * cost: O(N*log(N)) for N elements
      */
     public int addAll(final KTypeContainer<? extends KType> container)
     {
@@ -519,7 +519,7 @@ implements KTypePriorityQueue<KType>, Cloneable
 
     /**
      * Adds all elements from another iterable.
-     * cost: O(N*log2(N)) for N elements
+     * cost: O(N*log(N)) for N elements
      */
     public int addAll(final Iterable<? extends KTypeCursor<? extends KType>> iterable)
     {
@@ -566,6 +566,7 @@ implements KTypePriorityQueue<KType>, Cloneable
 
     /**
      * {@inheritDoc}
+     * cost: O(n*log(N))
      */
     @Override
     public void updatePriorities()
@@ -588,6 +589,7 @@ implements KTypePriorityQueue<KType>, Cloneable
 
     /**
      * {@inheritDoc}
+     * cost: O(log(N))
      */
     @Override
     public void updateTopPriority()
@@ -731,10 +733,10 @@ implements KTypePriorityQueue<KType>, Cloneable
      */
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
-    /*! #else
-                                                            public KTypeComparator<? super KType>
-                                                            #end !*/
-    comparator() {
+            /*! #else
+                                                                            public KTypeComparator<? super KType>
+                                                                            #end !*/
+            comparator() {
 
         return this.comparator;
     }
@@ -831,11 +833,11 @@ implements KTypePriorityQueue<KType>, Cloneable
             //swap k and its parent
             parent = k >> 1;
 
-        tmp = buffer[k];
-        buffer[k] = buffer[parent];
-        buffer[parent] = tmp;
+            tmp = buffer[k];
+            buffer[k] = buffer[parent];
+            buffer[parent] = tmp;
 
-        k = parent;
+            k = parent;
         }
     }
 
@@ -859,11 +861,11 @@ implements KTypePriorityQueue<KType>, Cloneable
         {
             //swap k and its parent
             parent = k >> 1;
-        tmp = buffer[k];
-        buffer[k] = buffer[parent];
-        buffer[parent] = tmp;
+            tmp = buffer[k];
+            buffer[k] = buffer[parent];
+            buffer[parent] = tmp;
 
-        k = parent;
+            k = parent;
         }
     }
 

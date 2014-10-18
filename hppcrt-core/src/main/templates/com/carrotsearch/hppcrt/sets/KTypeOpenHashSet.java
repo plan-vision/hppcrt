@@ -108,12 +108,12 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     #end
     #if ($SA)
      * <p>
-     * Direct map iteration: iterate  {keys[i]} for i in [0; keys.length[ where keys[i] != 0, then also
-     * {0} is in the set if this.allocatedDefaultKey = true.
+     * Direct set iteration: iterate  {keys[i]} for i in [0; keys.length[ where keys[i] != 0, then also
+     * {0} is in the set if {@link #allocatedDefaultKey} = true.
      * </p>
     #else
      * <p>
-     * Direct map iteration: iterate  {keys[i]} for i in [0; keys.length[ where this.allocated[i] is true.
+     * Direct set iteration: iterate  {keys[i]} for i in [0; keys.length[ where this.allocated[i] is true.
      * </p>
     #end
      * 
@@ -155,7 +155,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     protected float loadFactor;
 
     /**
-     * Resize buffers when {@link #allocated} hits this value.
+     * Resize buffers when {@link #keys} hits this value.
      */
     protected int resizeAt;
 

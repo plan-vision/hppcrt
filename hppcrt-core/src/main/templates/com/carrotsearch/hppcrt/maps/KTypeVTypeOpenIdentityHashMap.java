@@ -17,7 +17,7 @@ import com.carrotsearch.hppcrt.procedures.*;
  * addressing with linear probing for collision resolution.
  *
  * The difference with {@link KTypeVTypeOpenHashMap} is that it uses direct Object reference equality for comparison and
- * direct "address" {@link System#identityHashCode()} for hashCode(), instead of using
+ * direct "address" {@link System#identityHashCode(Object)} for hashCode(), instead of using
  * the built-in hashCode() /  equals().
  * The internal buffers of this implementation ({@link #keys},{@link #values}, etc...)
  * are always allocated to the nearest size that is a power of two. When
@@ -37,7 +37,7 @@ import com.carrotsearch.hppcrt.procedures.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenIdentityHashMap<KType, VType>
-implements KTypeVTypeMap<KType, VType>, Cloneable
+        implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -71,7 +71,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     #if ($SA)
      * <p>
      * Direct map iteration: iterate  {keys[i], values[i]} for i in [0; keys.length[ where keys[i] != null, then also
-     * {null, this.defaultKeyValue} is in the set if this.allocatedDefaultKey = true.
+     * {null, {@link #defaultKeyValue} } is in the map if {@link #allocatedDefaultKey} = true.
      * </p>
     #else
      * <p>
@@ -129,7 +129,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     protected final float loadFactor;
 
     /**
-     * Resize buffers when {@link #allocated} hits this value.
+     * Resize buffers when {@link #keys} hits this value.
      */
     protected int resizeAt;
 
@@ -1249,7 +1249,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      * A view of the keys inside this hash map.
      */
     public final class KeysContainer
-    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenIdentityHashMap<KType, VType> owner =
                 KTypeVTypeOpenIdentityHashMap.this;
@@ -1851,7 +1851,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         @SuppressWarnings("unchecked")
         final/* #end */
         KTypeVTypeOpenIdentityHashMap<KType, VType> cloned =
-        new KTypeVTypeOpenIdentityHashMap<KType, VType>(this.size(), this.loadFactor);
+                new KTypeVTypeOpenIdentityHashMap<KType, VType>(this.size(), this.loadFactor);
 
         cloned.putAll(this);
 

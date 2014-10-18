@@ -17,7 +17,7 @@ import com.carrotsearch.hppcrt.procedures.*;
  * addressing with linear probing for collision resolution.
  *
  * The difference with {@link KTypeOpenHashSet} is that it uses direct Object reference equality for comparison and
- * direct "address" {@link System#identityHashCode()} for hashCode(), instead of using
+ * direct "address" {@link System#identityHashCode(Object)} for hashCode(), instead of using
  * the built-in hashCode() /  equals().
  * <p>
  * The internal buffers of this implementation ({@link #keys}, etc...)
@@ -42,8 +42,8 @@ import com.carrotsearch.hppcrt.procedures.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenIdentityHashSet<KType>
-extends AbstractKTypeCollection<KType>
-implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+        extends AbstractKTypeCollection<KType>
+        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -74,12 +74,12 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     #end
     #if ($SA)
      * <p>
-     * Direct map iteration: iterate  {keys[i]} for i in [0; keys.length[ where keys[i] != null, then also
-     * {null} is in the set if this.allocatedDefaultKey = true.
+     * Direct set iteration: iterate  {keys[i]} for i in [0; keys.length[ where keys[i] != null, then also
+     * {null} is in the set if {@link #allocatedDefaultKey} = true.
      * </p>
     #else
      * <p>
-     * Direct map iteration: iterate  {keys[i]} for i in [0; keys.length[ where this.allocated[i] is true.
+     * Direct set iteration: iterate  {keys[i]} for i in [0; keys.length[ where this.allocated[i] is true.
      * </p>
     #end
      * <p><b>Direct iteration warning: </b>
@@ -114,7 +114,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     protected float loadFactor;
 
     /**
-     * Resize buffers when {@link #allocated} hits this value.
+     * Resize buffers when {@link #keys} hits this value.
      */
     protected int resizeAt;
 

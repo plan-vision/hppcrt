@@ -118,7 +118,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     #if ($SA)
      * <p>
      * Direct map iteration: iterate  {keys[i], values[i]} for i in [0; keys.length[ where keys[i] != 0, then also
-     * {0, this.defaultKeyValue} is in the set if this.allocatedDefaultKey = true.
+     * {0, {@link #defaultKeyValue} } is in the map if {@link #allocatedDefaultKey} = true.
      * </p>
     #else
      * <p>
@@ -184,7 +184,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     protected final float loadFactor;
 
     /**
-     * Resize buffers when {@link #allocated} hits this value.
+     * Resize buffers when {@link #keys} hits this value.
      */
     protected int resizeAt;
 
@@ -2070,7 +2070,10 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             final boolean[] states = owner.allocated;
             #end !*/
 
+            /*! #if ($SA) !*/
             final KType[] keys = this.owner.keys;
+            /*! #end !*/
+
             final VType[] values = this.owner.values;
 
             for (int i = 0; i < values.length; i++)

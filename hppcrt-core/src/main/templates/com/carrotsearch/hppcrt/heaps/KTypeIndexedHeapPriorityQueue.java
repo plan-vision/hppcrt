@@ -13,10 +13,8 @@ import com.carrotsearch.hppcrt.sorting.*;
  * i.e. top() is the smallest element of the queue.
  * as defined by Sedgewick: Algorithms 4th Edition (2011).
  * This class is also a {@link IntKTypeMap}, and acts like a (K,V) = (int, KType) map with >= 0 keys.
- * It assures O(log2(N)) complexity for insertion, deletion of the first element,
- * and constant time to examine the first element.
- * As it is <code>int</code> indexed, it also supports {@link #containsKey()} in constant time, {@link #remove()}
- * and {@link #updatePriority(int)} in O(log2(N)) time.
+ * It assures O(log(N)) complexity for insertion, deletion, updating priorities,
+ * and constant time to examine the first element by {@link #top()} and for {@link #containsKey(int)}.
  * <p><b>Important: </b>
  * Ordering of elements must be defined either
  * #if ($TemplateOptions.KTypeGeneric)
@@ -25,11 +23,11 @@ import com.carrotsearch.hppcrt.sorting.*;
  * by natural ordering
  * #end
  *  or by a custom comparator provided in constructors,
- * see {@link #getComparator} .
+ * see {@link #comparator()} .
  * 
  *<p><b>Warning : This implementation uses direct indexing, meaning that a map
  * at any given time is only able to have <code>int</code> keys in
- * the [0 ; {@link #capacity()}[ range. So when a {@link #put(key, KType)} occurs, the map may be resized to be able hold a key exceeding the current capacity.</b>
+ * the [0 ; {@link #capacity()}[ range. So when a {@link #put(int, KType)} occurs, the map may be resized to be able hold a key exceeding the current capacity.</b>
  * </p>
  * @author <a href="https://github.com/vsonnier" >Vincent Sonnier</a>
  */
@@ -152,7 +150,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
      * @see BoundedProportionalArraySizingStrategy
      */
     public KTypeIndexedHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp
-            /*! #else
+    /*! #else
     KTypeComparator<? super KType> comp
     #end !*/)
     {
@@ -399,7 +397,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
     /**
      * {@inheritDoc}
-     * cost: O(log2(N)) for a N sized queue
+     * cost: O(log(N)) for a N sized queue
      * <p><b>Important: </b>
      * Whenever a new (key, value) pair is inserted, or
      * a value is updated with an already present key as specified by the  {@link IntKTypeMap#put()}
@@ -594,7 +592,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
      * Retrieve, and remove the top element of the queue,
      * i.e. the min/max element with respect to the comparison criteria
      * (implementation defined) Returns the default value if empty.
-     * cost: O(log2(N)) for a N sized queue
+     * cost: O(log(N)) for a N sized queue
      */
     public KType popTop()
     {
@@ -633,7 +631,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
     /**
      * {@inheritDoc}
-     * cost: O(log2(N))
+     * cost: O(log(N))
      */
     @Override
     public KType remove(final int key)
@@ -735,7 +733,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     /**
      * Update the priority of the value associated with key, to re-establish the value correct priority
      * towards the comparison criteria.
-     * cost: O(log2(N))
+     * cost: O(log(N))
      */
     public void updatePriority(final int key)
     {
@@ -750,6 +748,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
      * Update the priority of the {@link #top()} element, to re-establish its actual priority
      * towards the comparison criteria when it may have changed such that it is no longer the
      *  min element with respect to the comparison criteria.
+     * cost: O(log(N))
      */
     public void updateTopPriority()
     {
@@ -948,6 +947,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     /**
      * Update priorities of all the elements of the queue, to re-establish the correct priorities
      * towards the comparison criteria.
+     * cost: O(n*log(N))
      */
     public void updatePriorities()
     {
@@ -1499,10 +1499,10 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
      */
 /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
-    /*! #else
-                                                            public KTypeComparator<? super KType>
-                                                            #end !*/
-    comparator() {
+            /*! #else
+                                                                                    public KTypeComparator<? super KType>
+                                                                                    #end !*/
+            comparator() {
 
         return this.comparator;
     }
@@ -1659,22 +1659,22 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
             //swap k and its parent
             parent = k >> 1;
 
-        //swap k and parent
-        tmp = buffer[k];
-        buffer[k] = buffer[parent];
-        buffer[parent] = tmp;
+            //swap k and parent
+            tmp = buffer[k];
+            buffer[k] = buffer[parent];
+            buffer[parent] = tmp;
 
-        //swap references
-        indexK = qp[k];
-        indexParent = qp[parent];
+            //swap references
+            indexK = qp[k];
+            indexParent = qp[parent];
 
-        pq[indexK] = parent;
-        pq[indexParent] = k;
+            pq[indexK] = parent;
+            pq[indexParent] = k;
 
-        qp[k] = indexParent;
-        qp[parent] = indexK;
+            qp[k] = indexParent;
+            qp[parent] = indexK;
 
-        k = parent;
+            k = parent;
         }
     }
 
@@ -1703,22 +1703,22 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
             //swap k and its parent
             parent = k >> 1;
 
-        //swap k and parent
-        tmp = buffer[k];
-        buffer[k] = buffer[parent];
-        buffer[parent] = tmp;
+            //swap k and parent
+            tmp = buffer[k];
+            buffer[k] = buffer[parent];
+            buffer[parent] = tmp;
 
-        //swap references
-        indexK = qp[k];
-        indexParent = qp[parent];
+            //swap references
+            indexK = qp[k];
+            indexParent = qp[parent];
 
-        pq[indexK] = parent;
-        pq[indexParent] = k;
+            pq[indexK] = parent;
+            pq[indexParent] = k;
 
-        qp[k] = indexParent;
-        qp[parent] = indexK;
+            qp[k] = indexParent;
+            qp[parent] = indexK;
 
-        k = parent;
+            k = parent;
         }
     }
 
