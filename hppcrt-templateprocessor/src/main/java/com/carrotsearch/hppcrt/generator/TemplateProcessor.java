@@ -124,20 +124,23 @@ public final class TemplateProcessor
             if (!f.generated)
             {
                 deleted++;
-                if (this.verbose)
+                if (this.verbose) {
                     System.out.println("Deleted: " + f.file);
+                }
                 f.file.delete();
             }
 
-            if (f.generated)
+            if (f.generated) {
                 generated++;
+            }
 
             if (f.updated)
             {
                 updated++;
-                if (this.verbose)
+                if (this.verbose) {
                     System.out.println("Updated: "
                             + relativePath(f.file, this.outputDir));
+                }
             }
         }
 
@@ -177,12 +180,13 @@ public final class TemplateProcessor
             }
         }
 
-        if (this.verbose)
+        if (this.verbose) {
             System.out.println(
                     "Velocity: " + this.timeVelocity + "\n" +
                             "Intrinsics: " + this.timeIntrinsics + "\n" +
                             "TypeClassRefs: " + this.timeTypeClassRefs + "\n" +
                             "Comments: " + this.timeComments + "\n");
+        }
     }
 
     /**
@@ -228,7 +232,7 @@ public final class TemplateProcessor
                 output.updated = true;
                 saveFile(output.file, input);
             }
-            catch (final ParseErrorException e ) {
+            catch (final ParseErrorException e) {
 
                 System.out.println("ERROR : parsing template '" + f.fullPath +
                         "' with KType = " + templateOptions.getKType() + " and VType =  " +
@@ -349,13 +353,13 @@ public final class TemplateProcessor
                 {
                     sb.append(templateOptions.isKTypeGeneric()
                             ? "Internals.<KType[]>newArray(" + params.get(0) + ")"
-                                    : "new " + templateOptions.getKType().getType() + " [" + params.get(0) + "]");
+                            : "new " + templateOptions.getKType().getType() + " [" + params.get(0) + "]");
                 }
                 else if ("newVTypeArray".equals(method))
                 {
                     sb.append(templateOptions.isVTypeGeneric()
                             ? "Internals.<VType[]>newArray(" + params.get(0) + ")"
-                                    : "new " + templateOptions.getVType().getType() + " [" + params.get(0) + "]");
+                            : "new " + templateOptions.getVType().getType() + " [" + params.get(0) + "]");
                 }
                 else if ("equalsKType".equals(method))
                 {
@@ -376,6 +380,11 @@ public final class TemplateProcessor
                     {
                         sb.append(String.format("((%1$s) == (%2$s))", params.toArray()));
                     }
+                }
+                else if ("equalsKTypeDefault".equals(method))
+                {
+                    sb.append(String.format("((%1$s) == " +
+                            TemplateProcessor.getDefaultValue(templateOptions.getKType().getType()) + ")", params.toArray()));
                 }
                 else if ("compareKType".equals(method) || "compareKTypeUnchecked".equals(method))
                 {
@@ -522,7 +531,7 @@ public final class TemplateProcessor
                 }
                 else
                 {
-                    throw new RuntimeException("Unrecognized Intrinsic call: " + method);
+                    throw new ParseErrorException("Unrecognized Intrinsic call: " + method);
                 }
             }
             else
@@ -720,8 +729,9 @@ public final class TemplateProcessor
 
     private String rewriteSignature(final String signature, final TemplateOptions options)
     {
-        if (!signature.contains("KType") && !signature.contains("VType"))
+        if (!signature.contains("KType") && !signature.contains("VType")) {
             return signature;
+        }
 
         final Pattern p = Pattern.compile("<[^<>]*>", Pattern.MULTILINE | Pattern.DOTALL);
 
@@ -739,24 +749,29 @@ public final class TemplateProcessor
 
                 if (options.isKTypePrimitive())
                 {
-                    if (isGenericOnly(arg, "KType"))
+                    if (isGenericOnly(arg, "KType")) {
                         arg = "";
-                    else
+                    }
+                    else {
                         arg = arg.replace("KType", options.getKType().getBoxedType());
+                    }
                 }
 
                 if (options.hasVType() && options.isVTypePrimitive())
                 {
-                    if (isGenericOnly(arg, "VType"))
+                    if (isGenericOnly(arg, "VType")) {
                         arg = "";
-                    else
+                    }
+                    else {
                         arg = arg.replace("VType", options.getVType().getBoxedType());
+                    }
                 }
 
                 if (arg.length() > 0)
                 {
-                    if (b.length() > 0)
+                    if (b.length() > 0) {
                         b.append(", ");
+                    }
                     b.append(arg.trim());
                 }
             }
@@ -788,22 +803,24 @@ public final class TemplateProcessor
 
             input = input.replaceAll("(KTypeVType)([A-Z][a-zA-Z]*)(<.+?>)?",
                     (k.isGeneric() ? "Object" : k.getBoxedType()) +
-                    (v.isGeneric() ? "Object" : v.getBoxedType()) +
-                    "$2" +
-                    (options.isAnyGeneric() ? "$3" : ""));
+                            (v.isGeneric() ? "Object" : v.getBoxedType()) +
+                            "$2" +
+                            (options.isAnyGeneric() ? "$3" : ""));
 
             input = input.replaceAll("(VType)([A-Z][a-zA-Z]*)",
                     (v.isGeneric() ? "Object" : v.getBoxedType()) + "$2");
 
-            if (!v.isGeneric())
+            if (!v.isGeneric()) {
                 input = input.replaceAll("VType", v.getType());
+            }
         }
 
         input = input.replaceAll("(KType)([A-Z][a-zA-Z]*)(<.+?>)?",
                 k.isGeneric() ? "Object" + "$2$3" : k.getBoxedType() + "$2");
 
-        if (!k.isGeneric())
+        if (!k.isGeneric()) {
             input = input.replaceAll("KType", k.getType());
+        }
 
         return input;
     }
@@ -812,8 +829,9 @@ public final class TemplateProcessor
     {
         try
         {
-            if (!file.getParentFile().exists())
+            if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
+            }
 
             final FileOutputStream fos = new FileOutputStream(file);
             fos.write(input.getBytes("UTF-8"));
@@ -882,10 +900,11 @@ public final class TemplateProcessor
 
     private String targetFileName(String relativePath, final TemplateOptions templateOptions)
     {
-        if (templateOptions.hasVType())
+        if (templateOptions.hasVType()) {
             relativePath = relativePath.replace("KTypeVType",
                     templateOptions.getKType().getBoxedType()
-                    + templateOptions.getVType().getBoxedType());
+                            + templateOptions.getVType().getBoxedType());
+        }
 
         relativePath = relativePath.replace("KType", templateOptions.getKType()
                 .getBoxedType());
@@ -913,8 +932,9 @@ public final class TemplateProcessor
      */
     private List<OutputFile> collectOutputFiles(final List<OutputFile> list, final File dir)
     {
-        if (!dir.exists())
+        if (!dir.exists()) {
             return list;
+        }
 
         for (final File file : dir.listFiles(new FilenameFilter()
         {

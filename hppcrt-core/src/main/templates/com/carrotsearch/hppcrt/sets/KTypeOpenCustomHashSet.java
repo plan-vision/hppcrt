@@ -23,7 +23,7 @@ import com.carrotsearch.hppcrt.strategies.*;
  * the built-in hashCode() /  equals(). In particular, the management of <code>null</code>
  * keys is up to the {@link KTypeHashingStrategy} implementation.
  * <p>
- * The internal buffers of this implementation ({@link #keys}), {@link #allocated})
+ * The internal buffers of this implementation ({@link #keys}, etc...)
  * are always allocated to the nearest size that is a power of two. When
  * the capacity exceeds the given load factor, the buffer size is doubled.
  * </p>
@@ -32,7 +32,11 @@ import com.carrotsearch.hppcrt.strategies.*;
  * not properly distributed. Therefore, it is up to the {@link KTypeHashingStrategy} to
  * assure good performance.</p>
  * 
- * 
+ *
+#if ($TemplateOptions.KTypeGeneric)
+ * <p><code>null</code> keys support is up to the {@link KTypeHashingStrategy} implementation. </p>
+#end
+ *
  * @author This code is inspired by the collaboration and implementation in the <a
  *         href="http://fastutil.dsi.unimi.it/">fastutil</a> project.
  * 
@@ -44,11 +48,12 @@ import com.carrotsearch.hppcrt.strategies.*;
  *  <p> - <a href="cliff@leaninto.it">MoonPolySoft/Cliff Moon</a> for the initial Robin-hood on HPPC implementation,</p>
  *  <p> - <a href="vsonnier@gmail.com" >Vincent Sonnier</a> for the present implementation using cached hashes.</p>
 #end
+ *
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenCustomHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -301,10 +306,12 @@ public class KTypeOpenCustomHashSet<KType>
     public int add(final KType e1, final KType e2)
     {
         int count = 0;
-        if (add(e1))
+        if (add(e1)) {
             count++;
-        if (add(e2))
+        }
+        if (add(e2)) {
             count++;
+        }
         return count;
     }
 
@@ -319,9 +326,11 @@ public class KTypeOpenCustomHashSet<KType>
     public int add(final KType... elements)
     {
         int count = 0;
-        for (final KType e : elements)
-            if (add(e))
+        for (final KType e : elements) {
+            if (add(e)) {
                 count++;
+            }
+        }
         return count;
     }
 
@@ -347,8 +356,9 @@ public class KTypeOpenCustomHashSet<KType>
         int count = 0;
         for (final KTypeCursor<? extends KType> cursor : iterable)
         {
-            if (add(cursor.value))
+            if (add(cursor.value)) {
                 count++;
+            }
         }
         return count;
     }
@@ -599,21 +609,23 @@ public class KTypeOpenCustomHashSet<KType>
                 if (slotPrev <= slotCurr)
                 {
                     // We are on the right of the original slot.
-                    if (slotPrev >= slotOther || slotOther > slotCurr)
+                    if (slotPrev >= slotOther || slotOther > slotCurr) {
                         break;
+                    }
                 }
                 else
                 {
                     // We have wrapped around.
-                    if (slotPrev >= slotOther && slotOther > slotCurr)
+                    if (slotPrev >= slotOther && slotOther > slotCurr) {
                         break;
+                    }
                 }
                 slotCurr = (slotCurr + 1) & mask;
             }
 
             if (/*! #if ($RH) !*/
-            allocated[slotCurr] == -1
-            /*! #else
+                    allocated[slotCurr] == -1
+                    /*! #else
             !allocated[slotCurr]
             #end !*/)
             {
@@ -669,7 +681,6 @@ public class KTypeOpenCustomHashSet<KType>
     /**
      * @return Returns the slot of the last key looked up in a call to {@link #contains} if
      * it returned <code>true</code>.
-     * Precondition : {@link #contains} must have been called previously !
      * @see #contains
      */
     public int lslot()
@@ -724,6 +735,9 @@ public class KTypeOpenCustomHashSet<KType>
             /*! #end !*/
         } //end while true
 
+        //unsuccessful search
+        this.lastSlot = -1;
+
         return false;
     }
 
@@ -747,7 +761,7 @@ public class KTypeOpenCustomHashSet<KType>
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         //Faster than Arrays.fill(keys, null); // Help the GC.
-        Internals.blankObjectArray(this.keys, 0, this.keys.length);
+        KTypeArrays.<KType> blankArray(this.keys, 0, this.keys.length);
         /*! #end !*/
     }
 
@@ -813,8 +827,9 @@ public class KTypeOpenCustomHashSet<KType>
     {
         if (obj != null)
         {
-            if (obj == this)
+            if (obj == this) {
                 return true;
+            }
 
             if (!(obj instanceof KTypeOpenCustomHashSet)) {
 
@@ -872,15 +887,16 @@ public class KTypeOpenCustomHashSet<KType>
             while (i >= 0 &&
                     /*! #if ($RH) !*/
                     KTypeOpenCustomHashSet.this.allocated[i] == -1
-            /*! #else
+                    /*! #else
             !allocated[i]
             #end  !*/)
             {
                 i--;
             }
 
-            if (i == -1)
+            if (i == -1) {
                 return done();
+            }
 
             this.cursor.index = i;
             this.cursor.value = KTypeOpenCustomHashSet.this.keys[i];
@@ -940,8 +956,9 @@ public class KTypeOpenCustomHashSet<KType>
         //in another hash, in case apply() is actually used to fill another hash container.
         for (int i = states.length - 1; i >= 0; i--)
         {
-            if (states[i] /*! #if ($RH) !*/!= -1 /*! #end !*/)
+            if (states[i] /*! #if ($RH) !*/!= -1 /*! #end !*/) {
                 procedure.apply(keys[i]);
+            }
         }
 
         return procedure;
@@ -1011,8 +1028,9 @@ public class KTypeOpenCustomHashSet<KType>
         {
             if (states[i]/*! #if ($RH) !*/!= -1 /*! #end !*/)
             {
-                if (!predicate.apply(keys[i]))
+                if (!predicate.apply(keys[i])) {
                     break;
+                }
             }
         }
 

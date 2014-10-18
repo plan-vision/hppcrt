@@ -612,12 +612,12 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         if (this.head < this.tail)
         {
-            Internals.blankObjectArray(this.buffer, this.head, this.tail);
+            KTypeArrays.blankArray(this.buffer, this.head, this.tail);
         }
         else
         {
-            Internals.blankObjectArray(this.buffer, 0, this.tail);
-            Internals.blankObjectArray(this.buffer, this.head, this.buffer.length);
+            KTypeArrays.blankArray(this.buffer, 0, this.tail);
+            KTypeArrays.blankArray(this.buffer, this.head, this.buffer.length);
         }
         /*! #end !*/
 
@@ -648,7 +648,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
 
             //for GC sake, reset hole elements now at the end of buffer
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
-            Internals.blankObjectArray(this.buffer, this.tail, this.tail + hole);
+            KTypeArrays.blankArray(this.buffer, this.tail, this.tail + hole);
             /*! #end !*/
         }
     }

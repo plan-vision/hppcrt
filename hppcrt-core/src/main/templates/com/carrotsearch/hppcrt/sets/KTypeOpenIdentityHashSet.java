@@ -8,7 +8,10 @@ import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
 
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN", "BYTE", "CHAR", "SHORT", "INT", "LONG", "FLOAT", "DOUBLE")} !*/
-/*! #set( $DEBUG = true) !*/
+/*! #set( $SINGLE_ARRAY = true) !*/
+/*! #set( $DEBUG = false) !*/
+//If SA is defined, no allocated array is used but instead default sentinel values
+/*! #set( $SA = $SINGLE_ARRAY ) !*/
 /**
  * An identity hash set of <code>KType</code> types, implemented using open
  * addressing with linear probing for collision resolution.
@@ -17,11 +20,13 @@ import com.carrotsearch.hppcrt.procedures.*;
  * direct "address" {@link System#identityHashCode()} for hashCode(), instead of using
  * the built-in hashCode() /  equals().
  * <p>
- * The internal buffers of this implementation ({@link #keys}), {@link #allocated})
+ * The internal buffers of this implementation ({@link #keys}, etc...)
  * are always allocated to the nearest size that is a power of two. When
  * the capacity exceeds the given load factor, the buffer size is doubled.
  * </p>
  * 
+ * <p>This implementation supports <code>null</code> keys.</p>
+ *
  * @author This code is inspired by the collaboration and implementation in the <a
  *         href="http://fastutil.dsi.unimi.it/">fastutil</a> project.
  * 
@@ -33,11 +38,12 @@ import com.carrotsearch.hppcrt.procedures.*;
  *  <p> - <a href="cliff@leaninto.it">MoonPolySoft/Cliff Moon</a> for the initial Robin-hood on HPPC implementation,</p>
  *  <p> - <a href="vsonnier@gmail.com" >Vincent Sonnier</a> for the present implementation using cached hashes.</p>
 #end
+ *
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenIdentityHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -66,25 +72,38 @@ public class KTypeOpenIdentityHashSet<KType>
      * recommended to use a {@link #iterator()} instead.
      * </pre>
     #end
+    #if ($SA)
      * <p>
-     * Direct set iteration: iterate keys[i] for i in [0; keys.length[ where this.allocated[i] is true.
+     * Direct map iteration: iterate  {keys[i]} for i in [0; keys.length[ where keys[i] != null, then also
+     * {null} is in the set if this.allocatedDefaultKey = true.
      * </p>
-     * 
+    #else
+     * <p>
+     * Direct map iteration: iterate  {keys[i]} for i in [0; keys.length[ where this.allocated[i] is true.
+     * </p>
+    #end
      * <p><b>Direct iteration warning: </b>
      * If the iteration goal is to fill another hash container, please iterate {@link #keys} in reverse to prevent performance losses.
      * @see #allocated
      */
     public KType[] keys;
 
+    /*! #if (!$SA) !*/
     /**
-     * Information if an entry (slot) in the {@link #values} table is allocated
+     * Information if an entry (slot) in the {@link #keys} table is allocated
      * or empty.
      * @see #assigned
      */
+    /*! #end !*/
+    /*! #if (!$SA) !*/
     public boolean[] allocated;
+    /*! #else
+     //True if key = null is in the set.
+     public boolean allocatedDefaultKey = false;
+    #end !*/
 
     /**
-     * Cached number of assigned slots in {@link #allocated}.
+     * Cached number of assigned slots in {@link #keys}.
      */
     protected int assigned;
 
@@ -144,7 +163,9 @@ public class KTypeOpenIdentityHashSet<KType>
         this.keys = Intrinsics.newKTypeArray(internalCapacity);
 
         //fill with "not allocated" value
+        /*! #if (!$SA) !*/
         this.allocated = new boolean[internalCapacity];
+        /*! #end !*/
 
         //Take advantage of the rounding so that the resize occur a bit later than expected.
         //allocate so that there is at least one slot that remains allocated = false
@@ -167,17 +188,30 @@ public class KTypeOpenIdentityHashSet<KType>
     @Override
     public boolean add(final KType e)
     {
-        assert this.assigned < this.allocated.length;
+        /*! #if ($SA)
+        if (Intrinsics.equalsKTypeDefault(e)) {
 
-        final int mask = this.allocated.length - 1;
+            if (this.allocatedDefaultKey) {
+
+                return false;
+            }
+
+            this.allocatedDefaultKey = true;
+
+            return true;
+        }
+        #end !*/
+        final int mask = this.keys.length - 1;
 
         int slot = Internals.rehash(System.identityHashCode(e)) & mask;
 
         final KType[] keys = this.keys;
 
+        /*! #if (!$SA) !*/
         final boolean[] allocated = this.allocated;
+        /*! #end !*/
 
-        while (allocated[slot])
+        while (is_allocated(allocated, slot, keys))
         {
             if (e == keys[slot])
             {
@@ -196,7 +230,9 @@ public class KTypeOpenIdentityHashSet<KType>
         else {
             this.assigned++;
 
+            /*! #if (!$SA) !*/
             allocated[slot] = true;
+            /*! #end !*/
 
             keys[slot] = e;
         }
@@ -209,10 +245,12 @@ public class KTypeOpenIdentityHashSet<KType>
     public int add(final KType e1, final KType e2)
     {
         int count = 0;
-        if (add(e1))
+        if (add(e1)) {
             count++;
-        if (add(e2))
+        }
+        if (add(e2)) {
             count++;
+        }
         return count;
     }
 
@@ -227,9 +265,11 @@ public class KTypeOpenIdentityHashSet<KType>
     public int add(final KType... elements)
     {
         int count = 0;
-        for (final KType e : elements)
-            if (add(e))
+        for (final KType e : elements) {
+            if (add(e)) {
                 count++;
+            }
+        }
         return count;
     }
 
@@ -255,8 +295,9 @@ public class KTypeOpenIdentityHashSet<KType>
         int count = 0;
         for (final KTypeCursor<? extends KType> cursor : iterable)
         {
-            if (add(cursor.value))
+            if (add(cursor.value)) {
                 count++;
+            }
         }
         return count;
     }
@@ -269,13 +310,20 @@ public class KTypeOpenIdentityHashSet<KType>
     {
         assert this.assigned == this.resizeAt;
 
+        /*! #if (!$SA) !*/
         assert !this.allocated[freeSlot];
+        /*! #else
+        //default sentinel value is never in the keys[] array, so never trigger reallocs
+        assert !Intrinsics.equalsKTypeDefault(pendingKey);
+        #end !*/
 
         // Try to allocate new buffers first. If we OOM, it'll be now without
         // leaving the data structure in an inconsistent state.
         final KType[] oldKeys = this.keys;
 
+        /*! #if (!$SA) !*/
         final boolean[] oldAllocated = this.allocated;
+        /*! #end !*/
 
         allocateBuffers(HashContainerUtils.nextCapacity(this.keys.length));
 
@@ -284,12 +332,14 @@ public class KTypeOpenIdentityHashSet<KType>
         this.lastSlot = -1;
         this.assigned++;
 
+        /*! #if (!$SA) !*/
         oldAllocated[freeSlot] = true;
+        /*! #end !*/
 
         oldKeys[freeSlot] = pendingKey;
 
         //Variables for adding
-        final int mask = this.allocated.length - 1;
+        final int mask = this.keys.length - 1;
 
         KType e = Intrinsics.<KType> defaultKTypeValue();
         //adding phase
@@ -297,23 +347,27 @@ public class KTypeOpenIdentityHashSet<KType>
 
         final KType[] keys = this.keys;
 
+        /*! #if (!$SA) !*/
         final boolean[] allocated = this.allocated;
+        /*! #end !*/
 
         //iterate all the old arrays to add in the newly allocated buffers
         //It is important to iterate backwards to minimize the conflict chain length !
-        for (int i = oldAllocated.length; --i >= 0;)
+        for (int i = oldKeys.length; --i >= 0;)
         {
-            if (oldAllocated[i])
+            if (is_allocated(oldAllocated, i, oldKeys))
             {
                 e = oldKeys[i];
                 slot = Internals.rehash(System.identityHashCode(e)) & mask;
 
-                while (allocated[slot])
+                while (is_allocated(allocated, slot, keys))
                 {
                     slot = (slot + 1) & mask;
                 } //end while
 
+                /*! #if (!$SA) !*/
                 allocated[slot] = true;
+                /*! #end !*/
 
                 keys[slot] = e;
             }
@@ -329,15 +383,19 @@ public class KTypeOpenIdentityHashSet<KType>
     {
         final KType[] keys = Intrinsics.newKTypeArray(capacity);
 
+        /*! #if (!$SA) !*/
         final boolean[] allocated = new boolean[capacity];
+        /*! #end !*/
 
         this.keys = keys;
+
+        /*! #if (!$SA) !*/
         this.allocated = allocated;
+        /*! #end !*/
 
         //allocate so that there is at least one slot that remains allocated = false
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (capacity * this.loadFactor)) - 2;
-
     }
 
     /**
@@ -354,15 +412,29 @@ public class KTypeOpenIdentityHashSet<KType>
      */
     public boolean remove(final KType key)
     {
-        final int mask = this.allocated.length - 1;
+        /*! #if ($SA)
+        if (Intrinsics.equalsKTypeDefault(key)) {
+
+            if (this.allocatedDefaultKey) {
+
+                this.allocatedDefaultKey = false;
+                return true;
+            }
+
+            return false;
+        }
+        #end !*/
+        final int mask = this.keys.length - 1;
 
         int slot = Internals.rehash(System.identityHashCode(key)) & mask;
 
         final KType[] keys = this.keys;
 
+        /*! #if (!$SA) !*/
         final boolean[] states = this.allocated;
+        /*! #end !*/
 
-        while (states[slot])
+        while (is_allocated(states, slot, keys))
         {
             if (key == keys[slot])
             {
@@ -383,37 +455,42 @@ public class KTypeOpenIdentityHashSet<KType>
     protected void shiftConflictingKeys(int slotCurr)
     {
         // Copied nearly verbatim from fastutil's impl.
-        final int mask = this.allocated.length - 1;
+        final int mask = this.keys.length - 1;
+
         int slotPrev, slotOther;
 
         final KType[] keys = this.keys;
 
+        /*! #if (!$SA) !*/
         final boolean[] allocated = this.allocated;
+        /*! #end !*/
 
         while (true)
         {
             slotCurr = ((slotPrev = slotCurr) + 1) & mask;
 
-            while (allocated[slotCurr])
+            while (is_allocated(allocated, slotCurr, keys))
             {
                 slotOther = (Internals.rehash(System.identityHashCode(keys[slotCurr])) & mask);
 
                 if (slotPrev <= slotCurr)
                 {
                     // We are on the right of the original slot.
-                    if (slotPrev >= slotOther || slotOther > slotCurr)
+                    if (slotPrev >= slotOther || slotOther > slotCurr) {
                         break;
+                    }
                 }
                 else
                 {
                     // We have wrapped around.
-                    if (slotPrev >= slotOther && slotOther > slotCurr)
+                    if (slotPrev >= slotOther && slotOther > slotCurr) {
                         break;
+                    }
                 }
                 slotCurr = (slotCurr + 1) & mask;
             }
 
-            if (!allocated[slotCurr])
+            if (!is_allocated(allocated, slotCurr, keys))
             {
                 break;
             }
@@ -423,9 +500,11 @@ public class KTypeOpenIdentityHashSet<KType>
         }
 
         //means not allocated
+        /*! #if (!$SA) !*/
         allocated[slotPrev] = false;
+        /*! #end !*/
 
-        /* #if ($TemplateOptions.KTypeGeneric) */
+        /* #if (($TemplateOptions.KTypeGeneric || $SA )) */
         keys[slotPrev] = Intrinsics.<KType> defaultKTypeValue();
         /* #end */
     }
@@ -437,9 +516,19 @@ public class KTypeOpenIdentityHashSet<KType>
      */
     public KType lkey()
     {
-        assert this.lastSlot >= 0 : "Call contains() first.";
+        /*! #if ($SA)
+        if (this.lastSlot == -2) {
 
+            return Intrinsics.defaultKTypeValue();
+        }
+        #end !*/
+
+        assert this.lastSlot >= 0 : "Call containsKey() first.";
+        /*! #if (!$SA) !*/
         assert this.allocated[this.lastSlot] : "Last call to exists did not have any associated value.";
+        /*! #else
+         assert !Intrinsics.equalsKTypeDefault(this.keys[lastSlot]) : "Last call to exists did not have any associated value.";
+        #end !*/
 
         return this.keys[this.lastSlot];
     }
@@ -447,12 +536,11 @@ public class KTypeOpenIdentityHashSet<KType>
     /**
      * @return Returns the slot of the last key looked up in a call to {@link #contains} if
      * it returned <code>true</code>.
-     * Precondition : {@link #contains} must have been called previously !
      * @see #contains
      */
     public int lslot()
     {
-        assert this.lastSlot >= 0 : "Call contains() first.";
+        assert this.lastSlot >= 0 || this.lastSlot == -2 : "Call contains() first.";
         return this.lastSlot;
     }
 
@@ -469,15 +557,30 @@ public class KTypeOpenIdentityHashSet<KType>
     @Override
     public boolean contains(final KType key)
     {
-        final int mask = this.allocated.length - 1;
+        /*! #if ($SA)
+        if (Intrinsics.equalsKTypeDefault(key)) {
+
+            if (this.allocatedDefaultKey) {
+                this.lastSlot = -2;
+            } else {
+                this.lastSlot = -1;
+            }
+
+            return this.allocatedDefaultKey;
+        }
+        #end !*/
+
+        final int mask = this.keys.length - 1;
 
         int slot = Internals.rehash(System.identityHashCode(key)) & mask;
 
         final KType[] keys = this.keys;
 
+        /*! #if (!$SA) !*/
         final boolean[] states = this.allocated;
+        /*! #end !*/
 
-        while (states[slot])
+        while (is_allocated(states, slot, keys))
         {
             if (key == keys[slot])
             {
@@ -487,6 +590,9 @@ public class KTypeOpenIdentityHashSet<KType>
             slot = (slot + 1) & mask;
 
         } //end while true
+
+        //unsuccessful search
+        this.lastSlot = -1;
 
         return false;
     }
@@ -503,11 +609,17 @@ public class KTypeOpenIdentityHashSet<KType>
         this.lastSlot = -1;
 
         // States are always cleared.
+        /*! #if (!$SA) !*/
         Internals.blankBooleanArray(this.allocated, 0, this.allocated.length);
+        /*! #end !*/
 
-        /*! #if ($TemplateOptions.KTypeGeneric) !*/
+        /*! #if ($SA)
+        this.allocatedDefaultKey = false;
+        #end !*/
+
+        /*! #if (($TemplateOptions.KTypeGeneric) || $SA) !*/
         //Faster than Arrays.fill(keys, null); // Help the GC.
-        Internals.blankObjectArray(this.keys, 0, this.keys.length);
+        KTypeArrays.<KType> blankArray(this.keys, 0, this.keys.length);
         /*! #end !*/
     }
 
@@ -517,7 +629,7 @@ public class KTypeOpenIdentityHashSet<KType>
     @Override
     public int size()
     {
-        return this.assigned;
+        return this.assigned /*! #if ($SA) + (this.allocatedDefaultKey?1:0) #end !*/;
     }
 
     /**
@@ -537,13 +649,21 @@ public class KTypeOpenIdentityHashSet<KType>
     {
         int h = 0;
 
+        /*! #if ($SA)
+        if (this.allocatedDefaultKey) {
+            h +=  Internals.rehash(Intrinsics.defaultKTypeValue());
+        }
+        #end !*/
+
         final KType[] keys = this.keys;
 
+        /*! #if (!$SA) !*/
         final boolean[] states = this.allocated;
+        /*! #end !*/
 
-        for (int i = states.length; --i >= 0;)
+        for (int i = keys.length; --i >= 0;)
         {
-            if (states[i])
+            if (is_allocated(states, i, keys))
             {
                 //This hash is an intrinsic property of the container contents
                 h += Internals.rehash(System.identityHashCode(keys[i]));
@@ -566,8 +686,9 @@ public class KTypeOpenIdentityHashSet<KType>
     {
         if (obj != null)
         {
-            if (obj == this)
+            if (obj == this) {
                 return true;
+            }
 
             if (!(obj instanceof KTypeOpenIdentityHashSet)) {
 
@@ -615,15 +736,34 @@ public class KTypeOpenIdentityHashSet<KType>
         @Override
         protected KTypeCursor<KType> fetch()
         {
+            /*! #if ($SA)
+            if (this.cursor.index == KTypeOpenIdentityHashSet.this.keys.length + 1) {
+
+                if (KTypeOpenIdentityHashSet.this.allocatedDefaultKey) {
+
+                    this.cursor.index = KTypeOpenIdentityHashSet.this.keys.length;
+                    this.cursor.value = Intrinsics.defaultKTypeValue();
+
+                    return this.cursor;
+
+                } else {
+                    //no value associated with the default key, continue iteration...
+                    this.cursor.index = KTypeOpenIdentityHashSet.this.keys.length;
+                }
+            }
+
+            #end !*/
+
             int i = this.cursor.index - 1;
 
-            while (i >= 0 && !KTypeOpenIdentityHashSet.this.allocated[i])
+            while (i >= 0 && !is_allocated(KTypeOpenIdentityHashSet.this.allocated, i, KTypeOpenIdentityHashSet.this.keys))
             {
                 i--;
             }
 
-            if (i == -1)
+            if (i == -1) {
                 return done();
+            }
 
             this.cursor.index = i;
             this.cursor.value = KTypeOpenIdentityHashSet.this.keys[i];
@@ -645,7 +785,7 @@ public class KTypeOpenIdentityHashSet<KType>
 
                 @Override
                 public void initialize(final EntryIterator obj) {
-                    obj.cursor.index = KTypeOpenIdentityHashSet.this.keys.length;
+                    obj.cursor.index = KTypeOpenIdentityHashSet.this.keys.length /*! #if($SA) +1 #end !*/;
                 }
 
                 @Override
@@ -671,16 +811,26 @@ public class KTypeOpenIdentityHashSet<KType>
     @Override
     public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure)
     {
+        /*! #if ($SA)
+        if (this.allocatedDefaultKey) {
+
+            procedure.apply(Intrinsics.defaultKTypeValue());
+        }
+        #end !*/
+
         final KType[] keys = this.keys;
 
+        /*! #if (!$SA) !*/
         final boolean[] states = this.allocated;
+        /*! #end !*/
 
         //Iterate in reverse for side-stepping the longest conflict chain
         //in another hash, in case apply() is actually used to fill another hash container.
-        for (int i = states.length - 1; i >= 0; i--)
+        for (int i = keys.length - 1; i >= 0; i--)
         {
-            if (states[i])
+            if (is_allocated(states, i, keys)) {
                 procedure.apply(keys[i]);
+            }
         }
 
         return procedure;
@@ -692,15 +842,26 @@ public class KTypeOpenIdentityHashSet<KType>
     @Override
     public KType[] toArray(final KType[] target)
     {
+        int count = 0;
+
+        /*! #if ($SA)
+            if (this.allocatedDefaultKey) {
+
+                target[count++] = Intrinsics.defaultKTypeValue();
+            }
+        #end !*/
+
         final KType[] keys = this.keys;
 
+        /*! #if (!$SA) !*/
         final boolean[] states = this.allocated;
+        /*! #end !*/
 
-        for (int i = 0, j = 0; i < keys.length; i++) {
-
-            if (states[i])
+        for (int i = 0; i < keys.length; i++)
+        {
+            if (is_allocated(states, i, keys))
             {
-                target[j++] = keys[i];
+                target[count++] = keys[i];
             }
         }
 
@@ -731,18 +892,31 @@ public class KTypeOpenIdentityHashSet<KType>
     @Override
     public <T extends KTypePredicate<? super KType>> T forEach(final T predicate)
     {
+        /*! #if ($SA)
+        if (this.allocatedDefaultKey) {
+
+            if(! predicate.apply(Intrinsics.defaultKTypeValue())) {
+
+                return predicate;
+            }
+        }
+        #end !*/
+
         final KType[] keys = this.keys;
 
+        /*! #if (!$SA) !*/
         final boolean[] states = this.allocated;
+        /*! #end !*/
 
         //Iterate in reverse for side-stepping the longest conflict chain
         //in another hash, in case apply() is actually used to fill another hash container.
-        for (int i = states.length - 1; i >= 0; i--)
+        for (int i = keys.length - 1; i >= 0; i--)
         {
-            if (states[i])
+            if (is_allocated(states, i, keys))
             {
-                if (!predicate.apply(keys[i]))
+                if (!predicate.apply(keys[i])) {
                     break;
+                }
             }
         }
 
@@ -757,15 +931,27 @@ public class KTypeOpenIdentityHashSet<KType>
     @Override
     public int removeAll(final KTypePredicate<? super KType> predicate)
     {
+        final int before = this.size();
+
+        /*! #if ($SA)
+        if (this.allocatedDefaultKey) {
+
+            if (predicate.apply(Intrinsics.defaultKTypeValue()))
+            {
+                 this.allocatedDefaultKey = false;
+            }
+        }
+        #end !*/
+
         final KType[] keys = this.keys;
 
+        /*! #if (!$SA) !*/
         final boolean[] states = this.allocated;
+        /*! #end !*/
 
-        final int before = this.assigned;
-
-        for (int i = 0; i < states.length;)
+        for (int i = 0; i < keys.length;)
         {
-            if (states[i])
+            if (is_allocated(states, i, keys))
             {
                 if (predicate.apply(keys[i]))
                 {
@@ -778,7 +964,7 @@ public class KTypeOpenIdentityHashSet<KType>
             i++;
         }
 
-        return before - this.assigned;
+        return before - this.size();
     }
 
     /**
@@ -816,4 +1002,30 @@ public class KTypeOpenIdentityHashSet<KType>
     {
         return new KTypeOpenIdentityHashSet<KType>(initialCapacity, loadFactor);
     }
+
+/*! #if (!$SA) !*/
+    //Test for existence in template
+
+    /*! #if ($TemplateOptions.inline("is_allocated",
+    "(alloc, slot, keys)",
+    "alloc[slot]")) !*/
+    /**
+     * template version
+     * (actual method is inlined in generated code)
+     */
+    private boolean is_allocated(final boolean[] alloc, final int slot, final KType[] keys) {
+
+        return alloc[slot];
+    }
+    /*! #end !*/
+
+/*! #else
+  //Test for existence with default value sentinels
+
+     #if ($TemplateOptions.inline("is_allocated",
+    "(alloc, slot, keys)",
+    "! Intrinsics.equalsKTypeDefault(keys[slot])"))
+    //nothing !
+    #end
+#end !*/
 }

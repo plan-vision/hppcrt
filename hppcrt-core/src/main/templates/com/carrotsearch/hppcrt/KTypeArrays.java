@@ -1,5 +1,7 @@
 package com.carrotsearch.hppcrt;
 
+import java.util.Arrays;
+
 /**
  * Utility class gathering array or KTypeIndexedContainer handling algorithms for <code>KType</code>s.
  * This is a kind of complement for {@link java.util.Arrays}.
@@ -7,6 +9,22 @@ package com.carrotsearch.hppcrt;
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeArrays
 {
+    final private static int BLANK_ARRAY_SIZE_IN_BIT_SHIFT = 10;
+
+    /**
+     * Batch blanking array size
+     */
+    final private static int BLANK_ARRAY_SIZE = 1 << KTypeArrays.BLANK_ARRAY_SIZE_IN_BIT_SHIFT;
+
+    /**
+     * Batch blanking array with KType nulls
+     */
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    final private static Object[] BLANKING_OBJECT_ARRAY = new Object[KTypeArrays.BLANK_ARRAY_SIZE];
+    /*! #else
+    final private static KType[] BLANKING_OBJECT_ARRAY = Intrinsics.<KType[]>newKTypeArray(KTypeArrays.BLANK_ARRAY_SIZE);
+    #end  !*/
+
     private KTypeArrays() {
 
         //nothing
@@ -54,14 +72,14 @@ public final class KTypeArrays
     public static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void reverse(final KType[] table, final int from, final int to) {
 
         final int halfSize = (to - from) >>> 1;
-        KType tmpValue;
+    KType tmpValue;
 
-        for (int i = 0; i < halfSize; i++)
-        {
-            tmpValue = table[i + from];
-            table[i + from] = table[to - i - 1];
-            table[to - i - 1] = tmpValue;
-        }
+    for (int i = 0; i < halfSize; i++)
+    {
+        tmpValue = table[i + from];
+        table[i + from] = table[to - i - 1];
+        table[to - i - 1] = tmpValue;
+    }
     }
 
     /**
@@ -82,5 +100,34 @@ public final class KTypeArrays
             table.set(to - i - 1, tmpValue);
         }
     }
+
+    /**
+     * Method to blank any KType[] array elements to its default value
+     * from [startIndex; endIndex[, equivalent to {@link Arrays}.fill(objectArray, startIndex, endIndex, 0 or null)
+     */
+    public static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void blankArray(final KType[] objectArray, final int startIndex, final int endIndex) {
+
+        assert startIndex <= endIndex;
+
+        final int size = endIndex - startIndex;
+        final int nbChunks = size >> KTypeArrays.BLANK_ARRAY_SIZE_IN_BIT_SHIFT;
+        //compute remainder
+        final int rem = size & (KTypeArrays.BLANK_ARRAY_SIZE - 1);
+
+        for (int i = 0; i < nbChunks; i++) {
+
+            System.arraycopy(KTypeArrays.BLANKING_OBJECT_ARRAY, 0,
+                    objectArray, startIndex + (i << KTypeArrays.BLANK_ARRAY_SIZE_IN_BIT_SHIFT),
+                    KTypeArrays.BLANK_ARRAY_SIZE);
+        } //end for
+
+        //fill the reminder
+        if (rem > 0) {
+            Arrays.fill(objectArray, startIndex + (nbChunks << KTypeArrays.BLANK_ARRAY_SIZE_IN_BIT_SHIFT),
+                    startIndex + (nbChunks << KTypeArrays.BLANK_ARRAY_SIZE_IN_BIT_SHIFT) + rem, Intrinsics.defaultKTypeValue());
+        }
+    }
+
+
 
 }

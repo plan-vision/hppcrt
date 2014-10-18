@@ -166,11 +166,10 @@ public class HashCollisionsCornerCaseTest extends SimpleBenchmark
             this.currentUnderTestSet.clear();
 
             final int[] testSetKeys = this.testSet.keys;
-            final boolean[] testSetRefAllocated = this.testSet.allocated;
 
-            for (int j = 0; j < testSetRefAllocated.length; j++) {
+            for (int j = 0; j < testSetKeys.length; j++) {
 
-                if (testSetRefAllocated[j]) {
+                if (testSetKeys[j] != 0) {
 
                     this.currentUnderTestSet.add(testSetKeys[j]);
                 }
@@ -192,11 +191,10 @@ public class HashCollisionsCornerCaseTest extends SimpleBenchmark
             this.currentUnderTestSet.clear();
 
             final int[] testSetKeys = this.testSet.keys;
-            final boolean[] testSetRefAllocated = this.testSet.allocated;
 
-            for (int j = testSetRefAllocated.length - 1; j >= 0; j--) {
+            for (int j = testSetKeys.length - 1; j >= 0; j--) {
 
-                if (testSetRefAllocated[j]) {
+                if (testSetKeys[j] != 0) {
 
                     this.currentUnderTestSet.add(testSetKeys[j]);
                 }

@@ -414,9 +414,9 @@ public final class HppcMapSyntheticBench
 
                 final IntLongOpenHashMap m = (IntLongOpenHashMap) testMap;
 
-                for (int ii = 0; ii < m.allocated.length; ii++)
+                for (int ii = 0; ii < m.keys.length; ii++)
                 {
-                    if (m.allocated[ii] /* != -1 */)
+                    if (m.keys[ii] != 0)
                     {
                         sumDirect += m.values[ii];
                     }

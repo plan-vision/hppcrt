@@ -1,13 +1,13 @@
 package com.carrotsearch.hppcrt;
 
-import static org.junit.Assert.*;
-
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.Assert;
 
 import com.carrotsearch.hppcrt.hash.MurmurHash3;
-import com.carrotsearch.hppcrt.lists.*;
+import com.carrotsearch.hppcrt.lists.IntArrayList;
 
 /**
  * Test utilities.
@@ -152,6 +152,19 @@ public abstract class TestUtils
     /**
      * Check if the array's content is identical to a given sequence of elements.
      */
+    public static void assertListEquals(final boolean[] array, final boolean... elements)
+    {
+        Assert.assertEquals(elements.length, array.length);
+
+        for (int i = 0; i < array.length; i++) {
+
+            Assert.assertEquals("index = " + array[i], elements[i], array[i]);
+        }
+    }
+
+    /**
+     * Check if the array's content is identical to a given sequence of elements.
+     */
     public static void assertListEquals(final double[] array, final double... elements)
     {
         Assert.assertEquals(elements.length, array.length);
@@ -238,12 +251,37 @@ public abstract class TestUtils
 
     /**
      * Check if the array's content is identical to a given sequence of elements, compared by reference
+     * If expected, null objects must be before all others in elements args
      */
-    public static void assertSortedListEqualsByReference(final Object[] array, final Object... elements)
+    public static void assertSortedListEqualsByReference(Object[] array, final Object... elements)
     {
         Assert.assertEquals(elements.length, array.length);
 
-        Arrays.sort(array);
+        int countNulls = 0;
+        final ArrayList<Object> array2 = new ArrayList<Object>();
+
+        for (int i = 0; i < array.length; i++) {
+
+            if (array[i] == null) {
+
+                countNulls++;
+            }
+            else {
+
+                array2.add(array[i]);
+            }
+        }
+
+        //put back the nulls at the beginning
+        for (int i = 0; i < countNulls; i++) {
+
+            array2.add(0, null);
+        }
+
+        array = array2.toArray();
+
+        //only attempt to sort the not-null objects
+        Arrays.sort(array, countNulls, array.length);
 
         for (int i = 0; i < elements.length; i++) {
 
@@ -255,11 +293,39 @@ public abstract class TestUtils
 
     /**
      * Check if the array's content is identical to a given sequence of elements.
+     * If expected, null objects must be before all others in elements args
      */
-    public static void assertSortedListEquals(final Object[] array, final Object... elements)
+    public static void assertSortedListEquals(Object[] array, final Object... elements)
     {
         Assert.assertEquals(elements.length, array.length);
-        Arrays.sort(array);
+
+        //Put the null values at the beginning of the array
+        int countNulls = 0;
+        final ArrayList<Object> array2 = new ArrayList<Object>();
+
+        for (int i = 0; i < array.length; i++) {
+
+            if (array[i] == null) {
+
+                countNulls++;
+            }
+            else {
+
+                array2.add(array[i]);
+            }
+        }
+
+        //put back the nulls at the beginning
+        for (int i = 0; i < countNulls; i++) {
+
+            array2.add(0, null);
+        }
+
+        array = array2.toArray();
+
+        //only sort the not-null range
+        Arrays.sort(array, countNulls, array.length);
+
         Assert.assertArrayEquals(elements, array);
     }
 
@@ -425,9 +491,19 @@ public abstract class TestUtils
         org.junit.Assert.assertEquals(a, b, TestUtils.delta);
     }
 
+    public static void assertEquals2(final String msg, final double a, final double b)
+    {
+        org.junit.Assert.assertEquals(msg, a, b, TestUtils.delta);
+    }
+
     public static void assertEquals2(final int a, final int b)
     {
         org.junit.Assert.assertEquals(a, b);
+    }
+
+    public static void assertEquals2(final String msg, final int a, final int b)
+    {
+        org.junit.Assert.assertEquals(msg, a, b);
     }
 
     public static void assertEquals2(final char a, final char b)
@@ -435,14 +511,29 @@ public abstract class TestUtils
         org.junit.Assert.assertEquals(a, b);
     }
 
+    public static void assertEquals2(final String msg, final char a, final char b)
+    {
+        org.junit.Assert.assertEquals(msg, a, b);
+    }
+
     public static void assertEquals2(final short a, final short b)
     {
         org.junit.Assert.assertEquals(a, b);
     }
 
+    public static void assertEquals2(final String msg, final short a, final short b)
+    {
+        org.junit.Assert.assertEquals(msg, a, b);
+    }
+
     public static void assertEquals2(final byte a, final byte b)
     {
         org.junit.Assert.assertEquals(a, b);
+    }
+
+    public static void assertEquals2(final String msg, final byte a, final byte b)
+    {
+        org.junit.Assert.assertEquals(msg, a, b);
     }
 
     /** Override for generated templates. */
@@ -451,10 +542,20 @@ public abstract class TestUtils
         org.junit.Assert.assertEquals(a, b, TestUtils.delta);
     }
 
+    public static void assertEquals2(final String msg, final float a, final float b)
+    {
+        org.junit.Assert.assertEquals(msg, a, b, TestUtils.delta);
+    }
+
     /** Override for generated templates. */
     public static void assertEquals2(final Object a, final Object b)
     {
         org.junit.Assert.assertEquals(a, b);
+    }
+
+    public static void assertEquals2(final String msg, final Object a, final Object b)
+    {
+        org.junit.Assert.assertEquals(msg, a, b);
     }
 
     /**
@@ -472,8 +573,9 @@ public abstract class TestUtils
             if (hash == maskedSeed)
             {
                 hashChain.add(i);
-                if (hashChain.size() > values)
+                if (hashChain.size() > values) {
                     break;
+                }
             }
         }
 

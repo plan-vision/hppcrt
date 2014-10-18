@@ -614,7 +614,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     public void clear()
     {
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        Internals.blankObjectArray(this.buffer, 0, this.elementsCount);
+        KTypeArrays.blankArray(this.buffer, 0, this.elementsCount);
         /*! #end !*/
 
         //the first two are placeholders

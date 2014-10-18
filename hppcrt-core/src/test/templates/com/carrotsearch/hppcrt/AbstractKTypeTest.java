@@ -23,7 +23,17 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
 
     /* Ready to use key values. */
 
-    protected KType key0 = cast(0), k0 = this.key0;
+    /**
+     * Key0 is special: its value is == null for generics, and == 0 for primitives.
+     */
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    protected KType key0 = null;
+    protected KType k0 = cast(0);
+    /*! #else
+    protected KType key0 = cast(0);
+    protected KType k0 = this.key0;
+     #end !*/
+
     protected KType key1 = cast(1), k1 = this.key1;
     protected KType key2 = cast(2), k2 = this.key2;
     protected KType key3 = cast(3), k3 = this.key3;
@@ -91,7 +101,11 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
         #else !*/
         long k = 0L;
 
-        if (type instanceof Character) {
+        if (type == null) {
+
+            k = 0L;
+        }
+        else if (type instanceof Character) {
 
             k = ((Character) type).charValue();
 
@@ -132,7 +146,12 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
 
         for (int i = 0; i < objects.length; i++)
         {
-            values[i] = (KType) objects[i];
+            if (objects[i] != null) {
+
+                values[i] = (KType) objects[i];
+            } else {
+                values[i] = null;
+            }
         }
 
         return values;

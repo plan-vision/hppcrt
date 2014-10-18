@@ -295,7 +295,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
 
         this.elementsCount -= count;
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        Internals.blankObjectArray(this.buffer, this.elementsCount, this.elementsCount + count);
+        KTypeArrays.blankArray(this.buffer, this.elementsCount, this.elementsCount + count);
         /*! #end !*/
     }
 

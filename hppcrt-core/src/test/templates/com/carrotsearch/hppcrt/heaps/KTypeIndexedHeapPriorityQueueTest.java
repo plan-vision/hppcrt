@@ -197,11 +197,11 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
     @Test
     public void testRemove()
     {
-        this.prioq.put(0, this.key0);
-        this.prioq.put(1, this.key1);
-        this.prioq.put(2, this.key2);
-        this.prioq.put(3, this.key3);
-        this.prioq.put(4, this.key4);
+        this.prioq.put(0, this.k0);
+        this.prioq.put(1, this.k1);
+        this.prioq.put(2, this.k2);
+        this.prioq.put(3, this.k3);
+        this.prioq.put(4, this.k4);
 
         Assert.assertEquals(0, castType(this.prioq.remove(0)));
         Assert.assertFalse(this.prioq.containsKey(0));

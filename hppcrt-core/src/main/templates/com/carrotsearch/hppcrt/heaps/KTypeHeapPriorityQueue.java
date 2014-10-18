@@ -279,7 +279,7 @@ implements KTypePriorityQueue<KType>, Cloneable
     {
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         //1-based indexing
-        Internals.blankObjectArray(this.buffer, 1, this.elementsCount + 1);
+        KTypeArrays.blankArray(this.buffer, 1, this.elementsCount + 1);
         /*! #end !*/
         this.elementsCount = 0;
     }

@@ -45,6 +45,13 @@ public class TemplateOptions
         public String floatBody;
         public String doubleBody;
         public String booleanBody;
+
+        @Override
+        public String toString() {
+
+            return String.format("LocalInlineBodies(gen='%s', int='%s', float='%s', double='%s', bool='%s')",
+                    this.genericBody, this.integerBody, this.floatBody, this.doubleBody, this.booleanBody);
+        }
     }
 
     /**
@@ -303,37 +310,32 @@ public class TemplateOptions
      */
     private String reformatJavaArguments(String methodBodyStr, final String[] argsArray)
     {
-
         int argPosition = 0;
         boolean argumentIsFound = false;
 
         //for each of the arguments
         for (int i = 0; i < argsArray.length; i++)
         {
-
             argumentIsFound = false;
 
             final StringBuffer body = new StringBuffer();
 
             while (true)
             {
-
                 final Matcher m = TemplateOptions.JAVA_IDENTIFIER_PATTERN.matcher(methodBodyStr);
 
                 if (m.find())
                 {
-
                     //copy from the start of the (remaining) method body to start of the current find :
                     body.append(methodBodyStr.substring(0, m.start()));
 
                     //this java identifier is known, replace
                     if (m.group().equals(argsArray[i].trim()))
                     {
-
                         if (!argumentIsFound)
                         {
                             argPosition++;
-                            //first time this argument is encountered, increment postion count
+                            //first time this argument is encountered, increment position count
                             argumentIsFound = true;
                         }
 
@@ -342,7 +344,6 @@ public class TemplateOptions
                     }
                     else
                     {
-
                         //else append verbatim
                         body.append(m.group());
                     }
@@ -361,8 +362,59 @@ public class TemplateOptions
 
             //re-run for the next argument with the whole previous computation
             methodBodyStr = body.toString();
+
+            //if a particular argument do not exist in method body, we must skip its position anyway.
+            if (!argumentIsFound) {
+
+                argPosition++;
+            }
         }  //end for each arguments
 
         return methodBodyStr;
+    }
+
+    /**
+     * Main for test purposes
+     */
+    public static void main(final String[] args) {
+
+        final TemplateOptions testInstance = new TemplateOptions(Type.GENERIC);
+
+        testInstance.inline("is_allocated",
+                "(alloc, slot, keys)",
+                "alloc[slot] != -1");
+
+        System.out.println(testInstance.localInlinesMap.toString());
+
+        testInstance.inline("is_allocated",
+                "(alloc, slot, keys)",
+                "Intrinsics.equalsKTypeDefault(keys[slot])");
+
+        System.out.println(testInstance.localInlinesMap.toString());
+
+        testInstance.inline("is_allocated",
+                "(alloc, slot, keys)",
+                "Intrinsics.equalsKTypeDefault(keys[slot]= keys / slot + alloc)");
+
+        System.out.println(testInstance.localInlinesMap.toString());
+
+        testInstance.inline("is_allocated",
+                "(alloc, slot, keys)",
+                "alloc[slot]");
+
+        System.out.println(testInstance.localInlinesMap.toString());
+
+        testInstance.inline("is_allocated",
+                "(alloc, slot, keys)",
+                "slot[alloc]");
+
+        System.out.println(testInstance.localInlinesMap.toString());
+
+        testInstance.inline("is_allocated",
+                "(alloc, slot, keys)",
+                "slot[slot[keys[keys[alloc]]]]");
+
+        System.out.println(testInstance.localInlinesMap.toString());
+
     }
 }

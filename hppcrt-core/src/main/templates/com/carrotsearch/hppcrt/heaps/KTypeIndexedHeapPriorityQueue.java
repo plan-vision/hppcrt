@@ -183,7 +183,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     {
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         //1-based indexing
-        Internals.blankObjectArray(this.buffer, 1, this.elementsCount + 1);
+        KTypeArrays.blankArray(this.buffer, 1, this.elementsCount + 1);
         /*! #end !*/
 
         //we need to init to zero, not -1 !!!
