@@ -1,3 +1,14 @@
+[0.6.7]
+** Bug fixes
+
+HPPCRT-29 : Regression: setDefaultValue() method absent from v0.66 IndexedHeaps
+
+HPPCRT-30: ObjectOpen[VType]HashMap.putOrAdd() wrong in Robin-Hood version
+
+** New features
+
+HPPCRT-31: Hash containers, merge allocated array and keys for performance
+
 [0.6.6]
 ** API-breaking changes
 

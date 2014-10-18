@@ -11,31 +11,33 @@ adding, tweaking, and even modifiying some features, for the goal of improving H
 Most of the internal modifications intend to reach zero temporaries Objects creation at runtime.
 A way is also to add convenient methods/API that allow filling and reuse of pre-existing Objects. 
 
-###Unordered List of changes:
-1. Tweaked internal implementation to remove dynamic allocation of temporary Objects
+###List of changes:
+* Tweaked internal implementation to remove dynamic allocation of temporary Objects
 
-2. Pooled Iterators: ability to use iterators the usual way, without creating Iterator instances
+* Pooled Iterators: ability to use iterators the usual way, without creating Iterator instances
 dynamically at runtime. 
 That means in particular using the enhanced for loop without any dynamic allocation underneath.
 
-3. Faster clear(), resize() and such, using a memcpy-like technique offering 2x speed gain in clear()-like operations
+* Faster clear(), resize() and such, using a memcpy-like technique offering 2x speed gain in clear()-like operations
 especially noticable for big container sizes. 
 
-4.  toArray(existing array) for every container, good for array reuse in RealTime environnement
+* toArray(existing array) for every container, good for array reuse in RealTime environnement
 
-5.  Primitive and Objects in-place array sorts, similar to java.util.Arrays with Comparable and Comparator versions.
+* Primitive and Objects in-place array sorts, similar to java.util.Arrays with Comparable and Comparator versions.
 
-6.  Optimized in-place sort methods for ArrayLists, LinkedLists, ArrayDeques, Stacks.
+* Native and optimized in-place sort methods for ArrayLists, LinkedLists, ArrayDeques, Stacks.
 
-7.  Custom hashing strategies to override the usual equals()/hashCode() in Hash containers, in specific CustomHash classes
+* Custom hashing strategies to override the usual equals()/hashCode() in Hash containers, in specific CustomHash containers.
 
-8.  Heaps : Priority queues, and Indexed (a.k.a indirect) priority queues
+* Identity hash maps and sets, comparing Objects by reference and native hash codes.
 
-9.  Double linked-lists, supporting all operations common to lists and dequeues, with rich bi-derectional iterating methods.
+* Heaps : Priority queues, and Indexed (a.k.a indirect) priority queues
 
-10.  Custom default values for methods returning default values in some circonstances (see Javadoc)
+* Double linked-lists, supporting all operations common to lists and dequeues, with rich bi-derectional iterating methods.
 
-11.  Boolean versions of containers when it makes sense: lists, queues, stacks, values of Maps.
+* Custom default values for methods returning default values in some circonstances (see Javadoc)
+
+* Boolean versions of containers when it makes sense: lists, queues, stacks, values in Maps.
 
 and some small other performance and API tweaks....
 
