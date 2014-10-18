@@ -25,6 +25,8 @@ especially noticable for big container sizes.
 
 * Primitive and Objects in-place array sorts, similar to java.util.Arrays with Comparable and Comparator versions.
 
+* [Object|primitives]Arrays as a complement of java.util.Arrays for in-place buffer manipulation : reverse, rotate...etc. 
+
 * Native and optimized in-place sort methods for ArrayLists, LinkedLists, ArrayDeques, Stacks.
 
 * Custom hashing strategies to override the usual equals()/hashCode() in Hash containers, in specific CustomHash containers.
