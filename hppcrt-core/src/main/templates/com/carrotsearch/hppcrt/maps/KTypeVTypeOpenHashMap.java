@@ -163,13 +163,26 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     /*! #end !*/
     /*! #if ($RH) !*/
     public int[] allocated;
-    /*! #elseif ($SA)
-     //True if key = 0 is in the map.
-     public boolean allocatedDefaultKey = false;
-     //if allocatedDefaultKey = true, contains the associated V to the key = 0
-     public VType defaultKeyValue;
-    #else
+    /*! #elseif (!$SA)
     public boolean[] allocated;
+    #end !*/
+
+    /**
+     #if ($SA)
+     *True if key = 0 is in the map.
+     #end
+     */
+    /*! #if ($SA)
+    public boolean allocatedDefaultKey = false;
+    #end !*/
+
+    /**
+     #if ($SA)
+     * if allocatedDefaultKey = true, contains the associated V to the key = 0
+     #end
+     */
+    /*! #if ($SA)
+    public VType defaultKeyValue;
     #end !*/
 
     /**

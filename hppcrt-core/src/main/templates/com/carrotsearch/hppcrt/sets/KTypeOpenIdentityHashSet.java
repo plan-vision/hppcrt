@@ -94,12 +94,16 @@ public class KTypeOpenIdentityHashSet<KType>
      * or empty.
      * @see #assigned
      */
-    /*! #end !*/
-    /*! #if (!$SA) !*/
     public boolean[] allocated;
-    /*! #else
-     //True if key = null is in the set.
-     public boolean allocatedDefaultKey = false;
+    /*! #end !*/
+
+    /**
+     #if ($SA)
+     * True if key = null is in the map.
+     #end
+     */
+    /*! #if ($SA)
+    public boolean allocatedDefaultKey = false;
     #end !*/
 
     /**

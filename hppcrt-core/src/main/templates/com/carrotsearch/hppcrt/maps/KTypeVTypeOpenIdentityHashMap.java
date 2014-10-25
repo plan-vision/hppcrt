@@ -37,7 +37,7 @@ import com.carrotsearch.hppcrt.procedures.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenIdentityHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -110,12 +110,25 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
      * @see #assigned
      */
     public boolean[] allocated;
-    /*! #else
-    //True if key = null is in the map.
+    /*! #end !*/
+
+    /**
+     #if ($SA)
+     * True if key = null is in the map.
+     #end
+     */
+    /*! #if ($SA)
     public boolean allocatedDefaultKey = false;
-    //if allocatedDefaultKey = true, contains the associated V to the key = 0
+    #end !*/
+
+    /**
+     #if ($SA)
+     * if allocatedDefaultKey = true, contains the associated V to the key = null
+     #end
+     */
+    /*! #if ($SA)
     public VType defaultKeyValue;
-    #end
+     #end !*/
 
     /**
      * Cached number of assigned slots in {@link #keys}.
@@ -1249,7 +1262,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
      * A view of the keys inside this hash map.
      */
     public final class KeysContainer
-            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenIdentityHashMap<KType, VType> owner =
                 KTypeVTypeOpenIdentityHashMap.this;
@@ -1851,7 +1864,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
         @SuppressWarnings("unchecked")
         final/* #end */
         KTypeVTypeOpenIdentityHashMap<KType, VType> cloned =
-                new KTypeVTypeOpenIdentityHashMap<KType, VType>(this.size(), this.loadFactor);
+        new KTypeVTypeOpenIdentityHashMap<KType, VType>(this.size(), this.loadFactor);
 
         cloned.putAll(this);
 

@@ -95,7 +95,7 @@
             <phase>generate-sources</phase>
             <configuration>
                 <fork>true</fork>
-                <meminitial>50m</meminitial>
+                <meminitial>256m</meminitial>
                 <maxmem>512m</maxmem>
               <target> 
                 <property name="classpath" refid="maven.plugin.classpath" />
@@ -228,7 +228,7 @@
               </excludes>
 
               <parallelism>auto</parallelism>
-              <maxMemory>500m</maxMemory>
+              <maxMemory>400m</maxMemory>
 
               <!-- Attach a simple listener. -->
               <listeners>

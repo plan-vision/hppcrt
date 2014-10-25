@@ -12,8 +12,8 @@ import com.carrotsearch.hppcrt.sorting.*;
  * A Heap-based, min-priority queue of <code>KType</code>s.
  * i.e. top() is the smallest element,
  * as defined by Sedgewick: Algorithms 4th Edition (2011).
- * It assure O(log(N)) complexity for insertion,  deletion and update priority of the first element,
- * and constant time to examine the first element by {@link #top()}.
+ * It assure O(log(N)) complexity for insertion,  deletion and update priority of the min element,
+ * and constant time to examine the min element by {@link #top()}.
  * <p><b>Important: </b>
  * Ordering of elements must be defined either
  * #if ($TemplateOptions.KTypeGeneric)
@@ -482,7 +482,7 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 this.buffer[1] = Intrinsics.<KType> defaultKTypeValue();
                 /*! #end !*/
-                //diminuish size
+                //diminish size
                 this.elementsCount = 0;
             }
             else
@@ -497,7 +497,7 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
                 this.buffer[this.elementsCount] = Intrinsics.<KType> defaultKTypeValue();
                 /*! #end !*/
 
-                //diminuish size
+                //diminish size
                 this.elementsCount--;
 
                 //percolate down the first element
@@ -734,8 +734,8 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
             /*! #else
-                                                                            public KTypeComparator<? super KType>
-                                                                            #end !*/
+                                                                                    public KTypeComparator<? super KType>
+                                                                                    #end !*/
             comparator() {
 
         return this.comparator;

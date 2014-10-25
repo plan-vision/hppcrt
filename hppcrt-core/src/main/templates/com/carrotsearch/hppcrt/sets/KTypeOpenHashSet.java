@@ -76,8 +76,8 @@ import com.carrotsearch.hppcrt.procedures.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenHashSet<KType>
-extends AbstractKTypeCollection<KType>
-implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+        extends AbstractKTypeCollection<KType>
+        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -136,11 +136,17 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     /*! #end !*/
     /*! #if ($RH) !*/
     public int[] allocated;
-    /*! #elseif ($SA)
-     //True if key = 0 is in the set.
-     public boolean allocatedDefaultKey = false;
-    #else
+    /*! #elseif (!$SA)
     public boolean[] allocated;
+    #end !*/
+
+    /**
+     #if ($SA)
+     * True if key = 0 is in the map.
+     #end
+     */
+    /*! #if ($SA)
+    public boolean allocatedDefaultKey = false;
     #end !*/
 
     /**
