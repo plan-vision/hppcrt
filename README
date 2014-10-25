@@ -50,7 +50,7 @@ Stable version is published on Maven:
 <dependency>
     <groupId>com.github.vsonnier</groupId>
     <artifactId>hppcrt</artifactId>
-    <version>0.6.6</version>
+    <version>0.6.7</version>
 </dependency>
 ````
 
