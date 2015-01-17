@@ -6,7 +6,7 @@
   <!-- Project info. -->
   <groupId>com.github.vsonnier</groupId>
   <artifactId>hppcrt-tests-jdk15</artifactId>
-  <version>0.6.7</version>
+  <version>0.6.8-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>HPPC-RT JDK15 Tests</name>
@@ -24,14 +24,14 @@
     <dependency>
       <groupId>com.github.vsonnier</groupId>
       <artifactId>hppcrt</artifactId>
-      <version>0.6.7</version>
+      <version>0.6.8-SNAPSHOT</version>
       <classifier>jdk15</classifier>
     </dependency>
     
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
+      <version>4.12</version>
       <scope>test</scope>
     </dependency>    
   </dependencies>

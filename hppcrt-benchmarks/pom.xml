@@ -5,14 +5,14 @@
   <parent>
     <groupId>com.github.vsonnier</groupId>
     <artifactId>hppcrt-parent</artifactId>
-    <version>0.6.7</version>
+    <version>0.6.8-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <!-- Project info. -->
   <groupId>com.github.vsonnier</groupId>
   <artifactId>hppcrt-benchmarks</artifactId>
-  <version>0.6.7</version>
+  <version>0.6.8-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>HPPC-RT Benchmarks</name>
@@ -39,7 +39,7 @@
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
-      <version>1.4.177</version>
+      <version>1.4.184</version>
     </dependency>
 
     <dependency>
@@ -68,7 +68,7 @@
     <dependency>
       <groupId>it.unimi.dsi</groupId>
       <artifactId>fastutil</artifactId>
-      <version>6.5.15</version>
+      <version>6.6.0</version>
     </dependency>
 
     <dependency>
@@ -100,9 +100,9 @@
       <artifactId>ant</artifactId>
     </dependency>
     <dependency>
-    	<groupId>javolution</groupId>
-    	<artifactId>javolution</artifactId>
-    	<version>5.5.1</version>
+    	<groupId>org.javolution</groupId>
+    	<artifactId>javolution-core-java</artifactId>
+    	<version>6.0.0</version>
     </dependency>
   </dependencies>
 
