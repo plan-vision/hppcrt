@@ -2,7 +2,7 @@ package com.carrotsearch.hppcrt;
 
 import java.util.Arrays;
 
-import com.carrotsearch.hppcrt.hash.MurmurHash3;
+import com.carrotsearch.hppcrt.hash.PhiMix;
 
 /**
  * Internal utilities.
@@ -45,75 +45,75 @@ public final class Internals
      * @return
      */
     public static int rehash(final Object o, final int p) {
-        return o == null ? 0 : MurmurHash3.hash(o.hashCode() ^ p);
+        return o == null ? 0 : PhiMix.hash(o.hashCode() ^ p);
     }
 
     public static int rehash(final byte v, final int p) {
-        return MurmurHash3.hash(v ^ p);
+        return PhiMix.hash(v ^ p);
     }
 
     public static int rehash(final short v, final int p) {
-        return MurmurHash3.hash(v ^ p);
+        return PhiMix.hash(v ^ p);
     }
 
     public static int rehash(final int v, final int p) {
-        return MurmurHash3.hash(v ^ p);
+        return PhiMix.hash(v ^ p);
     }
 
     public static int rehash(final long v, final int p) {
-        return (int) MurmurHash3.hash(v ^ p);
+        return (int) PhiMix.hash(v ^ p);
     }
 
     public static int rehash(final char v, final int p) {
-        return MurmurHash3.hash(v ^ p);
+        return PhiMix.hash(v ^ p);
     }
 
     public static int rehash(final float v, final int p) {
-        return MurmurHash3.hash(Float.floatToIntBits(v) ^ p);
+        return PhiMix.hash(Float.floatToIntBits(v) ^ p);
     }
 
     public static int rehash(final double v, final int p) {
-        return (int) MurmurHash3.hash(Double.doubleToLongBits(v) ^ p);
+        return (int) PhiMix.hash(Double.doubleToLongBits(v) ^ p);
     }
 
     public static int rehash(final boolean b, final int p) {
-        return MurmurHash3.hash((b ? 1 : 0) ^ p);
+        return PhiMix.hash((b ? 1 : 0) ^ p);
     }
 
     public static int rehash(final Object o) {
-        return o == null ? 0 : MurmurHash3.hash(o.hashCode());
+        return o == null ? 0 : PhiMix.hash(o.hashCode());
     }
 
     public static int rehash(final byte v) {
-        return MurmurHash3.hash(v);
+        return PhiMix.hash(v);
     }
 
     public static int rehash(final short v) {
-        return MurmurHash3.hash(v);
+        return PhiMix.hash(v);
     }
 
     public static int rehash(final int v) {
-        return MurmurHash3.hash(v);
+        return PhiMix.hash(v);
     }
 
     public static int rehash(final long v) {
-        return (int) MurmurHash3.hash(v);
+        return (int) PhiMix.hash(v);
     }
 
     public static int rehash(final char v) {
-        return MurmurHash3.hash(v);
+        return PhiMix.hash(v);
     }
 
     public static int rehash(final float v) {
-        return MurmurHash3.hash(Float.floatToIntBits(v));
+        return PhiMix.hash(Float.floatToIntBits(v));
     }
 
     public static int rehash(final double v) {
-        return (int) MurmurHash3.hash(Double.doubleToLongBits(v));
+        return (int) PhiMix.hash(Double.doubleToLongBits(v));
     }
 
     public static int rehash(final boolean b) {
-        return (b ? MurmurHash3.HASH_1 : MurmurHash3.HASH_0);
+        return (b ? PhiMix.HASH_1 : PhiMix.HASH_0);
     }
 
     /**
