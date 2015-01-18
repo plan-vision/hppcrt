@@ -6,8 +6,12 @@ import java.util.List;
 
 import com.carrotsearch.hppcrt.Util;
 import com.carrotsearch.hppcrt.caliper.BenchmarkContainsWithRemoved;
+import com.carrotsearch.hppcrt.caliper.BenchmarkHashCollisionsAddAllSuccessive;
+import com.carrotsearch.hppcrt.caliper.BenchmarkHashCollisionsDirectIterationAddAll;
+import com.carrotsearch.hppcrt.caliper.BenchmarkHashCollisionsDirectIterationReversedAddAll;
+import com.carrotsearch.hppcrt.caliper.BenchmarkHashCollisionsForEachAddAll;
 import com.carrotsearch.hppcrt.caliper.BenchmarkPut;
-import com.carrotsearch.hppcrt.caliper.HashCollisionsCornerCaseTest;
+import com.carrotsearch.hppcrt.caliper.BenchmarkHashCollisionsAddAll;
 import com.google.caliper.Benchmark;
 import com.google.caliper.Runner;
 import com.google.common.collect.Lists;
@@ -19,10 +23,16 @@ import com.google.common.collect.ObjectArrays;
 public class BenchmarkHashContainersSuite
 {
     private final static Class<?>[] ALL_BENCHMARKS = new Class[]
-            {
-        HashCollisionsCornerCaseTest.class, BenchmarkPut.class, BenchmarkContainsWithRemoved.class,
-        HppcMapSyntheticBench.class
-            };
+    {
+            BenchmarkHashCollisionsAddAll.class,
+            BenchmarkHashCollisionsAddAllSuccessive.class,
+            BenchmarkHashCollisionsDirectIterationAddAll.class,
+            BenchmarkHashCollisionsDirectIterationReversedAddAll.class,
+            BenchmarkHashCollisionsForEachAddAll.class,
+            BenchmarkPut.class,
+            BenchmarkContainsWithRemoved.class,
+            HppcMapSyntheticBench.class
+    };
 
     public static void main(final String[] args) throws Exception
     {

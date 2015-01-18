@@ -6,6 +6,7 @@ import java.util.Deque;
 import java.util.List;
 
 import com.carrotsearch.hppcrt.Util;
+import com.carrotsearch.hppcrt.misc.BenchmarkHashContainersSuite;
 import com.google.caliper.Benchmark;
 import com.google.caliper.Runner;
 import com.google.common.collect.Lists;
@@ -18,10 +19,19 @@ public class BenchmarkSuite
 {
     @SuppressWarnings("unchecked")
     private final static Class<? extends Benchmark>[] ALL_BENCHMARKS = new Class[]
-            {
-        BenchmarkPopCnt.class, BenchmarkBigramCounting.class,
-            HashCollisionsCornerCaseTest.class, BenchmarkPut.class, BenchmarkContainsWithRemoved.class
-            };
+    {
+            BenchmarkHashCollisionsAddAll.class,
+            BenchmarkHashCollisionsAddAllSuccessive.class,
+            BenchmarkHashCollisionsDirectIterationAddAll.class,
+            BenchmarkHashCollisionsDirectIterationReversedAddAll.class,
+            BenchmarkHashCollisionsForEachAddAll.class,
+            BenchmarkPut.class,
+            BenchmarkContainsWithRemoved.class,
+        BenchmarkPopCnt.class,
+        BenchmarkBigramCounting.class,
+        BenchmarkCollectionsSort.class,
+
+    };
 
     public static void main(final String[] args) throws Exception
     {
@@ -62,7 +72,7 @@ public class BenchmarkSuite
                 {
                     @SuppressWarnings("unchecked")
                     final Class<? extends Benchmark> clzInstance =
-                            (Class<? extends Benchmark>) Class.forName(clz, true, clLoader);
+                    (Class<? extends Benchmark>) Class.forName(clz, true, clLoader);
 
                     if (!Benchmark.class.isAssignableFrom(clzInstance))
                     {
