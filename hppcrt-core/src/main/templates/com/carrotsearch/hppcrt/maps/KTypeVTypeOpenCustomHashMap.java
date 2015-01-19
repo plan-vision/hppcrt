@@ -9,11 +9,11 @@ import com.carrotsearch.hppcrt.procedures.*;
 import com.carrotsearch.hppcrt.strategies.*;
 
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
-/*! #set( $ROBIN_HOOD_FOR_PRIMITIVES = true) !*/
-/*! #set( $ROBIN_HOOD_FOR_GENERICS = true) !*/
+/*! #set( $ROBIN_HOOD_FOR_ALL = true) !*/
 /*! #set( $DEBUG = false) !*/
-// If RH is defined, RobinHood Hashing is in effect :
-/*! #set( $RH = (($TemplateOptions.KTypeGeneric && $ROBIN_HOOD_FOR_GENERICS) || ($TemplateOptions.KTypeNumeric && $ROBIN_HOOD_FOR_PRIMITIVES)) ) !*/
+//If RH is defined, RobinHood Hashing is in effect :
+/*! #set( $RH = $ROBIN_HOOD_FOR_ALL) !*/
+
 /**
  * A hash map of <code>KType</code> to <code>VType</code>, implemented using open
  * addressing with linear probing for collision resolution.
@@ -53,7 +53,7 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenCustomHashMap<KType, VType>
-implements KTypeVTypeMap<KType, VType>, Cloneable
+        implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -84,13 +84,20 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      * recommended to use a {@link #iterator()} instead.
      * </pre>
     #end
+    #if (!$RH)
      * <p>
-     * Direct map iteration: iterate  {keys[i], values[i]} for i in [0; keys.length[ where this.allocated[i] is true.
+     * Direct map iteration: iterate  {keys[i], values[i]} for i in [0; keys.length[ where keys[i] != 0, then also
+     * {0, {@link #defaultKeyValue} } is in the map if {@link #allocatedDefaultKey} = true.
      * </p>
+    #else
+     * <p>
+     * Direct map iteration: iterate  {keys[i], values[i]} for i in [0; keys.length[ where this.allocated[i] is != -1.
+     * </p>
+    #end
+     * 
      * <p><b>Direct iteration warning: </b>
      * If the iteration goal is to fill another hash container, please iterate {@link #keys} in reverse to prevent performance losses.
      * @see #values
-     * @see #allocated
      */
     public KType[] keys;
 
@@ -112,6 +119,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      */
     public VType[] values;
 
+    /*! #if ($RH) !*/
     /**
      * Information if an entry (slot) in the {@link #keys} table is allocated
      * or empty.
@@ -121,14 +129,31 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      * #end
      * @see #assigned
      */
+    /*! #end !*/
     /*! #if ($RH) !*/
     public int[] allocated;
-    /*! #else
-    public boolean[] allocated;
+    /*! #end !*/
+
+    /**
+     #if (!$RH)
+     *True if key = 0 is in the map.
+     #end
+     */
+    /*! #if (!$RH)
+    public boolean allocatedDefaultKey = false;
     #end !*/
 
     /**
-     * Cached number of assigned slots in {@link #allocated}.
+     #if (!$RH)
+     * if allocatedDefaultKey = true, contains the associated V to the key = 0
+     #end
+     */
+    /*! #if (!$RH)
+    public VType defaultKeyValue;
+    #end !*/
+
+    /**
+     * Cached number of assigned slots in {@link #keys}.
      */
     protected int assigned;
 
@@ -139,7 +164,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     protected final float loadFactor;
 
     /**
-     * Resize buffers when {@link #allocated} hits this value.
+     * Resize buffers when {@link #keys} hits this value.
      */
     protected int resizeAt;
 
@@ -222,9 +247,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         /*! #if ($RH) !*/
         this.allocated = new int[internalCapacity];
         Internals.blankIntArrayMinusOne(this.allocated, 0, this.allocated.length);
-        /*! #else
-        this.allocated = new boolean[internalCapacity];
-        #end !*/
+        /*! #end !*/
 
         //Take advantage of the rounding so that the resize occur a bit later than expected.
         //allocate so that there is at least one slot that remains allocated = false
@@ -247,10 +270,26 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     @Override
     public VType put(KType key, VType value)
     {
-        assert this.assigned < this.allocated.length;
+        /*! #if (!$RH)
 
-        final int mask = this.allocated.length - 1;
+        if (Intrinsics.equalsKTypeDefault(key)) {
 
+            if (this.allocatedDefaultKey) {
+
+                VType previousValue = this.defaultKeyValue;
+                this.defaultKeyValue = value;
+
+                return previousValue;
+            }
+
+            this.defaultKeyValue = value;
+            this.allocatedDefaultKey = true;
+
+            return this.defaultValue;
+        }
+        #end !*/
+
+        final int mask = this.keys.length - 1;
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
         int slot = Internals.rehash(strategy.computeHashCode(key)) & mask;
@@ -260,9 +299,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         /*! #if ($RH) !*/
         final int[] allocated = this.allocated;
-        /*! #else
-        final boolean[] allocated = this.allocated;
-        #end !*/
+        /*! #end !*/
 
         /*! #if ($RH) !*/
         KType tmpKey;
@@ -273,7 +310,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         int existing_distance = 0;
         /*! #end !*/
 
-        while (allocated[slot] /*! #if ($RH) !*/!= -1 /*! #end !*/)
+        while (is_allocated(allocated, slot, keys))
         {
             if (strategy.equals(key, keys[slot]))
             {
@@ -331,9 +368,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             this.assigned++;
             /*! #if ($RH) !*/
             allocated[slot] = initial_slot;
-            /*! #else
-            allocated[slot] = true;
-            #end !*/
+            /*! #end !*/
 
             keys[slot] = key;
             values[slot] = value;
@@ -365,13 +400,13 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     @Override
     public int putAll(final Iterable<? extends KTypeVTypeCursor<? extends KType, ? extends VType>> iterable)
     {
-        final int count = this.assigned;
+        final int count = this.size();
 
         for (final KTypeVTypeCursor<? extends KType, ? extends VType> c : iterable)
         {
             put(c.key, c.value);
         }
-        return this.assigned - count;
+        return this.size() - count;
     }
 
     /**
@@ -416,9 +451,26 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     @Override
     public VType putOrAdd(KType key, VType putValue, VType additionValue)
     {
-        assert assigned < allocated.length;
+         #if (!$RH)
 
-        final int mask = allocated.length - 1;
+        if (Intrinsics.equalsKTypeDefault(key)) {
+
+            if (this.allocatedDefaultKey) {
+
+                this.defaultKeyValue += additionValue;
+
+                return this.defaultKeyValue;
+            }
+
+            this.defaultKeyValue = putValue;
+
+            this.allocatedDefaultKey = true;
+
+            return putValue;
+        }
+    #end
+
+        final int mask = keys.length - 1;
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
@@ -426,15 +478,13 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         #if ($RH)
         final int[] allocated = this.allocated;
-        #else
-        final boolean[] allocated = this.allocated;
         #end
 
 
         final KType[] keys = this.keys;
 
         final VType[] values = this.values;
-        VType value  = this.defaultValue;
+        VType value =  putValue;
 
         #if ($RH)
         KType tmpKey;
@@ -445,7 +495,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         int existing_distance = 0;
         #end
 
-        while (allocated[slot] #if ($RH) != -1  #end )
+        while (is_allocated(allocated, slot, keys))
         {
             #if ($RH)
             existing_distance = probe_distance(slot, allocated);
@@ -484,18 +534,16 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         }
 
         if (assigned == resizeAt) {
-            expandAndPut(key, putValue, slot);
+            expandAndPut(key, value, slot);
         } else {
 
             assigned++;
             #if ($RH)
             allocated[slot] = initial_slot;
-            #else
-            allocated[slot] = true;
             #end
 
             keys[slot] = key;
-            values[slot] = putValue;
+            values[slot] = value;
         }
         return putValue;
     }
@@ -541,7 +589,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         /*! #if ($RH) !*/
         assert this.allocated[freeSlot] == -1;
         /*! #else
-        assert !allocated[freeSlot];
+        //default sentinel value is never in the keys[] array, so never trigger reallocs
+        assert !Intrinsics.equalsKTypeDefault(pendingKey);
          #end !*/
 
         // Try to allocate new buffers first. If we OOM, it'll be now without
@@ -551,9 +600,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         /*! #if ($RH) !*/
         final int[] oldAllocated = this.allocated;
-        /*! #else
-        final boolean[] oldAllocated = this.allocated;
-        #end !*/
+        /*! #end !*/
 
         allocateBuffers(HashContainerUtils.nextCapacity(this.keys.length));
 
@@ -564,15 +611,13 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         //We don't care of the oldAllocated value, so long it means "allocated = true", since the whole set is rebuilt from scratch.
         /*! #if ($RH) !*/
         oldAllocated[freeSlot] = 1;
-        /*!#else
-        oldAllocated[freeSlot] = true;
-        #end !*/
+        /*! #end !*/
 
         oldKeys[freeSlot] = pendingKey;
         oldValues[freeSlot] = pendingValue;
 
         //for inserts
-        final int mask = this.allocated.length - 1;
+        final int mask = this.keys.length - 1;
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
@@ -586,9 +631,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         /*! #if ($RH) !*/
         final int[] allocated = this.allocated;
-        /*! #else
-        final boolean[] allocated = this.allocated;
-        #end !*/
+        /*! #end !*/
 
         /*! #if ($RH) !*/
         KType tmpKey = Intrinsics.<KType> defaultKTypeValue();
@@ -601,9 +644,9 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         //iterate all the old arrays to add in the newly allocated buffers
         //It is important to iterate backwards to minimize the conflict chain length !
-        for (int i = oldAllocated.length; --i >= 0;)
+        for (int i = oldKeys.length; --i >= 0;)
         {
-            if (oldAllocated[i] /*! #if ($RH) !*/!= -1 /*! #end !*/)
+            if (is_allocated(oldAllocated, i, oldKeys))
             {
                 key = oldKeys[i];
                 value = oldValues[i];
@@ -615,7 +658,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                 dist = 0;
                 /*! #end !*/
 
-                while (allocated[slot] /*! #if ($RH) !*/!= -1 /*! #end !*/)
+                while (is_allocated(allocated, slot, keys))
                 {
                     /*! #if ($RH) !*/
                     //re-shuffle keys to minimize variance
@@ -655,9 +698,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
                 /*! #if ($RH) !*/
                 allocated[slot] = initial_slot;
-                /*! #else
-                allocated[slot] = true;
-                #end !*/
+                /*! #end !*/
 
                 keys[slot] = key;
                 values[slot] = value;
@@ -685,14 +726,14 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         /*! #if ($RH) !*/
         final int[] allocated = new int[capacity];
         Internals.blankIntArrayMinusOne(allocated, 0, allocated.length);
-        /*! #else
-         final boolean[] allocated = new boolean[capacity];
-        #end !*/
+        /*!  #end !*/
 
         this.keys = keys;
         this.values = values;
 
+        /*! #if ($RH) !*/
         this.allocated = allocated;
+        /*! #end !*/
 
         //allocate so that there is at least one slot that remains allocated = false
         //this is compulsory to guarantee proper stop in searching loops
@@ -706,7 +747,21 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     @Override
     public VType remove(final KType key)
     {
-        final int mask = this.allocated.length - 1;
+        /*! #if (!$RH)
+         if (Intrinsics.equalsKTypeDefault(key)) {
+
+             if (this.allocatedDefaultKey) {
+
+                 VType previousValue = this.defaultKeyValue;
+
+                 this.allocatedDefaultKey = false;
+                 return previousValue;
+             }
+
+             return this.defaultValue;
+         }
+        #end !*/
+        final int mask = this.keys.length - 1;
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
@@ -720,11 +775,9 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         /*! #if ($RH) !*/
         final int[] states = this.allocated;
-        /*! #else
-        final boolean[] states = this.allocated;
-        #end !*/
+        /*!  #end !*/
 
-        while (states[slot] /*! #if ($RH) !*/!= -1 /*! #end !*/
+        while (is_allocated(states, slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, states) /*! #end !*/)
         {
             if (strategy.equals(key, keys[slot]))
@@ -752,7 +805,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     protected void shiftConflictingKeys(int slotCurr)
     {
         // Copied nearly verbatim from fastutil's impl.
-        final int mask = this.allocated.length - 1;
+        final int mask = this.keys.length - 1;
         int slotPrev, slotOther;
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
@@ -762,15 +815,13 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         /*! #if ($RH) !*/
         final int[] allocated = this.allocated;
-        /*! #else
-         final boolean[] allocated = this.allocated;
-        #end !*/
+        /*!  #end !*/
 
         while (true)
         {
             slotCurr = ((slotPrev = slotCurr) + 1) & mask;
 
-            while (allocated[slotCurr] /*! #if ($RH) !*/!= -1 /*! #end !*/)
+            while (is_allocated(allocated, slotCurr, keys))
             {
                 /*! #if ($RH) !*/
                 //use the cached value, no need to recompute
@@ -802,11 +853,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                 slotCurr = (slotCurr + 1) & mask;
             }
 
-            if (/*! #if ($RH) !*/
-                    allocated[slotCurr] == -1
-                    /*! #else
-            !allocated[slotCurr]
-            #end !*/)
+            if (!is_allocated(allocated, slotCurr, keys))
             {
                 break;
             }
@@ -831,11 +878,9 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         //means not allocated
         /*! #if ($RH) !*/
         allocated[slotPrev] = -1;
-        /*! #else
-         allocated[slotPrev] = false;
-        #end !*/
+        /*!  #end !*/
 
-        /* #if ($TemplateOptions.KTypeGeneric) */
+        /* #if (($TemplateOptions.KTypeGeneric) || !$RH) */
         keys[slotPrev] = Intrinsics.<KType> defaultKTypeValue();
         /* #end */
         /* #if ($TemplateOptions.VTypeGeneric) */
@@ -849,14 +894,14 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     @Override
     public int removeAll(final KTypeContainer<? extends KType> container)
     {
-        final int before = this.assigned;
+        final int before = this.size();
 
         for (final KTypeCursor<? extends KType> cursor : container)
         {
             remove(cursor.value);
         }
 
-        return before - this.assigned;
+        return before - this.size();
     }
 
     /**
@@ -867,19 +912,27 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     @Override
     public int removeAll(final KTypePredicate<? super KType> predicate)
     {
-        final int before = this.assigned;
+        final int before = this.size();
+
+/*! #if (!$RH)
+        if (this.allocatedDefaultKey) {
+
+            if (predicate.apply(Intrinsics.defaultKTypeValue()))
+            {
+                 this.allocatedDefaultKey = false;
+            }
+        }
+#end !*/
 
         final KType[] keys = this.keys;
 
         /*! #if ($RH) !*/
         final int[] states = this.allocated;
-        /*! #else
-        final boolean[] states = this.allocated;
-        #end !*/
+        /*! #end !*/
 
-        for (int i = 0; i < states.length;)
+        for (int i = 0; i < keys.length;)
         {
-            if (states[i] /*! #if ($RH) !*/!= -1 /*! #end !*/)
+            if (is_allocated(states, i, keys))
             {
                 if (predicate.apply(keys[i]))
                 {
@@ -891,7 +944,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             }
             i++;
         }
-        return before - this.assigned;
+        return before - this.size();
     }
 
     /**
@@ -907,7 +960,18 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     @Override
     public VType get(final KType key)
     {
-        final int mask = this.allocated.length - 1;
+        /*! #if (!$RH)
+        if (Intrinsics.equalsKTypeDefault(key)) {
+
+            if (this.allocatedDefaultKey) {
+
+                return this.defaultKeyValue;
+            }
+
+            return this.defaultValue;
+        }
+        #end !*/
+        final int mask = this.keys.length - 1;
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
@@ -921,11 +985,9 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         /*! #if ($RH) !*/
         final int[] states = this.allocated;
-        /*! #else
-        final boolean[] states = this.allocated;
-        #end !*/
+        /*!  #end !*/
 
-        while (states[slot] /*! #if ($RH) !*/!= -1 /*! #end !*/
+        while (is_allocated(states, slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, states) /*! #end !*/)
         {
             if (strategy.equals(key, keys[slot]))
@@ -961,11 +1023,19 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      */
     public KType lkey()
     {
+/*! #if (!$RH)
+
+     if (this.lastSlot == -2) {
+
+         return Intrinsics.defaultKTypeValue();
+     }
+
+#end !*/
         assert this.lastSlot >= 0 : "Call containsKey() first.";
         /*! #if ($RH) !*/
         assert this.allocated[this.lastSlot] != -1 : "Last call to exists did not have any associated value.";
         /*! #else
-         assert allocated[lastSlot] : "Last call to exists did not have any associated value.";
+         assert ! Intrinsics.equalsKTypeDefault(this.keys[lastSlot]) : "Last call to exists did not have any associated value.";
         #end !*/
 
         return this.keys[this.lastSlot];
@@ -978,11 +1048,17 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      */
     public VType lget()
     {
+/*! #if (!$RH)
+        if (this.lastSlot == -2) {
+
+            return this.defaultKeyValue;
+        }
+#end !*/
         assert this.lastSlot >= 0 : "Call containsKey() first.";
         /*! #if ($RH) !*/
         assert this.allocated[this.lastSlot] != -1 : "Last call to exists did not have any associated value.";
         /*! #else
-         assert allocated[lastSlot] : "Last call to exists did not have any associated value.";
+         assert !Intrinsics.equalsKTypeDefault(this.keys[lastSlot]) : "Last call to exists did not have any associated value.";
         #end !*/
 
         return this.values[this.lastSlot];
@@ -996,29 +1072,39 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      * @see #containsKey
      * @return Returns the previous value stored under the given key.
      */
-    public VType lset(final VType key)
+    public VType lset(final VType value)
     {
+/*! #if (!$RH)
+        if (this.lastSlot == -2) {
+
+            VType previous = this.defaultKeyValue;
+            this.defaultKeyValue = value;
+            return previous;
+        }
+#end !*/
         assert this.lastSlot >= 0 : "Call containsKey() first.";
         /*! #if ($RH) !*/
         assert this.allocated[this.lastSlot] != -1 : "Last call to exists did not have any associated value.";
         /*! #else
-         assert allocated[lastSlot] : "Last call to exists did not have any associated value.";
+         assert ! Intrinsics.equalsKTypeDefault(this.keys[lastSlot]) : "Last call to exists did not have any associated value.";
         #end !*/
 
         final VType previous = this.values[this.lastSlot];
-        this.values[this.lastSlot] = key;
+        this.values[this.lastSlot] = value;
         return previous;
     }
 
     /**
      * @return Returns the slot of the last key looked up in a call to {@link #containsKey} if
-     * it returned <code>true</code>.
-     * 
+     * it returned <code>true</code>
+     * #if (!$RH)
+     * or else -2 if {@link #containsKey} were successful on key = 0
+     * #end
      * @see #containsKey
      */
     public int lslot()
     {
-        assert this.lastSlot >= 0 : "Call containsKey() first.";
+        assert this.lastSlot >= 0 || this.lastSlot == -2 : "Call containsKey() first.";
         return this.lastSlot;
     }
 
@@ -1046,7 +1132,20 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     @Override
     public boolean containsKey(final KType key)
     {
-        final int mask = this.allocated.length - 1;
+        /*! #if (!$RH)
+        if (Intrinsics.equalsKTypeDefault(key)) {
+
+            if (this.allocatedDefaultKey) {
+                this.lastSlot = -2;
+            } else {
+                this.lastSlot = -1;
+            }
+
+            return this.allocatedDefaultKey;
+        }
+        #end !*/
+
+        final int mask = this.keys.length - 1;
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
@@ -1060,11 +1159,9 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         /*! #if ($RH) !*/
         final int[] states = this.allocated;
-        /*! #else
-        final boolean[] states = this.allocated;
-        #end !*/
+        /*!  #end !*/
 
-        while (states[slot] /*! #if ($RH) !*/!= -1 /*! #end !*/
+        while (is_allocated(states, slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, states) /*! #end !*/)
         {
             if (strategy.equals(key, keys[slot]))
@@ -1099,11 +1196,13 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         // States are always cleared.
         /*! #if ($RH) !*/
         Internals.blankIntArrayMinusOne(this.allocated, 0, this.allocated.length);
-        /*! #else
-         Internals.blankBooleanArray(allocated, 0, allocated.length);
+        /*! #end !*/
+
+        /*! #if (!$RH)
+        this.allocatedDefaultKey = false;
         #end !*/
 
-        /*! #if ($TemplateOptions.KTypeGeneric) !*/
+        /*! #if (($TemplateOptions.KTypeGeneric) || !$RH) !*/
         //Faster than Arrays.fill(keys, null); // Help the GC.
         KTypeArrays.blankArray(this.keys, 0, this.keys.length);
         /*! #end !*/
@@ -1120,7 +1219,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     @Override
     public int size()
     {
-        return this.assigned;
+        return this.assigned /*! #if (!$RH) + (this.allocatedDefaultKey?1:0) #end !*/;
     }
 
     /**
@@ -1151,21 +1250,24 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     public int hashCode()
     {
         int h = 0;
+        /*! #if (!$RH)
+        if (this.allocatedDefaultKey) {
+            h +=  Internals.rehash(Intrinsics.defaultKTypeValue()) + Internals.rehash(this.defaultKeyValue);
+        }
+        #end !*/
 
         final KType[] keys = this.keys;
         final VType[] values = this.values;
 
         /*! #if ($RH) !*/
         final int[] states = this.allocated;
-        /*! #else
-        final boolean[] states = this.allocated;
-        #end !*/
+        /*! #end !*/
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
-        for (int i = states.length; --i >= 0;)
+        for (int i = keys.length; --i >= 0;)
         {
-            if (states[i]/*! #if ($RH) !*/!= -1 /*! #end !*/)
+            if (is_allocated(states, i, keys))
             {
                 //This hash is an intrinsic property of the container contents,
                 //consequently is independent from the HashStrategy, so do not use it !
@@ -1178,11 +1280,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     }
 
     /**
-     * this instance and obj can only be equal if : <pre>
-     * (both are KTypeVTypeOpenCustomHashMap)
-     * and
-     * (both have equal hash strategies defined by {@link #KTypeHashingStrategy}.equals(obj.hashStrategy))</pre>
-     * then, both maps are compared using their {@link #KTypeHashingStrategy}.
+     * {@inheritDoc}
      */
     @Override
     public boolean equals(final Object obj)
@@ -1253,14 +1351,28 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         @Override
         protected KTypeVTypeCursor<KType, VType> fetch()
         {
+            /*! #if (!$RH)
+               if (this.cursor.index == KTypeVTypeOpenCustomHashMap.this.keys.length + 1) {
+
+                   if (KTypeVTypeOpenCustomHashMap.this.allocatedDefaultKey) {
+
+                       this.cursor.index = KTypeVTypeOpenCustomHashMap.this.keys.length;
+                       this.cursor.key = Intrinsics.defaultKTypeValue();
+                       this.cursor.value = KTypeVTypeOpenCustomHashMap.this.defaultKeyValue;
+
+                       return this.cursor;
+
+                   } else {
+                       //no value associated with the default key, continue iteration...
+                       this.cursor.index = KTypeVTypeOpenCustomHashMap.this.keys.length;
+                   }
+               }
+
+            #end !*/
             int i = this.cursor.index - 1;
 
             while (i >= 0 &&
-                    /*! #if ($RH) !*/
-                    KTypeVTypeOpenCustomHashMap.this.allocated[i] == -1
-                    /*! #else
-            !allocated[i]
-            #end  !*/)
+                    !is_allocated(KTypeVTypeOpenCustomHashMap.this.allocated, i, KTypeVTypeOpenCustomHashMap.this.keys))
             {
                 i--;
             }
@@ -1293,7 +1405,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                 @Override
                 public void initialize(final EntryIterator obj)
                 {
-                    obj.cursor.index = KTypeVTypeOpenCustomHashMap.this.keys.length;
+                    obj.cursor.index = KTypeVTypeOpenCustomHashMap.this.keys.length /*! #if (!$RH) +1 #end !*/;
                 }
 
                 @Override
@@ -1319,20 +1431,24 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     @Override
     public <T extends KTypeVTypeProcedure<? super KType, ? super VType>> T forEach(final T procedure)
     {
+/*! #if (!$RH)
+        if (this.allocatedDefaultKey) {
+
+            procedure.apply(Intrinsics.defaultKTypeValue(), this.defaultKeyValue);
+        }
+#end !*/
         final KType[] keys = this.keys;
         final VType[] values = this.values;
 
         /*! #if ($RH) !*/
         final int[] states = this.allocated;
-        /*! #else
-        final boolean[] states = this.allocated;
-        #end !*/
+        /*! #end !*/
 
         //Iterate in reverse for side-stepping the longest conflict chain
         //in another hash, in case apply() is actually used to fill another hash container.
-        for (int i = states.length - 1; i >= 0; i--)
+        for (int i = keys.length - 1; i >= 0; i--)
         {
-            if (states[i] /*! #if ($RH) !*/!= -1 /*! #end !*/)
+            if (is_allocated(states, i, keys))
             {
                 procedure.apply(keys[i], values[i]);
             }
@@ -1347,20 +1463,27 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     @Override
     public <T extends KTypeVTypePredicate<? super KType, ? super VType>> T forEach(final T predicate)
     {
+/*! #if (!$RH)
+        if (this.allocatedDefaultKey) {
+
+            if(! predicate.apply(Intrinsics.defaultKTypeValue(), this.defaultKeyValue)) {
+
+                return predicate;
+            }
+        }
+#end !*/
         final KType[] keys = this.keys;
         final VType[] values = this.values;
 
         /*! #if ($RH) !*/
         final int[] states = this.allocated;
-        /*! #else
-        final boolean[] states = this.allocated;
-        #end !*/
+        /*! #end !*/
 
         //Iterate in reverse for side-stepping the longest conflict chain
         //in another hash, in case apply() is actually used to fill another hash container.
-        for (int i = states.length - 1; i >= 0; i--)
+        for (int i = keys.length - 1; i >= 0; i--)
         {
-            if (states[i] /*! #if ($RH) !*/!= -1 /*! #end !*/)
+            if (is_allocated(states, i, keys))
             {
                 if (!predicate.apply(keys[i], values[i]))
                 {
@@ -1386,7 +1509,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      * A view of the keys inside this hash map.
      */
     public final class KeysContainer
-    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenCustomHashMap<KType, VType> owner =
                 KTypeVTypeOpenCustomHashMap.this;
@@ -1400,19 +1523,23 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         @Override
         public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure)
         {
+            /*! #if (!$RH)
+                    if (this.owner.allocatedDefaultKey) {
+
+                        procedure.apply(Intrinsics.defaultKTypeValue());
+                    }
+            #end !*/
             final KType[] keys = this.owner.keys;
 
             /*! #if ($RH) !*/
             final int[] states = this.owner.allocated;
-            /*! #else
-            final boolean[] states = owner.allocated;
-            #end !*/
+            /*! #end !*/
 
             //Iterate in reverse for side-stepping the longest conflict chain
             //in another hash, in case apply() is actually used to fill another hash container.
-            for (int i = states.length - 1; i >= 0; i--)
+            for (int i = keys.length - 1; i >= 0; i--)
             {
-                if (states[i] /*! #if ($RH) !*/!= -1 /*! #end !*/)
+                if (is_allocated(states, i, keys))
                 {
                     procedure.apply(keys[i]);
                 }
@@ -1424,19 +1551,26 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         @Override
         public <T extends KTypePredicate<? super KType>> T forEach(final T predicate)
         {
+            /*! #if (!$RH)
+                   if (this.owner.allocatedDefaultKey) {
+
+                       if(! predicate.apply(Intrinsics.defaultKTypeValue())) {
+
+                           return predicate;
+                       }
+                   }
+            #end !*/
             final KType[] keys = this.owner.keys;
 
             /*! #if ($RH) !*/
             final int[] states = this.owner.allocated;
-            /*! #else
-            final boolean[] states = owner.allocated;
-            #end !*/
+            /*! #end !*/
 
             //Iterate in reverse for side-stepping the longest conflict chain
             //in another hash, in case apply() is actually used to fill another hash container.
-            for (int i = states.length - 1; i >= 0; i--)
+            for (int i = keys.length - 1; i >= 0; i--)
             {
-                if (states[i] /*! #if ($RH) !*/!= -1 /*! #end !*/)
+                if (is_allocated(states, i, keys))
                 {
                     if (!predicate.apply(keys[i]))
                     {
@@ -1516,7 +1650,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                     @Override
                     public void initialize(final KeysIterator obj)
                     {
-                        obj.cursor.index = KTypeVTypeOpenCustomHashMap.this.keys.length;
+                        obj.cursor.index = KTypeVTypeOpenCustomHashMap.this.keys.length /*! #if (!$RH) +1 #end !*/;
                     }
 
                     @Override
@@ -1528,30 +1662,35 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         @Override
         public KType[] toArray(final KType[] target)
         {
+            int count = 0;
+
+            /*! #if (!$RH)
+                    if (this.owner.allocatedDefaultKey) {
+
+                        target[count++] = Intrinsics.defaultKTypeValue();
+                    }
+            #end !*/
             final KType[] keys = this.owner.keys;
 
             /*! #if ($RH) !*/
             final int[] states = this.owner.allocated;
-            /*! #else
-            final boolean[] states = owner.allocated;
-            #end !*/
+            /*! #end !*/
 
-            int count = 0;
             for (int i = 0; i < keys.length; i++)
             {
-                if (states[i] /*! #if ($RH) !*/!= -1 /*! #end !*/)
+                if (is_allocated(states, i, keys))
                 {
                     target[count++] = keys[i];
                 }
             }
 
-            assert count == this.owner.assigned;
+            assert count == this.owner.size();
             return target;
         }
     };
 
     /**
-     * An iterator over the set of assigned keys.
+     * An iterator over the set of keys.
      */
     public final class KeysIterator extends AbstractIterator<KTypeCursor<KType>>
     {
@@ -1570,14 +1709,26 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         @Override
         protected KTypeCursor<KType> fetch()
         {
+            /*! #if (!$RH)
+            if (this.cursor.index == KTypeVTypeOpenCustomHashMap.this.keys.length + 1) {
+
+                if (KTypeVTypeOpenCustomHashMap.this.allocatedDefaultKey) {
+
+                    this.cursor.index = KTypeVTypeOpenCustomHashMap.this.keys.length;
+                    this.cursor.value = Intrinsics.defaultKTypeValue();
+
+                    return this.cursor;
+
+                } else {
+                    //no value associated with the default key, continue iteration...
+                    this.cursor.index = KTypeVTypeOpenCustomHashMap.this.keys.length;
+                }
+            }
+
+            #end !*/
             int i = this.cursor.index - 1;
 
-            while (i >= 0 &&
-                    /*! #if ($RH) !*/
-                    KTypeVTypeOpenCustomHashMap.this.allocated[i] == -1
-                    /*! #else
-            !allocated[i]
-            #end  !*/)
+            while (i >= 0 && !is_allocated(KTypeVTypeOpenCustomHashMap.this.allocated, i, KTypeVTypeOpenCustomHashMap.this.keys))
             {
                 i--;
             }
@@ -1633,22 +1784,23 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         @Override
         public boolean contains(final VType value)
         {
+            /*! #if (!$RH)
+                    if (this.owner.allocatedDefaultKey && Intrinsics.equalsVType(value, this.owner.defaultKeyValue)) {
+
+                        return true;
+                    }
+            #end !*/
             // This is a linear scan over the values, but it's in the contract, so be it.
             /*! #if ($RH) !*/
             final int[] states = this.owner.allocated;
-            /*! #else
-            final boolean[] states = owner.allocated;
-            #end !*/
+            /*! #end !*/
 
+            final KType[] keys = this.owner.keys;
             final VType[] values = this.owner.values;
 
-            for (int slot = 0; slot < states.length; slot++)
+            for (int slot = 0; slot < keys.length; slot++)
             {
-                if (/*! #if ($RH) !*/
-                        states[slot] != -1
-                        /*! #else
-                        states[slot]
-                        #end  !*/
+                if (is_allocated(states, slot, keys)
                         && Intrinsics.equalsVType(value, values[slot]))
                 {
                     return true;
@@ -1660,21 +1812,22 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         @Override
         public <T extends KTypeProcedure<? super VType>> T forEach(final T procedure)
         {
+            /*! #if (!$RH)
+                    if (this.owner.allocatedDefaultKey) {
+
+                        procedure.apply(this.owner.defaultKeyValue);
+                    }
+            #end !*/
             /*! #if ($RH) !*/
             final int[] states = this.owner.allocated;
-            /*! #else
-            final boolean[] states = owner.allocated;
-            #end !*/
+            /*!  #end !*/
 
+            final KType[] keys = this.owner.keys;
             final VType[] values = this.owner.values;
 
-            for (int slot = 0; slot < states.length; slot++)
+            for (int slot = 0; slot < keys.length; slot++)
             {
-                if (/*! #if ($RH) !*/
-                        states[slot] != -1
-                        /*! #else
-                states[slot]
-                #end  !*/) {
+                if (is_allocated(states, slot, keys)) {
                     procedure.apply(values[slot]);
                 }
             }
@@ -1685,21 +1838,25 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         @Override
         public <T extends KTypePredicate<? super VType>> T forEach(final T predicate)
         {
+            /*! #if (!$RH)
+            if (this.owner.allocatedDefaultKey) {
+
+               if (!predicate.apply(this.owner.defaultKeyValue))
+               {
+                   return predicate;
+               }
+            }
+            #end !*/
             /*! #if ($RH) !*/
             final int[] states = this.owner.allocated;
-            /*! #else
-            final boolean[] states = owner.allocated;
-            #end !*/
+            /*! #end !*/
 
+            final KType[] keys = this.owner.keys;
             final VType[] values = this.owner.values;
 
-            for (int slot = 0; slot < states.length; slot++)
+            for (int slot = 0; slot < keys.length; slot++)
             {
-                if (/*! #if ($RH) !*/
-                        states[slot] != -1
-                        /*! #else
-                states[slot]
-                #end  !*/)
+                if (is_allocated(states, slot, keys))
                 {
                     if (!predicate.apply(values[slot]))
                     {
@@ -1726,31 +1883,40 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         @Override
         public int removeAllOccurrences(final VType e)
         {
-            final int before = this.owner.assigned;
+            final int before = this.owner.size();
 
+            /*! #if (!$RH)
+            if (this.owner.allocatedDefaultKey) {
+
+                if(Intrinsics.equalsVType(e, this.owner.defaultKeyValue)) {
+
+                    this.owner.allocatedDefaultKey = false;
+                }
+            }
+            #end !*/
+
+            final KType[] keys = this.owner.keys;
             final VType[] values = this.owner.values;
 
             /*! #if ($RH) !*/
             final int[] states = this.owner.allocated;
-            /*! #else
-            final boolean[] states = owner.allocated;
-            #end !*/
+            /*! #end !*/
 
-            for (int i = 0; i < states.length;)
+            for (int slot = 0; slot < keys.length;)
             {
-                if (states[i] /*! #if ($RH) !*/!= -1 /*! #end !*/)
+                if (is_allocated(states, slot, keys))
                 {
-                    if (Intrinsics.equalsVType(e, values[i]))
+                    if (Intrinsics.equalsVType(e, values[slot]))
                     {
                         this.owner.assigned--;
-                        shiftConflictingKeys(i);
+                        shiftConflictingKeys(slot);
                         // Repeat the check for the same i.
                         continue;
                     }
                 }
-                i++;
+                slot++;
             }
-            return before - this.owner.assigned;
+            return before - this.owner.size();
         }
 
         /**
@@ -1761,31 +1927,40 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         @Override
         public int removeAll(final KTypePredicate<? super VType> predicate)
         {
-            final int before = this.owner.assigned;
+            final int before = this.owner.size();
 
+            /*! #if (!$RH)
+            if (this.owner.allocatedDefaultKey) {
+
+                if(predicate.apply(this.owner.defaultKeyValue)) {
+
+                    this.owner.allocatedDefaultKey = false;
+                }
+            }
+            #end !*/
+
+            final KType[] keys = this.owner.keys;
             final VType[] values = this.owner.values;
 
             /*! #if ($RH) !*/
             final int[] states = this.owner.allocated;
-            /*! #else
-            final boolean[] states = owner.allocated;
-            #end !*/
+            /*! #end !*/
 
-            for (int i = 0; i < states.length;)
+            for (int slot = 0; slot < keys.length;)
             {
-                if (states[i] /*! #if ($RH) !*/!= -1 /*! #end !*/)
+                if (is_allocated(states, slot, keys))
                 {
-                    if (predicate.apply(values[i]))
+                    if (predicate.apply(values[slot]))
                     {
                         this.owner.assigned--;
-                        shiftConflictingKeys(i);
+                        shiftConflictingKeys(slot);
                         // Repeat the check for the same i.
                         continue;
                     }
                 }
-                i++;
+                slot++;
             }
-            return before - this.owner.assigned;
+            return before - this.owner.size();
         }
 
         /**
@@ -1814,7 +1989,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                     @Override
                     public void initialize(final ValuesIterator obj)
                     {
-                        obj.cursor.index = KTypeVTypeOpenCustomHashMap.this.keys.length;
+                        obj.cursor.index = KTypeVTypeOpenCustomHashMap.this.keys.length /*! #if (!$RH) +1 #end !*/;
                     }
 
                     @Override
@@ -1827,30 +2002,39 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         @Override
         public VType[] toArray(final VType[] target)
         {
+            int count = 0;
+
+            /*! #if (!$RH)
+            if (this.owner.allocatedDefaultKey) {
+
+                target[count++] = this.owner.defaultKeyValue;
+            }
+            #end !*/
             /*! #if ($RH) !*/
             final int[] states = this.owner.allocated;
-            /*! #else
-            final boolean[] states = owner.allocated;
-            #end !*/
-            final VType[] values = this.owner.values;
+            /*! #end !*/
 
-            int count = 0;
+            /*! #if (!$RH) !*/
+            final KType[] keys = this.owner.keys;
+            /*! #end !*/
+
+            final VType[] values = this.owner.values;
 
             for (int i = 0; i < values.length; i++)
             {
-                if (states[i] /*! #if ($RH) !*/!= -1 /*! #end !*/)
+                if (is_allocated(states, i, keys))
                 {
                     target[count++] = values[i];
                 }
             }
 
-            assert count == this.owner.assigned;
+            assert count == this.owner.size();
             return target;
         }
     }
 
     /**
-     * An iterator over the set of assigned values.
+     * An iterator over the set of  values.
      */
     public final class ValuesIterator extends AbstractIterator<KTypeCursor<VType>>
     {
@@ -1869,14 +2053,27 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         @Override
         protected KTypeCursor<VType> fetch()
         {
+            /*! #if (!$RH)
+            if (this.cursor.index == KTypeVTypeOpenCustomHashMap.this.values.length + 1) {
+
+                if (KTypeVTypeOpenCustomHashMap.this.allocatedDefaultKey) {
+
+                    this.cursor.index = KTypeVTypeOpenCustomHashMap.this.values.length;
+                    this.cursor.value = KTypeVTypeOpenCustomHashMap.this.defaultKeyValue;
+
+                    return this.cursor;
+
+                } else {
+                    //no value associated with the default key, continue iteration...
+                    this.cursor.index = KTypeVTypeOpenCustomHashMap.this.keys.length;
+                }
+            }
+
+            #end !*/
             int i = this.cursor.index - 1;
 
             while (i >= 0 &&
-                    /*! #if ($RH) !*/
-                    KTypeVTypeOpenCustomHashMap.this.allocated[i] == -1
-                    /*! #else
-            !allocated[i]
-            #end  !*/)
+                    !is_allocated(KTypeVTypeOpenCustomHashMap.this.allocated, i, KTypeVTypeOpenCustomHashMap.this.keys))
             {
                 i--;
             }
@@ -1907,7 +2104,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         @SuppressWarnings("unchecked")
         final/* #end */
         KTypeVTypeOpenCustomHashMap<KType, VType> cloned =
-        new KTypeVTypeOpenCustomHashMap<KType, VType>(this.size(), this.loadFactor, this.hashStrategy);
+                new KTypeVTypeOpenCustomHashMap<KType, VType>(this.size(), this.loadFactor, this.hashStrategy);
 
         cloned.putAll(this);
 
@@ -2015,6 +2212,33 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         this.defaultValue = defaultValue;
     }
 
+/*! #if ($RH) !*/
+    //Test for existence in RH or template
+
+    /*! #if ($TemplateOptions.inline("is_allocated",
+    "(alloc, slot, keys)",
+    "alloc[slot] != -1")) !*/
+    /**
+     * Robin-Hood / template version
+     * (actual method is inlined in generated code)
+     */
+    private boolean is_allocated(final int[] alloc, final int slot, final KType[] keys) {
+
+        return alloc[slot] != -1;
+    }
+
+    /*! #end !*/
+
+/*! #else
+  //Test for existence with default value sentinels
+
+     #if ($TemplateOptions.inline("is_allocated",
+    "(alloc, slot, keys)",
+    "! Intrinsics.equalsKTypeDefault(keys[slot])"))
+    //nothing !
+    #end
+
+#end !*/
     /*! #if ($TemplateOptions.inline("probe_distance",
     "(slot, alloc)",
     "slot < alloc[slot] ? slot + alloc.length - alloc[slot] : slot - alloc[slot]")) !*/
