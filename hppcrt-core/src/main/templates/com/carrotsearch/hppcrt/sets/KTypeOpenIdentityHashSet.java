@@ -39,8 +39,8 @@ import com.carrotsearch.hppcrt.procedures.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenIdentityHashSet<KType>
-extends AbstractKTypeCollection<KType>
-implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+        extends AbstractKTypeCollection<KType>
+        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -370,6 +370,24 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         final KType[] keys = this.keys;
 
+        ////Fast path 1: the first slot is empty, bailout returning  false
+        if (!is_allocated(slot, keys)) {
+
+            return false;
+        }
+
+        ////Fast path 2 : the first slot contains the key, remove it and return
+        if (key == keys[slot])
+        {
+            this.assigned--;
+            shiftConflictingKeys(slot);
+
+            return true;
+        }
+
+        ////Fast path 3: position now on the 2nd slot
+        slot = (slot + 1) & mask;
+
         while (is_allocated(slot, keys))
         {
             if (key == keys[slot])
@@ -431,7 +449,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
             keys[slotPrev] = keys[slotCurr];
         }
 
-        //means not allocated aand for GC
+        //means not allocated and for GC
         keys[slotPrev] = Intrinsics.<KType> defaultKTypeValue();
     }
 
@@ -495,6 +513,25 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         int slot = Internals.rehash(System.identityHashCode(key)) & mask;
 
         final KType[] keys = this.keys;
+
+        ////Fast path 1: the first slot is empty, bailout returning false
+        if (!is_allocated(slot, keys)) {
+
+            //unsuccessful search
+            this.lastSlot = -1;
+
+            return false;
+        }
+
+        ////Fast path 2 : the first slot contains the key, return true
+        if (key == keys[slot])
+        {
+            this.lastSlot = slot;
+            return true;
+        }
+
+        ////Fast path 3 : position now on the 2nd slot
+        slot = (slot + 1) & mask;
 
         while (is_allocated(slot, keys))
         {

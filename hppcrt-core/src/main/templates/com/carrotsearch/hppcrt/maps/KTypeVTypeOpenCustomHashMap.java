@@ -53,7 +53,7 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenCustomHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -298,7 +298,7 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
         final VType[] values = this.values;
 
         /*! #if ($RH) !*/
-        final int[] allocated = this.allocated;
+        final int[] states = this.allocated;
         /*! #end !*/
 
         /*! #if ($RH) !*/
@@ -310,7 +310,7 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
         int existing_distance = 0;
         /*! #end !*/
 
-        while (is_allocated(allocated, slot, keys))
+        while (is_allocated(states, slot, keys))
         {
             if (strategy.equals(key, keys[slot]))
             {
@@ -322,7 +322,7 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
 
             /*! #if ($RH) !*/
             //re-shuffle keys to minimize variance
-            existing_distance = probe_distance(slot, allocated);
+            existing_distance = probe_distance(slot, states);
 
             if (dist > existing_distance)
             {
@@ -331,8 +331,8 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
                 keys[slot] = key;
                 key = tmpKey;
 
-                tmpAllocated = allocated[slot];
-                allocated[slot] = initial_slot;
+                tmpAllocated = states[slot];
+                states[slot] = initial_slot;
                 initial_slot = tmpAllocated;
 
                 tmpValue = values[slot];
@@ -342,7 +342,7 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
                 /*! #if($DEBUG) !*/
                 //Check invariants
 
-                assert allocated[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
+                assert states[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
                 assert initial_slot == (Internals.rehash(strategy.computeHashCode(key)) & mask);
                 /*! #end !*/
 
@@ -367,7 +367,7 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
         {
             this.assigned++;
             /*! #if ($RH) !*/
-            allocated[slot] = initial_slot;
+            states[slot] = initial_slot;
             /*! #end !*/
 
             keys[slot] = key;
@@ -376,7 +376,7 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
             /*! #if ($RH) !*/
             /*! #if($DEBUG) !*/
             //Check invariants
-            assert allocated[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
+            assert states[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
 
             /*! #end !*/
             /*! #end !*/
@@ -477,7 +477,7 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
         int slot = Internals.rehash(strategy.computeHashCode(key)) & mask;
 
         #if ($RH)
-        final int[] allocated = this.allocated;
+        final int[] states = this.allocated;
         #end
 
 
@@ -495,10 +495,10 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
         int existing_distance = 0;
         #end
 
-        while (is_allocated(allocated, slot, keys))
+        while (is_allocated(states, slot, keys))
         {
             #if ($RH)
-            existing_distance = probe_distance(slot, allocated);
+            existing_distance = probe_distance(slot, states);
             #end
 
             if (strategy.equals(key, keys[slot]))
@@ -518,8 +518,8 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
                 values[slot] = value;
                 value =  tmpValue;
 
-                tmpAllocated = allocated[slot];
-                allocated[slot] = initial_slot;
+    			tmpAllocated = states[slot];
+    			states[slot] = initial_slot;
                 initial_slot = tmpAllocated;
 
                 dist = existing_distance;
@@ -539,7 +539,7 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
 
             assigned++;
             #if ($RH)
-            allocated[slot] = initial_slot;
+            states[slot] = initial_slot;
             #end
 
             keys[slot] = key;
@@ -777,6 +777,26 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
         final int[] states = this.allocated;
         /*!  #end !*/
 
+        ////Fast path 1: the first slot is empty, bailout returning  this.defaultValue
+        if (!is_allocated(states, slot, keys)) {
+
+            return this.defaultValue;
+        }
+
+        ////Fast path 2 : the first slot contains the key, remove it and return
+        if (strategy.equals(key, keys[slot]))
+        {
+            final VType value = this.values[slot];
+
+            this.assigned--;
+            shiftConflictingKeys(slot);
+
+            return value;
+        }
+
+        ////Fast path 3  :position now on the 2nd slot
+        slot = (slot + 1) & mask;
+
         while (is_allocated(states, slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, states) /*! #end !*/)
         {
@@ -987,6 +1007,21 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
         final int[] states = this.allocated;
         /*!  #end !*/
 
+        ////Fast path 1: the first slot is empty, bailout returning  this.defaultValue
+        if (!is_allocated(states, slot, keys)) {
+
+            return this.defaultValue;
+        }
+
+        ////Fast path 2 : the first slot contains the key, return the value
+        if (strategy.equals(key, keys[slot]))
+        {
+            return this.values[slot];
+        }
+
+        ////Fast path 3 : position now on the 2nd slot
+        slot = (slot + 1) & mask;
+
         while (is_allocated(states, slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, states) /*! #end !*/)
         {
@@ -1160,6 +1195,25 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
         /*! #if ($RH) !*/
         final int[] states = this.allocated;
         /*!  #end !*/
+
+        ////Fast path 1: the first slot is empty, bailout returning false
+        if (!is_allocated(states, slot, keys)) {
+
+            //unsuccessful search
+            this.lastSlot = -1;
+
+            return false;
+        }
+
+        ////Fast path 2 : the first slot contains the key, return true
+        if (strategy.equals(key, keys[slot]))
+        {
+            this.lastSlot = slot;
+            return true;
+        }
+
+        ////Fast path 3 : position now on the 2nd slot
+        slot = (slot + 1) & mask;
 
         while (is_allocated(states, slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, states) /*! #end !*/)
@@ -1509,7 +1563,7 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
      * A view of the keys inside this hash map.
      */
     public final class KeysContainer
-            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenCustomHashMap<KType, VType> owner =
                 KTypeVTypeOpenCustomHashMap.this;
@@ -2104,7 +2158,7 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
         @SuppressWarnings("unchecked")
         final/* #end */
         KTypeVTypeOpenCustomHashMap<KType, VType> cloned =
-                new KTypeVTypeOpenCustomHashMap<KType, VType>(this.size(), this.loadFactor, this.hashStrategy);
+        new KTypeVTypeOpenCustomHashMap<KType, VType>(this.size(), this.loadFactor, this.hashStrategy);
 
         cloned.putAll(this);
 

@@ -34,7 +34,7 @@ import com.carrotsearch.hppcrt.procedures.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenIdentityHashMap<KType, VType>
-implements KTypeVTypeMap<KType, VType>, Cloneable
+        implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -497,6 +497,26 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         final KType[] keys = this.keys;
 
+        //Fast path 1: the first slot is empty, bailout returning  this.defaultValue
+        if (!is_allocated(slot, keys)) {
+
+            return this.defaultValue;
+        }
+
+        //Fast path 2 : the first slot contains the key, remove it and return
+        if (key == keys[slot])
+        {
+            final VType value = this.values[slot];
+
+            this.assigned--;
+            shiftConflictingKeys(slot);
+
+            return value;
+        }
+
+        //Fast path 3  :position now on the 2nd slot
+        slot = (slot + 1) & mask;
+
         while (is_allocated(slot, keys))
         {
             if (key == keys[slot])
@@ -654,6 +674,21 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         final KType[] keys = this.keys;
 
+        //Fast path 1: the first slot is empty, bailout returning  this.defaultValue
+        if (!is_allocated(slot, keys)) {
+
+            return this.defaultValue;
+        }
+
+        //Fast path 2 : the first slot contains the key, return the value
+        if (key == keys[slot])
+        {
+            return this.values[slot];
+        }
+
+        ///Fast path 3 : position now on the 2nd slot
+        slot = (slot + 1) & mask;
+
         while (is_allocated(slot, keys))
         {
             if (key == keys[slot])
@@ -797,6 +832,25 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         final KType[] keys = this.keys;
 
+        ////Fast path 1: the first slot is empty, bailout returning false
+        if (!is_allocated(slot, keys)) {
+
+            //unsuccessful search
+            this.lastSlot = -1;
+
+            return false;
+        }
+
+        ////Fast path 2 : the first slot contains the key, return true
+        if (key == keys[slot])
+        {
+            this.lastSlot = slot;
+            return true;
+        }
+
+        ////Fast path 3 : position now on the 2nd slot
+        slot = (slot + 1) & mask;
+
         while (is_allocated(slot, keys))
         {
             if (key == keys[slot])
@@ -876,7 +930,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         int h = 0;
 
         if (this.allocatedDefaultKey) {
-            h += Internals.rehash(Intrinsics.defaultKTypeValue()) + Internals.rehash(this.defaultKeyValue);
+            h += Internals.rehash(Intrinsics.<KType> defaultKTypeValue()) + Internals.rehash(this.defaultKeyValue);
         }
 
         final KType[] keys = this.keys;
@@ -1114,7 +1168,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      * A view of the keys inside this hash map.
      */
     public final class KeysContainer
-    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenIdentityHashMap<KType, VType> owner =
                 KTypeVTypeOpenIdentityHashMap.this;
@@ -1664,7 +1718,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         @SuppressWarnings("unchecked")
         final/* #end */
         KTypeVTypeOpenIdentityHashMap<KType, VType> cloned =
-        new KTypeVTypeOpenIdentityHashMap<KType, VType>(this.size(), this.loadFactor);
+                new KTypeVTypeOpenIdentityHashMap<KType, VType>(this.size(), this.loadFactor);
 
         cloned.putAll(this);
 

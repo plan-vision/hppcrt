@@ -311,7 +311,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         final VType[] values = this.values;
 
         /*! #if ($RH) !*/
-        final int[] allocated = this.allocated;
+        final int[] states = this.allocated;
         /*! #end !*/
 
         /*! #if ($RH) !*/
@@ -323,7 +323,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         int existing_distance = 0;
         /*! #end !*/
 
-        while (is_allocated(allocated, slot, keys))
+        while (is_allocated(states, slot, keys))
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
             {
@@ -335,7 +335,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
             /*! #if ($RH) !*/
             //re-shuffle keys to minimize variance
-            existing_distance = probe_distance(slot, allocated);
+            existing_distance = probe_distance(slot, states);
 
             if (dist > existing_distance)
             {
@@ -344,8 +344,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                 keys[slot] = key;
                 key = tmpKey;
 
-                tmpAllocated = allocated[slot];
-                allocated[slot] = initial_slot;
+                tmpAllocated = states[slot];
+                states[slot] = initial_slot;
                 initial_slot = tmpAllocated;
 
                 tmpValue = values[slot];
@@ -355,7 +355,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                 /*! #if($DEBUG) !*/
                 //Check invariants
 
-                assert allocated[slot] == (Internals.rehash(keys[slot]) & mask);
+                assert states[slot] == (Internals.rehash(keys[slot]) & mask);
                 assert initial_slot == (Internals.rehash(key) & mask);
                 /*! #end !*/
 
@@ -380,7 +380,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         {
             this.assigned++;
             /*! #if ($RH) !*/
-            allocated[slot] = initial_slot;
+            states[slot] = initial_slot;
             /*! #end !*/
 
             keys[slot] = key;
@@ -389,7 +389,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             /*! #if ($RH) !*/
             /*! #if($DEBUG) !*/
             //Check invariants
-            assert allocated[slot] == (Internals.rehash(keys[slot]) & mask);
+            assert states[slot] == (Internals.rehash(keys[slot]) & mask);
 
             /*! #end !*/
             /*! #end !*/
@@ -487,7 +487,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         int slot = Internals.rehash(key) & mask;
 
         #if ($RH)
-        final int[] allocated = this.allocated;
+        final int[] states = this.allocated;
         #end
 
         final KType[] keys = this.keys;
@@ -504,10 +504,10 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         int existing_distance = 0;
         #end
 
-        while (is_allocated(allocated, slot, keys))
+        while (is_allocated(states, slot, keys))
         {
             #if ($RH)
-            existing_distance = probe_distance(slot, allocated);
+            existing_distance = probe_distance(slot, states);
             #end
 
             if (Intrinsics.equalsKType(key, keys[slot]))
@@ -527,8 +527,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     			values[slot] = value;
     			value =  tmpValue;
 
-    			tmpAllocated = allocated[slot];
-    			allocated[slot] = initial_slot;
+    			tmpAllocated = states[slot];
+    			states[slot] = initial_slot;
     			initial_slot = tmpAllocated;
 
                 dist = existing_distance;
@@ -548,7 +548,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
             assigned++;
             #if ($RH)
-            allocated[slot] = initial_slot;
+            states[slot] = initial_slot;
             #end
 
             keys[slot] = key;
@@ -782,6 +782,26 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         final int[] states = this.allocated;
         /*!  #end !*/
 
+        ////Fast path 1: the first slot is empty, bailout returning  this.defaultValue
+        if (!is_allocated(states, slot, keys)) {
+
+            return this.defaultValue;
+        }
+
+        ////Fast path 2 : the first slot contains the key, remove it and return
+        if (Intrinsics.equalsKType(key, keys[slot]))
+        {
+            final VType value = this.values[slot];
+
+            this.assigned--;
+            shiftConflictingKeys(slot);
+
+            return value;
+        }
+
+        ////Fast path 3  :position now on the 2nd slot
+        slot = (slot + 1) & mask;
+
         while (is_allocated(states, slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, states) /*! #end !*/)
         {
@@ -988,6 +1008,21 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         final int[] states = this.allocated;
         /*!  #end !*/
 
+        ////Fast path 1: the first slot is empty, bailout returning  this.defaultValue
+        if (!is_allocated(states, slot, keys)) {
+
+            return this.defaultValue;
+        }
+
+        ////Fast path 2 : the first slot contains the key, return the value
+        if (Intrinsics.equalsKType(key, keys[slot]))
+        {
+            return this.values[slot];
+        }
+
+        ////Fast path 3 : position now on the 2nd slot
+        slot = (slot + 1) & mask;
+
         while (is_allocated(states, slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, states) /*! #end !*/)
         {
@@ -1162,6 +1197,25 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         /*! #if ($RH) !*/
         final int[] states = this.allocated;
         /*!  #end !*/
+
+        ////Fast path 1: the first slot is empty, bailout returning false
+        if (!is_allocated(states, slot, keys)) {
+
+            //unsuccessful search
+            this.lastSlot = -1;
+
+            return false;
+        }
+
+        ////Fast path 2 : the first slot contains the key, return true
+        if (Intrinsics.equalsKType(key, keys[slot]))
+        {
+            this.lastSlot = slot;
+            return true;
+        }
+
+        ////Fast path 3 : position now on the 2nd slot
+        slot = (slot + 1) & mask;
 
         while (is_allocated(states, slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, states) /*! #end !*/)

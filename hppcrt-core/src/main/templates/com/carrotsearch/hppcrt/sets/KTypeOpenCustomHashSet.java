@@ -52,8 +52,8 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenCustomHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -249,7 +249,7 @@ public class KTypeOpenCustomHashSet<KType>
         final KType[] keys = this.keys;
 
         /*! #if ($RH) !*/
-        final int[] allocated = this.allocated;
+        final int[] states = this.allocated;
         /*!  #end !*/
 
         /*! #if ($RH) !*/
@@ -260,7 +260,7 @@ public class KTypeOpenCustomHashSet<KType>
         int existing_distance = 0;
         /*! #end !*/
 
-        while (is_allocated(allocated, slot, keys))
+        while (is_allocated(states, slot, keys))
         {
             if (strategy.equals(e, keys[slot]))
             {
@@ -269,7 +269,7 @@ public class KTypeOpenCustomHashSet<KType>
 
             /*! #if ($RH) !*/
             //re-shuffle keys to minimize variance
-            existing_distance = probe_distance(slot, allocated);
+            existing_distance = probe_distance(slot, states);
 
             if (dist > existing_distance)
             {
@@ -278,13 +278,13 @@ public class KTypeOpenCustomHashSet<KType>
                 keys[slot] = e;
                 e = tmpKey;
 
-                tmpAllocated = allocated[slot];
-                allocated[slot] = initial_slot;
+                tmpAllocated = states[slot];
+                states[slot] = initial_slot;
                 initial_slot = tmpAllocated;
 
                 /*! #if($DEBUG) !*/
                 //Check invariants
-                assert allocated[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
+                assert states[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
                 assert initial_slot == (Internals.rehash(strategy.computeHashCode(e)) & mask);
                 /*! #end !*/
 
@@ -307,7 +307,7 @@ public class KTypeOpenCustomHashSet<KType>
         else {
             this.assigned++;
             /*! #if ($RH) !*/
-            allocated[slot] = initial_slot;
+            states[slot] = initial_slot;
             /*!  #end !*/
 
             keys[slot] = e;
@@ -315,7 +315,7 @@ public class KTypeOpenCustomHashSet<KType>
             /*! #if ($RH) !*/
             /*! #if($DEBUG) !*/
             //Check invariants
-            assert allocated[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
+            assert states[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
             /*! #end !*/
             /*! #end !*/
         }
@@ -577,6 +577,24 @@ public class KTypeOpenCustomHashSet<KType>
         final int[] states = this.allocated;
         /*! #end !*/
 
+        ////Fast path 1: the first slot is empty, bailout returning  false
+        if (!is_allocated(states, slot, keys)) {
+
+            return false;
+        }
+
+        ////Fast path 2 : the first slot contains the key, remove it and return
+        if (strategy.equals(key, keys[slot]))
+        {
+            this.assigned--;
+            shiftConflictingKeys(slot);
+
+            return true;
+        }
+
+        ////Fast path 3: position now on the 2nd slot
+        slot = (slot + 1) & mask;
+
         while (is_allocated(states, slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, states) /*! #end !*/)
         {
@@ -756,10 +774,28 @@ public class KTypeOpenCustomHashSet<KType>
         final int[] states = this.allocated;
         /*! #end !*/
 
+        ////Fast path 1: the first slot is empty, bailout returning false
+        if (!is_allocated(states, slot, keys)) {
+
+            //unsuccessful search
+            this.lastSlot = -1;
+            return false;
+        }
+
+        ////Fast path 2 : the first slot contains the key, return true
+        if (strategy.equals(key, keys[slot]))
+        {
+            this.lastSlot = slot;
+            return true;
+        }
+
+        ////Fast path 3 : position now on the 2nd slot
+        slot = (slot + 1) & mask;
+
         while (is_allocated(states, slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, states) /*! #end !*/)
         {
-            if (Intrinsics.equalsKType(key, keys[slot]))
+            if (strategy.equals(key, keys[slot]))
             {
                 this.lastSlot = slot;
                 return true;

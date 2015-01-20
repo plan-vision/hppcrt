@@ -116,7 +116,7 @@ public class KTypeOpenHashSet<KType>
      * 
      * <p><b>Direct iteration warning: </b>
      * If the iteration goal is to fill another hash container, please iterate {@link #keys} in reverse to prevent performance losses.
-     * @see #allocated
+     * @see #keys
      */
     public KType[] keys;
 
@@ -251,7 +251,7 @@ public class KTypeOpenHashSet<KType>
         final KType[] keys = this.keys;
 
         /*! #if ($RH) !*/
-        final int[] allocated = this.allocated;
+        final int[] states = this.allocated;
         /*!  #end !*/
 
         /*! #if ($RH) !*/
@@ -262,7 +262,7 @@ public class KTypeOpenHashSet<KType>
         int existing_distance = 0;
         /*! #end !*/
 
-        while (is_allocated(allocated, slot, keys))
+        while (is_allocated(states, slot, keys))
         {
             if (Intrinsics.equalsKType(e, keys[slot]))
             {
@@ -271,7 +271,7 @@ public class KTypeOpenHashSet<KType>
 
             /*! #if ($RH) !*/
             //re-shuffle keys to minimize variance
-            existing_distance = probe_distance(slot, allocated);
+            existing_distance = probe_distance(slot, states);
 
             if (dist > existing_distance)
             {
@@ -280,13 +280,13 @@ public class KTypeOpenHashSet<KType>
                 keys[slot] = e;
                 e = tmpKey;
 
-                tmpAllocated = allocated[slot];
-                allocated[slot] = initial_slot;
+                tmpAllocated = states[slot];
+                states[slot] = initial_slot;
                 initial_slot = tmpAllocated;
 
                 /*! #if($DEBUG) !*/
                 //Check invariants
-                assert allocated[slot] == (Internals.rehash(keys[slot]) & mask);
+                assert states[slot] == (Internals.rehash(keys[slot]) & mask);
                 assert initial_slot == (Internals.rehash(e) & mask);
                 /*! #end !*/
 
@@ -309,7 +309,7 @@ public class KTypeOpenHashSet<KType>
         else {
             this.assigned++;
             /*! #if ($RH) !*/
-            allocated[slot] = initial_slot;
+            states[slot] = initial_slot;
             /*!  #end !*/
 
             keys[slot] = e;
@@ -317,7 +317,7 @@ public class KTypeOpenHashSet<KType>
             /*! #if ($RH) !*/
             /*! #if($DEBUG) !*/
             //Check invariants
-            assert allocated[slot] == (Internals.rehash(keys[slot]) & mask);
+            assert states[slot] == (Internals.rehash(keys[slot]) & mask);
             /*! #end !*/
             /*! #end !*/
         }
@@ -575,6 +575,24 @@ public class KTypeOpenHashSet<KType>
         final int[] states = this.allocated;
         /*! #end !*/
 
+        ////Fast path 1: the first slot is empty, bailout returning  false
+        if (!is_allocated(states, slot, keys)) {
+
+            return false;
+        }
+
+        ////Fast path 2 : the first slot contains the key, remove it and return
+        if (Intrinsics.equalsKType(key, keys[slot]))
+        {
+            this.assigned--;
+            shiftConflictingKeys(slot);
+
+            return true;
+        }
+
+        ////Fast path 3: position now on the 2nd slot
+        slot = (slot + 1) & mask;
+
         while (is_allocated(states, slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, states) /*! #end !*/)
         {
@@ -749,6 +767,24 @@ public class KTypeOpenHashSet<KType>
         /*! #if ($RH) !*/
         final int[] states = this.allocated;
         /*! #end !*/
+
+        ////Fast path 1: the first slot is empty, bailout returning false
+        if (!is_allocated(states, slot, keys)) {
+
+            //unsuccessful search
+            this.lastSlot = -1;
+            return false;
+        }
+
+        ////Fast path 2 : the first slot contains the key, return true
+        if (Intrinsics.equalsKType(key, keys[slot]))
+        {
+            this.lastSlot = slot;
+            return true;
+        }
+
+        ////Fast path 3 : position now on the 2nd slot
+        slot = (slot + 1) & mask;
 
         while (is_allocated(states, slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, states) /*! #end !*/)
