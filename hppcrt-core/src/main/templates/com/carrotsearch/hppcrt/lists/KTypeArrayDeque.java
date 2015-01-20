@@ -1196,7 +1196,20 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
 
         if (endIndex - beginIndex > 1)
         {
-            KTypeSort.quicksort(this, beginIndex, endIndex);
+            //Fast path : if the actual indices matching [beginIndex; endIndex[
+            //in the underlying buffer are in increasing order (means there is no folding of buffer in the interval),
+            // use quicksort array version directly.
+            final int bufferPosStart = indexToBufferPosition(beginIndex);
+            final int bufferPosEnd = indexToBufferPosition(endIndex);
+
+            if (bufferPosEnd > bufferPosStart) {
+
+                KTypeSort.quicksort(this.buffer, bufferPosStart, bufferPosEnd);
+            }
+            else {
+                //Use the slower KTypeIndexedContainer sort
+                KTypeSort.quicksort(this, beginIndex, endIndex);
+            }
         }
     }
     #end !*/
@@ -1223,7 +1236,20 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
 
         if (endIndex - beginIndex > 1)
         {
-            KTypeSort.quicksort(this, beginIndex, endIndex, comp);
+            //Fast path : if the actual indices matching [beginIndex; endIndex[
+            //in the underlying buffer are in increasing order (means there is no folding of buffer in the interval),
+            // use quicksort array version directly.
+            final int bufferPosStart = indexToBufferPosition(beginIndex);
+            final int bufferPosEnd = indexToBufferPosition(endIndex);
+
+            if (bufferPosEnd > bufferPosStart) {
+
+                KTypeSort.quicksort(this.buffer, bufferPosStart, bufferPosEnd, comp);
+            }
+            else {
+                //Use the slower KTypeIndexedContainer sort
+                KTypeSort.quicksort(this, beginIndex, endIndex, comp);
+            }
         }
     }
 
