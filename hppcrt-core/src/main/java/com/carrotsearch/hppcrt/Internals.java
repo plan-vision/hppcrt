@@ -2,6 +2,7 @@ package com.carrotsearch.hppcrt;
 
 import java.util.Arrays;
 
+import com.carrotsearch.hppcrt.hash.MurmurHash3;
 import com.carrotsearch.hppcrt.hash.PhiMix;
 
 /**
@@ -80,8 +81,14 @@ public final class Internals
         return PhiMix.hash((b ? 1 : 0) ^ p);
     }
 
+    /**
+     * Keep using MurmurHash3 for better scrambling if the Object is
+     * bad-behaved
+     * @param o
+     * @return
+     */
     public static int rehash(final Object o) {
-        return o == null ? 0 : PhiMix.hash(o.hashCode());
+        return o == null ? 0 : MurmurHash3.hash(o.hashCode());
     }
 
     public static int rehash(final byte v) {
