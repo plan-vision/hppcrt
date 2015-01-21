@@ -36,9 +36,9 @@ public class BenchmarkHashCollisionsDirectIterationReversedAddAll extends Simple
     public Distribution distribution;
 
     @Param(
-    {
-                "3000000"
-    })
+            {
+            "5000000"
+            })
     public int size;
 
     /*

@@ -28,9 +28,9 @@ public class BenchmarkPut extends SimpleBenchmark
     public MapImplementation<?> impl;
 
     @Param(
-            {
-            "3000000"
-            })
+    {
+                "5000000"
+    })
     public int size;
 
     /*
