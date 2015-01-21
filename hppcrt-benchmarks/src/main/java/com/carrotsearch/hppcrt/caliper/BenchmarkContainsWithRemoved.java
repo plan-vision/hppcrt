@@ -21,9 +21,9 @@ public class BenchmarkContainsWithRemoved extends SimpleBenchmark
     public int[] queryKeys;
 
     @Param(
-            {
-            "0", "0.25", "0.5", "0.75", "1"
-            })
+    {
+                "0", "0.25", "0.5", "0.75", "1"
+    })
     public double removedKeys;
 
     @Param
@@ -32,9 +32,9 @@ public class BenchmarkContainsWithRemoved extends SimpleBenchmark
     public MapImplementation<?> impl;
 
     @Param(
-            {
-            "3000000"
-            })
+    {
+                "5000000"
+    })
     public int size;
 
     @Override
