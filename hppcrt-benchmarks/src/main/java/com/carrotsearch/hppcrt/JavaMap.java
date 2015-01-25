@@ -1,4 +1,4 @@
-package com.carrotsearch.hppcrt.caliper;
+package com.carrotsearch.hppcrt;
 
 import java.util.HashMap;
 

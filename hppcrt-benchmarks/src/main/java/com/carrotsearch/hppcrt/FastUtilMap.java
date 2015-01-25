@@ -1,21 +1,21 @@
-package com.carrotsearch.hppcrt.caliper;
+package com.carrotsearch.hppcrt;
+
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 
 import com.carrotsearch.hppcrt.maps.*;
 
-import gnu.trove.map.hash.TIntIntHashMap;
-
-public class TroveMap extends MapImplementation<TIntIntHashMap>
+public class FastUtilMap extends MapImplementation<Int2IntOpenHashMap>
 {
-    public TroveMap()
+    public FastUtilMap()
     {
-        super(new TIntIntHashMap(
+        super(new Int2IntOpenHashMap(
                 IntIntOpenHashMap.DEFAULT_CAPACITY,
                 IntIntOpenHashMap.DEFAULT_LOAD_FACTOR));
     }
 
-    public TroveMap(final int size)
+    public FastUtilMap(final int size)
     {
-        super(new TIntIntHashMap(
+        super(new Int2IntOpenHashMap(
                 size,
                 IntIntOpenHashMap.DEFAULT_LOAD_FACTOR));
     }
@@ -43,17 +43,17 @@ public class TroveMap extends MapImplementation<TIntIntHashMap>
     @Override
     public int containKeys(final int[] keys)
     {
-        final TIntIntHashMap prepared = this.instance;
+        final Int2IntOpenHashMap instance = this.instance;
         int count = 0;
         for (int i = 0; i < keys.length; i++)
-            count += prepared.containsKey(keys[i]) ? 1 : 0;
+            count += instance.containsKey(keys[i]) ? 1 : 0;
         return count;
     }
 
     @Override
     public int putAll(final int[] keys, final int[] values)
     {
-        final TIntIntHashMap instance = this.instance;
+        final Int2IntOpenHashMap instance = this.instance;
         int count = 0;
         for (int i = 0; i < keys.length; i++)
         {

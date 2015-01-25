@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Random;
 
+import com.carrotsearch.hppcrt.BenchmarkSuiteRunner;
 import com.carrotsearch.hppcrt.Util;
 import com.carrotsearch.hppcrt.XorShiftRandom;
 import com.carrotsearch.hppcrt.sorting.DoubleSort;
@@ -427,20 +428,17 @@ public class HppcSortSyntheticBench
      */
     public static void main(final String[] args)
     {
+        final BenchmarkSuiteRunner.BenchmarkOptions opts = new BenchmarkSuiteRunner.BenchmarkOptions();
 
-        if (args.length != 1 || !args[0].contains("--warmup="))
-        {
-            System.out.println("Usage : " + HppcSortSyntheticBench.class.getName() + " --warmup=[nb warmup runs]");
-        }
-        else
-        {
-            final int nbWarmup = new Integer(args[0].split("--warmup=")[1]);
+        BenchmarkSuiteRunner.parseCommonArguments(args, opts);
 
-            final HppcSortSyntheticBench testClass = new HppcSortSyntheticBench(nbWarmup);
+        final int nbWarmup = opts.nbWarmups;
 
-            System.out.println(String.format(">>>>>>>>>>>>>>>>>>>> HPPC SORTING SYNTHETIC BENCH with %d warmup runs ... <<<<<<<<<<<<<<<<<<<<\n", nbWarmup));
+        final HppcSortSyntheticBench testClass = new HppcSortSyntheticBench(nbWarmup);
 
-            testClass.runBenchSort(HppcSortSyntheticBench.COUNT);
-        }
+        System.out.println(String.format(">>>>>>>>>>>>>>>>>>>> HPPC SORTING SYNTHETIC BENCH with %d warmup runs ... <<<<<<<<<<<<<<<<<<<<\n", nbWarmup));
+
+        testClass.runBenchSort(HppcSortSyntheticBench.COUNT);
+
     }
 }

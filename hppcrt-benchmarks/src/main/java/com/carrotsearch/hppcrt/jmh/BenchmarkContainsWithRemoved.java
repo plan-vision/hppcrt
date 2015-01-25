@@ -1,20 +1,30 @@
-package com.carrotsearch.hppcrt.caliper;
+package com.carrotsearch.hppcrt.jmh;
 
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.mahout.math.Arrays;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.Param;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
+import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.runner.RunnerException;
 
+import com.carrotsearch.hppcrt.BenchmarkSuiteRunner;
 import com.carrotsearch.hppcrt.DistributionGenerator;
+import com.carrotsearch.hppcrt.Implementations;
+import com.carrotsearch.hppcrt.MapImplementation;
 import com.carrotsearch.hppcrt.Util;
-import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
 
 /**
  * Create a large map of int keys, remove a fraction of the keys and query with half/half keys
  * and a some random values.
  */
-public class BenchmarkContainsWithRemoved extends SimpleBenchmark
+@OutputTimeUnit(TimeUnit.MILLISECONDS)
+@State(Scope.Thread)
+public class BenchmarkContainsWithRemoved
 {
     /* Prepare some test data */
     public int[] keys;
@@ -37,8 +47,8 @@ public class BenchmarkContainsWithRemoved extends SimpleBenchmark
     })
     public int size;
 
-    @Override
-    protected void setUp() throws Exception
+    @Setup
+    public void setUp() throws Exception
     {
         final Random rnd = new Random(0x11223344);
 
@@ -74,24 +84,18 @@ public class BenchmarkContainsWithRemoved extends SimpleBenchmark
         }
     }
 
-    public int timeContains(final int reps)
+    @Benchmark
+    public int timeContains()
     {
         int count = 0;
-        for (int i = 0; i < reps; i++)
-        {
-            count += this.impl.containKeys(this.keys);
-        }
+
+        count += this.impl.containKeys(this.keys);
+
         return count;
     }
 
-    @Override
-    protected void tearDown() throws Exception
+    public static void main(final String[] args) throws RunnerException
     {
-        this.impl = null;
-    }
-
-    public static void main(final String[] args)
-    {
-        Runner.main(BenchmarkContainsWithRemoved.class, args);
+        BenchmarkSuiteRunner.runJmhBasicBenchmarkWithCommandLine(BenchmarkContainsWithRemoved.class, args, 500, 1000);
     }
 }

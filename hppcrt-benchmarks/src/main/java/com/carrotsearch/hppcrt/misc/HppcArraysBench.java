@@ -3,6 +3,7 @@ package com.carrotsearch.hppcrt.misc;
 import java.util.Comparator;
 import java.util.Random;
 
+import com.carrotsearch.hppcrt.BenchmarkSuiteRunner;
 import com.carrotsearch.hppcrt.LongArrays;
 import com.carrotsearch.hppcrt.XorShiftRandom;
 
@@ -205,19 +206,17 @@ public class HppcArraysBench
      */
     public static void main(final String[] args)
     {
-        if (args.length != 1 || !args[0].contains("--warmup="))
-        {
-            System.out.println("Usage : " + HppcArraysBench.class.getName() + " --warmup=[nb warmup runs]");
-        }
-        else
-        {
-            final int nbWarmup = new Integer(args[0].split("--warmup=")[1]);
+        final BenchmarkSuiteRunner.BenchmarkOptions opts = new BenchmarkSuiteRunner.BenchmarkOptions();
 
-            final HppcArraysBench testClass = new HppcArraysBench(nbWarmup);
+        BenchmarkSuiteRunner.parseCommonArguments(args, opts);
 
-            System.out.println(String.format(">>>>>>>>>>>>>>>>>>>> HPPC ARRAYS BENCH with %d warmup runs ... <<<<<<<<<<<<<<<<<<<<\n", nbWarmup));
+        final int nbWarmup = opts.nbWarmups;
 
-            testClass.runBenchArrays(HppcArraysBench.COUNT);
-        }
+        final HppcArraysBench testClass = new HppcArraysBench(nbWarmup);
+
+        System.out.println(String.format(">>>>>>>>>>>>>>>>>>>> HPPC ARRAYS BENCH with %d warmup runs ... <<<<<<<<<<<<<<<<<<<<\n", nbWarmup));
+
+        testClass.runBenchArrays(HppcArraysBench.COUNT);
     }
+
 }

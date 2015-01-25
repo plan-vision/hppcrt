@@ -1,15 +1,27 @@
-package com.carrotsearch.hppcrt.caliper;
+package com.carrotsearch.hppcrt.jmh;
 
+import java.util.concurrent.TimeUnit;
+
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.Param;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
+import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.runner.RunnerException;
+
+import com.carrotsearch.hppcrt.BenchmarkSuiteRunner;
 import com.carrotsearch.hppcrt.DistributionGenerator;
+import com.carrotsearch.hppcrt.Implementations;
+import com.carrotsearch.hppcrt.MapImplementation;
 import com.carrotsearch.hppcrt.XorShiftRandom;
-import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
 
 /**
  * Benchmark putting a given number of integers into a hashmap.
  */
-public class BenchmarkPut extends SimpleBenchmark
+@OutputTimeUnit(TimeUnit.MILLISECONDS)
+@State(Scope.Thread)
+public class BenchmarkPut
 {
     /* Prepare some test data */
     public int[] keys;
@@ -36,8 +48,8 @@ public class BenchmarkPut extends SimpleBenchmark
     /*
      * 
      */
-    @Override
-    protected void setUp() throws Exception
+    @Setup
+    public void setUp() throws Exception
     {
         // Our tested implementation, uses preallocation
         this.impl = this.implementation.getInstance(this.size);
@@ -67,19 +79,19 @@ public class BenchmarkPut extends SimpleBenchmark
     /**
      * Time the 'put' operation.
      */
-    public int timePut(final int reps)
+    @Benchmark
+    public int timePut()
     {
         int count = 0;
-        for (int i = 0; i < reps; i++)
-        {
-            this.impl.clear();
-            count += this.impl.putAll(this.keys, this.keys);
-        }
+
+        this.impl.clear();
+        count += this.impl.putAll(this.keys, this.keys);
+
         return count;
     }
 
-    public static void main(final String[] args)
+    public static void main(final String[] args) throws RunnerException
     {
-        Runner.main(BenchmarkPut.class, args);
+        BenchmarkSuiteRunner.runJmhBasicBenchmarkWithCommandLine(BenchmarkPut.class, args, 500, 1000);
     }
 }

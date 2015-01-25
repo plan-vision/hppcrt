@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.carrotsearch.hppcrt.caliper;
+package com.carrotsearch.hppcrt;
 
 /**  
  * Methods and constants inspired by the article
