@@ -3,6 +3,7 @@ package com.carrotsearch.hppcrt.misc;
 import java.util.Comparator;
 import java.util.Random;
 
+import com.carrotsearch.hppcrt.BenchmarkSuiteRunner;
 import com.carrotsearch.hppcrt.Util;
 import com.carrotsearch.hppcrt.XorShiftRandom;
 import com.carrotsearch.hppcrt.heaps.LongHeapPriorityQueue;
@@ -278,7 +279,6 @@ public class HppcHeapsSyntheticBench
         //don't make things too easy, shuffle it so the bench do some pointer chasing in memory...
         Util.shuffle(referenceArray, this.prng);
 
-
         while (nbWarmups <= this.nbWarmupsRuns)
         {
             pq.clear();
@@ -392,7 +392,6 @@ public class HppcHeapsSyntheticBench
         int size = 0;
 
         this.prng.setSeed(HppcHeapsSyntheticBench.RANDOM_SEED);
-
 
         while (nbWarmups <= this.nbWarmupsRuns)
         {
@@ -510,12 +509,12 @@ public class HppcHeapsSyntheticBench
         } //end while
 
         System.out
-        .format(">>>> BENCH: HPPC Prio queues (long), (%s), %d elements inserted, with filtered out odd values in (heap = %d removed values in %f ms / IndexedHeap = %d removed values in %f ms) (dummy: %d)\n",
-                additionalInfo,
-                initialSize,
-                nbRemovedHeap, (tAfterHeap - tBeforeHeap) / 1e6,
-                nbRemovedIndexedHeap, (tAfterIndexedHeap - tBeforeIndexedHeap) / 1e6,
-                sum);
+                .format(">>>> BENCH: HPPC Prio queues (long), (%s), %d elements inserted, with filtered out odd values in (heap = %d removed values in %f ms / IndexedHeap = %d removed values in %f ms) (dummy: %d)\n",
+                        additionalInfo,
+                        initialSize,
+                        nbRemovedHeap, (tAfterHeap - tBeforeHeap) / 1e6,
+                        nbRemovedIndexedHeap, (tAfterIndexedHeap - tBeforeIndexedHeap) / 1e6,
+                        sum);
     }
 
     /**
@@ -594,12 +593,12 @@ public class HppcHeapsSyntheticBench
         } //end while
 
         System.out
-        .format(">>>> BENCH: HPPC Prio queues (long), (%s), %d elements inserted, with keeping odd values in (heap = %d kept values in %f ms / IndexedHeap = %d kept values in %f ms) (dummy: %d)\n",
-                additionalInfo,
-                initialSize,
-                nbKeptHeap, (tAfterHeap - tBeforeHeap) / 1e6,
-                nbKeptIndexedHeap, (tAfterIndexedHeap - tBeforeIndexedHeap) / 1e6,
-                sum);
+                .format(">>>> BENCH: HPPC Prio queues (long), (%s), %d elements inserted, with keeping odd values in (heap = %d kept values in %f ms / IndexedHeap = %d kept values in %f ms) (dummy: %d)\n",
+                        additionalInfo,
+                        initialSize,
+                        nbKeptHeap, (tAfterHeap - tBeforeHeap) / 1e6,
+                        nbKeptIndexedHeap, (tAfterIndexedHeap - tBeforeIndexedHeap) / 1e6,
+                        sum);
     }
 
     /**
@@ -675,7 +674,6 @@ public class HppcHeapsSyntheticBench
 
         //don't make things too easy, shuffle it so the bench do some pointer chasing in memory...
         Util.shuffle(referenceArray, this.prng);
-
 
         while (nbWarmups <= this.nbWarmupsRuns)
         {
@@ -885,19 +883,17 @@ public class HppcHeapsSyntheticBench
      */
     public static void main(final String[] args)
     {
-        if (args.length != 1 || !args[0].contains("--warmup="))
-        {
-            System.out.println("Usage : " + HppcHeapsSyntheticBench.class.getName() + " --warmup=[nb warmup runs]");
-        }
-        else
-        {
-            final int nbWarmup = new Integer(args[0].split("--warmup=")[1]);
+        final BenchmarkSuiteRunner.BenchmarkOptions opts = new BenchmarkSuiteRunner.BenchmarkOptions();
 
-            final HppcHeapsSyntheticBench testClass = new HppcHeapsSyntheticBench(nbWarmup);
+        BenchmarkSuiteRunner.parseCommonArguments(args, opts);
 
-            System.out.println(String.format(">>>>>>>>>>>>>>>>>>>> HPPC HEAPS SYNTHETIC BENCH with %d warmup runs ... <<<<<<<<<<<<<<<<<<<<\n", nbWarmup));
+        final int nbWarmup = opts.nbWarmups;
 
-            testClass.runBenchHeaps(HppcHeapsSyntheticBench.COUNT);
-        }
+        final HppcHeapsSyntheticBench testClass = new HppcHeapsSyntheticBench(nbWarmup);
+
+        System.out.println(String.format(">>>>>>>>>>>>>>>>>>>> HPPC HEAPS SYNTHETIC BENCH with %d warmup runs ... <<<<<<<<<<<<<<<<<<<<\n", nbWarmup));
+
+        testClass.runBenchHeaps(HppcHeapsSyntheticBench.COUNT);
+
     }
 }

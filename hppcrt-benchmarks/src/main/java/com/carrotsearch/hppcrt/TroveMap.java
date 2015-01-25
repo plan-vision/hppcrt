@@ -1,32 +1,28 @@
-package com.carrotsearch.hppcrt.caliper;
-
-import org.apache.mahout.math.map.AbstractIntIntMap;
-import org.apache.mahout.math.map.OpenIntIntHashMap;
-import org.apache.mahout.math.set.AbstractSet;
+package com.carrotsearch.hppcrt;
 
 import com.carrotsearch.hppcrt.maps.*;
 
-public class MahoutMap extends MapImplementation<OpenIntIntHashMap>
+import gnu.trove.map.hash.TIntIntHashMap;
+
+public class TroveMap extends MapImplementation<TIntIntHashMap>
 {
-    public MahoutMap()
+    public TroveMap()
     {
-        super(new OpenIntIntHashMap(
+        super(new TIntIntHashMap(
                 IntIntOpenHashMap.DEFAULT_CAPACITY,
-                AbstractSet.DEFAULT_MIN_LOAD_FACTOR,
                 IntIntOpenHashMap.DEFAULT_LOAD_FACTOR));
     }
 
-    public MahoutMap(final int size)
+    public TroveMap(final int size)
     {
-        super(new OpenIntIntHashMap(
+        super(new TIntIntHashMap(
                 size,
-                AbstractSet.DEFAULT_MIN_LOAD_FACTOR,
                 IntIntOpenHashMap.DEFAULT_LOAD_FACTOR));
     }
 
     @Override
     public void remove(final int k) {
-        instance.removeKey(k);
+        instance.remove(k);
     }
 
     @Override
@@ -47,7 +43,7 @@ public class MahoutMap extends MapImplementation<OpenIntIntHashMap>
     @Override
     public int containKeys(final int[] keys)
     {
-        final OpenIntIntHashMap prepared = this.instance;
+        final TIntIntHashMap prepared = this.instance;
         int count = 0;
         for (int i = 0; i < keys.length; i++)
             count += prepared.containsKey(keys[i]) ? 1 : 0;
@@ -57,11 +53,11 @@ public class MahoutMap extends MapImplementation<OpenIntIntHashMap>
     @Override
     public int putAll(final int[] keys, final int[] values)
     {
-        final OpenIntIntHashMap instance = this.instance;
+        final TIntIntHashMap instance = this.instance;
         int count = 0;
         for (int i = 0; i < keys.length; i++)
         {
-            count += instance.put(keys[i], values[i]) ? 1 : 0;
+            count += instance.put(keys[i], values[i]);
         }
         return count;
     }

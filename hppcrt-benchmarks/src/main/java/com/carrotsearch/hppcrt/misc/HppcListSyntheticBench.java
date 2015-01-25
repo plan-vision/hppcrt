@@ -1,10 +1,9 @@
 package com.carrotsearch.hppcrt.misc;
 
 import java.util.Comparator;
-
-
 import java.util.Random;
 
+import com.carrotsearch.hppcrt.BenchmarkSuiteRunner;
 import com.carrotsearch.hppcrt.LongIndexedContainer;
 import com.carrotsearch.hppcrt.XorShiftRandom;
 import com.carrotsearch.hppcrt.cursors.LongCursor;
@@ -646,7 +645,8 @@ public class HppcListSyntheticBench
 
         //Linked-list :
         System.gc();
-        runListIterationBench("LinkedList, get() is O(N), direct iteration is out of order !", new LongLinkedList((int) (HppcListSyntheticBench.COUNT * 1e-2)), (int) (HppcListSyntheticBench.COUNT * 1e-2),
+        runListIterationBench("LinkedList, get() is O(N), direct iteration is out of order !", new LongLinkedList((int) (HppcListSyntheticBench.COUNT * 1e-2)),
+                (int) (HppcListSyntheticBench.COUNT * 1e-2),
                 this.nbWarmupsRuns);
         System.gc();
         runListPrimitiveLong("LinkedList", new LongLinkedList(nbElements), nbElements, this.nbWarmupsRuns);
@@ -670,20 +670,18 @@ public class HppcListSyntheticBench
     public static void main(final String[] args)
     {
 
-        if (args.length != 1 || !args[0].contains("--warmup="))
-        {
-            System.out.println("Usage : " + HppcListSyntheticBench.class.getName() + " --warmup=[nb warmup runs]");
-        }
-        else
-        {
-            final int nbWarmup = new Integer(args[0].split("--warmup=")[1]);
+        final BenchmarkSuiteRunner.BenchmarkOptions opts = new BenchmarkSuiteRunner.BenchmarkOptions();
 
-            final HppcListSyntheticBench testClass = new HppcListSyntheticBench(nbWarmup);
+        BenchmarkSuiteRunner.parseCommonArguments(args, opts);
 
-            System.out.println(String.format(">>>>>>>>>>>>>>>>>>>> HPPC LISTS SYNTHETIC BENCH with %d warmup runs ... <<<<<<<<<<<<<<<<<<<<\n", nbWarmup));
+        final int nbWarmup = opts.nbWarmups;
 
-            testClass.runBenchList(HppcListSyntheticBench.COUNT);
-        }
+        final HppcListSyntheticBench testClass = new HppcListSyntheticBench(nbWarmup);
+
+        System.out.println(String.format(">>>>>>>>>>>>>>>>>>>> HPPC LISTS SYNTHETIC BENCH with %d warmup runs ... <<<<<<<<<<<<<<<<<<<<\n", nbWarmup));
+
+        testClass.runBenchList(HppcListSyntheticBench.COUNT);
+
     }
 
 }

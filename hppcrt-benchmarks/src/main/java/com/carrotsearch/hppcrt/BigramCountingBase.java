@@ -17,10 +17,6 @@ public class BigramCountingBase
     /* Prepare some test data */
     public static char[] DATA;
 
-    /* Prevent dead code removal. */
-    public volatile int guard;
-
-    @BeforeClass
     public static void prepareData() throws IOException
     {
         final byte[] dta = IOUtils.toByteArray(
@@ -28,8 +24,7 @@ public class BigramCountingBase
         BigramCountingBase.DATA = new String(dta, "UTF-8").toCharArray();
     }
 
-    @Test
-    public void hppc()
+    public int hppc()
     {
         // [[[start:bigram-counting]]]
         // Some character data
@@ -42,75 +37,82 @@ public class BigramCountingBase
                 IntIntOpenHashMap.DEFAULT_CAPACITY,
                 IntIntOpenHashMap.DEFAULT_LOAD_FACTOR);
 
+        int count = 0;
+
         for (int i = 0; i < CHARS.length - 1; i++)
         {
             final int bigram = CHARS[i] << 16 | CHARS[i + 1];
-            map.putOrAdd(bigram, 1, 1);
+            count += map.putOrAdd(bigram, 1, 1);
         }
         // [[[end:bigram-counting]]]
 
-        guard = map.size();
+        return count;
     }
 
-    @Test
-    public void trove()
+    public int trove()
     {
         final char[] CHARS = BigramCountingBase.DATA;
         final TIntIntHashMap map = new TIntIntHashMap();
 
+        int count = 0;
+
         for (int i = 0; i < CHARS.length - 1; i++)
         {
             final int bigram = CHARS[i] << 16 | CHARS[i + 1];
-            map.adjustOrPutValue(bigram, 1, 1);
+            count += map.adjustOrPutValue(bigram, 1, 1);
         }
 
-        guard = map.size();
+        return count;
     }
 
-    @Test
-    public void mahoutCollections()
+    public int mahoutCollections()
     {
         final char[] CHARS = BigramCountingBase.DATA;
         final org.apache.mahout.math.map.OpenIntIntHashMap map =
                 new org.apache.mahout.math.map.OpenIntIntHashMap();
+
+        int count = 0;
+
         for (int i = 0; i < CHARS.length - 1; i++)
         {
             final int bigram = CHARS[i] << 16 | CHARS[i + 1];
-            map.adjustOrPutValue(bigram, 1, 1);
+            count += map.adjustOrPutValue(bigram, 1, 1);
         }
 
-        guard = map.size();
+        return count;
     }
 
-    @Test
-    public void fastutilOpenHashMap()
+    public int fastutilOpenHashMap()
     {
         final char[] CHARS = BigramCountingBase.DATA;
         final Int2IntOpenHashMap map = new Int2IntOpenHashMap();
         map.defaultReturnValue(0);
 
+        int count = 0;
+
         for (int i = 0; i < CHARS.length - 1; i++)
         {
             final int bigram = CHARS[i] << 16 | CHARS[i + 1];
-            map.addTo(bigram, 1);
+            count += map.addTo(bigram, 1);
         }
 
-        guard = map.size();
+        return count;
     }
 
-    @Test
-    public void fastutilLinkedOpenHashMap()
+    public int fastutilLinkedOpenHashMap()
     {
         final char[] CHARS = BigramCountingBase.DATA;
         final Int2IntLinkedOpenHashMap map = new Int2IntLinkedOpenHashMap();
         map.defaultReturnValue(0);
 
+        int count = 0;
+
         for (int i = 0; i < CHARS.length - 1; i++)
         {
             final int bigram = CHARS[i] << 16 | CHARS[i + 1];
-            map.addTo(bigram, 1);
+            count += map.addTo(bigram, 1);
         }
 
-        guard = map.size();
+        return count;
     }
 }

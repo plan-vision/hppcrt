@@ -1,16 +1,24 @@
 package com.carrotsearch.hppcrt.misc;
 
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Random;
 
-import com.carrotsearch.hppcrt.*;
+import com.carrotsearch.hppcrt.BenchmarkSuiteRunner;
+import com.carrotsearch.hppcrt.DistributionGenerator;
 import com.carrotsearch.hppcrt.DistributionGenerator.Generator;
-import com.carrotsearch.hppcrt.lists.*;
-import com.carrotsearch.hppcrt.maps.*;
-import com.carrotsearch.hppcrt.procedures.*;
-import com.carrotsearch.hppcrt.cursors.*;
-import com.carrotsearch.hppcrt.strategies.*;
+import com.carrotsearch.hppcrt.IntLongMap;
+import com.carrotsearch.hppcrt.ObjectLongMap;
+import com.carrotsearch.hppcrt.Util;
+import com.carrotsearch.hppcrt.XorShiftRandom;
+import com.carrotsearch.hppcrt.cursors.IntLongCursor;
+import com.carrotsearch.hppcrt.lists.IntArrayList;
+import com.carrotsearch.hppcrt.lists.LongArrayList;
+import com.carrotsearch.hppcrt.lists.ObjectArrayList;
+import com.carrotsearch.hppcrt.maps.IntLongOpenHashMap;
+import com.carrotsearch.hppcrt.maps.ObjectLongOpenCustomHashMap;
+import com.carrotsearch.hppcrt.maps.ObjectLongOpenHashMap;
+import com.carrotsearch.hppcrt.maps.ObjectLongOpenIdentityHashMap;
+import com.carrotsearch.hppcrt.procedures.LongProcedure;
+import com.carrotsearch.hppcrt.strategies.ObjectHashingStrategy;
 
 public final class HppcMapSyntheticBench
 {
@@ -776,87 +784,83 @@ public final class HppcMapSyntheticBench
      */
     public static void main(final String[] args)
     {
+        final BenchmarkSuiteRunner.BenchmarkOptions opts = new BenchmarkSuiteRunner.BenchmarkOptions();
 
-        if (args.length != 1 || !args[0].contains("--warmup="))
-        {
+        BenchmarkSuiteRunner.parseCommonArguments(args, opts);
 
-            System.out.println("Usage : " + HppcMapSyntheticBench.class.getName() + " --warmup=[nb warmup runs]");
-        }
-        else
-        {
-            final int nbWarmup = new Integer(args[0].split("--warmup=")[1]);
+        final int nbWarmup = opts.nbWarmups;
 
-            final HppcMapSyntheticBench testClass = new HppcMapSyntheticBench(nbWarmup);
+        final HppcMapSyntheticBench testClass = new HppcMapSyntheticBench(nbWarmup);
 
-            //Map synthetic bench
-            System.out.println(String.format(">>>>>>>>>>>>>>>>>>>> HPPC HASH MAPS SYNTHETIC BENCH with %d warmup runs ... <<<<<<<<<<<<<<<<<<<<\n", nbWarmup));
+        //Map synthetic bench
+        System.out.println(String.format(">>>>>>>>>>>>>>>>>>>> HPPC HASH MAPS SYNTHETIC BENCH with %d warmup runs ... <<<<<<<<<<<<<<<<<<<<\n", nbWarmup));
 
-            //map iteration benchs
-            testClass.runMapIterationBench();
+        //map iteration benchs
+        testClass.runMapIterationBench();
+        System.gc();
+
+        if (HppcMapSyntheticBench.RUN_PRIMITIVES) {
+            System.out.println("\n");
+            testClass.runMapSyntheticBenchPrimitives(MAP_LOOKUP_TEST.MOSTLY_TRUE);
             System.gc();
-
-            if (HppcMapSyntheticBench.RUN_PRIMITIVES) {
-                System.out.println("\n");
-                testClass.runMapSyntheticBenchPrimitives(MAP_LOOKUP_TEST.MOSTLY_TRUE);
-                System.gc();
-            }
-
-            if (HppcMapSyntheticBench.RUN_IDENTITY) {
-                System.out.println("\n");
-
-                testClass.runMapIdentityObjectLong("ObjectLongOpenIdentityHashMap",
-                        ObjectLongOpenIdentityHashMap.<ComparableInt> newInstance(HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
-                        HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR, MAP_LOOKUP_TEST.MOSTLY_TRUE);
-                System.gc();
-            }
-
-            if (HppcMapSyntheticBench.RUN_INTEGERS) {
-                System.out.println("\n");
-                testClass.runMapSyntheticBenchComparableInt(MAP_LOOKUP_TEST.MOSTLY_TRUE);
-                System.gc();
-            }
-
-            if (HppcMapSyntheticBench.RUN_PRIMITIVES) {
-                System.out.println("\n\n");
-                testClass.runMapSyntheticBenchPrimitives(MAP_LOOKUP_TEST.MIXED);
-                System.gc();
-            }
-
-            if (HppcMapSyntheticBench.RUN_IDENTITY) {
-                System.out.println("\n");
-
-                testClass.runMapIdentityObjectLong("ObjectLongOpenIdentityHashMap",
-                        ObjectLongOpenIdentityHashMap.<ComparableInt> newInstance(HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
-                        HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR, MAP_LOOKUP_TEST.MIXED);
-                System.gc();
-            }
-
-            if (HppcMapSyntheticBench.RUN_INTEGERS) {
-                System.out.println("\n");
-                testClass.runMapSyntheticBenchComparableInt(MAP_LOOKUP_TEST.MIXED);
-                System.gc();
-            }
-
-            if (HppcMapSyntheticBench.RUN_PRIMITIVES) {
-                System.out.println("\n\n");
-                testClass.runMapSyntheticBenchPrimitives(MAP_LOOKUP_TEST.MOSTLY_FALSE);
-                System.gc();
-            }
-
-            if (HppcMapSyntheticBench.RUN_IDENTITY) {
-                System.out.println("\n");
-
-                testClass.runMapIdentityObjectLong("ObjectLongOpenIdentityHashMap",
-                        ObjectLongOpenIdentityHashMap.<ComparableInt> newInstance(HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
-                        HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR, MAP_LOOKUP_TEST.MOSTLY_FALSE);
-                System.gc();
-            }
-
-            if (HppcMapSyntheticBench.RUN_INTEGERS) {
-                System.out.println("\n");
-                testClass.runMapSyntheticBenchComparableInt(MAP_LOOKUP_TEST.MOSTLY_FALSE);
-                System.gc();
-            }
         }
+
+        if (HppcMapSyntheticBench.RUN_IDENTITY) {
+            System.out.println("\n");
+
+            testClass.runMapIdentityObjectLong("ObjectLongOpenIdentityHashMap",
+                    ObjectLongOpenIdentityHashMap.<ComparableInt> newInstance(HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
+                    HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR, MAP_LOOKUP_TEST.MOSTLY_TRUE);
+            System.gc();
+        }
+
+        if (HppcMapSyntheticBench.RUN_INTEGERS) {
+            System.out.println("\n");
+            testClass.runMapSyntheticBenchComparableInt(MAP_LOOKUP_TEST.MOSTLY_TRUE);
+            System.gc();
+        }
+
+        if (HppcMapSyntheticBench.RUN_PRIMITIVES) {
+            System.out.println("\n\n");
+            testClass.runMapSyntheticBenchPrimitives(MAP_LOOKUP_TEST.MIXED);
+            System.gc();
+        }
+
+        if (HppcMapSyntheticBench.RUN_IDENTITY) {
+            System.out.println("\n");
+
+            testClass.runMapIdentityObjectLong("ObjectLongOpenIdentityHashMap",
+                    ObjectLongOpenIdentityHashMap.<ComparableInt> newInstance(HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
+                    HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR, MAP_LOOKUP_TEST.MIXED);
+            System.gc();
+        }
+
+        if (HppcMapSyntheticBench.RUN_INTEGERS) {
+            System.out.println("\n");
+            testClass.runMapSyntheticBenchComparableInt(MAP_LOOKUP_TEST.MIXED);
+            System.gc();
+        }
+
+        if (HppcMapSyntheticBench.RUN_PRIMITIVES) {
+            System.out.println("\n\n");
+            testClass.runMapSyntheticBenchPrimitives(MAP_LOOKUP_TEST.MOSTLY_FALSE);
+            System.gc();
+        }
+
+        if (HppcMapSyntheticBench.RUN_IDENTITY) {
+            System.out.println("\n");
+
+            testClass.runMapIdentityObjectLong("ObjectLongOpenIdentityHashMap",
+                    ObjectLongOpenIdentityHashMap.<ComparableInt> newInstance(HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
+                    HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR, MAP_LOOKUP_TEST.MOSTLY_FALSE);
+            System.gc();
+        }
+
+        if (HppcMapSyntheticBench.RUN_INTEGERS) {
+            System.out.println("\n");
+            testClass.runMapSyntheticBenchComparableInt(MAP_LOOKUP_TEST.MOSTLY_FALSE);
+            System.gc();
+        }
+
     }
 }
