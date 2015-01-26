@@ -29,28 +29,33 @@ public class TemplateOptions
 
     public File sourceFile;
 
-    public static class LocalInlineBodies {
-
-        public LocalInlineBodies(final String genericBody, final String integerBody, final String floatBody, final String doubleBody, final String booleanBody) {
+    public static class LocalInlineBodies
+    {
+        public LocalInlineBodies(final String genericBody,
+                final String integerBody,
+                final String longBody,
+                final String floatBody, final String doubleBody, final String booleanBody) {
 
             this.genericBody = genericBody;
             this.integerBody = integerBody;
+            this.longBody = longBody;
             this.floatBody = floatBody;
             this.doubleBody = doubleBody;
             this.booleanBody = booleanBody;
         }
 
-        public String genericBody;
-        public String integerBody;
-        public String floatBody;
-        public String doubleBody;
-        public String booleanBody;
+        public final String genericBody;
+        public final String integerBody;
+        public final String longBody;
+        public final String floatBody;
+        public final String doubleBody;
+        public final String booleanBody;
 
         @Override
         public String toString() {
 
-            return String.format("LocalInlineBodies(gen='%s', int='%s', float='%s', double='%s', bool='%s')",
-                    this.genericBody, this.integerBody, this.floatBody, this.doubleBody, this.booleanBody);
+            return String.format("LocalInlineBodies(gen='%s', int='%s', long=%s, float='%s', double='%s', bool='%s')",
+                    this.genericBody, this.integerBody, this.longBody, this.floatBody, this.doubleBody, this.booleanBody);
         }
     }
 
@@ -253,6 +258,7 @@ public class TemplateOptions
                         universalCallBody,
                         universalCallBody,
                         universalCallBody,
+                        universalCallBody,
                         universalCallBody));
 
         return false;
@@ -276,7 +282,41 @@ public class TemplateOptions
                         primitiveCallBody,
                         primitiveCallBody,
                         primitiveCallBody,
+                        primitiveCallBody,
                         primitiveCallBody));
+
+        return false;
+    }
+
+    public boolean inlineWithFullSpecialization(final String callName, String args,
+            String genericCallBody,
+            String integerCallBody,
+            String longCallBody,
+            String floatCallBody,
+            String doubleCallBody,
+            String booleanCallBody) {
+
+        //Rebuild the arguments with a pattern understandable by the matcher
+        args = args.replace("(", "");
+        args = args.replace(")", "");
+
+        final String[] argsArray = args.split(",");
+
+        genericCallBody = reformatJavaArguments(genericCallBody, argsArray);
+        integerCallBody = reformatJavaArguments(integerCallBody, argsArray);
+        longCallBody = reformatJavaArguments(longCallBody, argsArray);
+        floatCallBody = reformatJavaArguments(floatCallBody, argsArray);
+        doubleCallBody = reformatJavaArguments(doubleCallBody, argsArray);
+        booleanCallBody = reformatJavaArguments(booleanCallBody, argsArray);
+
+        this.localInlinesMap.put(callName,
+                new LocalInlineBodies(
+                        genericCallBody,
+                        integerCallBody,
+                        longCallBody,
+                        floatCallBody,
+                        doubleCallBody,
+                        booleanCallBody));
 
         return false;
     }

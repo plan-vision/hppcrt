@@ -4,6 +4,7 @@ import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.cursors.*;
 import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
+import com.carrotsearch.hppcrt.hash.*;
 
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN", "BYTE", "CHAR", "SHORT", "INT", "LONG", "FLOAT", "DOUBLE")} !*/
 /*! #set( $DEBUG = false) !*/
@@ -217,7 +218,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
 
         final int mask = this.keys.length - 1;
 
-        int slot = Internals.rehash(System.identityHashCode(key)) & mask;
+        int slot = PhiMix.hash(System.identityHashCode(key)) & mask;
 
         final KType[] keys = this.keys;
         final VType[] values = this.values;
@@ -335,7 +336,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
 
         final int mask = this.keys.length - 1;
 
-        int slot = Internals.rehash(System.identityHashCode(key)) & mask;
+        int slot = PhiMix.hash(System.identityHashCode(key)) & mask;
 
         final KType[] keys = this.keys;
         final VType[] values = this.values;
@@ -439,7 +440,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
                 key = oldKeys[i];
                 value = oldValues[i];
 
-                slot = Internals.rehash(System.identityHashCode(key)) & mask;
+                slot = PhiMix.hash(System.identityHashCode(key)) & mask;
 
                 while (is_allocated(slot, keys))
                 {
@@ -491,7 +492,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
 
         final int mask = this.keys.length - 1;
 
-        int slot = Internals.rehash(System.identityHashCode(key)) & mask;
+        int slot = PhiMix.hash(System.identityHashCode(key)) & mask;
 
         final KType[] keys = this.keys;
 
@@ -551,7 +552,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
 
             while (is_allocated(slotCurr, keys))
             {
-                slotOther = (Internals.rehash(System.identityHashCode(keys[slotCurr])) & mask);
+                slotOther = (PhiMix.hash(System.identityHashCode(keys[slotCurr])) & mask);
 
                 if (slotPrev <= slotCurr)
                 {
@@ -668,7 +669,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
 
         final int mask = this.keys.length - 1;
 
-        int slot = Internals.rehash(System.identityHashCode(key)) & mask;
+        int slot = PhiMix.hash(System.identityHashCode(key)) & mask;
 
         final KType[] keys = this.keys;
 
@@ -826,7 +827,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
 
         final int mask = this.keys.length - 1;
 
-        int slot = Internals.rehash(System.identityHashCode(key)) & mask;
+        int slot = PhiMix.hash(System.identityHashCode(key)) & mask;
 
         final KType[] keys = this.keys;
 
@@ -933,7 +934,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
         int h = 0;
 
         if (this.allocatedDefaultKey) {
-            h += Internals.rehash(Intrinsics.<KType> defaultKTypeValue()) + Internals.rehash(this.defaultKeyValue);
+            h += 0 + Internals.rehash(this.defaultKeyValue);
         }
 
         final KType[] keys = this.keys;
@@ -944,7 +945,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
             if (is_allocated(i, keys))
             {
                 //This hash is an intrinsic property of the container contents
-                h += Internals.rehash(System.identityHashCode(keys[i])) + Internals.rehash(values[i]);
+                h += PhiMix.hash(System.identityHashCode(keys[i])) + Internals.rehash(values[i]);
             }
         }
 

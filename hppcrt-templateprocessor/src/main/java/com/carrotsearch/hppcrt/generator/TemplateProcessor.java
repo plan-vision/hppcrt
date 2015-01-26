@@ -353,13 +353,13 @@ public final class TemplateProcessor
                 {
                     sb.append(templateOptions.isKTypeGeneric()
                             ? "Internals.<KType[]>newArray(" + params.get(0) + ")"
-                            : "new " + templateOptions.getKType().getType() + " [" + params.get(0) + "]");
+                                    : "new " + templateOptions.getKType().getType() + " [" + params.get(0) + "]");
                 }
                 else if ("newVTypeArray".equals(method))
                 {
                     sb.append(templateOptions.isVTypeGeneric()
                             ? "Internals.<VType[]>newArray(" + params.get(0) + ")"
-                            : "new " + templateOptions.getVType().getType() + " [" + params.get(0) + "]");
+                                    : "new " + templateOptions.getVType().getType() + " [" + params.get(0) + "]");
                 }
                 else if ("equalsKType".equals(method))
                 {
@@ -626,6 +626,10 @@ public final class TemplateProcessor
 
                             bodyPattern = templateOptions.localInlinesMap.get(callName).genericBody;
                         }
+                        else if (templateOptions.ktype == Type.LONG) {
+
+                            bodyPattern = templateOptions.localInlinesMap.get(callName).longBody;
+                        }
                         else if (templateOptions.ktype == Type.BOOLEAN) {
 
                             bodyPattern = templateOptions.localInlinesMap.get(callName).booleanBody;
@@ -639,7 +643,7 @@ public final class TemplateProcessor
                             bodyPattern = templateOptions.localInlinesMap.get(callName).doubleBody;
                         }
                         else {
-                            //all integers : int, long, short, char, byte
+                            //all other integers : int, short, char, byte
                             bodyPattern = templateOptions.localInlinesMap.get(callName).integerBody;
                         }
 
@@ -803,9 +807,9 @@ public final class TemplateProcessor
 
             input = input.replaceAll("(KTypeVType)([A-Z][a-zA-Z]*)(<.+?>)?",
                     (k.isGeneric() ? "Object" : k.getBoxedType()) +
-                            (v.isGeneric() ? "Object" : v.getBoxedType()) +
-                            "$2" +
-                            (options.isAnyGeneric() ? "$3" : ""));
+                    (v.isGeneric() ? "Object" : v.getBoxedType()) +
+                    "$2" +
+                    (options.isAnyGeneric() ? "$3" : ""));
 
             input = input.replaceAll("(VType)([A-Z][a-zA-Z]*)",
                     (v.isGeneric() ? "Object" : v.getBoxedType()) + "$2");
@@ -903,7 +907,7 @@ public final class TemplateProcessor
         if (templateOptions.hasVType()) {
             relativePath = relativePath.replace("KTypeVType",
                     templateOptions.getKType().getBoxedType()
-                            + templateOptions.getVType().getBoxedType());
+                    + templateOptions.getVType().getBoxedType());
         }
 
         relativePath = relativePath.replace("KType", templateOptions.getKType()

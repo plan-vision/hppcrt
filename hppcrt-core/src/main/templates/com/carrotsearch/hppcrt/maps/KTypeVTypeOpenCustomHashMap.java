@@ -5,6 +5,7 @@ import com.carrotsearch.hppcrt.cursors.*;
 import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
 import com.carrotsearch.hppcrt.strategies.*;
+import com.carrotsearch.hppcrt.hash.*;
 
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
 /*! #set( $ROBIN_HOOD_FOR_ALL = true) !*/
@@ -270,7 +271,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
-        int slot = Internals.rehash(strategy.computeHashCode(key)) & mask;
+        int slot = PhiMix.hash(strategy.computeHashCode(key)) & mask;
 
         final KType[] keys = this.keys;
         final VType[] values = this.values;
@@ -320,8 +321,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                 /*! #if($DEBUG) !*/
                 //Check invariants
 
-                assert cached[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
-                assert initial_slot == (Internals.rehash(strategy.computeHashCode(key)) & mask);
+                assert cached[slot] == (PhiMix.hash(strategy.computeHashCode(keys[slot])) & mask);
+                assert initial_slot == (PhiMix.hash(strategy.computeHashCode(key)) & mask);
                 /*! #end !*/
 
                 dist = existing_distance;
@@ -354,7 +355,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             /*! #if ($RH) !*/
             /*! #if($DEBUG) !*/
             //Check invariants
-            assert cached[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
+            assert cached[slot] == (PhiMix.hash(strategy.computeHashCode(keys[slot])) & mask);
 
             /*! #end !*/
             /*! #end !*/
@@ -449,7 +450,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
-        int slot = Internals.rehash(strategy.computeHashCode(key)) & mask;
+        int slot = PhiMix.hash(strategy.computeHashCode(key)) & mask;
 
         #if ($RH)
         final int[] cached = this.hash_cache;
@@ -613,7 +614,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                 key = oldKeys[i];
                 value = oldValues[i];
 
-                slot = Internals.rehash(strategy.computeHashCode(key)) & mask;
+                slot = PhiMix.hash(strategy.computeHashCode(key)) & mask;
 
                 /*! #if ($RH) !*/
                 initial_slot = slot;
@@ -643,8 +644,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
                         /*! #if($DEBUG) !*/
                         //Check invariants
-                        assert cached[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
-                        assert initial_slot == (Internals.rehash(strategy.computeHashCode(key)) & mask);
+                        assert cached[slot] == (PhiMix.hash(strategy.computeHashCode(keys[slot])) & mask);
+                        assert initial_slot == (PhiMix.hash(strategy.computeHashCode(key)) & mask);
                         /*! #end !*/
 
                         dist = existing_distance;
@@ -668,7 +669,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                 /*! #if ($RH) !*/
                 /*! #if($DEBUG) !*/
                 //Check invariants
-                assert cached[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
+                assert cached[slot] == (PhiMix.hash(strategy.computeHashCode(keys[slot])) & mask);
                 /*! #end !*/
                 /*! #end !*/
             }
@@ -730,7 +731,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
-        int slot = Internals.rehash(strategy.computeHashCode(key)) & mask;
+        int slot = PhiMix.hash(strategy.computeHashCode(key)) & mask;
 
         /*! #if ($RH) !*/
         int dist = 0;
@@ -813,10 +814,10 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                 slotOther = cached[slotCurr];
                 /*! #if($DEBUG) !*/
                 //Check invariants
-                assert slotOther == (Internals.rehash(strategy.computeHashCode(keys[slotCurr])) & mask);
+                assert slotOther == (PhiMix.hash(strategy.computeHashCode(keys[slotCurr])) & mask);
                 /*! #end !*/
                 /*! #else
-                 slotOther = Internals.rehash(strategy.computeHashCode(keys[slotCurr])) & mask;
+                 slotOther = PhiMix.hash(strategy.computeHashCode(keys[slotCurr])) & mask;
                 #end !*/
 
                 if (slotPrev <= slotCurr)
@@ -846,8 +847,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             /*! #if ($RH) !*/
             /*! #if($DEBUG) !*/
             //Check invariants
-            assert cached[slotCurr] == (Internals.rehash(strategy.computeHashCode(keys[slotCurr])) & mask);
-            assert cached[slotPrev] == (Internals.rehash(strategy.computeHashCode(keys[slotPrev])) & mask);
+            assert cached[slotCurr] == (PhiMix.hash(strategy.computeHashCode(keys[slotCurr])) & mask);
+            assert cached[slotPrev] == (PhiMix.hash(strategy.computeHashCode(keys[slotPrev])) & mask);
             /*! #end !*/
             /*! #end !*/
 
@@ -948,7 +949,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
-        int slot = Internals.rehash(strategy.computeHashCode(key)) & mask;
+        int slot = PhiMix.hash(strategy.computeHashCode(key)) & mask;
 
         /*! #if ($RH) !*/
         int dist = 0;
@@ -1121,7 +1122,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
-        int slot = Internals.rehash(strategy.computeHashCode(key)) & mask;
+        int slot = PhiMix.hash(strategy.computeHashCode(key)) & mask;
 
         /*! #if ($RH) !*/
         int dist = 0;
@@ -1242,7 +1243,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         int h = 0;
 
         if (this.allocatedDefaultKey) {
-            h += Internals.rehash(strategy.computeHashCode(Intrinsics.<KType> defaultKTypeValue())) + Internals.rehash(this.defaultKeyValue);
+            h += 0 + Internals.rehash(this.defaultKeyValue);
         }
 
         final KType[] keys = this.keys;
@@ -1252,7 +1253,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         {
             if (is_allocated(i, keys))
             {
-                h += Internals.rehash(strategy.computeHashCode(keys[i])) + Internals.rehash(values[i]);
+                h += PhiMix.hash(strategy.computeHashCode(keys[i])) + Internals.rehash(values[i]);
             }
         }
 
@@ -2158,7 +2159,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         /*! #if($DEBUG) !*/
         //Check : cached hashed slot is == computed value
         final int mask = cache.length - 1;
-        assert rh == (Internals.rehash(this.hashStrategy.computeHashCode(this.keys[slot])) & mask);
+        assert rh == (PhiMix.hash(this.hashStrategy.computeHashCode(this.keys[slot])) & mask);
         /*! #end !*/
 
         if (slot < rh) {

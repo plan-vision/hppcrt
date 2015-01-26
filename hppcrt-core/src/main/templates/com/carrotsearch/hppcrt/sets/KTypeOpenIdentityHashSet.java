@@ -1,11 +1,10 @@
 package com.carrotsearch.hppcrt.sets;
 
-import java.util.*;
-
 import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.cursors.*;
 import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
+import com.carrotsearch.hppcrt.hash.*;
 
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN", "BYTE", "CHAR", "SHORT", "INT", "LONG", "FLOAT", "DOUBLE")} !*/
 /*! #set( $DEBUG = false) !*/
@@ -179,7 +178,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         final int mask = this.keys.length - 1;
 
-        int slot = Internals.rehash(System.identityHashCode(e)) & mask;
+        int slot = PhiMix.hash(System.identityHashCode(e)) & mask;
 
         final KType[] keys = this.keys;
 
@@ -310,7 +309,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
             if (is_allocated(i, oldKeys))
             {
                 e = oldKeys[i];
-                slot = Internals.rehash(System.identityHashCode(e)) & mask;
+                slot = PhiMix.hash(System.identityHashCode(e)) & mask;
 
                 while (is_allocated(slot, keys))
                 {
@@ -365,7 +364,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         final int mask = this.keys.length - 1;
 
-        int slot = Internals.rehash(System.identityHashCode(key)) & mask;
+        int slot = PhiMix.hash(System.identityHashCode(key)) & mask;
 
         final KType[] keys = this.keys;
 
@@ -420,7 +419,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
             while (is_allocated(slotCurr, keys))
             {
-                slotOther = (Internals.rehash(System.identityHashCode(keys[slotCurr])) & mask);
+                slotOther = (PhiMix.hash(System.identityHashCode(keys[slotCurr])) & mask);
 
                 if (slotPrev <= slotCurr)
                 {
@@ -509,7 +508,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         final int mask = this.keys.length - 1;
 
-        int slot = Internals.rehash(System.identityHashCode(key)) & mask;
+        int slot = PhiMix.hash(System.identityHashCode(key)) & mask;
 
         final KType[] keys = this.keys;
 
@@ -594,7 +593,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         int h = 0;
 
         if (this.allocatedDefaultKey) {
-            h += Internals.rehash(Intrinsics.defaultKTypeValue());
+            h += 0;
         }
 
         final KType[] keys = this.keys;
@@ -604,7 +603,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
             if (is_allocated(i, keys))
             {
                 //This hash is an intrinsic property of the container contents
-                h += Internals.rehash(System.identityHashCode(keys[i]));
+                h += PhiMix.hash(System.identityHashCode(keys[i]));
             }
         }
 

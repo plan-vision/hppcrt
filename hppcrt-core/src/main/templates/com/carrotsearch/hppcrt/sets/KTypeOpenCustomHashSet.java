@@ -1,12 +1,11 @@
 package com.carrotsearch.hppcrt.sets;
 
-import java.util.*;
-
 import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.cursors.*;
 import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
 import com.carrotsearch.hppcrt.strategies.*;
+import com.carrotsearch.hppcrt.hash.*;
 
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
 /*! #set( $ROBIN_HOOD_FOR_ALL = true) !*/
@@ -228,7 +227,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
-        int slot = Internals.rehash(strategy.computeHashCode(e)) & mask;
+        int slot = PhiMix.hash(strategy.computeHashCode(e)) & mask;
 
         final KType[] keys = this.keys;
 
@@ -268,8 +267,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
                 /*! #if($DEBUG) !*/
                 //Check invariants
-                assert cached[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
-                assert initial_slot == (Internals.rehash(strategy.computeHashCode(e)) & mask);
+                assert cached[slot] == (PhiMix.hash(strategy.computeHashCode(keys[slot])) & mask);
+                assert initial_slot == (PhiMix.hash(strategy.computeHashCode(e)) & mask);
                 /*! #end !*/
 
                 dist = existing_distance;
@@ -299,7 +298,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
             /*! #if ($RH) !*/
             /*! #if($DEBUG) !*/
             //Check invariants
-            assert cached[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
+            assert cached[slot] == (PhiMix.hash(strategy.computeHashCode(keys[slot])) & mask);
             /*! #end !*/
             /*! #end !*/
         }
@@ -423,7 +422,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
             if (is_allocated(i, oldKeys))
             {
                 e = oldKeys[i];
-                slot = Internals.rehash(strategy.computeHashCode(e)) & mask;
+                slot = PhiMix.hash(strategy.computeHashCode(e)) & mask;
 
                 /*! #if ($RH) !*/
                 initial_slot = slot;
@@ -449,8 +448,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
                         /*! #if($DEBUG) !*/
                         //Check invariants
-                        assert cached[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
-                        assert initial_slot == (Internals.rehash(strategy.computeHashCode(e)) & mask);
+                        assert cached[slot] == (PhiMix.hash(strategy.computeHashCode(keys[slot])) & mask);
+                        assert initial_slot == (PhiMix.hash(strategy.computeHashCode(e)) & mask);
                         /*! #end !*/
 
                         dist = existing_distance;
@@ -474,7 +473,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
                 /*! #if ($RH) !*/
                 /*! #if($DEBUG) !*/
                 //Check invariants
-                assert cached[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
+                assert cached[slot] == (PhiMix.hash(strategy.computeHashCode(keys[slot])) & mask);
                 /*! #end !*/
                 /*! #end !*/
             }
@@ -535,7 +534,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
-        int slot = Internals.rehash(strategy.computeHashCode(key)) & mask;
+        int slot = PhiMix.hash(strategy.computeHashCode(key)) & mask;
 
         /*! #if ($RH) !*/
         int dist = 0;
@@ -612,10 +611,10 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
                 slotOther = cached[slotCurr];
                 /*! #if($DEBUG) !*/
                 //Check invariants
-                assert slotOther == (Internals.rehash(strategy.computeHashCode(keys[slotCurr])) & mask);
+                assert slotOther == (PhiMix.hash(strategy.computeHashCode(keys[slotCurr])) & mask);
                 /*! #end !*/
                 /*! #else
-                 slotOther = Internals.rehash(strategy.computeHashCode(keys[slotCurr])) & mask;
+                 slotOther = PhiMix.hash(strategy.computeHashCode(keys[slotCurr])) & mask;
                 #end !*/
 
                 if (slotPrev <= slotCurr)
@@ -643,8 +642,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
             /*! #if ($RH) !*/
             /*! #if($DEBUG) !*/
             //Check invariants
-            assert cached[slotCurr] == (Internals.rehash(strategy.computeHashCode(keys[slotCurr])) & mask);
-            assert cached[slotPrev] == (Internals.rehash(strategy.computeHashCode(keys[slotPrev])) & mask);
+            assert cached[slotCurr] == (PhiMix.hash(strategy.computeHashCode(keys[slotCurr])) & mask);
+            assert cached[slotPrev] == (PhiMix.hash(strategy.computeHashCode(keys[slotPrev])) & mask);
             /*! #end !*/
             /*! #end !*/
 
@@ -720,7 +719,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
-        int slot = Internals.rehash(strategy.computeHashCode(key)) & mask;
+        int slot = PhiMix.hash(strategy.computeHashCode(key)) & mask;
 
         /*! #if ($RH) !*/
         int dist = 0;
@@ -818,7 +817,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         int h = 0;
 
         if (this.allocatedDefaultKey) {
-            h += Internals.rehash(strategy.computeHashCode(Intrinsics.<KType> defaultKTypeValue()));
+            h += 0;
         }
 
         final KType[] keys = this.keys;
@@ -827,7 +826,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         {
             if (is_allocated(i, keys))
             {
-                h += Internals.rehash(strategy.computeHashCode(keys[i]));
+                h += PhiMix.hash(strategy.computeHashCode(keys[i]));
             }
         }
 
@@ -943,7 +942,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
                 @Override
                 public void initialize(final EntryIterator obj) {
-                    obj.cursor.index = KTypeOpenCustomHashSet.this.keys.length +1 ;
+                    obj.cursor.index = KTypeOpenCustomHashSet.this.keys.length + 1;
                 }
 
                 @Override
@@ -1162,6 +1161,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         return !Intrinsics.equalsKTypeDefault(keys[slot]);
     }
+
     /*! #end !*/
 
 /*! #if ($TemplateOptions.inline("probe_distance",
@@ -1177,7 +1177,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         /*! #if($DEBUG) !*/
         //Check : cached hashed slot is == computed value
         final int mask = cached.length - 1;
-        assert rh == (Internals.rehash(this.hashStrategy.computeHashCode(this.keys[slot])) & mask);
+        assert rh == (PhiMix.hash(this.hashStrategy.computeHashCode(this.keys[slot])) & mask);
         /*! #end !*/
 
         if (slot < rh) {
