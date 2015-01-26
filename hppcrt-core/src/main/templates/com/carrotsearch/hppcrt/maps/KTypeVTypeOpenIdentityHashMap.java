@@ -1,7 +1,5 @@
 package com.carrotsearch.hppcrt.maps;
 
-import java.util.*;
-
 import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.cursors.*;
 import com.carrotsearch.hppcrt.predicates.*;
@@ -886,8 +884,13 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
         this.allocatedDefaultKey = false;
 
         /*! #if ($TemplateOptions.VTypeGeneric) !*/
+        //help the GC
+        this.defaultKeyValue = Intrinsics.defaultVTypeValue();
+        /*! #end !*/
+
+        /*! #if ($TemplateOptions.VTypeGeneric) !*/
         //Faster than Arrays.fill(values, null); // Help the GC.
-        Internals.blankObjectArray(this.values, 0, this.values.length);
+        VTypeArrays.<VType> blankArray(this.values, 0, this.values.length);
         /*! #end !*/
     }
 
@@ -1722,6 +1725,8 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
 
         cloned.putAll(this);
 
+        cloned.defaultKeyValue = this.defaultKeyValue;
+        cloned.allocatedDefaultKey = this.allocatedDefaultKey;
         cloned.defaultValue = this.defaultValue;
 
         return cloned;

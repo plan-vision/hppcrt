@@ -12,33 +12,6 @@ public final class Internals
 {
     final public static int NB_OF_PROCESSORS = Runtime.getRuntime().availableProcessors();
 
-    final private static int BLANK_ARRAY_SIZE_IN_BIT_SHIFT = 10;
-
-    /**
-     * Batch blanking array size
-     */
-    final private static int BLANK_ARRAY_SIZE = 1 << Internals.BLANK_ARRAY_SIZE_IN_BIT_SHIFT;
-
-    /**
-     * Batch blanking array with Object nulls
-     */
-    final private static Object[] BLANKING_OBJECT_ARRAY = new Object[Internals.BLANK_ARRAY_SIZE];
-
-    /**
-     * Batch blanking array with boolean false
-     */
-    final private static boolean[] BLANKING_BOOLEAN_ARRAY = new boolean[Internals.BLANK_ARRAY_SIZE];
-
-    /**
-     * Batch blanking array with int == -1
-     */
-    final private static int[] BLANKING_INT_ARRAY_MINUS_ONE = new int[Internals.BLANK_ARRAY_SIZE];
-
-    static {
-
-        Arrays.fill(Internals.BLANKING_INT_ARRAY_MINUS_ONE, -1);
-    }
-
     /**
      * Rehash with perturbations methods
      * @param o
@@ -133,88 +106,6 @@ public final class Internals
     public static <T> T newArray(final int arraySize)
     {
         return (T) new Object[arraySize];
-    }
-
-    /**
-     * Method to blank any Object[] array to "null"
-     * from [startIndex; endIndex[, equivalent to {@link Arrays}.fill(objectArray, startIndex, endIndex, null)
-     */
-    public static <T> void blankObjectArray(final T[] objectArray, final int startIndex, final int endIndex) {
-
-        assert startIndex <= endIndex;
-
-        final int size = endIndex - startIndex;
-        final int nbChunks = size >> Internals.BLANK_ARRAY_SIZE_IN_BIT_SHIFT;
-        //compute remainder
-        final int rem = size & (Internals.BLANK_ARRAY_SIZE - 1);
-
-        for (int i = 0; i < nbChunks; i++) {
-
-            System.arraycopy(Internals.BLANKING_OBJECT_ARRAY, 0,
-                    objectArray, startIndex + (i << Internals.BLANK_ARRAY_SIZE_IN_BIT_SHIFT),
-                    Internals.BLANK_ARRAY_SIZE);
-        } //end for
-
-        //fill the reminder
-        if (rem > 0) {
-            Arrays.fill(objectArray, startIndex + (nbChunks << Internals.BLANK_ARRAY_SIZE_IN_BIT_SHIFT),
-                    startIndex + (nbChunks << Internals.BLANK_ARRAY_SIZE_IN_BIT_SHIFT) + rem, null);
-        }
-    }
-
-    /**
-     * Method to blank any boolean[] array to false
-     * from [startIndex; endIndex[, equivalent to {@link Arrays}.fill(boolArray, startIndex, endIndex, false)
-     */
-    public static void blankBooleanArray(final boolean[] boolArray, final int startIndex, final int endIndex) {
-
-        assert startIndex <= endIndex;
-
-        final int size = endIndex - startIndex;
-        final int nbChunks = size >> Internals.BLANK_ARRAY_SIZE_IN_BIT_SHIFT;
-        //compute remainder
-        final int rem = size & (Internals.BLANK_ARRAY_SIZE - 1);
-
-        for (int i = 0; i < nbChunks; i++) {
-
-            System.arraycopy(Internals.BLANKING_BOOLEAN_ARRAY, 0,
-                    boolArray, startIndex + (i << Internals.BLANK_ARRAY_SIZE_IN_BIT_SHIFT),
-                    Internals.BLANK_ARRAY_SIZE);
-        } //end for
-
-        //fill the reminder
-        if (rem > 0) {
-            Arrays.fill(boolArray, startIndex + (nbChunks << Internals.BLANK_ARRAY_SIZE_IN_BIT_SHIFT),
-                    startIndex + (nbChunks << Internals.BLANK_ARRAY_SIZE_IN_BIT_SHIFT) + rem, false);
-        }
-
-    }
-
-    /**
-     * Method to blank any int[] array to -1
-     * from [startIndex; endIndex[, equivalent to {@link Arrays}.fill(intArray, startIndex, endIndex, -1)
-     */
-    public static void blankIntArrayMinusOne(final int[] intArray, final int startIndex, final int endIndex) {
-
-        assert startIndex <= endIndex;
-
-        final int size = endIndex - startIndex;
-        final int nbChunks = size >> Internals.BLANK_ARRAY_SIZE_IN_BIT_SHIFT;
-        //compute remainder
-        final int rem = size & (Internals.BLANK_ARRAY_SIZE - 1);
-
-        for (int i = 0; i < nbChunks; i++) {
-
-            System.arraycopy(Internals.BLANKING_INT_ARRAY_MINUS_ONE, 0,
-                    intArray, startIndex + (i << Internals.BLANK_ARRAY_SIZE_IN_BIT_SHIFT),
-                    Internals.BLANK_ARRAY_SIZE);
-        } //end for
-
-        //fill the reminder
-        if (rem > 0) {
-            Arrays.fill(intArray, startIndex + (nbChunks << Internals.BLANK_ARRAY_SIZE_IN_BIT_SHIFT),
-                    startIndex + (nbChunks << Internals.BLANK_ARRAY_SIZE_IN_BIT_SHIFT) + rem, -1);
-        }
     }
 
     /**

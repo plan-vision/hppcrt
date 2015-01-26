@@ -82,16 +82,10 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      * recommended to use a {@link #iterator()} instead.
      * </pre>
     #end
-    #if (!$RH)
      * <p>
-     * Direct set iteration: iterate  {keys[i]} for i in [0; keys.length[ where keys[i] != 0, then also
-     * {0} is in the set if {@link #allocatedDefaultKey} = true.
+     * Direct set iteration: iterate  {keys[i]} for i in [0; keys.length[ where keys[i] != 0/null, then also
+     * {0/null} is in the set if {@link #allocatedDefaultKey} = true.
      * </p>
-    #else
-     * <p>
-     * Direct set iteration: iterate  {keys[i]} for i in [0; keys.length[ where this.allocated[i] is != -1.
-     * </p>
-    #end
      * 
      * <p><b>Direct iteration warning: </b>
      * If the iteration goal is to fill another hash container, please iterate {@link #keys} in reverse to prevent performance losses.
@@ -101,27 +95,21 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
     /*! #if ($RH) !*/
     /**
-     * Information if an entry (slot) in the {@link #keys} table is allocated
-     * or empty.
      * #if ($RH)
-     * In addition it caches hash value :  If = -1, it means not allocated, else = HASH(keys[i]) & mask
+     * Caches the hash value = HASH(keys[i]) & mask, if keys[i] != 0/null,
      * for every index i.
      * #end
      * @see #assigned
      */
     /*! #end !*/
     /*! #if ($RH) !*/
-    public int[] allocated;
+    protected int[] hash_cache;
     /*! #end !*/
 
     /**
-     #if (!$RH)
-     * True if key = 0 is in the map.
-     #end
+     *True if key = 0/null is in the map.
      */
-    /*! #if (!$RH)
     public boolean allocatedDefaultKey = false;
-    #end !*/
 
     /**
      * Cached number of assigned slots in {@link #keys}.
@@ -199,10 +187,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         this.keys = Intrinsics.newKTypeArray(internalCapacity);
 
-        //fill with "not allocated" value
         /*! #if ($RH) !*/
-        this.allocated = new int[internalCapacity];
-        Internals.blankIntArrayMinusOne(this.allocated, 0, this.allocated.length);
+        this.hash_cache = new int[internalCapacity];
         /*!  #end !*/
 
         //Take advantage of the rounding so that the resize occur a bit later than expected.
@@ -226,7 +212,6 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     @Override
     public boolean add(KType e)
     {
-        /*! #if (!$RH)
         if (Intrinsics.equalsKTypeDefault(e)) {
 
             if (this.allocatedDefaultKey) {
@@ -238,7 +223,6 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
             return true;
         }
-        #end !*/
 
         final int mask = this.keys.length - 1;
 
@@ -249,7 +233,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         final KType[] keys = this.keys;
 
         /*! #if ($RH) !*/
-        final int[] states = this.allocated;
+        final int[] cached = this.hash_cache;
         /*!  #end !*/
 
         /*! #if ($RH) !*/
@@ -260,7 +244,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         int existing_distance = 0;
         /*! #end !*/
 
-        while (is_allocated(states, slot, keys))
+        while (is_allocated(slot, keys))
         {
             if (strategy.equals(e, keys[slot]))
             {
@@ -269,7 +253,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
             /*! #if ($RH) !*/
             //re-shuffle keys to minimize variance
-            existing_distance = probe_distance(slot, states);
+            existing_distance = probe_distance(slot, cached);
 
             if (dist > existing_distance)
             {
@@ -278,13 +262,13 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
                 keys[slot] = e;
                 e = tmpKey;
 
-                tmpAllocated = states[slot];
-                states[slot] = initial_slot;
+                tmpAllocated = cached[slot];
+                cached[slot] = initial_slot;
                 initial_slot = tmpAllocated;
 
                 /*! #if($DEBUG) !*/
                 //Check invariants
-                assert states[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
+                assert cached[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
                 assert initial_slot == (Internals.rehash(strategy.computeHashCode(e)) & mask);
                 /*! #end !*/
 
@@ -307,7 +291,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         else {
             this.assigned++;
             /*! #if ($RH) !*/
-            states[slot] = initial_slot;
+            cached[slot] = initial_slot;
             /*!  #end !*/
 
             keys[slot] = e;
@@ -315,7 +299,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
             /*! #if ($RH) !*/
             /*! #if($DEBUG) !*/
             //Check invariants
-            assert states[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
+            assert cached[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
             /*! #end !*/
             /*! #end !*/
         }
@@ -393,20 +377,12 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     {
         assert this.assigned == this.resizeAt;
 
-        /*! #if ($RH) !*/
-        assert this.allocated[freeSlot] == -1;
-        /*! #else
         //default sentinel value is never in the keys[] array, so never trigger reallocs
         assert !Intrinsics.equalsKTypeDefault(pendingKey);
-         #end !*/
 
         // Try to allocate new buffers first. If we OOM, it'll be now without
         // leaving the data structure in an inconsistent state.
         final KType[] oldKeys = this.keys;
-
-        /*! #if ($RH) !*/
-        final int[] oldAllocated = this.allocated;
-        /*! #end !*/
 
         allocateBuffers(HashContainerUtils.nextCapacity(this.keys.length));
 
@@ -414,11 +390,6 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         // the free slot in the old arrays before rehashing.
         this.lastSlot = -1;
         this.assigned++;
-
-        //We don't care of the oldAllocated value, so long it means "allocated = true", since the whole set is rebuilt from scratch.
-        /*! #if ($RH) !*/
-        oldAllocated[freeSlot] = 1;
-        /*! #end !*/
 
         oldKeys[freeSlot] = pendingKey;
 
@@ -434,7 +405,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         final KType[] keys = this.keys;
 
         /*! #if ($RH) !*/
-        final int[] allocated = this.allocated;
+        final int[] cached = this.hash_cache;
         /*! #end !*/
 
         /*! #if ($RH) !*/
@@ -449,7 +420,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         //It is important to iterate backwards to minimize the conflict chain length !
         for (int i = oldKeys.length; --i >= 0;)
         {
-            if (is_allocated(oldAllocated, i, oldKeys))
+            if (is_allocated(i, oldKeys))
             {
                 e = oldKeys[i];
                 slot = Internals.rehash(strategy.computeHashCode(e)) & mask;
@@ -459,11 +430,11 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
                 dist = 0;
                 /*! #end !*/
 
-                while (is_allocated(allocated, slot, keys))
+                while (is_allocated(slot, keys))
                 {
                     /*! #if ($RH) !*/
                     //re-shuffle keys to minimize variance
-                    existing_distance = probe_distance(slot, allocated);
+                    existing_distance = probe_distance(slot, cached);
 
                     if (dist > existing_distance)
                     {
@@ -472,13 +443,13 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
                         keys[slot] = e;
                         e = tmpKey;
 
-                        tmpAllocated = allocated[slot];
-                        allocated[slot] = initial_slot;
+                        tmpAllocated = cached[slot];
+                        cached[slot] = initial_slot;
                         initial_slot = tmpAllocated;
 
                         /*! #if($DEBUG) !*/
                         //Check invariants
-                        assert allocated[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
+                        assert cached[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
                         assert initial_slot == (Internals.rehash(strategy.computeHashCode(e)) & mask);
                         /*! #end !*/
 
@@ -495,7 +466,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
                 //place it at that position
                 /*! #if ($RH) !*/
-                allocated[slot] = initial_slot;
+                cached[slot] = initial_slot;
                 /*! #end !*/
 
                 keys[slot] = e;
@@ -503,7 +474,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
                 /*! #if ($RH) !*/
                 /*! #if($DEBUG) !*/
                 //Check invariants
-                assert allocated[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
+                assert cached[slot] == (Internals.rehash(strategy.computeHashCode(keys[slot])) & mask);
                 /*! #end !*/
                 /*! #end !*/
             }
@@ -521,12 +492,12 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         /*! #if ($RH) !*/
         final int[] allocated = new int[capacity];
-        Internals.blankIntArrayMinusOne(allocated, 0, allocated.length);
         /*! #end !*/
 
         this.keys = keys;
+
         /*! #if ($RH) !*/
-        this.allocated = allocated;
+        this.hash_cache = allocated;
         /*! #end !*/
 
         //allocate so that there is at least one slot that remains allocated = false
@@ -549,7 +520,6 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      */
     public boolean remove(final KType key)
     {
-        /*! #if (!$RH)
         if (Intrinsics.equalsKTypeDefault(key)) {
 
             if (this.allocatedDefaultKey) {
@@ -560,7 +530,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
             return false;
         }
-        #end !*/
+
         final int mask = this.keys.length - 1;
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
@@ -574,11 +544,11 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         final KType[] keys = this.keys;
 
         /*! #if ($RH) !*/
-        final int[] states = this.allocated;
+        final int[] cached = this.hash_cache;
         /*! #end !*/
 
         ////Fast path 1: the first slot is empty, bailout returning  false
-        if (!is_allocated(states, slot, keys)) {
+        if (!is_allocated(slot, keys)) {
 
             return false;
         }
@@ -595,8 +565,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         ////Fast path 3: position now on the 2nd slot
         slot = (slot + 1) & mask;
 
-        while (is_allocated(states, slot, keys)
-                /*! #if ($RH) !*/&& dist <= probe_distance(slot, states) /*! #end !*/)
+        while (is_allocated(slot, keys)
+                /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/)
         {
             if (strategy.equals(key, keys[slot]))
             {
@@ -626,19 +596,20 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
         final KType[] keys = this.keys;
+
         /*! #if ($RH) !*/
-        final int[] allocated = this.allocated;
+        final int[] cached = this.hash_cache;
         /*!  #end !*/
 
         while (true)
         {
             slotCurr = ((slotPrev = slotCurr) + 1) & mask;
 
-            while (is_allocated(allocated, slotCurr, keys))
+            while (is_allocated(slotCurr, keys))
             {
                 /*! #if ($RH) !*/
                 //use the cached value, no need to recompute
-                slotOther = allocated[slotCurr];
+                slotOther = cached[slotCurr];
                 /*! #if($DEBUG) !*/
                 //Check invariants
                 assert slotOther == (Internals.rehash(strategy.computeHashCode(keys[slotCurr])) & mask);
@@ -664,7 +635,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
                 slotCurr = (slotCurr + 1) & mask;
             }
 
-            if (!is_allocated(allocated, slotCurr, keys))
+            if (!is_allocated(slotCurr, keys))
             {
                 break;
             }
@@ -672,8 +643,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
             /*! #if ($RH) !*/
             /*! #if($DEBUG) !*/
             //Check invariants
-            assert allocated[slotCurr] == (Internals.rehash(strategy.computeHashCode(keys[slotCurr])) & mask);
-            assert allocated[slotPrev] == (Internals.rehash(strategy.computeHashCode(keys[slotPrev])) & mask);
+            assert cached[slotCurr] == (Internals.rehash(strategy.computeHashCode(keys[slotCurr])) & mask);
+            assert cached[slotPrev] == (Internals.rehash(strategy.computeHashCode(keys[slotPrev])) & mask);
             /*! #end !*/
             /*! #end !*/
 
@@ -681,18 +652,12 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
             keys[slotPrev] = keys[slotCurr];
 
             /*! #if ($RH) !*/
-            allocated[slotPrev] = allocated[slotCurr];
+            cached[slotPrev] = cached[slotCurr];
             /*! #end !*/
         }
 
         //means not allocated
-        /*! #if ($RH) !*/
-        allocated[slotPrev] = -1;
-        /*! #end !*/
-
-        /* #if (($TemplateOptions.KTypeGeneric) || !$RH) */
         keys[slotPrev] = Intrinsics.<KType> defaultKTypeValue();
-        /* #end */
     }
 
     /**
@@ -702,19 +667,14 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      */
     public KType lkey()
     {
-        /*! #if (!$RH)
         if (this.lastSlot == -2) {
 
             return Intrinsics.defaultKTypeValue();
         }
-        #end !*/
 
         assert this.lastSlot >= 0 : "Call containsKey() first.";
-        /*! #if ($RH) !*/
-        assert this.allocated[this.lastSlot] != -1 : "Last call to exists did not have any associated value.";
-        /*! #else
-         assert ! Intrinsics.equalsKTypeDefault(this.keys[lastSlot]) : "Last call to exists did not have any associated value.";
-        #end !*/
+
+        assert !Intrinsics.equalsKTypeDefault(this.keys[this.lastSlot]) : "Last call to exists did not have any associated value.";
 
         return this.keys[this.lastSlot];
     }
@@ -722,9 +682,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     /**
      * @return Returns the slot of the last key looked up in a call to {@link #contains} if
      * it returned <code>true</code>.
-     * #if (!$RH)
      * or else -2 if {@link #contains} were succesfull on key = 0
-     * #end
      * @see #contains
      */
     public int lslot()
@@ -746,18 +704,18 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     @Override
     public boolean contains(final KType key)
     {
-        /*! #if (!$RH)
         if (Intrinsics.equalsKTypeDefault(key)) {
 
             if (this.allocatedDefaultKey) {
                 this.lastSlot = -2;
-            } else {
+            }
+            else {
                 this.lastSlot = -1;
             }
 
             return this.allocatedDefaultKey;
         }
-        #end !*/
+
         final int mask = this.keys.length - 1;
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
@@ -771,11 +729,11 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         final KType[] keys = this.keys;
 
         /*! #if ($RH) !*/
-        final int[] states = this.allocated;
+        final int[] cached = this.hash_cache;
         /*! #end !*/
 
         ////Fast path 1: the first slot is empty, bailout returning false
-        if (!is_allocated(states, slot, keys)) {
+        if (!is_allocated(slot, keys)) {
 
             //unsuccessful search
             this.lastSlot = -1;
@@ -792,8 +750,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         ////Fast path 3 : position now on the 2nd slot
         slot = (slot + 1) & mask;
 
-        while (is_allocated(states, slot, keys)
-                /*! #if ($RH) !*/&& dist <= probe_distance(slot, states) /*! #end !*/)
+        while (is_allocated(slot, keys)
+                /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/)
         {
             if (strategy.equals(key, keys[slot]))
             {
@@ -825,18 +783,10 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         this.lastSlot = -1;
 
         // States are always cleared.
-        /*! #if ($RH) !*/
-        Internals.blankIntArrayMinusOne(this.allocated, 0, this.allocated.length);
-        /*! #end !*/
-
-        /*! #if (!$RH)
         this.allocatedDefaultKey = false;
-        #end !*/
 
-        /*! #if (($TemplateOptions.KTypeGeneric) || !$RH) !*/
         //Faster than Arrays.fill(keys, null); // Help the GC.
         KTypeArrays.blankArray(this.keys, 0, this.keys.length);
-        /*! #end !*/
     }
 
     /**
@@ -845,7 +795,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     @Override
     public int size()
     {
-        return this.assigned /*! #if (!$RH) + (this.allocatedDefaultKey?1:0) #end !*/;
+        return this.assigned + (this.allocatedDefaultKey ? 1 : 0);
     }
 
     /**
@@ -863,27 +813,20 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     @Override
     public int hashCode()
     {
+        final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
+
         int h = 0;
-        /*! #if (!$RH)
+
         if (this.allocatedDefaultKey) {
-            h +=  Internals.rehash(Intrinsics.defaultKTypeValue());
+            h += Internals.rehash(strategy.computeHashCode(Intrinsics.<KType> defaultKTypeValue()));
         }
-        #end !*/
 
         final KType[] keys = this.keys;
 
-        /*! #if ($RH) !*/
-        final int[] states = this.allocated;
-        /*! #end !*/
-
-        final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
-
         for (int i = keys.length; --i >= 0;)
         {
-            if (is_allocated(states, i, keys))
+            if (is_allocated(i, keys))
             {
-                //This hash is an intrinsic property of the container contents,
-                //consequently is independent from the KTypeHashStrategy, so do not use it !
                 h += Internals.rehash(strategy.computeHashCode(keys[i]));
             }
         }
@@ -954,27 +897,24 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         @Override
         protected KTypeCursor<KType> fetch()
         {
-            /*! #if (!$RH)
-                if (this.cursor.index == KTypeOpenCustomHashSet.this.keys.length + 1) {
+            if (this.cursor.index == KTypeOpenCustomHashSet.this.keys.length + 1) {
 
-                    if (KTypeOpenCustomHashSet.this.allocatedDefaultKey) {
+                if (KTypeOpenCustomHashSet.this.allocatedDefaultKey) {
 
-                        this.cursor.index = KTypeOpenCustomHashSet.this.keys.length;
-                        this.cursor.value = Intrinsics.defaultKTypeValue();
+                    this.cursor.index = KTypeOpenCustomHashSet.this.keys.length;
+                    this.cursor.value = Intrinsics.defaultKTypeValue();
 
-                        return this.cursor;
+                    return this.cursor;
 
-                    } else {
-                        //no value associated with the default key, continue iteration...
-                         this.cursor.index = KTypeOpenCustomHashSet.this.keys.length;
-                    }
                 }
+                //no value associated with the default key, continue iteration...
+                this.cursor.index = KTypeOpenCustomHashSet.this.keys.length;
+            }
 
-             #end !*/
             int i = this.cursor.index - 1;
 
             while (i >= 0 &&
-                    !is_allocated(KTypeOpenCustomHashSet.this.allocated, i, KTypeOpenCustomHashSet.this.keys))
+                    !is_allocated(i, KTypeOpenCustomHashSet.this.keys))
             {
                 i--;
             }
@@ -1003,7 +943,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
                 @Override
                 public void initialize(final EntryIterator obj) {
-                    obj.cursor.index = KTypeOpenCustomHashSet.this.keys.length /*! #if(!$RH) +1 #end !*/;
+                    obj.cursor.index = KTypeOpenCustomHashSet.this.keys.length +1 ;
                 }
 
                 @Override
@@ -1029,23 +969,19 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     @Override
     public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure)
     {
-/*! #if (!$RH)
+
         if (this.allocatedDefaultKey) {
 
-            procedure.apply(Intrinsics.defaultKTypeValue());
+            procedure.apply(Intrinsics.<KType> defaultKTypeValue());
         }
-#end !*/
-        final KType[] keys = this.keys;
 
-        /*! #if ($RH) !*/
-        final int[] states = this.allocated;
-        /*! #end !*/
+        final KType[] keys = this.keys;
 
         //Iterate in reverse for side-stepping the longest conflict chain
         //in another hash, in case apply() is actually used to fill another hash container.
         for (int i = keys.length - 1; i >= 0; i--)
         {
-            if (is_allocated(states, i, keys)) {
+            if (is_allocated(i, keys)) {
                 procedure.apply(keys[i]);
             }
         }
@@ -1061,21 +997,16 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     {
         int count = 0;
 
-        /*! #if (!$RH)
-            if (this.allocatedDefaultKey) {
+        if (this.allocatedDefaultKey) {
 
-                target[count++] = Intrinsics.defaultKTypeValue();
-            }
-        #end !*/
+            target[count++] = Intrinsics.defaultKTypeValue();
+        }
+
         final KType[] keys = this.keys;
-
-        /*! #if ($RH) !*/
-        final int[] states = this.allocated;
-        /*! #end !*/
 
         for (int i = 0; i < keys.length; i++)
         {
-            if (is_allocated(states, i, keys))
+            if (is_allocated(i, keys))
             {
                 target[count++] = keys[i];
             }
@@ -1099,6 +1030,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         cloned.addAll(this);
 
+        cloned.allocatedDefaultKey = this.allocatedDefaultKey;
         cloned.defaultValue = this.defaultValue;
 
         return cloned;
@@ -1110,26 +1042,22 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     @Override
     public <T extends KTypePredicate<? super KType>> T forEach(final T predicate)
     {
-        /*! #if (!$RH)
+
         if (this.allocatedDefaultKey) {
 
-            if(! predicate.apply(Intrinsics.defaultKTypeValue())) {
+            if (!predicate.apply(Intrinsics.<KType> defaultKTypeValue())) {
 
                 return predicate;
             }
         }
-        #end !*/
-        final KType[] keys = this.keys;
 
-        /*! #if ($RH) !*/
-        final int[] states = this.allocated;
-        /*! #end !*/
+        final KType[] keys = this.keys;
 
         //Iterate in reverse for side-stepping the longest conflict chain
         //in another hash, in case apply() is actually used to fill another hash container.
         for (int i = keys.length - 1; i >= 0; i--)
         {
-            if (is_allocated(states, i, keys))
+            if (is_allocated(i, keys))
             {
                 if (!predicate.apply(keys[i])) {
                     break;
@@ -1150,24 +1078,19 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     {
         final int before = this.size();
 
-/*! #if (!$RH)
         if (this.allocatedDefaultKey) {
 
-            if (predicate.apply(Intrinsics.defaultKTypeValue()))
+            if (predicate.apply(Intrinsics.<KType> defaultKTypeValue()))
             {
-                 this.allocatedDefaultKey = false;
+                this.allocatedDefaultKey = false;
             }
         }
-#end !*/
-        final KType[] keys = this.keys;
 
-        /*! #if ($RH) !*/
-        final int[] states = this.allocated;
-        /*! #end !*/
+        final KType[] keys = this.keys;
 
         for (int i = 0; i < keys.length;)
         {
-            if (is_allocated(states, i, keys))
+            if (is_allocated(i, keys))
             {
                 if (predicate.apply(keys[i]))
                 {
@@ -1228,51 +1151,38 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         return this.hashStrategy;
     }
 
-/*! #if ($RH) !*/
-    //Test for existence in RH or template
-
     /*! #if ($TemplateOptions.inline("is_allocated",
-    "(alloc, slot, keys)",
-    "alloc[slot] != -1")) !*/
+    "(slot, keys)",
+    "!Intrinsics.equalsKTypeDefault(keys[slot])")) !*/
     /**
      * Robin-Hood / template version
      * (actual method is inlined in generated code)
      */
-    private boolean is_allocated(final int[] alloc, final int slot, final KType[] keys) {
+    private boolean is_allocated(final int slot, final KType[] keys) {
 
-        return alloc[slot] != -1;
+        return !Intrinsics.equalsKTypeDefault(keys[slot]);
     }
-
     /*! #end !*/
 
-/*! #else
-  //Test for existence with default value sentinels
-     #if ($TemplateOptions.inline("is_allocated",
-    "(alloc, slot, keys)",
-    "! Intrinsics.equalsKTypeDefault(keys[slot])"))
-    //nothing !
-    #end
-#end !*/
-
 /*! #if ($TemplateOptions.inline("probe_distance",
-    "(slot, alloc)",
-    "slot < alloc[slot] ? slot + alloc.length - alloc[slot] : slot - alloc[slot]")) !*/
+    "(slot, cached)",
+    "slot < cached[slot] ? slot + cached.length - cached[slot] : slot - cached[slot]")) !*/
     /**
      * (actual method is inlined in generated code)
      */
-    private int probe_distance(final int slot, final int[] alloc) {
+    private int probe_distance(final int slot, final int[] cached) {
 
-        final int rh = alloc[slot];
+        final int rh = cached[slot];
 
         /*! #if($DEBUG) !*/
         //Check : cached hashed slot is == computed value
-        final int mask = alloc.length - 1;
+        final int mask = cached.length - 1;
         assert rh == (Internals.rehash(this.hashStrategy.computeHashCode(this.keys[slot])) & mask);
         /*! #end !*/
 
         if (slot < rh) {
             //wrap around
-            return slot + alloc.length - rh;
+            return slot + cached.length - rh;
         }
 
         return slot - rh;

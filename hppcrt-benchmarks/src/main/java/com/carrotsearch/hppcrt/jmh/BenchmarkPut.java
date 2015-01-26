@@ -40,9 +40,9 @@ public class BenchmarkPut
     public MapImplementation<?> impl;
 
     @Param(
-    {
-                "5000000"
-    })
+            {
+            "5000000"
+            })
     public int size;
 
     /*
@@ -84,7 +84,6 @@ public class BenchmarkPut
     {
         int count = 0;
 
-        this.impl.clear();
         count += this.impl.putAll(this.keys, this.keys);
 
         return count;
