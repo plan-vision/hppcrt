@@ -1,8 +1,5 @@
 package com.carrotsearch.hppcrt;
 
-import com.carrotsearch.hppcrt.maps.*;
-import com.carrotsearch.hppcrt.strategies.IntStandardHash;
-
 /**
  * 
  */
@@ -11,94 +8,117 @@ public enum Implementations
     HPPC
     {
         @Override
-        public MapImplementation<?> getInstance()
+        public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
-            return new HppcMap(IntIntOpenHashMap.newInstance());
+            return new HppcMap(size, loadFactor);
+        }
+    },
+
+    HPPC_OBJECT
+    {
+        @Override
+        public MapImplementation<?> getInstance(final int size, final float loadFactor)
+        {
+            return new HppcObjectMap(size, loadFactor);
         }
 
         @Override
-        public MapImplementation<?> getInstance(final int size)
-        {
-            return new HppcMap(IntIntOpenHashMap.newInstance(size, IntIntOpenHashMap.DEFAULT_LOAD_FACTOR));
+        public boolean isHashQualityApplicable() {
+
+            return true;
         }
     },
 
     HPPC_STRATEGY
     {
         @Override
-        public MapImplementation<?> getInstance()
+        public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
-            return new HppcMap(IntIntOpenCustomHashMap.newInstance(new IntStandardHash()));
+            return new HppcCustomMap(size, loadFactor);
         }
 
         @Override
-        public MapImplementation<?> getInstance(final int size)
+        public boolean isHashQualityApplicable() {
+
+            return true;
+        }
+    },
+
+    HPPC_IDENTITY
+    {
+        @Override
+        public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
-            return new HppcMap(IntIntOpenCustomHashMap.newInstance(size, IntIntOpenCustomHashMap.DEFAULT_LOAD_FACTOR, new IntStandardHash()));
+            return new HppcIdentityMap(size, loadFactor);
+        }
+
+        /**
+         * By default, Different distributions are to be used
+         * (Template method)
+         * @return
+         */
+        @Override
+        public boolean isDistributionApplicable() {
+
+            return false;
         }
     },
 
     FASTUTIL
     {
         @Override
-        public MapImplementation<?> getInstance()
+        public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
-            return new FastUtilMap();
-        }
-
-        @Override
-        public MapImplementation<?> getInstance(final int size)
-        {
-            return new FastUtilMap(size);
-        }
-    },
-
-    JAVA
-    {
-        @Override
-        public MapImplementation<?> getInstance()
-        {
-            return new JavaMap();
-        }
-
-        @Override
-        public MapImplementation<?> getInstance(final int size)
-        {
-            return new JavaMap(size);
-        }
-    },
-
-    TROVE
-    {
-        @Override
-        public MapImplementation<?> getInstance()
-        {
-            return new TroveMap();
-        }
-
-        @Override
-        public MapImplementation<?> getInstance(final int size)
-        {
-            return new TroveMap(size);
+            return new FastUtilMap(size, loadFactor);
         }
     },
 
     MAHOUT
     {
         @Override
-        public MapImplementation<?> getInstance()
+        public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
-            return new MahoutMap();
+            return new MahoutMap(size, loadFactor);
         }
+    },
 
+    TROVE
+    {
         @Override
-        public MapImplementation<?> getInstance(final int size)
+        public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
-            return new MahoutMap(size);
+            return new TroveMap(size, loadFactor);
+        }
+    },
+
+    JAVA
+    {
+        @Override
+        public MapImplementation<?> getInstance(final int size, final float loadFactor)
+        {
+            return new JavaMap(size, loadFactor);
         }
     };
 
-    public abstract MapImplementation<?> getInstance();
+    public abstract MapImplementation<?> getInstance(int size, float loadFactor);
 
-    public abstract MapImplementation<?> getInstance(int size);
+    /**
+     * By default, Hash quality tests are irrelevant
+     * (Template method)
+     * @return
+     */
+    public boolean isHashQualityApplicable() {
+
+        return false;
+    }
+
+    /**
+     * By default, Different distributions are to be used
+     * (Template method)
+     * @return
+     */
+    public boolean isDistributionApplicable() {
+
+        return true;
+    }
 }

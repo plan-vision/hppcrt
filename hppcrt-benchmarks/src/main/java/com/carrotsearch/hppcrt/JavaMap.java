@@ -1,58 +1,121 @@
 package com.carrotsearch.hppcrt;
 
 import java.util.HashMap;
+import java.util.Random;
 
 public class JavaMap extends MapImplementation<HashMap<Integer, Integer>>
 {
-    public JavaMap()
+    private Integer[] insertKeys;
+    private Integer[] insertValues;
+    private Integer[] containsKeys;
+    private Integer[] removedKeys;
+
+    public JavaMap(final int size, final float loadFactor)
     {
-        super(new HashMap<Integer, Integer>());
+        super(new HashMap<Integer, Integer>(size, loadFactor));
     }
 
-    public JavaMap(final int size)
-    {
-        super(new HashMap<Integer, Integer>(size));
-    }
-
+    /**
+     * Setup
+     */
     @Override
-    public void remove(final int k) {
-        instance.remove(k);
+    public void setup(final int[] keysToInsert, final MapImplementation.HASH_QUALITY hashQ, final int[] keysForContainsQuery, final int[] keysForRemovalQuery) {
+
+        final Random prng = new XorShiftRandom(0x122335577L);
+
+        this.insertKeys = new Integer[keysToInsert.length];
+        this.insertValues = new Integer[keysToInsert.length];
+
+        this.containsKeys = new Integer[keysForContainsQuery.length];
+        this.removedKeys = new Integer[keysForRemovalQuery.length];
+
+        //Auto box into Integers
+        for (int ii = 0; ii < keysToInsert.length; ii++) {
+
+            this.insertKeys[ii] = new Integer(keysToInsert[ii]);
+            this.insertValues[ii] = new Integer(prng.nextInt());
+        }
+
+        //Auto box into Integers
+        for (int ii = 0; ii < keysForContainsQuery.length; ii++) {
+
+            this.containsKeys[ii] = new Integer(keysForContainsQuery[ii]);
+        }
+
+        //Auto box into Integers
+        for (int ii = 0; ii < keysForRemovalQuery.length; ii++) {
+
+            this.removedKeys[ii] = new Integer(keysForRemovalQuery[ii]);
+        }
+
+        //don't make things too easy, shuffle it so the bench do some pointer chasing in memory.
+        Util.shuffle(this.insertKeys, prng);
+        Util.shuffle(this.insertValues, prng);
+        Util.shuffle(this.containsKeys, prng);
+        Util.shuffle(this.removedKeys, prng);
+
     }
 
     @Override
     public void clear() {
-        instance.clear();
+        this.instance.clear();
     }
 
     @Override
-    public void put(final int k, final int v) {
-        instance.put(k, v);
+    public int size() {
+
+        return this.instance.size();
     }
 
     @Override
-    public int get(final int k) {
-        return instance.get(k);
-    }
+    public int benchPutAll() {
 
-    @Override
-    public int containKeys(final int[] keys)
-    {
-        final HashMap<Integer, Integer> prepared = this.instance;
+        final HashMap<Integer, Integer> instance = this.instance;
+
         int count = 0;
-        for (int i = 0; i < keys.length; i++)
-            count += prepared.containsKey(keys[i]) ? 1 : 0;
+
+        final Integer[] keys = this.insertKeys;
+        final Integer[] values = this.insertValues;
+
+        for (int i = 0; i < keys.length; i++) {
+
+            count += (instance.put(keys[i], values[i]) != null) ? 1 : 0;
+        }
+
         return count;
     }
 
     @Override
-    public int putAll(final int[] keys, final int[] values)
+    public int benchContainKeys()
     {
         final HashMap<Integer, Integer> instance = this.instance;
-        final int count = 0;
-        for (int i = 0; i < keys.length; i++)
-        {
-            instance.put(keys[i], values[i]);
+
+        int count = 0;
+
+        final Integer[] keys = this.containsKeys;
+
+        for (int i = 0; i < keys.length; i++) {
+
+            count += instance.containsKey(keys[i]) ? 1 : 0;
         }
+
+        return count;
+    }
+
+    @Override
+    public int benchRemoveKeys() {
+
+        final HashMap<Integer, Integer> instance = this.instance;
+
+        int count = 0;
+
+        final Integer[] keys = this.removedKeys;
+
+        for (int i = 0; i < keys.length; i++) {
+
+            count += (instance.remove(keys[i]) != null) ? 1 : 0;
+        }
+
         return count;
     }
 }

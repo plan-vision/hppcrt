@@ -73,9 +73,10 @@ public class BenchmarkBigramCounting
             case MAHOUT:
                 count += this.bc.mahoutCollections();
                 break;
+            default:
+                break;
         }
 
-        // No need to return computation result because BigramCounting saves a guard (?).
         return count;
     }
 

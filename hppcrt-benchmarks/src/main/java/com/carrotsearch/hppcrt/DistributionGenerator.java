@@ -25,7 +25,7 @@ public class DistributionGenerator
         @Override
         public int getNext()
         {
-            return DistributionGenerator.this.prng.nextInt();
+            return DistributionGenerator.this.prng.nextInt(DistributionGenerator.this.maxSize);
         }
     };
 
