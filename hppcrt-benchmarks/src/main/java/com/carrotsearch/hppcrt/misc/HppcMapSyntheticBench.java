@@ -346,8 +346,6 @@ public final class HppcMapSyntheticBench
             //A) fill until the capacity, and at least minPushedElements
             for (int ii = 0; ii < Klist.size(); ii++)
             {
-
-                //put all, then for even key number, delete by key
                 testMap.put(Klist.get(ii), Vlist.get(ii));
             }
 

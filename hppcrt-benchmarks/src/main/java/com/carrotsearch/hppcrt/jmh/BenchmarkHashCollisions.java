@@ -8,6 +8,7 @@ import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.runner.RunnerException;
 
 import com.carrotsearch.hppcrt.BenchmarkSuiteRunner;
@@ -45,9 +46,9 @@ public class BenchmarkHashCollisions
     public Distribution distribution;
 
     @Param(
-    {
-                "5000000"
-    })
+            {
+            "6000000"
+            })
     public int size;
 
     public BenchmarkHashCollisions() {
@@ -100,6 +101,14 @@ public class BenchmarkHashCollisions
             this.currentUnderTestSet = IntOpenHashSet.newInstanceWithCapacity(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
             this.currentUnderTestSet2 = IntOpenHashSet.newInstanceWithCapacity(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
         }
+    }
+
+    @TearDown
+    public void tearDown() {
+
+        this.currentUnderTestSet = null;
+        this.currentUnderTestSet2 = null;
+        this.testSet = null;
     }
 
     //Tests
