@@ -18,11 +18,21 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.collections.ExtendedProperties;
 import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.MethodInvocationException;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.RuntimeConstants;
-import org.apache.velocity.runtime.RuntimeInstance;
+import org.apache.velocity.runtime.RuntimeServices;
+import org.apache.velocity.runtime.log.LogChute;
+import org.apache.velocity.tools.generic.ClassTool;
+import org.apache.velocity.tools.generic.ContextTool;
+import org.apache.velocity.tools.generic.ConversionTool;
+import org.apache.velocity.tools.generic.EscapeTool;
+import org.apache.velocity.tools.generic.FieldTool;
+import org.apache.velocity.tools.generic.MathTool;
+import org.apache.velocity.tools.generic.NumberTool;
+import org.apache.velocity.tools.generic.RenderTool;
 
 import com.carrotsearch.hppcrt.generator.TemplateOptions.DoNotGenerateTypeException;
 
@@ -31,7 +41,6 @@ import com.carrotsearch.hppcrt.generator.TemplateOptions.DoNotGenerateTypeExcept
  */
 public final class TemplateProcessor
 {
-
     private final Pattern INTRINSICS_METHOD_CALL;
 
     private final Pattern IMPORT_DECLARATION;
@@ -41,18 +50,52 @@ public final class TemplateProcessor
     public File templatesDir;
     public File outputDir;
 
-    private final RuntimeInstance velocity;
+    private final VelocityEngine velocity;
+
+    private class VelocityLogger implements LogChute
+    {
+        @Override
+        public void init(final RuntimeServices rs) throws Exception {
+            // nothing strange here
+        }
+
+        @Override
+        public void log(final int level, final String message) {
+
+            System.out.println("[VELOCITY]-" + level + " : " + message);
+        }
+
+        @Override
+        public void log(final int level, final String message, final Throwable t) {
+
+            System.out.println("[VELOCITY]-" + level + "-!!EXCEPTION!! : " + message + " , exception msg: " + t.getMessage());
+        }
+
+        @Override
+        public boolean isLevelEnabled(final int level) {
+            // let Velocity talk
+            return true;
+        }
+    }
 
     /**
-     * 
+     * Initialize Velocity engines and Regex Patterns
+     * and so on.
      */
     public TemplateProcessor()
     {
         final ExtendedProperties p = new ExtendedProperties();
-        final RuntimeInstance velocity = new RuntimeInstance();
         p.setProperty(RuntimeConstants.SET_NULL_ALLOWED, "false");
-        velocity.setConfiguration(p);
-        this.velocity = velocity;
+
+        //Attach a Velocity logger to see internal Velocity log messages on console
+        p.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new VelocityLogger());
+
+        final VelocityEngine ve = new VelocityEngine();
+        ve.setExtendedProperties(p);
+
+        this.velocity = ve;
+
+        ve.init();
 
         //compile basic patterns
         this.INTRINSICS_METHOD_CALL = Pattern.compile("(Intrinsics.\\s*)(<[^>]+>\\s*)?([a-zA-Z]+)",
@@ -234,7 +277,7 @@ public final class TemplateProcessor
             }
             catch (final ParseErrorException e) {
 
-                System.out.println("ERROR : parsing template '" + f.fullPath +
+                System.out.println("[ERROR] : parsing template '" + f.fullPath +
                         "' with KType = " + templateOptions.getKType() + " and VType =  " +
                         (templateOptions.hasVType() ? templateOptions.getVType().toString() : "null") + " with error: '" + e.getMessage() + "'");
 
@@ -243,7 +286,7 @@ public final class TemplateProcessor
             }
             catch (final ResourceNotFoundException e) {
 
-                System.out.println("ERROR : resouce not found for template '" + f.fullPath +
+                System.out.println("[ERROR] : resource not found for template '" + f.fullPath +
                         "' with KType = " + templateOptions.getKType() + " and VType =  " +
                         (templateOptions.hasVType() ? templateOptions.getVType().toString() : "null") + " with error: '" + e.getMessage() + "'");
 
@@ -259,13 +302,13 @@ public final class TemplateProcessor
                     output.file.delete();
                     outputs.remove(output);
 
-                    System.out.println("INFO : output from template '" + f.fullPath +
+                    System.out.println("[INFO] : output from template '" + f.fullPath +
                             "' with KType = " + doNotGenException.kTypeInterrupted + " and VType =  " +
                             doNotGenException.vTypeInterrupted + " was bypassed...");
                 }
                 else {
 
-                    System.out.println("ERROR : method invocation from template '" + f.fullPath +
+                    System.out.println("[ERROR] : method invocation from template '" + f.fullPath +
                             "' with KType = " + templateOptions.getKType() + " and VType =  " +
                             (templateOptions.hasVType() ? templateOptions.getVType().toString() : "null") + " failed with error: '" + e.getMessage() + "'");
 
@@ -313,6 +356,7 @@ public final class TemplateProcessor
                 int bracketCount = 0;
                 int last = m.end() + 1;
                 final ArrayList<String> params = new ArrayList<String>();
+
                 outer: for (int i = m.end(); i < input.length(); i++)
                 {
                     switch (input.charAt(i))
@@ -353,13 +397,13 @@ public final class TemplateProcessor
                 {
                     sb.append(templateOptions.isKTypeGeneric()
                             ? "Internals.<KType[]>newArray(" + params.get(0) + ")"
-                                    : "new " + templateOptions.getKType().getType() + " [" + params.get(0) + "]");
+                            : "new " + templateOptions.getKType().getType() + " [" + params.get(0) + "]");
                 }
                 else if ("newVTypeArray".equals(method))
                 {
                     sb.append(templateOptions.isVTypeGeneric()
                             ? "Internals.<VType[]>newArray(" + params.get(0) + ")"
-                                    : "new " + templateOptions.getVType().getType() + " [" + params.get(0) + "]");
+                            : "new " + templateOptions.getVType().getType() + " [" + params.get(0) + "]");
                 }
                 else if ("equalsKType".equals(method))
                 {
@@ -531,7 +575,7 @@ public final class TemplateProcessor
                 }
                 else
                 {
-                    throw new ParseErrorException("Unrecognized Intrinsic call: " + method);
+                    throw new ParseErrorException("[ERROR] : Unrecognized Intrinsic call: " + method);
                 }
             }
             else
@@ -544,8 +588,7 @@ public final class TemplateProcessor
         return sb.toString();
     }
 
-    private String filterInlines(final TemplateFile f, String input,
-            final TemplateOptions templateOptions)
+    private String filterInlines(final TemplateFile f, String input, final TemplateOptions templateOptions)
     {
         final StringBuffer sb = new StringBuffer();
 
@@ -554,121 +597,123 @@ public final class TemplateProcessor
 
             String bodyPattern = "";
 
-            try {
-                //Rebuild matchers by admitting spaces between "." (this . foo )
-                final String[] splittedCallName = callName.split(".");
+            //Rebuild matchers by admitting spaces between "." (this . foo )
+            final String[] splittedCallName = callName.split(".");
 
-                String callNamePattern = callName;
+            String callNamePattern = callName;
 
-                if (splittedCallName.length > 1) {
+            if (splittedCallName.length > 1) {
 
-                    callNamePattern = "";
+                callNamePattern = "";
 
-                    //Re-collapse without spaces
-                    for (int j = 0; j < splittedCallName.length - 1; j++) {
+                //Re-collapse without spaces
+                for (int j = 0; j < splittedCallName.length - 1; j++) {
 
-                        splittedCallName[j].trim();
-                        callNamePattern += splittedCallName[j] + ".";
+                    splittedCallName[j].trim();
+                    callNamePattern += splittedCallName[j] + ".";
+                }
+
+                callNamePattern += splittedCallName[splittedCallName.length - 1].trim();
+            } //end if splittedCallName.length > 1
+
+            final Pattern p = Pattern.compile(callNamePattern, Pattern.MULTILINE | Pattern.DOTALL);
+
+            //flush
+            sb.setLength(0);
+
+            while (true)
+            {
+                final Matcher m = p.matcher(input);
+
+                //end if found matcher
+                if (m.find())
+                {
+                    sb.append(input.substring(0, m.start()));
+
+                    //parsing of the arguments
+                    int bracketCount = 0;
+                    int last = m.end() + 1;
+                    final ArrayList<String> params = new ArrayList<String>();
+
+                    outer: for (int i = m.end(); i < input.length(); i++)
+                    {
+                        switch (input.charAt(i))
+                        {
+                            case '(':
+                                bracketCount++;
+                                break;
+                            case ')':
+                                bracketCount--;
+                                if (bracketCount == 0)
+                                {
+                                    params.add(input.substring(last, i).trim());
+                                    input = input.substring(i + 1);
+                                    break outer;
+                                }
+                                break;
+                            case ',':
+                                if (bracketCount == 1)
+                                {
+                                    params.add(input.substring(last, i));
+                                    last = i + 1;
+                                }
+                                break;
+                        }
                     }
 
-                    callNamePattern += splittedCallName[splittedCallName.length - 1].trim();
-                } //end if splittedCallName.length > 1
+                    //fill-in the arguments depending of the type
+                    bodyPattern = "";
 
-                final Pattern p = Pattern.compile(callNamePattern, Pattern.MULTILINE | Pattern.DOTALL);
+                    if (templateOptions.ktype == Type.GENERIC) {
 
-                //flush
-                sb.setLength(0);
+                        bodyPattern = templateOptions.localInlinesMap.get(callName).genericBody;
+                    }
+                    else if (templateOptions.ktype == Type.LONG) {
 
-                while (true)
-                {
-                    final Matcher m = p.matcher(input);
+                        bodyPattern = templateOptions.localInlinesMap.get(callName).longBody;
+                    }
+                    else if (templateOptions.ktype == Type.BOOLEAN) {
 
-                    //end if found matcher
-                    if (m.find())
-                    {
-                        sb.append(input.substring(0, m.start()));
+                        bodyPattern = templateOptions.localInlinesMap.get(callName).booleanBody;
+                    }
+                    else if (templateOptions.ktype == Type.FLOAT) {
 
-                        //parsing of the arguments
-                        int bracketCount = 0;
-                        int last = m.end() + 1;
-                        final ArrayList<String> params = new ArrayList<String>();
+                        bodyPattern = templateOptions.localInlinesMap.get(callName).floatBody;
+                    }
+                    else if (templateOptions.ktype == Type.DOUBLE) {
 
-                        outer: for (int i = m.end(); i < input.length(); i++)
-                        {
-                            switch (input.charAt(i))
-                            {
-                                case '(':
-                                    bracketCount++;
-                                    break;
-                                case ')':
-                                    bracketCount--;
-                                    if (bracketCount == 0)
-                                    {
-                                        params.add(input.substring(last, i).trim());
-                                        input = input.substring(i + 1);
-                                        break outer;
-                                    }
-                                    break;
-                                case ',':
-                                    if (bracketCount == 1)
-                                    {
-                                        params.add(input.substring(last, i));
-                                        last = i + 1;
-                                    }
-                                    break;
-                            }
-                        }
+                        bodyPattern = templateOptions.localInlinesMap.get(callName).doubleBody;
+                    }
+                    else {
+                        //all other integers : int, short, char, byte
+                        bodyPattern = templateOptions.localInlinesMap.get(callName).integerBody;
+                    }
 
-                        //fill-in the arguments depending of the type
-                        bodyPattern = "";
+                    //apply replacement, if not null
+                    if (!bodyPattern.isEmpty()) {
 
-                        if (templateOptions.ktype == Type.GENERIC) {
-
-                            bodyPattern = templateOptions.localInlinesMap.get(callName).genericBody;
-                        }
-                        else if (templateOptions.ktype == Type.LONG) {
-
-                            bodyPattern = templateOptions.localInlinesMap.get(callName).longBody;
-                        }
-                        else if (templateOptions.ktype == Type.BOOLEAN) {
-
-                            bodyPattern = templateOptions.localInlinesMap.get(callName).booleanBody;
-                        }
-                        else if (templateOptions.ktype == Type.FLOAT) {
-
-                            bodyPattern = templateOptions.localInlinesMap.get(callName).floatBody;
-                        }
-                        else if (templateOptions.ktype == Type.DOUBLE) {
-
-                            bodyPattern = templateOptions.localInlinesMap.get(callName).doubleBody;
-                        }
-                        else {
-                            //all other integers : int, short, char, byte
-                            bodyPattern = templateOptions.localInlinesMap.get(callName).integerBody;
-                        }
-
-                        //apply replacement, if not null
-                        if (!bodyPattern.isEmpty()) {
+                        try {
 
                             sb.append(String.format("(" + bodyPattern + ")", params.toArray()));
+
                         }
+                        catch (final UnknownFormatConversionException e) {
 
-                    } //else m.find()
-                    else
-                    {
-                        //not found, append the contents directly
-                        sb.append(input);
-                        break;
+                            throw new ParseErrorException("[ERROR] : filterInlines() unable to apply body '" + bodyPattern + "' with params " + params.toString());
+                        }
                     }
-                } //end while true
 
-                //re-process the same input for each method call
-                input = sb.toString();
+                } //else m.find()
+                else
+                {
+                    //not found, append the contents directly
+                    sb.append(input);
+                    break;
+                }
+            } //end while true
 
-            }
-            catch (final UnknownFormatConversionException e) {
-                System.out.println("ERROR : filterInlines() : unable to format method body pattern : '" + bodyPattern + "'");
-            }
+            //re-process the same input for each method call
+            input = sb.toString();
 
         } //end for call names
 
@@ -807,9 +852,9 @@ public final class TemplateProcessor
 
             input = input.replaceAll("(KTypeVType)([A-Z][a-zA-Z]*)(<.+?>)?",
                     (k.isGeneric() ? "Object" : k.getBoxedType()) +
-                    (v.isGeneric() ? "Object" : v.getBoxedType()) +
-                    "$2" +
-                    (options.isAnyGeneric() ? "$3" : ""));
+                            (v.isGeneric() ? "Object" : v.getBoxedType()) +
+                            "$2" +
+                            (options.isAnyGeneric() ? "$3" : ""));
 
             input = input.replaceAll("(VType)([A-Z][a-zA-Z]*)",
                     (v.isGeneric() ? "Object" : v.getBoxedType()) + "$2");
@@ -853,7 +898,18 @@ public final class TemplateProcessor
     private String filterVelocity(final TemplateFile f, final String template, final TemplateOptions options)
     {
         final VelocityContext ctx = new VelocityContext();
+
         ctx.put("TemplateOptions", options);
+
+        //Attach some GenericTools that may be useful for code generation :
+        ctx.put("esct", new EscapeTool());
+        ctx.put("classt", new ClassTool());
+        ctx.put("contextt", new ContextTool());
+        ctx.put("convt", new ConversionTool());
+        ctx.put("fieldt", new FieldTool());
+        ctx.put("matht", new MathTool());
+        ctx.put("numbert", new NumberTool());
+        ctx.put("rendert", new RenderTool());
 
         final StringWriter sw = new StringWriter();
 
@@ -907,7 +963,7 @@ public final class TemplateProcessor
         if (templateOptions.hasVType()) {
             relativePath = relativePath.replace("KTypeVType",
                     templateOptions.getKType().getBoxedType()
-                    + templateOptions.getVType().getBoxedType());
+                            + templateOptions.getVType().getBoxedType());
         }
 
         relativePath = relativePath.replace("KType", templateOptions.getKType()
