@@ -495,6 +495,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
         int slot = PhiMix.hash(System.identityHashCode(key)) & mask;
 
         final KType[] keys = this.keys;
+        final VType[] values = this.values;
 
         //Fast path 1: the first slot is empty, bailout returning  this.defaultValue
         if (!is_allocated(slot, keys)) {
@@ -505,7 +506,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
         //Fast path 2 : the first slot contains the key, remove it and return
         if (key == keys[slot])
         {
-            final VType value = this.values[slot];
+            final VType value = values[slot];
 
             this.assigned--;
             shiftConflictingKeys(slot);
@@ -520,7 +521,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
         {
             if (key == keys[slot])
             {
-                final VType value = this.values[slot];
+                final VType value = values[slot];
 
                 this.assigned--;
                 shiftConflictingKeys(slot);
@@ -672,6 +673,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
         int slot = PhiMix.hash(System.identityHashCode(key)) & mask;
 
         final KType[] keys = this.keys;
+        final VType[] values = this.values;
 
         //Fast path 1: the first slot is empty, bailout returning  this.defaultValue
         if (!is_allocated(slot, keys)) {
@@ -682,7 +684,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
         //Fast path 2 : the first slot contains the key, return the value
         if (key == keys[slot])
         {
-            return this.values[slot];
+            return values[slot];
         }
 
         ///Fast path 3 : position now on the 2nd slot
@@ -692,7 +694,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
         {
             if (key == keys[slot])
             {
-                return this.values[slot];
+                return values[slot];
             }
             slot = (slot + 1) & mask;
         } //end while true
@@ -1035,10 +1037,10 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
                     return this.cursor;
 
                 }
-                else {
-                    //no value associated with the default key, continue iteration...
-                    this.cursor.index = KTypeVTypeOpenIdentityHashMap.this.keys.length;
-                }
+
+                //no value associated with the default key, continue iteration...
+                this.cursor.index = KTypeVTypeOpenIdentityHashMap.this.keys.length;
+
             }
 
             int i = this.cursor.index - 1;
@@ -1370,11 +1372,9 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
                     return this.cursor;
 
                 }
-                else {
-                    //no value associated with the default key, continue iteration...
-                    this.cursor.index = KTypeVTypeOpenIdentityHashMap.this.keys.length;
-                }
 
+                //no value associated with the default key, continue iteration...
+                this.cursor.index = KTypeVTypeOpenIdentityHashMap.this.keys.length;
             }
 
             int i = this.cursor.index - 1;
@@ -1684,10 +1684,10 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
                     return this.cursor;
 
                 }
-                else {
-                    //no value associated with the default key, continue iteration...
-                    this.cursor.index = KTypeVTypeOpenIdentityHashMap.this.keys.length;
-                }
+
+                //no value associated with the default key, continue iteration...
+                this.cursor.index = KTypeVTypeOpenIdentityHashMap.this.keys.length;
+
             }
 
             int i = this.cursor.index - 1;

@@ -54,8 +54,6 @@ import com.carrotsearch.hppcrt.hash.*;
  * <p><b>Important note.</b> The implementation uses power-of-two tables and linear
  * probing, which may cause poor performance (many collisions) if hash values are
  * not properly distributed.
- * This implementation uses rehashing
- * using {@link MurmurHash3}.</p>
  * 
  * 
 #if ($TemplateOptions.KTypeGeneric)
@@ -466,8 +464,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         #end
 
         final KType[] keys = this.keys;
-
         final VType[] values = this.values;
+
         VType value =  putValue;
 
     	#if ($RH)
@@ -743,6 +741,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         /*! #end !*/
 
         final KType[] keys = this.keys;
+        final VType[] values = this.values;
 
         /*! #if ($RH) !*/
         final int[] cached = this.hash_cache;
@@ -757,7 +756,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         ////Fast path 2 : the first slot contains the key, remove it and return
         if (Intrinsics.equalsKType(key, keys[slot]))
         {
-            final VType value = this.values[slot];
+            final VType value = values[slot];
 
             this.assigned--;
             shiftConflictingKeys(slot);
@@ -773,7 +772,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
             {
-                final VType value = this.values[slot];
+                final VType value = values[slot];
 
                 this.assigned--;
                 shiftConflictingKeys(slot);
@@ -957,6 +956,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         /*! #end !*/
 
         final KType[] keys = this.keys;
+        final VType[] values = this.values;
 
         /*! #if ($RH) !*/
         final int[] cached = this.hash_cache;
@@ -971,7 +971,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         ////Fast path 2 : the first slot contains the key, return the value
         if (Intrinsics.equalsKType(key, keys[slot]))
         {
-            return this.values[slot];
+            return values[slot];
         }
 
         ////Fast path 3 : position now on the 2nd slot
@@ -982,7 +982,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
             {
-                return this.values[slot];
+                return values[slot];
             }
             slot = (slot + 1) & mask;
 

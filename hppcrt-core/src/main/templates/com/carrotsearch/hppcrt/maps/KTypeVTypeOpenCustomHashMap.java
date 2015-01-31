@@ -52,7 +52,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenCustomHashMap<KType, VType>
-implements KTypeVTypeMap<KType, VType>, Cloneable
+        implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -457,8 +457,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         #end
 
         final KType[] keys = this.keys;
-
         final VType[] values = this.values;
+
         VType value =  putValue;
 
         #if ($RH)
@@ -738,6 +738,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         /*! #end !*/
 
         final KType[] keys = this.keys;
+        final VType[] values = this.values;
 
         /*! #if ($RH) !*/
         final int[] cached = this.hash_cache;
@@ -752,7 +753,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         ////Fast path 2 : the first slot contains the key, remove it and return
         if (strategy.equals(key, keys[slot]))
         {
-            final VType value = this.values[slot];
+            final VType value = values[slot];
 
             this.assigned--;
             shiftConflictingKeys(slot);
@@ -768,7 +769,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         {
             if (strategy.equals(key, keys[slot]))
             {
-                final VType value = this.values[slot];
+                final VType value = values[slot];
 
                 this.assigned--;
                 shiftConflictingKeys(slot);
@@ -956,6 +957,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         /*! #end !*/
 
         final KType[] keys = this.keys;
+        final VType[] values = this.values;
 
         /*! #if ($RH) !*/
         final int[] cached = this.hash_cache;
@@ -970,7 +972,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         ////Fast path 2 : the first slot contains the key, return the value
         if (strategy.equals(key, keys[slot]))
         {
-            return this.values[slot];
+            return values[slot];
         }
 
         ////Fast path 3 : position now on the 2nd slot
@@ -981,7 +983,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         {
             if (strategy.equals(key, keys[slot]))
             {
-                return this.values[slot];
+                return values[slot];
             }
             slot = (slot + 1) & mask;
 
@@ -1477,7 +1479,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      * A view of the keys inside this hash map.
      */
     public final class KeysContainer
-    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenCustomHashMap<KType, VType> owner =
                 KTypeVTypeOpenCustomHashMap.this;
@@ -1935,7 +1937,6 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             }
 
             final KType[] keys = this.owner.keys;
-
             final VType[] values = this.owner.values;
 
             for (int i = 0; i < values.length; i++)
@@ -2020,7 +2021,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         @SuppressWarnings("unchecked")
         final/* #end */
         KTypeVTypeOpenCustomHashMap<KType, VType> cloned =
-        new KTypeVTypeOpenCustomHashMap<KType, VType>(this.size(), this.loadFactor, this.hashStrategy);
+                new KTypeVTypeOpenCustomHashMap<KType, VType>(this.size(), this.loadFactor, this.hashStrategy);
 
         cloned.putAll(this);
 

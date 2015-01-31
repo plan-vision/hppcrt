@@ -38,8 +38,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenIdentityHashSet<KType>
-extends AbstractKTypeCollection<KType>
-implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+        extends AbstractKTypeCollection<KType>
+        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -684,10 +684,9 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
                     return this.cursor;
 
                 }
-                else {
-                    //no value associated with the default key, continue iteration...
-                    this.cursor.index = KTypeOpenIdentityHashSet.this.keys.length;
-                }
+
+                //no value associated with the default key, continue iteration...
+                this.cursor.index = KTypeOpenIdentityHashSet.this.keys.length;
             }
 
             int i = this.cursor.index - 1;

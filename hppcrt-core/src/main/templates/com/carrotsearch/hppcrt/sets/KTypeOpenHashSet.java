@@ -48,8 +48,6 @@ import com.carrotsearch.hppcrt.hash.*;
  * <p><b>Important note.</b> The implementation uses power-of-two tables and linear
  * probing, which may cause poor performance (many collisions) if hash values are
  * not properly distributed.
- * This implementation uses rehashing
- * using {@link MurmurHash3}.</p>
 #else
  * <p>See {@link ObjectOpenHashSet} class for API similarities and differences against Java
  * Collections.
@@ -74,8 +72,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
