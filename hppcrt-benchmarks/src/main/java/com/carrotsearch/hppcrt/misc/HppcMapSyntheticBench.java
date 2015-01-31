@@ -594,7 +594,7 @@ public final class HppcMapSyntheticBench
 
         this.prng.setSeed(HppcMapSyntheticBench.RAND_SEED);
 
-        final Generator gene = getGenerator(Distribution.RANDOM, minPushedElements);
+        final Generator gene = getGenerator(Distribution.RANDOM, 2 * minPushedElements);
 
         while (testMap.size() < minPushedElements || testMap.size() < testMap.capacity())
         {
@@ -792,7 +792,7 @@ public final class HppcMapSyntheticBench
         System.out.println(String.format(">>>>>>>>>>>>>>>>>>>> HPPC HASH MAPS SYNTHETIC BENCH with %d warmup runs ... <<<<<<<<<<<<<<<<<<<<\n", nbWarmup));
 
         //map iteration benchs
-        // testClass.runMapIterationBench();
+        testClass.runMapIterationBench();
         System.gc();
 
         if (HppcMapSyntheticBench.RUN_PRIMITIVES) {

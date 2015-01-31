@@ -31,7 +31,7 @@ public class BenchmarkHashCollisions
 
     public enum Distribution
     {
-        RANDOM, LINEAR, LINEAR_DECREMENT, HIGHBITS;
+        RANDOM, LINEAR, HIGHBITS;
     }
 
     public enum Allocation
@@ -45,10 +45,7 @@ public class BenchmarkHashCollisions
     @Param
     public Distribution distribution;
 
-    @Param(
-            {
-            "6000000"
-            })
+    @Param("6000000")
     public int size;
 
     public BenchmarkHashCollisions() {
@@ -63,7 +60,7 @@ public class BenchmarkHashCollisions
 
         this.testSet = new IntOpenHashSet(this.size);
 
-        final DistributionGenerator gene = new DistributionGenerator(this.size, new XorShiftRandom(87955214455L));
+        final DistributionGenerator gene = new DistributionGenerator(2 * this.size, new XorShiftRandom(87955214455L));
 
         int nextValue = -1;
 
@@ -80,10 +77,6 @@ public class BenchmarkHashCollisions
             else if (this.distribution == Distribution.HIGHBITS) {
 
                 nextValue = gene.HIGHBITS.getNext();
-            }
-            else if (this.distribution == Distribution.LINEAR_DECREMENT) {
-
-                nextValue = gene.LINEAR_DECREMENT.getNext();
             }
 
             this.testSet.add(nextValue);

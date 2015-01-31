@@ -196,20 +196,23 @@ public final class TemplateProcessor
      */
     private void processTemplates(final List<TemplateFile> inputs, final List<OutputFile> outputs)
     {
+        //For each template file
         for (final TemplateFile f : inputs)
         {
             final String fileName = f.file.getName();
 
+            //A) KType only specialization
             if (fileName.contains("KType") && !fileName.contains("VType"))
             {
                 for (final Type t : Type.values())
                 {
-                    final TemplateOptions options = new TemplateOptions(t);
+                    final TemplateOptions options = new TemplateOptions(t, null);
                     options.sourceFile = f.file;
                     generate(f, outputs, options);
                 }
             }
-            if (fileName.contains("KType") && fileName.contains("VType"))
+            //B) (KType * VType) specializations
+            else if (fileName.contains("KType") && fileName.contains("VType"))
             {
                 for (final Type ktype : Type.values())
                 {
@@ -238,8 +241,8 @@ public final class TemplateProcessor
     private void generate(final TemplateFile f, final List<OutputFile> outputs,
             final TemplateOptions templateOptions)
     {
-        final String targetFileName = targetFileName(relativePath(f.file, this.templatesDir),
-                templateOptions);
+        final String targetFileName = targetFileName(relativePath(f.file, this.templatesDir), templateOptions);
+
         final OutputFile output = findOrCreate(targetFileName, outputs);
 
         if (!this.incremental || !output.file.exists()
@@ -303,8 +306,8 @@ public final class TemplateProcessor
                     outputs.remove(output);
 
                     System.out.println("[INFO] : output from template '" + f.fullPath +
-                            "' with KType = " + doNotGenException.kTypeInterrupted + " and VType =  " +
-                            doNotGenException.vTypeInterrupted + " was bypassed...");
+                            "' with KType = " + doNotGenException.currentKType + " and VType =  " +
+                            doNotGenException.currentVType + " was bypassed...");
                 }
                 else {
 
@@ -397,13 +400,13 @@ public final class TemplateProcessor
                 {
                     sb.append(templateOptions.isKTypeGeneric()
                             ? "Internals.<KType[]>newArray(" + params.get(0) + ")"
-                            : "new " + templateOptions.getKType().getType() + " [" + params.get(0) + "]");
+                                    : "new " + templateOptions.getKType().getType() + " [" + params.get(0) + "]");
                 }
                 else if ("newVTypeArray".equals(method))
                 {
                     sb.append(templateOptions.isVTypeGeneric()
                             ? "Internals.<VType[]>newArray(" + params.get(0) + ")"
-                            : "new " + templateOptions.getVType().getType() + " [" + params.get(0) + "]");
+                                    : "new " + templateOptions.getVType().getType() + " [" + params.get(0) + "]");
                 }
                 else if ("equalsKType".equals(method))
                 {
@@ -798,7 +801,8 @@ public final class TemplateProcessor
 
                 if (options.isKTypePrimitive())
                 {
-                    if (isGenericOnly(arg, "KType")) {
+                    if (options.hasKType() && isGenericOnly(arg, "KType")) {
+
                         arg = "";
                     }
                     else {
@@ -852,9 +856,9 @@ public final class TemplateProcessor
 
             input = input.replaceAll("(KTypeVType)([A-Z][a-zA-Z]*)(<.+?>)?",
                     (k.isGeneric() ? "Object" : k.getBoxedType()) +
-                            (v.isGeneric() ? "Object" : v.getBoxedType()) +
-                            "$2" +
-                            (options.isAnyGeneric() ? "$3" : ""));
+                    (v.isGeneric() ? "Object" : v.getBoxedType()) +
+                    "$2" +
+                    (options.isAnyGeneric() ? "$3" : ""));
 
             input = input.replaceAll("(VType)([A-Z][a-zA-Z]*)",
                     (v.isGeneric() ? "Object" : v.getBoxedType()) + "$2");
@@ -960,14 +964,16 @@ public final class TemplateProcessor
 
     private String targetFileName(String relativePath, final TemplateOptions templateOptions)
     {
-        if (templateOptions.hasVType()) {
-            relativePath = relativePath.replace("KTypeVType",
-                    templateOptions.getKType().getBoxedType()
-                            + templateOptions.getVType().getBoxedType());
+        if (templateOptions.hasKType()) {
+
+            relativePath = relativePath.replace("KType", templateOptions.getKType().getBoxedType());
         }
 
-        relativePath = relativePath.replace("KType", templateOptions.getKType()
-                .getBoxedType());
+        if (templateOptions.hasVType()) {
+
+            relativePath = relativePath.replace("VType", templateOptions.getVType().getBoxedType());
+        }
+
         return relativePath;
     }
 

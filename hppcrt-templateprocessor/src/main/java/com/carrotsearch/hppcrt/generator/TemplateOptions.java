@@ -18,8 +18,8 @@ public class TemplateOptions
     private static final Pattern JAVA_IDENTIFIER_PATTERN = Pattern.compile("\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*",
             Pattern.MULTILINE | Pattern.DOTALL);
 
-    public Type ktype;
-    public Type vtype;
+    final public Type ktype;
+    final public Type vtype;
 
     /**
      * Reference over the current Velocity context, so that
@@ -54,7 +54,7 @@ public class TemplateOptions
         @Override
         public String toString() {
 
-            return String.format("LocalInlineBodies(gen='%s', int='%s', long=%s, float='%s', double='%s', bool='%s')",
+            return String.format("{LocalInlineBodies(gen='%s', int='%s', long=%s, float='%s', double='%s', bool='%s')}",
                     this.genericBody, this.integerBody, this.longBody, this.floatBody, this.doubleBody, this.booleanBody);
         }
     }
@@ -69,22 +69,17 @@ public class TemplateOptions
         //nothing
         private static final long serialVersionUID = 5770524405182569439L;
 
-        public final Type kTypeInterrupted;
-        public final Type vTypeInterrupted;
+        public final Type currentKType;
+        public final Type currentVType;
 
         public DoNotGenerateTypeException(final Type k, final Type v) {
             super();
-            this.kTypeInterrupted = k;
-            this.vTypeInterrupted = v;
+            this.currentKType = k;
+            this.currentVType = v;
         }
     }
 
     public HashMap<String, LocalInlineBodies> localInlinesMap = new HashMap<String, LocalInlineBodies>();
-
-    public TemplateOptions(final Type ktype)
-    {
-        this(ktype, null);
-    }
 
     public TemplateOptions(final Type ktype, final Type vtype)
     {
@@ -99,7 +94,7 @@ public class TemplateOptions
 
     public boolean isKTypeNumeric()
     {
-        return this.ktype != Type.GENERIC && this.ktype != Type.BOOLEAN;
+        return isKTypePrimitive() && !isKTypeBoolean();
     }
 
     public boolean isKTypeBoolean()
@@ -124,12 +119,12 @@ public class TemplateOptions
 
     public boolean isVTypePrimitive()
     {
-        return getVType() != Type.GENERIC;
+        return this.vtype != Type.GENERIC;
     }
 
     public boolean isVTypeNumeric()
     {
-        return getVType() != Type.GENERIC && getVType() != Type.BOOLEAN;
+        return isVTypePrimitive() && !isVTypeBoolean();
     }
 
     public boolean isVTypeBoolean()
@@ -139,11 +134,6 @@ public class TemplateOptions
 
     public boolean isVType(final String... strKind)
     {
-        if (this.vtype == null)
-        {
-            return false;
-        }
-
         //return true if it matches any type of the list
         for (final String kind : strKind)
         {
@@ -165,12 +155,7 @@ public class TemplateOptions
 
     public boolean isVTypeGeneric()
     {
-        if (this.vtype == null)
-        {
-            return false;
-        }
-
-        return getVType() == Type.GENERIC;
+        return this.vtype == Type.GENERIC;
     }
 
     public boolean isAllGeneric()
@@ -185,7 +170,12 @@ public class TemplateOptions
 
     public boolean isAnyGeneric()
     {
-        return isKTypeGeneric() || hasVType() && isVTypeGeneric();
+        return isKTypeGeneric() || isVTypeGeneric();
+    }
+
+    public boolean hasKType()
+    {
+        return this.ktype != null;
     }
 
     public boolean hasVType()
@@ -200,12 +190,6 @@ public class TemplateOptions
 
     public Type getVType()
     {
-        if (this.vtype == null)
-        {
-            final RuntimeException reEx = new RuntimeException("VType is null.");
-            reEx.printStackTrace();
-            throw reEx;
-        }
         return this.vtype;
     }
 
@@ -218,18 +202,13 @@ public class TemplateOptions
 
             if (notToBeGenerated.toUpperCase().equals("ALL") || this.ktype == Type.valueOf(notToBeGenerated.toUpperCase())) {
 
-                throw new DoNotGenerateTypeException(this.ktype, null);
+                throw new DoNotGenerateTypeException(this.ktype, this.vtype);
             }
         }
     }
 
     public void doNotGenerateVType(final String... notGeneratingType)
     {
-        if (this.vtype == null)
-        {
-            return;
-        }
-
         //if any of the notGeneratingType is this.ktype, then do not generate
         //return true if it matches any type of the list, case insensitively while
         //only accepting valid Type strings
@@ -237,7 +216,7 @@ public class TemplateOptions
         {
             if (notToBeGenerated.toUpperCase().equals("ALL") || this.vtype == Type.valueOf(notToBeGenerated.toUpperCase()))
             {
-                throw new DoNotGenerateTypeException(null, this.vtype);
+                throw new DoNotGenerateTypeException(this.ktype, this.vtype);
             }
         }
     }
@@ -418,7 +397,7 @@ public class TemplateOptions
      */
     public static void main(final String[] args) {
 
-        final TemplateOptions testInstance = new TemplateOptions(Type.GENERIC);
+        final TemplateOptions testInstance = new TemplateOptions(Type.GENERIC, null);
 
         testInstance.inline("is_allocated",
                 "(alloc, slot, keys)",
