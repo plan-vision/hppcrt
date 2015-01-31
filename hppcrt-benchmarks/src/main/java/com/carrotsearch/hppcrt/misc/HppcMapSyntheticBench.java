@@ -190,8 +190,8 @@ public final class HppcMapSyntheticBench
         final int initialCapacity = testMap.capacity();
 
         //Do a dry run for enumerating the values that are to be put in map :
-        final IntArrayList Klist = new IntArrayList();
-        final LongArrayList Vlist = new LongArrayList();
+        final IntArrayList Klist = new IntArrayList(initialCapacity);
+        final LongArrayList Vlist = new LongArrayList(initialCapacity);
 
         this.prng.setSeed(HppcMapSyntheticBench.RAND_SEED);
 
@@ -310,12 +310,12 @@ public final class HppcMapSyntheticBench
         final int initialCapacity = testMap.capacity();
 
         //Do a dry run for enumerating the values that are to be put in map :
-        final IntArrayList Klist = new IntArrayList();
-        final LongArrayList Vlist = new LongArrayList();
+        final IntArrayList Klist = new IntArrayList(initialCapacity);
+        final LongArrayList Vlist = new LongArrayList(initialCapacity);
 
-        this.prng.setSeed(HppcMapSyntheticBench.RAND_SEED);
+        this.prng.setSeed(HppcMapSyntheticBench.RANDOM_SEED);
 
-        final Generator gene = getGenerator(dis, minPushedElements);
+        final Generator gene = getGenerator(dis, 2 * minPushedElements);
 
         while (testMap.size() < minPushedElements || testMap.size() < testMap.capacity())
         {
@@ -451,7 +451,7 @@ public final class HppcMapSyntheticBench
 
         this.prng.setSeed(HppcMapSyntheticBench.RAND_SEED);
 
-        final Generator gene = getGenerator(dis, minPushedElements);
+        final Generator gene = getGenerator(dis, 2 * minPushedElements);
 
         while (testMap.size() < minPushedElements || testMap.size() < testMap.capacity())
         {
@@ -596,7 +596,7 @@ public final class HppcMapSyntheticBench
 
         this.prng.setSeed(HppcMapSyntheticBench.RAND_SEED);
 
-        final Generator gene = getGenerator(Distribution.RANDOM, minPushedElements);
+        final Generator gene = getGenerator(Distribution.RANDOM, 2 * minPushedElements);
 
         while (testMap.size() < minPushedElements || testMap.size() < testMap.capacity())
         {

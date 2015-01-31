@@ -153,6 +153,9 @@ public class BenchmarkHashMapBase
                 dryRunHashSet.size()));
     }
 
+    /**
+     * Call this to skip execution of some benchmarks categories
+     */
     protected void skipForbiddenCombinations() {
 
         //1-1)skip senseless benchmark combinations : BAD hash is only valid for Objects !

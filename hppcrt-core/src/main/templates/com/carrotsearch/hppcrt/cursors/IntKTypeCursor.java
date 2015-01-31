@@ -8,7 +8,7 @@ package com.carrotsearch.hppcrt.cursors;
  */
 //${TemplateOptions.doNotGenerateKType("all")}
 /*! ${TemplateOptions.generatedAnnotation} !*/
-public final class IntKTypeCursor<KType>
+public final class IntKTypeCursor<T>
 {
     /**
      * The current key and value's index in the container this cursor belongs to. The meaning of
@@ -25,7 +25,7 @@ public final class IntKTypeCursor<KType>
     /**
      * The current value.
      */
-    public KType value;
+    public T value;
 
     @Override
     public String toString()

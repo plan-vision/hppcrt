@@ -18,8 +18,8 @@ public class TemplateOptions
     private static final Pattern JAVA_IDENTIFIER_PATTERN = Pattern.compile("\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*",
             Pattern.MULTILINE | Pattern.DOTALL);
 
-    public Type ktype;
-    public Type vtype;
+    final public Type ktype;
+    final public Type vtype;
 
     /**
      * Reference over the current Velocity context, so that
@@ -29,28 +29,33 @@ public class TemplateOptions
 
     public File sourceFile;
 
-    public static class LocalInlineBodies {
-
-        public LocalInlineBodies(final String genericBody, final String integerBody, final String floatBody, final String doubleBody, final String booleanBody) {
+    public static class LocalInlineBodies
+    {
+        public LocalInlineBodies(final String genericBody,
+                final String integerBody,
+                final String longBody,
+                final String floatBody, final String doubleBody, final String booleanBody) {
 
             this.genericBody = genericBody;
             this.integerBody = integerBody;
+            this.longBody = longBody;
             this.floatBody = floatBody;
             this.doubleBody = doubleBody;
             this.booleanBody = booleanBody;
         }
 
-        public String genericBody;
-        public String integerBody;
-        public String floatBody;
-        public String doubleBody;
-        public String booleanBody;
+        public final String genericBody;
+        public final String integerBody;
+        public final String longBody;
+        public final String floatBody;
+        public final String doubleBody;
+        public final String booleanBody;
 
         @Override
         public String toString() {
 
-            return String.format("LocalInlineBodies(gen='%s', int='%s', float='%s', double='%s', bool='%s')",
-                    this.genericBody, this.integerBody, this.floatBody, this.doubleBody, this.booleanBody);
+            return String.format("{LocalInlineBodies(gen='%s', int='%s', long=%s, float='%s', double='%s', bool='%s')}",
+                    this.genericBody, this.integerBody, this.longBody, this.floatBody, this.doubleBody, this.booleanBody);
         }
     }
 
@@ -64,22 +69,17 @@ public class TemplateOptions
         //nothing
         private static final long serialVersionUID = 5770524405182569439L;
 
-        public final Type kTypeInterrupted;
-        public final Type vTypeInterrupted;
+        public final Type currentKType;
+        public final Type currentVType;
 
         public DoNotGenerateTypeException(final Type k, final Type v) {
             super();
-            this.kTypeInterrupted = k;
-            this.vTypeInterrupted = v;
+            this.currentKType = k;
+            this.currentVType = v;
         }
     }
 
     public HashMap<String, LocalInlineBodies> localInlinesMap = new HashMap<String, LocalInlineBodies>();
-
-    public TemplateOptions(final Type ktype)
-    {
-        this(ktype, null);
-    }
 
     public TemplateOptions(final Type ktype, final Type vtype)
     {
@@ -94,7 +94,7 @@ public class TemplateOptions
 
     public boolean isKTypeNumeric()
     {
-        return this.ktype != Type.GENERIC && this.ktype != Type.BOOLEAN;
+        return isKTypePrimitive() && !isKTypeBoolean();
     }
 
     public boolean isKTypeBoolean()
@@ -119,12 +119,12 @@ public class TemplateOptions
 
     public boolean isVTypePrimitive()
     {
-        return getVType() != Type.GENERIC;
+        return this.vtype != Type.GENERIC;
     }
 
     public boolean isVTypeNumeric()
     {
-        return getVType() != Type.GENERIC && getVType() != Type.BOOLEAN;
+        return isVTypePrimitive() && !isVTypeBoolean();
     }
 
     public boolean isVTypeBoolean()
@@ -134,11 +134,6 @@ public class TemplateOptions
 
     public boolean isVType(final String... strKind)
     {
-        if (this.vtype == null)
-        {
-            return false;
-        }
-
         //return true if it matches any type of the list
         for (final String kind : strKind)
         {
@@ -160,12 +155,7 @@ public class TemplateOptions
 
     public boolean isVTypeGeneric()
     {
-        if (this.vtype == null)
-        {
-            return false;
-        }
-
-        return getVType() == Type.GENERIC;
+        return this.vtype == Type.GENERIC;
     }
 
     public boolean isAllGeneric()
@@ -180,7 +170,12 @@ public class TemplateOptions
 
     public boolean isAnyGeneric()
     {
-        return isKTypeGeneric() || hasVType() && isVTypeGeneric();
+        return isKTypeGeneric() || isVTypeGeneric();
+    }
+
+    public boolean hasKType()
+    {
+        return this.ktype != null;
     }
 
     public boolean hasVType()
@@ -195,12 +190,6 @@ public class TemplateOptions
 
     public Type getVType()
     {
-        if (this.vtype == null)
-        {
-            final RuntimeException reEx = new RuntimeException("VType is null.");
-            reEx.printStackTrace();
-            throw reEx;
-        }
         return this.vtype;
     }
 
@@ -213,18 +202,13 @@ public class TemplateOptions
 
             if (notToBeGenerated.toUpperCase().equals("ALL") || this.ktype == Type.valueOf(notToBeGenerated.toUpperCase())) {
 
-                throw new DoNotGenerateTypeException(this.ktype, null);
+                throw new DoNotGenerateTypeException(this.ktype, this.vtype);
             }
         }
     }
 
     public void doNotGenerateVType(final String... notGeneratingType)
     {
-        if (this.vtype == null)
-        {
-            return;
-        }
-
         //if any of the notGeneratingType is this.ktype, then do not generate
         //return true if it matches any type of the list, case insensitively while
         //only accepting valid Type strings
@@ -232,7 +216,7 @@ public class TemplateOptions
         {
             if (notToBeGenerated.toUpperCase().equals("ALL") || this.vtype == Type.valueOf(notToBeGenerated.toUpperCase()))
             {
-                throw new DoNotGenerateTypeException(null, this.vtype);
+                throw new DoNotGenerateTypeException(this.ktype, this.vtype);
             }
         }
     }
@@ -249,6 +233,7 @@ public class TemplateOptions
 
         this.localInlinesMap.put(callName,
                 new LocalInlineBodies(
+                        universalCallBody,
                         universalCallBody,
                         universalCallBody,
                         universalCallBody,
@@ -276,7 +261,41 @@ public class TemplateOptions
                         primitiveCallBody,
                         primitiveCallBody,
                         primitiveCallBody,
+                        primitiveCallBody,
                         primitiveCallBody));
+
+        return false;
+    }
+
+    public boolean inlineWithFullSpecialization(final String callName, String args,
+            String genericCallBody,
+            String integerCallBody,
+            String longCallBody,
+            String floatCallBody,
+            String doubleCallBody,
+            String booleanCallBody) {
+
+        //Rebuild the arguments with a pattern understandable by the matcher
+        args = args.replace("(", "");
+        args = args.replace(")", "");
+
+        final String[] argsArray = args.split(",");
+
+        genericCallBody = reformatJavaArguments(genericCallBody, argsArray);
+        integerCallBody = reformatJavaArguments(integerCallBody, argsArray);
+        longCallBody = reformatJavaArguments(longCallBody, argsArray);
+        floatCallBody = reformatJavaArguments(floatCallBody, argsArray);
+        doubleCallBody = reformatJavaArguments(doubleCallBody, argsArray);
+        booleanCallBody = reformatJavaArguments(booleanCallBody, argsArray);
+
+        this.localInlinesMap.put(callName,
+                new LocalInlineBodies(
+                        genericCallBody,
+                        integerCallBody,
+                        longCallBody,
+                        floatCallBody,
+                        doubleCallBody,
+                        booleanCallBody));
 
         return false;
     }
@@ -378,7 +397,7 @@ public class TemplateOptions
      */
     public static void main(final String[] args) {
 
-        final TemplateOptions testInstance = new TemplateOptions(Type.GENERIC);
+        final TemplateOptions testInstance = new TemplateOptions(Type.GENERIC, null);
 
         testInstance.inline("is_allocated",
                 "(alloc, slot, keys)",
