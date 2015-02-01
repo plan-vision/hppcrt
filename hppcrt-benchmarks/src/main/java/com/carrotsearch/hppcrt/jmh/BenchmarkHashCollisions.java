@@ -60,7 +60,7 @@ public class BenchmarkHashCollisions
 
         this.testSet = new IntOpenHashSet(this.size);
 
-        final DistributionGenerator gene = new DistributionGenerator(2 * this.size, new XorShiftRandom(87955214455L));
+        final DistributionGenerator gene = new DistributionGenerator(-this.size, 2 * this.size, new XorShiftRandom(87955214455L));
 
         int nextValue = -1;
 

@@ -49,10 +49,9 @@ public class JavaMap extends MapImplementation<HashMap<Integer, Integer>>
         }
 
         //don't make things too easy, shuffle it so the bench do some pointer chasing in memory.
+        //for the inserted keys
+
         Util.shuffle(this.insertKeys, prng);
-        Util.shuffle(this.insertValues, prng);
-        Util.shuffle(this.containsKeys, prng);
-        Util.shuffle(this.removedKeys, prng);
 
     }
 

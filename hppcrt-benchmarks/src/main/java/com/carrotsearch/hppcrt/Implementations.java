@@ -73,6 +73,15 @@ public enum Implementations
         }
     },
 
+    FASTUTIL_OBJECT
+    {
+        @Override
+        public MapImplementation<?> getInstance(final int size, final float loadFactor)
+        {
+            return new FastUtilObjectMap(size, loadFactor);
+        }
+    },
+
     MAHOUT
     {
         @Override
