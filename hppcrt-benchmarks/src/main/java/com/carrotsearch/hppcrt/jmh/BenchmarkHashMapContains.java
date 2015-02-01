@@ -21,7 +21,7 @@ public class BenchmarkHashMapContains extends BenchmarkHashMapBase
 {
     public enum MAP_LOOKUP_TEST
     {
-        MOSTLY_TRUE,
+        TRUE,
         MOSTLY_FALSE,
         MIXED
     }
@@ -54,7 +54,7 @@ public class BenchmarkHashMapContains extends BenchmarkHashMapBase
         {
             final boolean isMixedLookupSucceded = (this.lookupSuccessKind == MAP_LOOKUP_TEST.MIXED) && this.prng.nextBoolean();
 
-            if (this.lookupSuccessKind == MAP_LOOKUP_TEST.MOSTLY_TRUE || isMixedLookupSucceded)
+            if (this.lookupSuccessKind == MAP_LOOKUP_TEST.TRUE || isMixedLookupSucceded)
             {
                 //do nothing, this.containsKeys[ii] will succeed.
             }

@@ -72,8 +72,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenHashSet<KType>
-extends AbstractKTypeCollection<KType>
-implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+        extends AbstractKTypeCollection<KType>
+        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -248,7 +248,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         while (is_allocated(slot, keys))
         {
-            if (Intrinsics.equalsKType(e, keys[slot]))
+            if (Intrinsics.equalsKTypeNotNull(e, keys[slot]))
             {
                 return false;
             }
@@ -551,7 +551,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         }
 
         ////Fast path 2 : the first slot contains the key, remove it and return
-        if (Intrinsics.equalsKType(key, keys[slot]))
+        if (Intrinsics.equalsKTypeNotNull(key, keys[slot]))
         {
             this.assigned--;
             shiftConflictingKeys(slot);
@@ -565,7 +565,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         while (is_allocated(slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/)
         {
-            if (Intrinsics.equalsKType(key, keys[slot]))
+            if (Intrinsics.equalsKTypeNotNull(key, keys[slot]))
             {
                 this.assigned--;
                 shiftConflictingKeys(slot);
@@ -732,7 +732,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         }
 
         ////Fast path 2 : the first slot contains the key, return true
-        if (Intrinsics.equalsKType(key, keys[slot]))
+        if (Intrinsics.equalsKTypeNotNull(key, keys[slot]))
         {
             this.lastSlot = slot;
             return true;
@@ -744,7 +744,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         while (is_allocated(slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/)
         {
-            if (Intrinsics.equalsKType(key, keys[slot]))
+            if (Intrinsics.equalsKTypeNotNull(key, keys[slot]))
             {
                 this.lastSlot = slot;
                 return true;

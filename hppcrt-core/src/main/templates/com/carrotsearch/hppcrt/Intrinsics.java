@@ -73,6 +73,35 @@ public final class Intrinsics
     }
 
     /**
+     * Identical as {@link equalsKType} except that
+     *  e1 Objects are assumed to be not-null.
+     */
+    public static boolean equalsKTypeNotNull(final Object e1, final Object e2)
+    {
+        return e1.equals(e2);
+    }
+
+    /**
+     * Compare two keys for equivalence. Null references return <code>true</code>.
+     * Primitive types are compared using <code>==</code>, except for floating-point types
+     * where they're compared by their actual representation bits as returned from
+     * {@link Double#doubleToLongBits(double)} and {@link Float#floatToIntBits(float)}.
+     */
+    public static boolean equalsVType(final Object e1, final Object e2)
+    {
+        return e1 == null ? e2 == null : e1.equals(e2);
+    }
+
+    /**
+     * Identical as {@link equalsVType} except that
+     * no e1 Objects are assumed to be not-null.
+     */
+    public static boolean equalsVTypeNotNull(final Object e1, final Object e2)
+    {
+        return e1.equals(e2);
+    }
+
+    /**
      * Compare key e1 for equality with {@link #defaultKTypeValue}.
      */
     public static <T> boolean equalsKTypeDefault(final Object e1)
@@ -172,14 +201,4 @@ public final class Intrinsics
         return ((Comparable<? super T>) e1).compareTo(e2) == 0;
     }
 
-    /**
-     * Compare two keys for equivalence. Null references return <code>true</code>.
-     * Primitive types are compared using <code>==</code>, except for floating-point types
-     * where they're compared by their actual representation bits as returned from
-     * {@link Double#doubleToLongBits(double)} and {@link Float#floatToIntBits(float)}.
-     */
-    public static boolean equalsVType(final Object e1, final Object e2)
-    {
-        return e1 == null ? e2 == null : e1.equals(e2);
-    }
 }

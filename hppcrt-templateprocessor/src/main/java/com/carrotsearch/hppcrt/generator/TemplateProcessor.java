@@ -400,30 +400,42 @@ public final class TemplateProcessor
                 {
                     sb.append(templateOptions.isKTypeGeneric()
                             ? "Internals.<KType[]>newArray(" + params.get(0) + ")"
-                                    : "new " + templateOptions.getKType().getType() + " [" + params.get(0) + "]");
+                            : "new " + templateOptions.getKType().getType() + " [" + params.get(0) + "]");
                 }
                 else if ("newVTypeArray".equals(method))
                 {
                     sb.append(templateOptions.isVTypeGeneric()
                             ? "Internals.<VType[]>newArray(" + params.get(0) + ")"
-                                    : "new " + templateOptions.getVType().getType() + " [" + params.get(0) + "]");
+                            : "new " + templateOptions.getVType().getType() + " [" + params.get(0) + "]");
                 }
-                else if ("equalsKType".equals(method))
+                else if ("equalsKType".equals(method) || "equalsKTypeNotNull".equals(method) ||
+                        "equalsVType".equals(method) || "equalsVTypeNotNull".equals(method))
                 {
-                    if (templateOptions.isKTypeGeneric())
+                    final boolean isK = "equalsKType".equals(method) || "equalsKTypeNotNull".equals(method);
+                    final boolean isV = "equalsVType".equals(method) || "equalsVTypeNotNull".equals(method);
+
+                    final boolean isDouble = (isK && templateOptions.ktype == Type.DOUBLE) || (isV && templateOptions.vtype == Type.DOUBLE);
+                    final boolean isFloat = (isK && templateOptions.ktype == Type.FLOAT) || (isV && templateOptions.vtype == Type.FLOAT);
+
+                    if ((templateOptions.isKTypeGeneric() && "equalsKType".equals(method)) ||
+                            (templateOptions.isVTypeGeneric() && "equalsVType".equals(method)))
                     {
-                        sb.append(String.format("((%1$s) == null ? (%2$s) == null : (%1$s).equals((%2$s)))",
-                                params.toArray()));
+                        sb.append(String.format("((%1$s) == null ? (%2$s) == null : (%1$s).equals(%2$s))", params.toArray()));
                     }
-                    else if (templateOptions.ktype == Type.DOUBLE)
+                    else if ((templateOptions.isKTypeGeneric() && "equalsKTypeNotNull".equals(method)) ||
+                            (templateOptions.isVTypeGeneric() && "equalsVTypeNotNull".equals(method)))
+                    {
+                        sb.append(String.format("((%1$s).equals(%2$s))", params.toArray()));
+                    }
+                    else if (isDouble)
                     {
                         sb.append(String.format("(Double.doubleToLongBits(%1$s) == Double.doubleToLongBits(%2$s))", params.toArray()));
                     }
-                    else if (templateOptions.ktype == Type.FLOAT)
+                    else if (isFloat)
                     {
                         sb.append(String.format("(Float.floatToIntBits(%1$s) == Float.floatToIntBits(%2$s))", params.toArray()));
                     }
-                    else
+                    else //all other cases.
                     {
                         sb.append(String.format("((%1$s) == (%2$s))", params.toArray()));
                     }
@@ -554,26 +566,6 @@ public final class TemplateProcessor
                     else
                     {
                         sb.append(String.format("(%1$s == %2$s)", params.toArray()));
-                    }
-                }
-                else if ("equalsVType".equals(method))
-                {
-                    if (templateOptions.isVTypeGeneric())
-                    {
-                        sb.append(String.format("((%1$s) == null ? (%2$s) == null : (%1$s).equals((%2$s)))",
-                                params.toArray()));
-                    }
-                    else if (templateOptions.vtype == Type.DOUBLE)
-                    {
-                        sb.append(String.format("(Double.doubleToLongBits(%1$s) == Double.doubleToLongBits(%2$s))", params.toArray()));
-                    }
-                    else if (templateOptions.vtype == Type.FLOAT)
-                    {
-                        sb.append(String.format("(Float.floatToIntBits(%1$s) == Float.floatToIntBits(%2$s))", params.toArray()));
-                    }
-                    else
-                    {
-                        sb.append(String.format("((%1$s) == (%2$s))", params.toArray()));
                     }
                 }
                 else
@@ -856,9 +848,9 @@ public final class TemplateProcessor
 
             input = input.replaceAll("(KTypeVType)([A-Z][a-zA-Z]*)(<.+?>)?",
                     (k.isGeneric() ? "Object" : k.getBoxedType()) +
-                    (v.isGeneric() ? "Object" : v.getBoxedType()) +
-                    "$2" +
-                    (options.isAnyGeneric() ? "$3" : ""));
+                            (v.isGeneric() ? "Object" : v.getBoxedType()) +
+                            "$2" +
+                            (options.isAnyGeneric() ? "$3" : ""));
 
             input = input.replaceAll("(VType)([A-Z][a-zA-Z]*)",
                     (v.isGeneric() ? "Object" : v.getBoxedType()) + "$2");

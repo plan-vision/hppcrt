@@ -78,7 +78,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenHashMap<KType, VType>
-implements KTypeVTypeMap<KType, VType>, Cloneable
+        implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -301,7 +301,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         while (is_allocated(slot, keys))
         {
-            if (Intrinsics.equalsKType(key, keys[slot]))
+            if (Intrinsics.equalsKTypeNotNull(key, keys[slot]))
             {
                 final VType oldValue = values[slot];
                 values[slot] = value;
@@ -483,7 +483,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             existing_distance = probe_distance(slot, cached);
             #end
 
-            if (Intrinsics.equalsKType(key, keys[slot]))
+            if (Intrinsics.equalsKTypeNotNull(key, keys[slot]))
             {
                 values[slot] += additionValue;
                 return values[slot];
@@ -754,7 +754,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         }
 
         ////Fast path 2 : the first slot contains the key, remove it and return
-        if (Intrinsics.equalsKType(key, keys[slot]))
+        if (Intrinsics.equalsKTypeNotNull(key, keys[slot]))
         {
             final VType value = values[slot];
 
@@ -770,7 +770,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         while (is_allocated(slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/)
         {
-            if (Intrinsics.equalsKType(key, keys[slot]))
+            if (Intrinsics.equalsKTypeNotNull(key, keys[slot]))
             {
                 final VType value = values[slot];
 
@@ -969,7 +969,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         }
 
         ////Fast path 2 : the first slot contains the key, return the value
-        if (Intrinsics.equalsKType(key, keys[slot]))
+        if (Intrinsics.equalsKTypeNotNull(key, keys[slot]))
         {
             return values[slot];
         }
@@ -980,7 +980,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         while (is_allocated(slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/)
         {
-            if (Intrinsics.equalsKType(key, keys[slot]))
+            if (Intrinsics.equalsKTypeNotNull(key, keys[slot]))
             {
                 return values[slot];
             }
@@ -1143,7 +1143,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         }
 
         ////Fast path 2 : the first slot contains the key, return true
-        if (Intrinsics.equalsKType(key, keys[slot]))
+        if (Intrinsics.equalsKTypeNotNull(key, keys[slot]))
         {
             this.lastSlot = slot;
             return true;
@@ -1155,7 +1155,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         while (is_allocated(slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/)
         {
-            if (Intrinsics.equalsKType(key, keys[slot]))
+            if (Intrinsics.equalsKTypeNotNull(key, keys[slot]))
             {
                 this.lastSlot = slot;
                 return true;
@@ -1473,7 +1473,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      * A view of the keys inside this hash map.
      */
     public final class KeysContainer
-    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenHashMap<KType, VType> owner =
                 KTypeVTypeOpenHashMap.this;
