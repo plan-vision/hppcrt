@@ -19,7 +19,7 @@ public class BenchmarkHashMapRemove extends BenchmarkHashMapBase
 {
     public enum MAP_LOOKUP_TEST
     {
-        MOSTLY_TRUE,
+        TRUE,
         MOSTLY_FALSE,
         MIXED
     }
@@ -49,7 +49,7 @@ public class BenchmarkHashMapRemove extends BenchmarkHashMapBase
         {
             final boolean isMixedLookupSucceded = (this.lookupSuccessKind == MAP_LOOKUP_TEST.MIXED) && this.prng.nextBoolean();
 
-            if (this.lookupSuccessKind == MAP_LOOKUP_TEST.MOSTLY_TRUE || isMixedLookupSucceded)
+            if (this.lookupSuccessKind == MAP_LOOKUP_TEST.TRUE || isMixedLookupSucceded)
             {
                 //do nothing, this.removedKeys[ii] will succeed.
             }

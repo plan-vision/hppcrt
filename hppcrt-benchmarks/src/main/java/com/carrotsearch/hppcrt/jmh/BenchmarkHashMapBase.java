@@ -37,12 +37,12 @@ public class BenchmarkHashMapBase
 
     @Param({
 
-            "6000000"
+        "6000000"
     })
     public int targetSize;
 
     @Param({
-        "0.75"
+            "0.75"
     })
     public float loadFactor;
 
@@ -99,7 +99,7 @@ public class BenchmarkHashMapBase
         // Our tested implementation, uses preallocation
         this.impl = this.implementation.getInstance(nbElementsToPush, this.loadFactor);
 
-        final DistributionGenerator gene = new DistributionGenerator(2 * nbElementsToPush, this.prng);
+        final DistributionGenerator gene = new DistributionGenerator(-nbElementsToPush, 2 * nbElementsToPush, this.prng);
 
         //Generate a dry run into a HashSet until the size has reached nbElementsToPush
         Map<ComparableInt, Integer> dryRunHashSet = null;

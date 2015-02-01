@@ -48,7 +48,7 @@ public final class HppcMapSyntheticBench
 
     public enum MAP_LOOKUP_TEST
     {
-        MOSTLY_TRUE,
+        TRUE,
         MOSTLY_FALSE,
         MIXED
     }
@@ -315,7 +315,7 @@ public final class HppcMapSyntheticBench
 
         this.prng.setSeed(HppcMapSyntheticBench.RANDOM_SEED);
 
-        final Generator gene = getGenerator(dis, 2 * minPushedElements);
+        final Generator gene = getGenerator(dis, minPushedElements);
 
         while (testMap.size() < minPushedElements || testMap.size() < testMap.capacity())
         {
@@ -359,7 +359,7 @@ public final class HppcMapSyntheticBench
             for (int ii = 0; ii < Klist.size(); ii++)
             {
 
-                if ((getKind == MAP_LOOKUP_TEST.MOSTLY_TRUE || getKind == MAP_LOOKUP_TEST.MIXED) && this.prng.nextBoolean())
+                if ((getKind == MAP_LOOKUP_TEST.TRUE || getKind == MAP_LOOKUP_TEST.MIXED) && this.prng.nextBoolean())
                 {
 
                     sum += testMap.get(Klist.get(ii));
@@ -380,7 +380,7 @@ public final class HppcMapSyntheticBench
             for (int ii = 0; ii < Klist.size(); ii++)
             {
 
-                if ((getKind == MAP_LOOKUP_TEST.MOSTLY_TRUE || getKind == MAP_LOOKUP_TEST.MIXED) && this.prng.nextBoolean())
+                if ((getKind == MAP_LOOKUP_TEST.TRUE || getKind == MAP_LOOKUP_TEST.MIXED) && this.prng.nextBoolean())
                 {
 
                     sum += testMap.remove(Klist.get(ii));
@@ -451,7 +451,7 @@ public final class HppcMapSyntheticBench
 
         this.prng.setSeed(HppcMapSyntheticBench.RAND_SEED);
 
-        final Generator gene = getGenerator(dis, 2 * minPushedElements);
+        final Generator gene = getGenerator(dis, minPushedElements);
 
         while (testMap.size() < minPushedElements || testMap.size() < testMap.capacity())
         {
@@ -501,7 +501,7 @@ public final class HppcMapSyntheticBench
             for (int ii = 0; ii < Klist.size(); ii++)
             {
 
-                if ((getKind == MAP_LOOKUP_TEST.MOSTLY_TRUE || getKind == MAP_LOOKUP_TEST.MIXED) && this.prng.nextBoolean())
+                if ((getKind == MAP_LOOKUP_TEST.TRUE || getKind == MAP_LOOKUP_TEST.MIXED) && this.prng.nextBoolean())
                 {
 
                     sum += testMap.get(Klist.get(ii));
@@ -524,7 +524,7 @@ public final class HppcMapSyntheticBench
             for (int ii = 0; ii < Klist.size(); ii++)
             {
 
-                if ((getKind == MAP_LOOKUP_TEST.MOSTLY_TRUE || getKind == MAP_LOOKUP_TEST.MIXED) && this.prng.nextBoolean())
+                if ((getKind == MAP_LOOKUP_TEST.TRUE || getKind == MAP_LOOKUP_TEST.MIXED) && this.prng.nextBoolean())
                 {
                     sum += testMap.remove(Klist.get(ii));
                 }
@@ -596,7 +596,7 @@ public final class HppcMapSyntheticBench
 
         this.prng.setSeed(HppcMapSyntheticBench.RAND_SEED);
 
-        final Generator gene = getGenerator(Distribution.RANDOM, 2 * minPushedElements);
+        final Generator gene = getGenerator(Distribution.RANDOM, minPushedElements);
 
         while (testMap.size() < minPushedElements || testMap.size() < testMap.capacity())
         {
@@ -643,7 +643,7 @@ public final class HppcMapSyntheticBench
             //Rerun to compute a containsKey lget() pattern
             for (int ii = 0; ii < Klist.size(); ii++)
             {
-                if ((getKind == MAP_LOOKUP_TEST.MOSTLY_TRUE || getKind == MAP_LOOKUP_TEST.MIXED) && this.prng.nextBoolean())
+                if ((getKind == MAP_LOOKUP_TEST.TRUE || getKind == MAP_LOOKUP_TEST.MIXED) && this.prng.nextBoolean())
                 {
                     sum += testMap.get(Klist.get(ii));
                 }
@@ -664,7 +664,7 @@ public final class HppcMapSyntheticBench
             for (int ii = 0; ii < Klist.size(); ii++)
             {
 
-                if ((getKind == MAP_LOOKUP_TEST.MOSTLY_TRUE || getKind == MAP_LOOKUP_TEST.MIXED) && this.prng.nextBoolean())
+                if ((getKind == MAP_LOOKUP_TEST.TRUE || getKind == MAP_LOOKUP_TEST.MIXED) && this.prng.nextBoolean())
                 {
                     sum += testMap.remove(Klist.get(ii));
                 }
@@ -749,11 +749,11 @@ public final class HppcMapSyntheticBench
         System.gc();
     }
 
-    private Generator getGenerator(final Distribution disKind, final int size)
+    private Generator getGenerator(final Distribution disKind, final int pushedElements)
     {
         Generator generator = null;
 
-        final DistributionGenerator disGene = new DistributionGenerator(size, this.prng);
+        final DistributionGenerator disGene = new DistributionGenerator(-pushedElements, 2 * pushedElements, this.prng);
 
         switch (disKind)
         {
@@ -799,7 +799,7 @@ public final class HppcMapSyntheticBench
 
         if (HppcMapSyntheticBench.RUN_PRIMITIVES) {
             System.out.println("\n");
-            testClass.runMapSyntheticBenchPrimitives(MAP_LOOKUP_TEST.MOSTLY_TRUE);
+            testClass.runMapSyntheticBenchPrimitives(MAP_LOOKUP_TEST.TRUE);
             System.gc();
         }
 
@@ -808,13 +808,13 @@ public final class HppcMapSyntheticBench
 
             testClass.runMapIdentityObjectLong("ObjectLongOpenIdentityHashMap",
                     ObjectLongOpenIdentityHashMap.<ComparableInt> newInstance(HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR),
-                    HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR, MAP_LOOKUP_TEST.MOSTLY_TRUE);
+                    HppcMapSyntheticBench.COUNT, ObjectLongOpenHashMap.DEFAULT_LOAD_FACTOR, MAP_LOOKUP_TEST.TRUE);
             System.gc();
         }
 
         if (HppcMapSyntheticBench.RUN_INTEGERS) {
             System.out.println("\n");
-            testClass.runMapSyntheticBenchComparableInt(MAP_LOOKUP_TEST.MOSTLY_TRUE);
+            testClass.runMapSyntheticBenchComparableInt(MAP_LOOKUP_TEST.TRUE);
             System.gc();
         }
 
