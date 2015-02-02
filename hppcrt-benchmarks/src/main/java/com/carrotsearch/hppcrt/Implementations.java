@@ -14,7 +14,7 @@ public enum Implementations
         }
     },
 
-    HPPC_OBJECT
+    HPPC_OBJ
     {
         @Override
         public MapImplementation<?> getInstance(final int size, final float loadFactor)
@@ -29,7 +29,7 @@ public enum Implementations
         }
     },
 
-    HPPC_STRATEGY
+    HPPC_OBJ_STRATEGY
     {
         @Override
         public MapImplementation<?> getInstance(final int size, final float loadFactor)
@@ -53,9 +53,7 @@ public enum Implementations
         }
 
         /**
-         * By default, Different distributions are to be used
-         * (Template method)
-         * @return
+         * Distribution is irrevelant to Object identity (or so we assume...)
          */
         @Override
         public boolean isDistributionApplicable() {
@@ -73,12 +71,18 @@ public enum Implementations
         }
     },
 
-    FASTUTIL_OBJECT
+    FASTUTIL_OBJ
     {
         @Override
         public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
             return new FastUtilObjectMap(size, loadFactor);
+        }
+
+        @Override
+        public boolean isHashQualityApplicable() {
+
+            return true;
         }
     },
 

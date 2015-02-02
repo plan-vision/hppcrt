@@ -37,12 +37,12 @@ public class BenchmarkHashMapBase
 
     @Param({
 
-        "6000000"
+            "6000000"
     })
     public int targetSize;
 
     @Param({
-            "0.75"
+        "0.75"
     })
     public float loadFactor;
 
@@ -130,10 +130,6 @@ public class BenchmarkHashMapBase
                 case HIGHBITS:
                     currentKey = gene.HIGHBITS.getNext();
                     break;
-//                case LINEAR_DECREMENT:
-//                    currentKey = gene.LINEAR_DECREMENT.getNext();
-//                    break;
-
                 default:
                     throw new RuntimeException();
             }
@@ -158,7 +154,7 @@ public class BenchmarkHashMapBase
      */
     protected void skipForbiddenCombinations() {
 
-        //1-1)skip senseless benchmark combinations : BAD hash is only valid for Objects !
+        //1-1)skip senseless benchmark combinations : BAD hash is only valid for some types
         if (this.hash_quality == HASH_QUALITY.BAD &&
                 !this.implementation.isHashQualityApplicable()) {
 
@@ -167,7 +163,6 @@ public class BenchmarkHashMapBase
 
         //1-2)skip senseless benchmark combinations 2 : Distribution is irrelevant to Identity Hash, so use only the Random one !
         if (!this.implementation.isDistributionApplicable() && this.distribution != Distribution.RANDOM) {
-
             throw new DoNotExecuteBenchmarkException();
         }
 
