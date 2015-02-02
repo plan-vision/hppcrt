@@ -39,7 +39,7 @@ public final class PhiMix
      * @param x an integer.
      * @return a hash value obtained by mixing the bits of {@code x}.
      */
-    public final static int hash(final int x) {
+    public static int hash(final int x) {
         final int h = x * PhiMix.INT_PHI;
         return h ^ (h >> 16);
     }
@@ -49,7 +49,7 @@ public final class PhiMix
      * @param x a long integer.
      * @return a hash value obtained by mixing the bits of {@code x}.
      */
-    public final static long hash(final long x) {
+    public static long hash(final long x) {
         long h = x * PhiMix.LONG_PHI;
         h ^= h >> 32;
         return h ^ (h >> 16);
