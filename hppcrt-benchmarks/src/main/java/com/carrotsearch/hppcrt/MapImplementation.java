@@ -9,7 +9,7 @@ public abstract class MapImplementation<IMPLEM>
     public enum HASH_QUALITY
     {
         NORMAL(0),
-        BAD(6);
+        BAD(4);
 
         public final int shift;
 
