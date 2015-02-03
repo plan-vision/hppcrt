@@ -2,7 +2,7 @@
  Introduction
  ------
  ------
- 2014-08-28
+ 2015-02-02
  ------
 
 
@@ -18,5 +18,3 @@ HPPC-RT, High Performance Primitive Collections Realtime, fork of CarrotSearch'H
     
    * {{{./surefire-report.html}JUnit Tests}} (<<<junit>>>).
    
-   * {{{./coverage/index.html}Test Code Coverage}} (<<<clover>>>).
-
