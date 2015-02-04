@@ -33,7 +33,7 @@ import com.carrotsearch.hppcrt.hash.*;
  * 
  *
 #if ($TemplateOptions.KTypeGeneric)
- * <p><code>null</code> keys support is up to the {@link KTypeHashingStrategy} implementation. </p>
+ * <p>This implementation support <code>null</code> keys. In addition, objects passed to the {@link KTypeHashingStrategy} are guaranteed to be not-<code>null</code>. </p>
 #end
  *
  * @author This code is inspired by the collaboration and implementation in the <a
@@ -51,8 +51,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenCustomHashSet<KType>
-extends AbstractKTypeCollection<KType>
-implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+        extends AbstractKTypeCollection<KType>
+        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
