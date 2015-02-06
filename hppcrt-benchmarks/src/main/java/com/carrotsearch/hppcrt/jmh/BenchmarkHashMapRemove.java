@@ -79,6 +79,6 @@ public class BenchmarkHashMapRemove extends BenchmarkHashMapBase
 
     public static void main(final String[] args) throws RunnerException
     {
-        BenchmarkSuiteRunner.runJmhBasicBenchmarkWithCommandLine(BenchmarkHashMapRemove.class, args, 1000, 2000);
+        BenchmarkSuiteRunner.runJmhBasicBenchmarkWithCommandLine(BenchmarkHashMapRemove.class, args, 2000, 3000);
     }
 }

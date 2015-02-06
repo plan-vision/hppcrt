@@ -9,7 +9,7 @@ import org.openjdk.jmh.infra.Blackhole;
 public abstract class MapImplementation<IMPLEM>
 {
 
-    public static final long METHOD_CALL_CPU_COST = 24;
+    public static final long METHOD_CALL_CPU_COST = 16;
 
     public enum HASH_QUALITY
     {

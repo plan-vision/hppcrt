@@ -9,6 +9,7 @@ import com.carrotsearch.hppcrt.MapImplementation.ComparableInt;
 import com.carrotsearch.hppcrt.MapImplementation.HASH_QUALITY;
 import com.carrotsearch.hppcrt.maps.ObjectIntOpenCustomHashMap;
 import com.carrotsearch.hppcrt.strategies.ObjectHashingStrategy;
+import org.openjdk.jmh.infra.Blackhole;
 
 public class HppcCustomMap extends MapImplementation<ObjectIntOpenCustomHashMap<MapImplementation.ComparableInt>>
 {
@@ -27,12 +28,18 @@ public class HppcCustomMap extends MapImplementation<ObjectIntOpenCustomHashMap<
             @Override
             public int computeHashCode(final MapImplementation.ComparableInt object) {
 
+                //eat some CPU to simulate method cost
+                Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
+            
                 return object.value;
             }
 
             @Override
             public boolean equals(final MapImplementation.ComparableInt o1, final MapImplementation.ComparableInt o2) {
 
+                //eat some CPU to simulate method cost
+                Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
+            
                 return o1.value == o2.value;
             }
         }));
