@@ -1,20 +1,27 @@
-package com.carrotsearch.hppcrt;
+package com.carrotsearch.hppcrt.implementations;
 
 import java.util.Arrays;
 import java.util.Random;
 
-import com.carrotsearch.hppcrt.maps.*;
+import com.carrotsearch.hppcrt.MapImplementation;
+import com.carrotsearch.hppcrt.XorShiftRandom;
+import com.carrotsearch.hppcrt.MapImplementation.HASH_QUALITY;
 
-public class HppcMap extends MapImplementation<IntIntOpenHashMap>
+import net.openhft.koloboke.collect.hash.HashConfig;
+import net.openhft.koloboke.collect.map.hash.HashIntIntMap;
+import net.openhft.koloboke.collect.map.hash.HashIntIntMaps;
+
+public class HftcMap extends MapImplementation<HashIntIntMap>
 {
     private int[] insertKeys;
     private int[] containsKeys;
     private int[] removedKeys;
     private int[] insertValues;
 
-    protected HppcMap(final int size, final float loadFactor)
+    public HftcMap(final int size, final float loadFactor)
     {
-        super(new IntIntOpenHashMap(size, loadFactor));
+        super(HashIntIntMaps.getDefaultFactory().
+                withHashConfig(HashConfig.fromLoads(loadFactor / 2, loadFactor, loadFactor)).newMutableMap(size));
     }
 
     /**
@@ -52,7 +59,7 @@ public class HppcMap extends MapImplementation<IntIntOpenHashMap>
     @Override
     public int benchPutAll() {
 
-        final IntIntOpenHashMap instance = this.instance;
+        final HashIntIntMap instance = this.instance;
         final int[] values = this.insertValues;
 
         int count = 0;
@@ -70,7 +77,7 @@ public class HppcMap extends MapImplementation<IntIntOpenHashMap>
     @Override
     public int benchContainKeys()
     {
-        final IntIntOpenHashMap instance = this.instance;
+        final HashIntIntMap instance = this.instance;
 
         int count = 0;
 
@@ -87,7 +94,7 @@ public class HppcMap extends MapImplementation<IntIntOpenHashMap>
     @Override
     public int benchRemoveKeys() {
 
-        final IntIntOpenHashMap instance = this.instance;
+        final HashIntIntMap instance = this.instance;
 
         int count = 0;
 
@@ -100,4 +107,5 @@ public class HppcMap extends MapImplementation<IntIntOpenHashMap>
 
         return count;
     }
+
 }

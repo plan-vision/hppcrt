@@ -1,11 +1,15 @@
-package com.carrotsearch.hppcrt;
+package com.carrotsearch.hppcrt.implementations;
 
 import java.util.Random;
 
-import com.carrotsearch.hppcrt.maps.ObjectIntOpenCustomHashMap;
-import com.carrotsearch.hppcrt.strategies.ObjectHashingStrategy;
+import com.carrotsearch.hppcrt.MapImplementation;
+import com.carrotsearch.hppcrt.Util;
+import com.carrotsearch.hppcrt.XorShiftRandom;
+import com.carrotsearch.hppcrt.MapImplementation.ComparableInt;
+import com.carrotsearch.hppcrt.MapImplementation.HASH_QUALITY;
+import com.gs.collections.impl.map.mutable.primitive.ObjectIntHashMap;
 
-public class HppcCustomMap extends MapImplementation<ObjectIntOpenCustomHashMap<MapImplementation.ComparableInt>>
+public class GsObjectMap extends MapImplementation<ObjectIntHashMap<MapImplementation.ComparableInt>>
 {
 
     private ComparableInt[] insertKeys;
@@ -13,24 +17,10 @@ public class HppcCustomMap extends MapImplementation<ObjectIntOpenCustomHashMap<
     private ComparableInt[] removedKeys;
     private int[] insertValues;
 
-    protected HppcCustomMap(final int size, final float loadFactor)
+    protected GsObjectMap(final int size, final float loadFactor)
     {
-        super(new ObjectIntOpenCustomHashMap<MapImplementation.ComparableInt>(size, loadFactor,
-                //A good behaved startegy that compensates bad hashCode() implementation.
-                new ObjectHashingStrategy<MapImplementation.ComparableInt>() {
-
-            @Override
-            public int computeHashCode(final MapImplementation.ComparableInt object) {
-
-                return object.value;
-            }
-
-            @Override
-            public boolean equals(final MapImplementation.ComparableInt o1, final MapImplementation.ComparableInt o2) {
-
-                return o1.value == o2.value;
-            }
-        }));
+        //load factor is fixed to 0.5 !
+        super(new ObjectIntHashMap<ComparableInt>(size));
     }
 
     /**
@@ -88,26 +78,25 @@ public class HppcCustomMap extends MapImplementation<ObjectIntOpenCustomHashMap<
     @Override
     public int benchPutAll() {
 
-        final ObjectIntOpenCustomHashMap<MapImplementation.ComparableInt> instance = this.instance;
-
+        final ObjectIntHashMap<ComparableInt> instance = this.instance;
         final int[] values = this.insertValues;
 
-        int count = 0;
+        final int count = 0;
 
         final ComparableInt[] keys = this.insertKeys;
 
         for (int i = 0; i < keys.length; i++) {
 
-            count += instance.put(keys[i], values[i]);
+            instance.put(keys[i], values[i]);
         }
 
-        return count;
+        return instance.size();
     }
 
     @Override
     public int benchContainKeys()
     {
-        final ObjectIntOpenCustomHashMap<MapImplementation.ComparableInt> instance = this.instance;
+        final ObjectIntHashMap<ComparableInt> instance = this.instance;
 
         int count = 0;
 
@@ -124,17 +113,17 @@ public class HppcCustomMap extends MapImplementation<ObjectIntOpenCustomHashMap<
     @Override
     public int benchRemoveKeys() {
 
-        final ObjectIntOpenCustomHashMap<MapImplementation.ComparableInt> instance = this.instance;
+        final ObjectIntHashMap<ComparableInt> instance = this.instance;
 
-        int count = 0;
+        final int count = 0;
 
         final ComparableInt[] keys = this.removedKeys;
 
         for (int i = 0; i < keys.length; i++) {
 
-            count += instance.remove(keys[i]);
+            instance.remove(keys[i]);
         }
 
-        return count;
+        return instance.size();
     }
 }

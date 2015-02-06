@@ -1,10 +1,17 @@
-package com.carrotsearch.hppcrt;
-
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+package com.carrotsearch.hppcrt.implementations;
 
 import java.util.Random;
 
-public class FastUtilObjectMap extends MapImplementation<Object2IntOpenHashMap<MapImplementation.ComparableInt>>
+import org.apache.mahout.math.map.OpenObjectIntHashMap;
+
+import com.carrotsearch.hppcrt.MapImplementation;
+import com.carrotsearch.hppcrt.Util;
+import com.carrotsearch.hppcrt.XorShiftRandom;
+import com.carrotsearch.hppcrt.MapImplementation.ComparableInt;
+import com.carrotsearch.hppcrt.MapImplementation.HASH_QUALITY;
+import com.carrotsearch.hppcrt.maps.ObjectIntOpenHashMap;
+
+public class MahoutObjectMap extends MapImplementation<OpenObjectIntHashMap<MapImplementation.ComparableInt>>
 {
 
     private ComparableInt[] insertKeys;
@@ -12,9 +19,9 @@ public class FastUtilObjectMap extends MapImplementation<Object2IntOpenHashMap<M
     private ComparableInt[] removedKeys;
     private int[] insertValues;
 
-    protected FastUtilObjectMap(final int size, final float loadFactor)
+    protected MahoutObjectMap(final int size, final float loadFactor)
     {
-        super(new Object2IntOpenHashMap<ComparableInt>(size, loadFactor));
+        super(new OpenObjectIntHashMap<ComparableInt>(size, loadFactor / 2, loadFactor));
     }
 
     /**
@@ -72,7 +79,7 @@ public class FastUtilObjectMap extends MapImplementation<Object2IntOpenHashMap<M
     @Override
     public int benchPutAll() {
 
-        final Object2IntOpenHashMap<ComparableInt> instance = this.instance;
+        final OpenObjectIntHashMap<ComparableInt> instance = this.instance;
         final int[] values = this.insertValues;
 
         int count = 0;
@@ -81,7 +88,7 @@ public class FastUtilObjectMap extends MapImplementation<Object2IntOpenHashMap<M
 
         for (int i = 0; i < keys.length; i++) {
 
-            count += instance.put(keys[i], values[i]);
+            count += instance.put(keys[i], values[i]) ? 1 : 0;
         }
 
         return count;
@@ -90,7 +97,7 @@ public class FastUtilObjectMap extends MapImplementation<Object2IntOpenHashMap<M
     @Override
     public int benchContainKeys()
     {
-        final Object2IntOpenHashMap<ComparableInt> instance = this.instance;
+        final OpenObjectIntHashMap<ComparableInt> instance = this.instance;
 
         int count = 0;
 
@@ -107,7 +114,7 @@ public class FastUtilObjectMap extends MapImplementation<Object2IntOpenHashMap<M
     @Override
     public int benchRemoveKeys() {
 
-        final Object2IntOpenHashMap<ComparableInt> instance = this.instance;
+        final OpenObjectIntHashMap<ComparableInt> instance = this.instance;
 
         int count = 0;
 
@@ -115,7 +122,7 @@ public class FastUtilObjectMap extends MapImplementation<Object2IntOpenHashMap<M
 
         for (int i = 0; i < keys.length; i++) {
 
-            count += instance.removeInt(keys[i]);
+            count += instance.removeKey(keys[i]) ? 1 : 0;
         }
 
         return count;

@@ -1,7 +1,12 @@
-package com.carrotsearch.hppcrt;
+package com.carrotsearch.hppcrt.implementations;
 
 import java.util.HashMap;
 import java.util.Random;
+
+import com.carrotsearch.hppcrt.MapImplementation;
+import com.carrotsearch.hppcrt.Util;
+import com.carrotsearch.hppcrt.XorShiftRandom;
+import com.carrotsearch.hppcrt.MapImplementation.HASH_QUALITY;
 
 public class JavaMap extends MapImplementation<HashMap<Integer, Integer>>
 {

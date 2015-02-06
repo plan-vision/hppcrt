@@ -1,11 +1,16 @@
 package com.carrotsearch.hppcrt;
 
+import org.openjdk.jmh.infra.Blackhole;
+
 /**
  * Something implementing a map interface (int-int).
  * (or OBJ - int)
  */
 public abstract class MapImplementation<IMPLEM>
 {
+
+    public static final long METHOD_CALL_CPU_COST = 24;
+
     public enum HASH_QUALITY
     {
         NORMAL(0),
@@ -38,6 +43,9 @@ public abstract class MapImplementation<IMPLEM>
         @Override
         public int compareTo(final ComparableInt other)
         {
+            //eat some CPU to simulate method cost
+            Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
+
             if (this.value < other.value)
             {
                 return -1;
@@ -53,12 +61,18 @@ public abstract class MapImplementation<IMPLEM>
         @Override
         public int hashCode()
         {
+            //eat some CPU to simulate method cost
+            Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
+
             return this.value << this.bitshift;
         }
 
         @Override
         public boolean equals(final Object obj)
         {
+            //eat some CPU to simulate method cost
+            Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
+
             if (obj instanceof ComparableInt)
             {
                 return ((ComparableInt) obj).value == this.value;

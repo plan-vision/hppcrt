@@ -1,23 +1,24 @@
-package com.carrotsearch.hppcrt;
+package com.carrotsearch.hppcrt.implementations;
 
 import java.util.Arrays;
 import java.util.Random;
 
-import org.apache.mahout.math.map.OpenIntIntHashMap;
+import com.carrotsearch.hppcrt.MapImplementation;
+import com.carrotsearch.hppcrt.XorShiftRandom;
+import com.carrotsearch.hppcrt.MapImplementation.HASH_QUALITY;
+import com.gs.collections.impl.map.mutable.primitive.IntIntHashMap;
 
-public class MahoutMap extends MapImplementation<OpenIntIntHashMap>
+public class GsMap extends MapImplementation<IntIntHashMap>
 {
     private int[] insertKeys;
     private int[] containsKeys;
     private int[] removedKeys;
     private int[] insertValues;
 
-    public MahoutMap(final int size, final float loadFactor)
+    public GsMap(final int size, final float loadFactor)
     {
-        super(new OpenIntIntHashMap(
-                size,
-                0.1,
-                loadFactor));
+        //load factor is fixed to 0.5 !
+        super(new IntIntHashMap(size));
     }
 
     /**
@@ -39,7 +40,6 @@ public class MahoutMap extends MapImplementation<OpenIntIntHashMap>
 
             this.insertValues[i] = prng.nextInt();
         }
-
     }
 
     @Override
@@ -56,25 +56,27 @@ public class MahoutMap extends MapImplementation<OpenIntIntHashMap>
     @Override
     public int benchPutAll() {
 
-        final OpenIntIntHashMap instance = this.instance;
+        final IntIntHashMap instance = this.instance;
+
         final int[] values = this.insertValues;
 
-        int count = 0;
+        final int count = 0;
 
         final int[] keys = this.insertKeys;
 
         for (int i = 0; i < keys.length; i++) {
 
-            count += (instance.put(keys[i], values[i]) ? 1 : 0);
+            //those ones do not return the previous value....
+            instance.put(keys[i], values[i]);
         }
 
-        return count;
+        return instance.size();
     }
 
     @Override
     public int benchContainKeys()
     {
-        final OpenIntIntHashMap instance = this.instance;
+        final IntIntHashMap instance = this.instance;
 
         int count = 0;
 
@@ -91,17 +93,19 @@ public class MahoutMap extends MapImplementation<OpenIntIntHashMap>
     @Override
     public int benchRemoveKeys() {
 
-        final OpenIntIntHashMap instance = this.instance;
+        final IntIntHashMap instance = this.instance;
 
-        int count = 0;
+        final int count = 0;
 
         final int[] keys = this.removedKeys;
 
         for (int i = 0; i < keys.length; i++) {
 
-            count += instance.removeKey(keys[i]) ? 1 : 0;
+            //those ones do not return the previous value....
+            instance.remove(keys[i]);
         }
 
-        return count;
+        return instance.size();
     }
+
 }

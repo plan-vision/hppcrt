@@ -1,10 +1,16 @@
-package com.carrotsearch.hppcrt;
+package com.carrotsearch.hppcrt.implementations;
+
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
 import java.util.Random;
 
-import com.carrotsearch.hppcrt.maps.ObjectIntOpenHashMap;
+import com.carrotsearch.hppcrt.MapImplementation;
+import com.carrotsearch.hppcrt.Util;
+import com.carrotsearch.hppcrt.XorShiftRandom;
+import com.carrotsearch.hppcrt.MapImplementation.ComparableInt;
+import com.carrotsearch.hppcrt.MapImplementation.HASH_QUALITY;
 
-public class HppcObjectMap extends MapImplementation<ObjectIntOpenHashMap<MapImplementation.ComparableInt>>
+public class FastUtilObjectMap extends MapImplementation<Object2IntOpenHashMap<MapImplementation.ComparableInt>>
 {
 
     private ComparableInt[] insertKeys;
@@ -12,9 +18,9 @@ public class HppcObjectMap extends MapImplementation<ObjectIntOpenHashMap<MapImp
     private ComparableInt[] removedKeys;
     private int[] insertValues;
 
-    protected HppcObjectMap(final int size, final float loadFactor)
+    protected FastUtilObjectMap(final int size, final float loadFactor)
     {
-        super(new ObjectIntOpenHashMap<ComparableInt>(size, loadFactor));
+        super(new Object2IntOpenHashMap<ComparableInt>(size, loadFactor));
     }
 
     /**
@@ -72,7 +78,7 @@ public class HppcObjectMap extends MapImplementation<ObjectIntOpenHashMap<MapImp
     @Override
     public int benchPutAll() {
 
-        final ObjectIntOpenHashMap<ComparableInt> instance = this.instance;
+        final Object2IntOpenHashMap<ComparableInt> instance = this.instance;
         final int[] values = this.insertValues;
 
         int count = 0;
@@ -90,7 +96,7 @@ public class HppcObjectMap extends MapImplementation<ObjectIntOpenHashMap<MapImp
     @Override
     public int benchContainKeys()
     {
-        final ObjectIntOpenHashMap<ComparableInt> instance = this.instance;
+        final Object2IntOpenHashMap<ComparableInt> instance = this.instance;
 
         int count = 0;
 
@@ -107,7 +113,7 @@ public class HppcObjectMap extends MapImplementation<ObjectIntOpenHashMap<MapImp
     @Override
     public int benchRemoveKeys() {
 
-        final ObjectIntOpenHashMap<ComparableInt> instance = this.instance;
+        final Object2IntOpenHashMap<ComparableInt> instance = this.instance;
 
         int count = 0;
 
@@ -115,7 +121,7 @@ public class HppcObjectMap extends MapImplementation<ObjectIntOpenHashMap<MapImp
 
         for (int i = 0; i < keys.length; i++) {
 
-            count += instance.remove(keys[i]);
+            count += instance.removeInt(keys[i]);
         }
 
         return count;

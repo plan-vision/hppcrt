@@ -1,21 +1,26 @@
-package com.carrotsearch.hppcrt;
+package com.carrotsearch.hppcrt.implementations;
 
 import java.util.Arrays;
 import java.util.Random;
 
-import gnu.trove.map.hash.TIntIntHashMap;
+import org.apache.mahout.math.map.OpenIntIntHashMap;
 
-public class TroveMap extends MapImplementation<TIntIntHashMap>
+import com.carrotsearch.hppcrt.MapImplementation;
+import com.carrotsearch.hppcrt.XorShiftRandom;
+import com.carrotsearch.hppcrt.MapImplementation.HASH_QUALITY;
+
+public class MahoutMap extends MapImplementation<OpenIntIntHashMap>
 {
     private int[] insertKeys;
     private int[] containsKeys;
     private int[] removedKeys;
     private int[] insertValues;
 
-    public TroveMap(final int size, final float loadFactor)
+    public MahoutMap(final int size, final float loadFactor)
     {
-        super(new TIntIntHashMap(
+        super(new OpenIntIntHashMap(
                 size,
+                0.1,
                 loadFactor));
     }
 
@@ -38,6 +43,7 @@ public class TroveMap extends MapImplementation<TIntIntHashMap>
 
             this.insertValues[i] = prng.nextInt();
         }
+
     }
 
     @Override
@@ -54,7 +60,7 @@ public class TroveMap extends MapImplementation<TIntIntHashMap>
     @Override
     public int benchPutAll() {
 
-        final TIntIntHashMap instance = this.instance;
+        final OpenIntIntHashMap instance = this.instance;
         final int[] values = this.insertValues;
 
         int count = 0;
@@ -63,7 +69,7 @@ public class TroveMap extends MapImplementation<TIntIntHashMap>
 
         for (int i = 0; i < keys.length; i++) {
 
-            count += instance.put(keys[i], values[i]);
+            count += (instance.put(keys[i], values[i]) ? 1 : 0);
         }
 
         return count;
@@ -72,7 +78,7 @@ public class TroveMap extends MapImplementation<TIntIntHashMap>
     @Override
     public int benchContainKeys()
     {
-        final TIntIntHashMap instance = this.instance;
+        final OpenIntIntHashMap instance = this.instance;
 
         int count = 0;
 
@@ -89,7 +95,7 @@ public class TroveMap extends MapImplementation<TIntIntHashMap>
     @Override
     public int benchRemoveKeys() {
 
-        final TIntIntHashMap instance = this.instance;
+        final OpenIntIntHashMap instance = this.instance;
 
         int count = 0;
 
@@ -97,7 +103,7 @@ public class TroveMap extends MapImplementation<TIntIntHashMap>
 
         for (int i = 0; i < keys.length; i++) {
 
-            count += instance.remove(keys[i]);
+            count += instance.removeKey(keys[i]) ? 1 : 0;
         }
 
         return count;
