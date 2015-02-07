@@ -2,6 +2,9 @@ package com.carrotsearch.hppcrt.implementations;
 
 import java.util.Random;
 
+import org.openjdk.jmh.infra.Blackhole;
+
+import net.openhft.koloboke.collect.StatelessEquivalence;
 import net.openhft.koloboke.collect.hash.HashConfig;
 import net.openhft.koloboke.collect.map.hash.HashObjIntMap;
 import net.openhft.koloboke.collect.map.hash.HashObjIntMaps;
@@ -11,7 +14,6 @@ import com.carrotsearch.hppcrt.XorShiftRandom;
 
 public class HftcObjectMap extends MapImplementation<HashObjIntMap<MapImplementation.ComparableInt>>
 {
-
     private ComparableInt[] insertKeys;
     private ComparableInt[] containsKeys;
     private ComparableInt[] removedKeys;
@@ -19,7 +21,29 @@ public class HftcObjectMap extends MapImplementation<HashObjIntMap<MapImplementa
 
     protected HftcObjectMap(final int size, final float loadFactor)
     {
-        super(HashObjIntMaps.<MapImplementation.ComparableInt> getDefaultFactory().withHashConfig(HashConfig.fromLoads(loadFactor / 2, loadFactor, loadFactor)).
+        //since Objects are not mixed in Koloboke, a strategy must be used.
+        super(HashObjIntMaps.<MapImplementation.ComparableInt> getDefaultFactory().
+                withHashConfig(HashConfig.fromLoads(loadFactor / 2, loadFactor, loadFactor)).
+                withKeyEquivalence(new StatelessEquivalence<MapImplementation.ComparableInt>() {
+
+                    @Override
+                    public boolean equivalent(final MapImplementation.ComparableInt i1, final MapImplementation.ComparableInt i2) {
+
+                        //eat some CPU to simulate method cost
+                        Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
+
+                        return i1.value == i2.value;
+                    }
+
+                    @Override
+                    public int hash(final MapImplementation.ComparableInt i) {
+
+                        //eat some CPU to simulate method cost
+                        Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
+
+                        return i.value * -1640531527; // magic mix
+                    }
+                }).
                 newMutableMap(size));
     }
 

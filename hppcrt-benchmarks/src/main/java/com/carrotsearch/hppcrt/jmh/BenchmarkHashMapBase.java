@@ -32,7 +32,7 @@ public class BenchmarkHashMapBase
 
     public enum Distribution
     {
-        RANDOM, LINEAR, HIGHBITS;
+        RANDOM, RAND_LINEAR, HIGHBITS;
     }
 
     @Param({
@@ -99,7 +99,7 @@ public class BenchmarkHashMapBase
         // Our tested implementation, uses preallocation
         this.impl = this.implementation.getInstance(nbElementsToPush, this.loadFactor);
 
-        final DistributionGenerator gene = new DistributionGenerator(-nbElementsToPush, 2 * nbElementsToPush, this.prng);
+        DistributionGenerator gene;
 
         //Generate a dry run into a HashSet until the size has reached nbElementsToPush
         Map<ComparableInt, Integer> dryRunHashSet = null;
@@ -115,6 +115,24 @@ public class BenchmarkHashMapBase
 
         final IntArrayList keysListToPush = new IntArrayList(nbElementsToPush);
 
+        switch (this.distribution)
+        {
+            case RANDOM:
+                // truly random int in the whole range
+                gene = new DistributionGenerator((long) (Integer.MIN_VALUE * 0.5), Integer.MAX_VALUE - 10, this.prng);
+                break;
+            case RAND_LINEAR:
+                //Randomly increasing values in [- nbElementsToPush; 2 * nbElementsToPush]
+                gene = new DistributionGenerator(-nbElementsToPush, 3 * nbElementsToPush, this.prng);
+                break;
+            case HIGHBITS:
+                gene = new DistributionGenerator(Integer.MIN_VALUE + 10, Integer.MAX_VALUE, this.prng);
+
+                break;
+            default:
+                throw new RuntimeException();
+        }
+
         while (dryRunHashSet.size() < nbElementsToPush) {
 
             int currentKey = -1;
@@ -124,8 +142,8 @@ public class BenchmarkHashMapBase
                 case RANDOM:
                     currentKey = gene.RANDOM.getNext();
                     break;
-                case LINEAR:
-                    currentKey = gene.LINEAR.getNext();
+                case RAND_LINEAR:
+                    currentKey = gene.RAND_INCREMENT.getNext();
                     break;
                 case HIGHBITS:
                     currentKey = gene.HIGHBITS.getNext();
@@ -169,6 +187,14 @@ public class BenchmarkHashMapBase
         //1-3) skip HIGHBITS + BAD hash combinations, too long to execute:
         if (this.hash_quality == HASH_QUALITY.BAD &&
                 this.distribution == Distribution.HIGHBITS) {
+
+            throw new DoNotExecuteBenchmarkException();
+        }
+
+        //1-4) skip RANDOM + BAD hash, since RANDOM is full Random,
+        //setting BAD is still random anyway...
+        if (this.hash_quality == HASH_QUALITY.BAD &&
+                this.distribution == Distribution.RANDOM) {
 
             throw new DoNotExecuteBenchmarkException();
         }

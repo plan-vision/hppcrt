@@ -25,7 +25,7 @@ public class DistributionGenerator
 
     private final Random prng;
     private final int targetSize;
-    private final int initValue;
+    private final long initValue;
 
     //////////////////////////////////
     //Generator kinds, enum-like patterns
@@ -43,14 +43,26 @@ public class DistributionGenerator
     public final Generator LINEAR;
 
     /**
+     * Generate increasing numbers by uniformly random steps of [1,2,3],  between [initValue; initValue + ( 3* targetSize)]
+     * making a set of roughly targetSize values
+     */
+    public final Generator RAND_INCREMENT;
+
+    /**
      * Generate LINEAR decreasing numbers by steps of 3,  between [ initValue + ( 3* targetSize) ; initValue]
      * so a set of roughly targetSize values
      */
     public final Generator LINEAR_DECREMENT;
 
     /**
+     * Generate decreasing numbers by uniformly random steps of [1,2,3],  between [initValue; initValue + ( 3* targetSize)]
+     * making a set of roughly targetSize values
+     */
+    public final Generator RAND_DECREMENT;
+
+    /**
      * Linear increments on 12 high bits first, then on lower bits.
-     * (target size is not used)
+     * (target size is N/A)
      */
     public final Generator HIGHBITS;
 
@@ -65,7 +77,7 @@ public class DistributionGenerator
      * @param targetSize
      * @param randomGene
      */
-    public DistributionGenerator(final int initialValue, final int targetSize, final Random randomGene)
+    public DistributionGenerator(final long initialValue, final int targetSize, final Random randomGene)
     {
         this.targetSize = targetSize;
         this.prng = randomGene;
@@ -74,13 +86,13 @@ public class DistributionGenerator
         //We must construct the generators here after  DistributionGenerator init:
         this.RANDOM = new Generator() {
 
-            int counter = 0;
+            long counter = 0;
 
             @Override
             public int getNext()
             {
                 this.counter++;
-                return DistributionGenerator.this.prng.nextInt(DistributionGenerator.this.targetSize) + DistributionGenerator.this.initValue;
+                return (int) (DistributionGenerator.this.prng.nextInt(DistributionGenerator.this.targetSize) + DistributionGenerator.this.initValue);
             }
 
             @Override
@@ -92,12 +104,12 @@ public class DistributionGenerator
 
         this.LINEAR = new Generator() {
 
-            int counter = 0;
+            long counter = 0;
 
             @Override
             public int getNext()
             {
-                final int value = DistributionGenerator.this.initValue + (3 * this.counter);
+                final int value = (int) (DistributionGenerator.this.initValue + (3 * this.counter));
 
                 this.counter = (this.counter + 1) % DistributionGenerator.this.targetSize;
 
@@ -111,16 +123,44 @@ public class DistributionGenerator
             }
         };
 
-        this.LINEAR_DECREMENT = new Generator() {
+        this.RAND_INCREMENT = new Generator() {
 
-            int counter = 0;
-
-            int startValue = DistributionGenerator.this.initValue + (3 * DistributionGenerator.this.targetSize);
+            long counter = 0;
+            long startValue = DistributionGenerator.this.initValue;
 
             @Override
             public int getNext()
             {
-                final int value = this.startValue - 3 * this.counter;
+                this.startValue += DistributionGenerator.this.prng.nextInt(3) + 1;
+
+                if (this.counter >= DistributionGenerator.this.targetSize) {
+                    this.counter = 0;
+                    this.startValue = DistributionGenerator.this.initValue;
+                }
+                else {
+                    this.counter++;
+                }
+
+                return (int) this.startValue;
+            }
+
+            @Override
+            public String toString() {
+
+                return "Generator(RAND_INCREMENT, counter = " + this.counter + ")";
+            }
+        };
+
+        this.LINEAR_DECREMENT = new Generator() {
+
+            long counter = 0;
+
+            long startValue = DistributionGenerator.this.initValue + (3 * DistributionGenerator.this.targetSize);
+
+            @Override
+            public int getNext()
+            {
+                final int value = (int) (this.startValue - 3 * this.counter);
 
                 this.counter = (this.counter + 1) % DistributionGenerator.this.targetSize;
 
@@ -134,17 +174,46 @@ public class DistributionGenerator
             }
         };
 
-        this.HIGHBITS = new Generator() {
+        this.RAND_DECREMENT = new Generator() {
 
-            int counter = 0;
+            long counter = 0;
+
+            long startValue = DistributionGenerator.this.initValue + (3 * DistributionGenerator.this.targetSize);
 
             @Override
             public int getNext()
             {
-                final int value = (this.counter << (32 - 12)) | (this.counter >>> 12);
+                this.startValue -= (DistributionGenerator.this.prng.nextInt(3) + 1);
+
+                if (this.counter >= DistributionGenerator.this.targetSize) {
+                    this.counter = 0;
+                    this.startValue = DistributionGenerator.this.initValue + (3 * DistributionGenerator.this.targetSize);
+                }
+                else {
+                    this.counter++;
+                }
+
+                return (int) this.startValue;
+            }
+
+            @Override
+            public String toString() {
+
+                return "Generator(RAND_DECREMENT, counter = " + this.counter + ")";
+            }
+        };
+
+        this.HIGHBITS = new Generator() {
+
+            long counter = 0;
+
+            @Override
+            public int getNext()
+            {
+                final long value = (this.counter << (32 - 12)) | (this.counter >>> 12);
                 this.counter++;
 
-                return value;
+                return (int) value;
             }
 
             @Override
@@ -154,7 +223,7 @@ public class DistributionGenerator
             }
         };
 
-        this.GENERATORS = new Generator[] { this.RANDOM, this.LINEAR, this.LINEAR_DECREMENT, this.HIGHBITS };
+        this.GENERATORS = new Generator[] { this.RANDOM, this.LINEAR, this.RAND_INCREMENT, this.LINEAR_DECREMENT, this.RAND_DECREMENT, this.HIGHBITS };
     }
 
     /////////////////////////////////
@@ -174,7 +243,7 @@ public class DistributionGenerator
 
             final IntArrayList generatedValues = new IntArrayList();
 
-            for (int ii = 0; ii < 200; ii++) {
+            for (int ii = 0; ii < 500; ii++) {
 
                 generatedValues.add(gene.getNext());
             }
@@ -182,7 +251,7 @@ public class DistributionGenerator
             System.out.println(">>>> Test iterated getNext(), size = " + generatedValues.size() + " :\n" + generatedValues.toString());
 
             //test bulk:
-            final int[] prepared = testDistribPrepare.GENERATORS[jj].prepare(200);
+            final int[] prepared = testDistribPrepare.GENERATORS[jj].prepare(500);
             System.out.println(">>>> Test bulk prepare(), size = " + prepared.length + " :\n" + Arrays.toString(prepared));
             System.out.println("");
 

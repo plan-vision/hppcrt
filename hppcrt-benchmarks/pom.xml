@@ -22,7 +22,7 @@
         <skip.deployment>true</skip.deployment>
         <libs>${basedir}/lib</libs>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jmh.version>1.5.1</jmh.version>
+        <jmh.version>1.5.2</jmh.version>
         <javac.target>1.8</javac.target>
         <uberjar.name>benchmarks</uberjar.name>
     </properties>

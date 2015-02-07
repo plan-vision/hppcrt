@@ -113,8 +113,6 @@ public enum Implementations
         }
     },
 
-    //FIXME: Completely hangs ??????
-/*
     KOLOBOKE_OBJ
     {
         @Override
@@ -129,7 +127,7 @@ public enum Implementations
             return true;
         }
     },
- */
+
     GS_OBJ
     {
         @Override
