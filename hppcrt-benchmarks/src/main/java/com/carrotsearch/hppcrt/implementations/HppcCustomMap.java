@@ -23,24 +23,24 @@ public class HppcCustomMap extends MapImplementation<ObjectIntOpenCustomHashMap<
                 //A good behaved startegy that compensates bad hashCode() implementation.
                 new ObjectHashingStrategy<MapImplementation.ComparableInt>() {
 
-                    @Override
-                    public int computeHashCode(final MapImplementation.ComparableInt object) {
+            @Override
+            public int computeHashCode(final MapImplementation.ComparableInt object) {
 
-                        //eat some CPU to simulate method cost
-                        Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
+                //eat some CPU to simulate method cost
+                Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
 
-                        return object.value;
-                    }
+                return object.value;
+            }
 
-                    @Override
-                    public boolean equals(final MapImplementation.ComparableInt o1, final MapImplementation.ComparableInt o2) {
+            @Override
+            public boolean equals(final MapImplementation.ComparableInt o1, final MapImplementation.ComparableInt o2) {
 
-                        //eat some CPU to simulate method cost
-                        Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
+                //eat some CPU to simulate method cost
+                Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
 
-                        return o1.value == o2.value;
-                    }
-                }));
+                return o1.value == o2.value;
+            }
+        }));
     }
 
     /**
@@ -77,11 +77,6 @@ public class HppcCustomMap extends MapImplementation<ObjectIntOpenCustomHashMap<
 
             this.removedKeys[i] = new ComparableInt(keysForRemovalQuery[i], hashQ);
         }
-
-        //don't make things too easy, shuffle it so the bench do some pointer chasing in memory.
-        //for the inserted keys
-
-        Util.shuffle(this.insertKeys, prng);
     }
 
     @Override

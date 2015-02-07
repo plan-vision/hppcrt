@@ -54,11 +54,6 @@ public class MahoutObjectMap extends MapImplementation<OpenObjectIntHashMap<MapI
 
             this.removedKeys[i] = new ComparableInt(keysForRemovalQuery[i], hashQ);
         }
-
-        //don't make things too easy, shuffle it so the bench do some pointer chasing in memory.
-        //for the inserted keys
-
-        Util.shuffle(this.insertKeys, prng);
     }
 
     @Override

@@ -50,12 +50,6 @@ public class JavaMap extends MapImplementation<HashMap<Integer, Integer>>
 
             this.removedKeys[ii] = new Integer(keysForRemovalQuery[ii]);
         }
-
-        //don't make things too easy, shuffle it so the bench do some pointer chasing in memory.
-        //for the inserted keys
-
-        Util.shuffle(this.insertKeys, prng);
-
     }
 
     @Override

@@ -57,12 +57,6 @@ public class HftcIdentityMap extends MapImplementation<HashObjIntMap<MapImplemen
 
             this.removedKeys[ii] = new ComparableInt(keysForRemovalQuery[ii], hashQ);
         }
-
-        //don't make things too easy, shuffle it so the bench do some pointer chasing in memory.
-        //for the inserted keys
-
-        Util.shuffle(this.insertKeys, prng);
-
     }
 
     @Override
