@@ -6,8 +6,9 @@ import java.util.Random;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.carrotsearch.hppcrt.AbstractKTypeTest;
-
+import com.carrotsearch.hppcrt.*;
+import com.carrotsearch.randomizedtesting.RandomizedTest;
+import com.carrotsearch.randomizedtesting.annotations.Repeat;
 
 /**
  * Unit tests for {@link KTypeSort}.
@@ -40,6 +41,68 @@ public class KTypeSortTest<KType> extends AbstractKTypeTest<KType>
     {
         sortCertification(Algorithm.QUICKSORT_COMPARATOR);
     }
+
+    @Repeat(iterations = 250)
+    @Test
+    public void testRandomizedSort()
+    {
+        //natural ordering comparator
+        final KTypeComparator<KType> comp = new KTypeComparator<KType>() {
+
+            @Override
+            public int compare(final KType e1, final KType e2)
+            {
+                int res = 0;
+
+                if (castType(e1) < castType(e2))
+                {
+                    res = -1;
+                }
+                else if (castType(e1) > castType(e2))
+                {
+                    res = 1;
+                }
+
+                return res;
+            }
+        };
+
+        final int TEST_SIZE = (int) 1e4;
+
+        //get a new seed for the current iteration
+        final long currentSeed = RandomizedTest.randomLong();
+
+        final int upperRange = RandomizedTest.randomInt(TEST_SIZE);
+        final int lowerRange = RandomizedTest.randomInt(upperRange);
+
+        //A) Sort an array of random values of primitive types
+
+        //A-1) full sort
+        KType[] primitiveList = createArrayWithComparableRandomData(TEST_SIZE, currentSeed);
+        KType[] primitiveListOriginal = createArrayWithComparableRandomData(TEST_SIZE, currentSeed);
+        KTypeSort.quicksort(primitiveList);
+        assertOrder(primitiveListOriginal, primitiveList, 0, primitiveList.length);
+        //A-2) Partial sort
+        primitiveList = createArrayWithComparableRandomData(TEST_SIZE, currentSeed);
+        primitiveListOriginal = createArrayWithComparableRandomData(TEST_SIZE, currentSeed);
+        KTypeSort.quicksort(primitiveList, lowerRange, upperRange);
+        assertOrder(primitiveListOriginal, primitiveList, lowerRange, upperRange);
+
+        //B) Sort with Comparator
+        //B-1) Full sort
+        KType[] comparatorList = createArrayWithComparableRandomData(TEST_SIZE, currentSeed);
+        KType[] comparatorListOriginal = createArrayWithComparableRandomData(TEST_SIZE, currentSeed);
+        KTypeSort.quicksort(comparatorList, comp);
+        assertOrder(comparatorListOriginal, comparatorList, 0, comparatorList.length);
+        //B-2) Partial sort
+        comparatorList = createArrayWithComparableRandomData(TEST_SIZE, currentSeed);
+        comparatorListOriginal = createArrayWithComparableRandomData(TEST_SIZE, currentSeed);
+        KTypeSort.quicksort(comparatorList, lowerRange, upperRange, comp);
+        assertOrder(comparatorListOriginal, comparatorList, lowerRange, upperRange);
+    }
+
+    ///////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////
 
     /**
      * Run a "sort certification" test.
@@ -127,6 +190,45 @@ public class KTypeSortTest<KType> extends AbstractKTypeTest<KType>
         return x;
     }
 
+    private boolean[] specialBooleanSort(final boolean[] inputBoolean)
+    {
+        //sort as is :
+        // a) count the number of false : nbFalse
+        // b) count the number of true : nbTrue
+        //then the sorted result is made of nbFalse "false" elements,
+        //followed by nbTrue "true" elements.
+
+        int nbFalse = 0;
+        int nbTrue = 0;
+
+        for (int ii = 0; ii < inputBoolean.length; ii++)
+        {
+            if (inputBoolean[ii])
+            {
+                nbTrue++;
+            }
+            else
+            {
+                nbFalse++;
+            }
+        }
+
+        //sorted
+        final boolean[] out = new boolean[inputBoolean.length];
+
+        for (int ii = 0; ii < nbFalse; ii++)
+        {
+            out[ii] = false;
+        }
+
+        for (int ii = nbFalse; ii < nbFalse + nbTrue; ii++)
+        {
+            out[ii] = true;
+        }
+
+        return out;
+    }
+
     private KType[] dither(KType[] x)
     {
         x = copy(x);
@@ -177,88 +279,19 @@ public class KTypeSortTest<KType> extends AbstractKTypeTest<KType>
             case QUICKSORT:
                 //the supplied KType[] are also Numbers in generics, so are
                 //Comparable
-                /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                final Comparable[] orderComparable = newComparableArray(order);
-                /*! #else
-                KType[] orderComparable = (KType[]) order;
-                #end !*/
+                final KType[] orderComparable = newArray(order);
+
                 KTypeSort.quicksort(orderComparable);
-                assertOrder((KType[]) orderComparable, orderComparable.length, testName);
+                assertOrder(orderComparable, orderComparable.length);
                 break;
 
             case QUICKSORT_COMPARATOR:
                 KTypeSort.quicksort(order, comp);
-                assertOrder(order, order.length, testName);
+                assertOrder(order, order.length);
                 break;
             default:
                 Assert.fail();
                 throw new RuntimeException();
         }
-
-
     }
-
-    /**
-     * Test natural ordering
-     * @param expected
-     * @param actual
-     * @param length
-     */
-    private void assertOrder(final KType[] order, final int length, final String testName)
-    {
-        for (int i = 1; i < length; i++)
-        {
-            if (castType(order[i - 1]) > castType(order[i]))
-            {
-                Assert.assertTrue(String.format("%s: Not ordered: (previous, next) = (%d, %d) at index %d",
-                        testName, castType(order[i - 1]), castType(order[i]), i), false);
-            }
-        }
-    }
-
-    private KType[] copy(final KType[] x)
-    {
-        return newArray(x);
-    }
-
-    private boolean[] specialBooleanSort(final boolean[] inputBoolean)
-    {
-        //sort as is :
-        // a) count the number of false : nbFalse
-        // b) count the number of true : nbTrue
-        //then the sorted result is made of nbFalse "false" elements,
-        //followed by nbTrue "true" elements.
-
-        int nbFalse = 0;
-        int nbTrue = 0;
-
-        for (int ii = 0; ii < inputBoolean.length; ii++)
-        {
-            if (inputBoolean[ii])
-            {
-                nbTrue++;
-            }
-            else
-            {
-                nbFalse++;
-            }
-        }
-
-        //sorted
-        final boolean[] out = new boolean[inputBoolean.length];
-
-        for (int ii = 0; ii < nbFalse; ii++)
-        {
-            out[ii] = false;
-        }
-
-        for (int ii = nbFalse; ii < nbFalse + nbTrue; ii++)
-        {
-            out[ii] = true;
-        }
-
-        return out;
-    }
-
-
 }

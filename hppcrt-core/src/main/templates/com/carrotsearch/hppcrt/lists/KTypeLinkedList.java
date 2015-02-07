@@ -29,7 +29,7 @@ import com.carrotsearch.hppcrt.sorting.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeLinkedList<KType>
-extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, KTypeDeque<KType>, Cloneable
+        extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, KTypeDeque<KType>, Cloneable
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -1807,7 +1807,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeLinkedList<KType> newInstance()
+            KTypeLinkedList<KType> newInstance()
     {
         return new KTypeLinkedList<KType>();
     }
@@ -1817,7 +1817,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeLinkedList<KType> newInstanceWithCapacity(final int initialCapacity)
+            KTypeLinkedList<KType> newInstanceWithCapacity(final int initialCapacity)
     {
         return new KTypeLinkedList<KType>(initialCapacity);
     }
@@ -1827,7 +1827,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * The elements are copied from the argument to the internal buffer.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeLinkedList<KType> from(final KType... elements)
+            KTypeLinkedList<KType> from(final KType... elements)
     {
         final KTypeLinkedList<KType> list = new KTypeLinkedList<KType>(elements.length);
         list.add(elements);
@@ -1838,7 +1838,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * Create a list from elements of another container.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeLinkedList<KType> from(final KTypeContainer<KType> container)
+            KTypeLinkedList<KType> from(final KTypeContainer<KType> container)
     {
         return new KTypeLinkedList<KType>(container);
     }
@@ -1851,18 +1851,19 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * </b></p>
      * @param beginIndex the start index to be sorted
      * @param endIndex the end index to be sorted (excluded)
+      #if ($TemplateOptions.KTypeGeneric)
+     * @throws ClassCastException if the list contains elements that are not mutually Comparable.
+     #end
      */
-    /*! #if ($TemplateOptions.KTypePrimitive)
-    public void sort(int beginIndex, int endIndex)
+    public void sort(final int beginIndex, final int endIndex)
     {
-         assert endIndex <= size();
+        assert endIndex <= size();
 
         if (endIndex - beginIndex > 1)
         {
             KTypeSort.quicksort(this, beginIndex, endIndex);
         }
     }
-    #end !*/
 
     /**
      * In-place sort the list from [beginIndex, endIndex[
@@ -1900,23 +1901,25 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * </b></p>
      * @param beginIndex
      * @param endIndex
+      #if ($TemplateOptions.KTypeGeneric)
+     * @throws ClassCastException if the array contains elements that are not mutually Comparable.
+     #end
      */
-/*! #if ($TemplateOptions.KTypePrimitive)
     public void sort()
     {
-       if (elementsCount > 3)
+        if (this.elementsCount > 3)
         {
-            int elementsCount = this.elementsCount;
+            final int elementsCount = this.elementsCount;
             final long[] pointers = this.beforeAfterPointers;
 
-            KTypeSort.quicksort(buffer, 2, elementsCount);
+            KTypeSort.quicksort(this.buffer, 2, elementsCount);
 
             //rebuild nodes, in order
             //a) rebuild head/tail
 
             //ties HEAD to the first element, and first element to HEAD
-            pointers[HEAD_POSITION] = KTypeLinkedList.getLinkNodeValue(HEAD_POSITION, 2);
-            pointers[2] = KTypeLinkedList.getLinkNodeValue(HEAD_POSITION, 3);
+            pointers[KTypeLinkedList.HEAD_POSITION] = KTypeLinkedList.getLinkNodeValue(KTypeLinkedList.HEAD_POSITION, 2);
+            pointers[2] = KTypeLinkedList.getLinkNodeValue(KTypeLinkedList.HEAD_POSITION, 3);
 
             for (int pos = 3; pos < elementsCount - 1; pos++)
             {
@@ -1924,11 +1927,10 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
             }
 
             //ties the last element to tail, and tail to last element
-            pointers[elementsCount - 1] = KTypeLinkedList.getLinkNodeValue(elementsCount - 2, TAIL_POSITION);
-            pointers[TAIL_POSITION] = KTypeLinkedList.getLinkNodeValue(elementsCount - 1, TAIL_POSITION);
+            pointers[elementsCount - 1] = KTypeLinkedList.getLinkNodeValue(elementsCount - 2, KTypeLinkedList.TAIL_POSITION);
+            pointers[KTypeLinkedList.TAIL_POSITION] = KTypeLinkedList.getLinkNodeValue(elementsCount - 1, KTypeLinkedList.TAIL_POSITION);
         }
     }
-    #end !*/
 
 ////////////////////////////
 

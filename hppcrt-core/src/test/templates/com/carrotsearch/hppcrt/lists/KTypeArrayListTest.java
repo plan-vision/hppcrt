@@ -119,10 +119,12 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testAddAll_subclass()
     {
-        class A {
+        class A
+        {
         }
 
-        class B extends A {
+        class B extends A
+        {
         }
 
         final KTypeArrayList<B> list2 = new KTypeArrayList<B>();
@@ -266,13 +268,13 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         this.list.add(newArray(this.k0, this.k1, this.k2, this.k1, this.k4));
 
         Assert.assertEquals(3, this.list.removeAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeArrayListTest.this.key1 || v == KTypeArrayListTest.this.key2;
             };
-                }));
+        }));
 
         TestUtils.assertListEquals(this.list.toArray(), 0, 4);
     }
@@ -284,13 +286,13 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         this.list.add(newArray(this.k0, this.k1, this.k2, this.k1, this.k0));
 
         Assert.assertEquals(2, this.list.retainAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeArrayListTest.this.key1 || v == KTypeArrayListTest.this.key2;
             };
-                }));
+        }));
 
         TestUtils.assertListEquals(this.list.toArray(), 1, 2, 1);
     }
@@ -307,7 +309,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size
             Assert.assertEquals(5, this.list.removeAll(new KTypePredicate<KType>()
-                    {
+            {
                 @Override
                 public boolean apply(final KType v)
                 {
@@ -316,7 +318,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
                     }
                     return v == KTypeArrayListTest.this.key1;
                 };
-                    }));
+            }));
             Assert.fail();
         }
         catch (final RuntimeException e)
@@ -722,7 +724,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         final int TEST_SIZE = 10000;
         final long TEST_ROUNDS = 100;
 
-        final KTypeArrayList<KType> testContainer = createArrayWithOrderedData(TEST_SIZE);
+        final KTypeArrayList<KType> testContainer = createArrayListWithOrderedData(TEST_SIZE);
 
         final long checksum = testContainer.forEach(new KTypeProcedure<KType>() {
 
@@ -766,7 +768,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         final int TEST_SIZE = 5000;
         final long TEST_ROUNDS = 100;
 
-        final KTypeArrayList<KType> testContainer = createArrayWithOrderedData(TEST_SIZE);
+        final KTypeArrayList<KType> testContainer = createArrayListWithOrderedData(TEST_SIZE);
 
         int count = 0;
         for (int round = 0; round < TEST_ROUNDS; round++)
@@ -810,7 +812,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         final int TEST_SIZE = 5000;
         final long TEST_ROUNDS = 100;
 
-        final KTypeArrayList<KType> testContainer = createArrayWithOrderedData(TEST_SIZE);
+        final KTypeArrayList<KType> testContainer = createArrayListWithOrderedData(TEST_SIZE);
 
         final long checksum = testContainer.forEach(new KTypeProcedure<KType>() {
 
@@ -860,7 +862,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         final int TEST_SIZE = 5000;
         final long TEST_ROUNDS = 100;
 
-        final KTypeArrayList<KType> testContainer = createArrayWithOrderedData(TEST_SIZE);
+        final KTypeArrayList<KType> testContainer = createArrayListWithOrderedData(TEST_SIZE);
         final int startingPoolSize = testContainer.valueIteratorPool.size();
 
         int count = 0;
@@ -907,7 +909,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         final int TEST_SIZE = 5000;
         final long TEST_ROUNDS = 100;
 
-        final KTypeArrayList<KType> testContainer = createArrayWithOrderedData(TEST_SIZE);
+        final KTypeArrayList<KType> testContainer = createArrayListWithOrderedData(TEST_SIZE);
 
         final long checksum = testContainer.forEach(new KTypeProcedure<KType>() {
 
@@ -974,7 +976,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         final int TEST_SIZE = 104171;
         final long TEST_ROUNDS = 15;
 
-        final KTypeArrayList<KType> testContainer = createArrayWithOrderedData(TEST_SIZE);
+        final KTypeArrayList<KType> testContainer = createArrayListWithOrderedData(TEST_SIZE);
 
         final long checksum = testContainer.forEach(new KTypeProcedure<KType>() {
 
@@ -1068,7 +1070,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertEquals(initialPoolSize, testContainer.valueIteratorPool.size());
     }
 
-    @Repeat(iterations = 20)
+    @Repeat(iterations = 100)
     @Test
     public void testSort()
     {
@@ -1103,28 +1105,26 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
 
         //A) Sort an array of random values of primitive types
 
-/*! #if ($TemplateOptions.KTypePrimitive)
         //A-1) full sort
-        KTypeArrayList<KType> primitiveList = createArrayWithRandomData(TEST_SIZE, currentSeed);
-         KTypeArrayList<KType> primitiveListOriginal = createArrayWithRandomData(TEST_SIZE, currentSeed);
+        KTypeArrayList<KType> primitiveList = createArrayListWithRandomData(TEST_SIZE, currentSeed);
+        KTypeArrayList<KType> primitiveListOriginal = createArrayListWithRandomData(TEST_SIZE, currentSeed);
         primitiveList.sort();
         assertOrder(primitiveListOriginal, primitiveList, 0, primitiveList.size());
         //A-2) Partial sort
-        primitiveList = createArrayWithRandomData(TEST_SIZE, currentSeed);
-        primitiveListOriginal = createArrayWithRandomData(TEST_SIZE, currentSeed);
+        primitiveList = createArrayListWithRandomData(TEST_SIZE, currentSeed);
+        primitiveListOriginal = createArrayListWithRandomData(TEST_SIZE, currentSeed);
         primitiveList.sort(lowerRange, upperRange);
         assertOrder(primitiveListOriginal, primitiveList, lowerRange, upperRange);
-#end !*/
 
         //B) Sort with Comparator
         //B-1) Full sort
-        KTypeArrayList<KType> comparatorList = createArrayWithRandomData(TEST_SIZE, currentSeed);
-        KTypeArrayList<KType> comparatorListOriginal = createArrayWithRandomData(TEST_SIZE, currentSeed);
+        KTypeArrayList<KType> comparatorList = createArrayListWithRandomData(TEST_SIZE, currentSeed);
+        KTypeArrayList<KType> comparatorListOriginal = createArrayListWithRandomData(TEST_SIZE, currentSeed);
         comparatorList.sort(comp);
         assertOrder(comparatorListOriginal, comparatorList, 0, comparatorList.size());
         //B-2) Partial sort
-        comparatorList = createArrayWithRandomData(TEST_SIZE, currentSeed);
-        comparatorListOriginal = createArrayWithRandomData(TEST_SIZE, currentSeed);
+        comparatorList = createArrayListWithRandomData(TEST_SIZE, currentSeed);
+        comparatorListOriginal = createArrayListWithRandomData(TEST_SIZE, currentSeed);
         comparatorList.sort(lowerRange, upperRange, comp);
         assertOrder(comparatorListOriginal, comparatorList, lowerRange, upperRange);
     }
@@ -1164,9 +1164,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertEquals(PREALLOCATED_SIZE, newList.size());
     }
 
-
-
-    private KTypeArrayList<KType> createArrayWithOrderedData(final int size)
+    private KTypeArrayList<KType> createArrayListWithOrderedData(final int size)
     {
         final KTypeArrayList<KType> newArray = KTypeArrayList.newInstanceWithCapacity(KTypeArrayList.DEFAULT_CAPACITY);
 
@@ -1178,7 +1176,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         return newArray;
     }
 
-    private KTypeArrayList<KType> createArrayWithRandomData(final int size, final long currentSeed)
+    private KTypeArrayList<KType> createArrayListWithRandomData(final int size, final long currentSeed)
     {
         final Random prng = new Random(currentSeed);
 

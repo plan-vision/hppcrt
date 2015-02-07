@@ -132,10 +132,12 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testAddAll_subclass()
     {
-        class A {
+        class A
+        {
         }
 
-        class B extends A {
+        class B extends A
+        {
         }
 
         final KTypeLinkedList<B> list2 = new KTypeLinkedList<B>();
@@ -326,13 +328,13 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         this.list.add(newArray(this.k0, this.k1, this.k2, this.k1, this.k4));
 
         Assert.assertEquals(3, this.list.removeAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeLinkedListTest.this.key1 || v == KTypeLinkedListTest.this.key2;
             };
-                }));
+        }));
 
         TestUtils.assertListEquals(this.list.toArray(), 0, 4);
     }
@@ -344,25 +346,25 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         this.list.add(newArray(this.k0, this.k1, this.k2, this.k1, this.k4));
 
         Assert.assertEquals(5, this.list.removeAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return true;
             };
-                }));
+        }));
 
         Assert.assertEquals(0, this.list.size());
 
         //try again
         Assert.assertEquals(0, this.list.removeAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return true;
             };
-                }));
+        }));
 
         Assert.assertEquals(0, this.list.size());
     }
@@ -374,13 +376,13 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         this.list.add(newArray(this.k0, this.k1, this.k2, this.k1, this.k0));
 
         Assert.assertEquals(2, this.list.retainAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeLinkedListTest.this.key1 || v == KTypeLinkedListTest.this.key2;
             };
-                }));
+        }));
 
         TestUtils.assertListEquals(this.list.toArray(), 1, 2, 1);
     }
@@ -397,7 +399,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size
             Assert.assertEquals(5, this.list.removeAll(new KTypePredicate<KType>()
-                    {
+            {
                 @Override
                 public boolean apply(final KType v)
                 {
@@ -406,7 +408,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
                     }
                     return v == KTypeLinkedListTest.this.key1;
                 };
-                    }));
+            }));
             Assert.fail();
         }
         catch (final RuntimeException e)
@@ -1095,6 +1097,9 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertEquals(initialPoolSize, testContainer.valueIteratorPool.size());
     }
 
+    /**
+     * The beast is slow, don't do too much
+     */
     @Repeat(iterations = 20)
     @Test
     public void testSort()
@@ -1120,7 +1125,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
             }
         };
 
-        final int TEST_SIZE = (int) 2e3;
+        final int TEST_SIZE = (int) 1e3;
 
         //get a new seed for the current iteration
         final long currentSeed = RandomizedTest.randomLong();
@@ -1128,31 +1133,28 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         final int upperRange = RandomizedTest.randomInt(TEST_SIZE);
         final int lowerRange = RandomizedTest.randomInt(upperRange);
 
-
         //A) Sort an array of random values of primitive types
 
-/*! #if ($TemplateOptions.KTypePrimitive)
         //A-1) full sort
-        KTypeLinkedList<KType> primitiveList = createArrayWithRandomData(TEST_SIZE, currentSeed);
-        KTypeLinkedList<KType> primitiveListOriginal = createArrayWithRandomData(TEST_SIZE, currentSeed);
+        KTypeLinkedList<KType> primitiveList = createLinkedListWithRandomData(TEST_SIZE, currentSeed);
+        KTypeLinkedList<KType> primitiveListOriginal = createLinkedListWithRandomData(TEST_SIZE, currentSeed);
         primitiveList.sort();
         assertOrder(primitiveListOriginal, primitiveList, 0, primitiveListOriginal.size());
-         //A-2) Partial sort
-        primitiveList = createArrayWithRandomData(TEST_SIZE, currentSeed);
-        primitiveListOriginal = createArrayWithRandomData(TEST_SIZE, currentSeed);
+        //A-2) Partial sort
+        primitiveList = createLinkedListWithRandomData(TEST_SIZE, currentSeed);
+        primitiveListOriginal = createLinkedListWithRandomData(TEST_SIZE, currentSeed);
         primitiveList.sort(lowerRange, upperRange);
         assertOrder(primitiveListOriginal, primitiveList, lowerRange, upperRange);
-#end !*/
 
         //B) Sort with Comparator
         //B-1) Full sort
-        KTypeLinkedList<KType> comparatorList = createArrayWithRandomData(TEST_SIZE, currentSeed);
-        KTypeLinkedList<KType> comparatorListOriginal = createArrayWithRandomData(TEST_SIZE, currentSeed);
+        KTypeLinkedList<KType> comparatorList = createLinkedListWithRandomData(TEST_SIZE, currentSeed);
+        KTypeLinkedList<KType> comparatorListOriginal = createLinkedListWithRandomData(TEST_SIZE, currentSeed);
         comparatorList.sort(comp);
         assertOrder(comparatorListOriginal, comparatorList, 0, comparatorListOriginal.size());
         //B-2) Partial sort
-        comparatorList = createArrayWithRandomData(TEST_SIZE, currentSeed);
-        comparatorListOriginal = createArrayWithRandomData(TEST_SIZE, currentSeed);
+        comparatorList = createLinkedListWithRandomData(TEST_SIZE, currentSeed);
+        comparatorListOriginal = createLinkedListWithRandomData(TEST_SIZE, currentSeed);
         comparatorList.sort(lowerRange, upperRange, comp);
         assertOrder(comparatorListOriginal, comparatorList, lowerRange, upperRange);
     }
@@ -1169,7 +1171,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         return newArray;
     }
 
-    private KTypeLinkedList<KType> createArrayWithRandomData(final int size, final long randomSeed)
+    private KTypeLinkedList<KType> createLinkedListWithRandomData(final int size, final long randomSeed)
     {
         final Random prng = new Random(randomSeed);
 

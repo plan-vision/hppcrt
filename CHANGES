@@ -1,4 +1,8 @@
 [0.6.8]
+** API-breaking changes
+
+HPPCRT-34: Relax signature of sort() methods to match JDK ones.(stay compatible as before)
+
 ** Bug fixes
 
 HPPCRT-32: CustomHashSet wrongly uses equals()/hashCode() instead of strategies

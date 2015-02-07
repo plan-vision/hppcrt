@@ -1,5 +1,7 @@
 package com.carrotsearch.hppcrt;
 
+import java.util.Random;
+
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.rules.MethodRule;
@@ -149,7 +151,8 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
             if (objects[i] != null) {
 
                 values[i] = (KType) objects[i];
-            } else {
+            }
+            else {
                 values[i] = null;
             }
         }
@@ -161,12 +164,13 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
 
     /**
      * Create a new array of a given type and copy the arguments to this array.
-     * These elements are indeed Comparable Numbers
+     * These elements are indeed Comparable Numbers.
      * (deep copy)
      */
     public KType[] newArray(final KType... elements)
     {
         final KType[] values = Intrinsics.newKTypeArray(elements.length);
+
         for (int i = 0; i < elements.length; i++)
         {
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
@@ -181,41 +185,6 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
             /*! #else
                    values[i] =  (KType)elements[i];
                 #end !*/
-        }
-
-        return values;
-    }
-
-    /**
-     * Create a new array of Comparable a given type and copy the arguments to this array.
-     * These elements are indeed Comparable Numbers
-     * (deep copy)
-     */
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    public Comparable[] newComparableArray(final KType... elements)
-    /*! #else
-    KType[] newComparableArray(KType... elements)
-    #end !*/
-    {
-        /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        final Comparable[] values = new Comparable[elements.length];
-        /*! #else
-        KType[] values = Intrinsics.newKTypeArray(elements.length);
-        #end !*/
-        for (int i = 0; i < elements.length; i++)
-        {
-            /*! #if ($TemplateOptions.KTypeGeneric) !*/
-            if (elements[i] != null)
-            {
-                values[i] = castComparable(castType(elements[i]));
-            }
-            else
-            {
-                values[i] = null;
-            }
-            /*! #else
-                  values[i] =  (KType)elements[i];
-              #end !*/
         }
 
         return values;
@@ -259,5 +228,97 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
                         castType(original.get(i)), castType(order.get(i)), i), false);
             }
         }
+    }
+
+    /**
+     * Test natural ordering for a array between [startIndex; endIndex[, starting from original
+     * @param expected
+     * @param actual
+     * @param length
+     */
+    public void assertOrder(final KType[] original, final KType[] order, final int startIndex, final int endIndex)
+    {
+        Assert.assertEquals(original.length, order.length);
+
+        //A) check that the required range is ordered
+        for (int i = startIndex + 1; i < endIndex; i++)
+        {
+            if (castType(order[i - 1]) > castType(order[i]))
+            {
+                Assert.assertTrue(String.format("Not ordered: (previous, next) = (%d, %d) at index %d",
+                        castType(order[i - 1]), castType(order[i]), i), false);
+            }
+        }
+
+        //B) Check that the rest is untouched also
+        for (int i = 0; i < startIndex; i++)
+        {
+            if (castType(original[i]) != castType(order[i]))
+            {
+                Assert.assertTrue(String.format("This index has been touched: (original, erroneously modified) = (%d, %d) at index %d",
+                        castType(original[i]), castType(order[i]), i), false);
+            }
+        }
+
+        for (int i = endIndex; i < original.length; i++)
+        {
+            if (castType(original[i]) != castType(order[i]))
+            {
+                Assert.assertTrue(String.format("This index has been touched: (original, erroneously modified) = (%d, %d) at index %d",
+                        castType(original[i]), castType(order[i]), i), false);
+            }
+        }
+    }
+
+    /**
+     * Test natural ordering of the whole array
+     * @param expected
+     * @param actual
+     * @param length
+     */
+    public void assertOrder(final KType[] order, final int length)
+    {
+        assertOrder(order, order, 0, length - 1);
+    }
+
+    /**
+     * Create an array filled with random data
+     * @param size
+     * @param currentSeed
+     * @return
+     */
+    public KType[] createArrayWithRandomData(final int size, final long currentSeed)
+    {
+        final Random prng = new Random(currentSeed);
+
+        final KType[] newArray = Intrinsics.newKTypeArray(size);
+
+        for (int i = 0; i < size; i++)
+        {
+            newArray[i] = cast(prng.nextInt());
+        }
+
+        return newArray;
+    }
+
+    /**
+     * Create an array filled with random Comparable data
+     * @param size
+     * @param currentSeed
+     * @return
+     */
+    public KType[] createArrayWithComparableRandomData(final int size, final long currentSeed)
+    {
+        return newArray(createArrayWithRandomData(size, currentSeed));
+    }
+
+    /**
+     * Make a deep copy, the copied elements are indeed cast to Comparable Numbers
+     * @param x
+     * @return
+     */
+    public KType[] copy(final KType[] x)
+    {
+        return newArray(x);
     }
 }

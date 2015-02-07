@@ -377,11 +377,14 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
      * by natural ordering (smaller first, from top to bottom of stack)
      * @param beginIndex
      * @param endIndex
+      #if ($TemplateOptions.KTypeGeneric)
+     * @throws ClassCastException if the array contains elements that are not mutually Comparable.
+     #end
      */
-    /*! #if ($TemplateOptions.KTypePrimitive)
-    public void sort(int beginIndex, int endIndex)
+    @Override
+    public void sort(final int beginIndex, final int endIndex)
     {
-        assert endIndex <= elementsCount;
+        assert endIndex <= this.elementsCount;
 
         if (endIndex - beginIndex > 1)
         {
@@ -392,13 +395,12 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
             final int startSortingRange = size - endIndex;
             final int endSortingRange = size - beginIndex;
 
-            KTypeSort.quicksort(buffer, startSortingRange, endSortingRange);
+            KTypeSort.quicksort(this.buffer, startSortingRange, endSortingRange);
 
-           //reverse [startSortingRange, endSortingRange [
+            //reverse [startSortingRange, endSortingRange [
             KTypeArrays.reverse(this.buffer, startSortingRange, endSortingRange);
         }
     }
-    #end !*/
 
     /**
      * In-place sort the whole stack by natural ordering (smaller first, from top to bottom of stack)
@@ -407,13 +409,15 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
      * </b></p>
      * @param beginIndex
      * @param endIndex
+      #if ($TemplateOptions.KTypeGeneric)
+     * @throws ClassCastException if the array contains elements that are not mutually Comparable.
+     #end
      */
-    /*! #if ($TemplateOptions.KTypePrimitive)
+    @Override
     public void sort()
     {
         sort(0, this.elementsCount);
     }
-    #end !*/
 
     /**
      * In-place sort the stack from [beginIndex, endIndex[

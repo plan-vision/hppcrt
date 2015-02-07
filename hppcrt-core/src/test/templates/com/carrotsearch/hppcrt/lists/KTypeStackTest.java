@@ -449,7 +449,6 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
 
         //A) Sort a stack of random values of primitive types
 
-/*! #if ($TemplateOptions.KTypePrimitive)
         //A-1) full sort
         KTypeStack<KType> primitiveList = createStackWithRandomData(TEST_SIZE, currentSeed);
         KTypeStack<KType> primitiveListOriginal = createStackWithRandomData(TEST_SIZE, currentSeed);
@@ -460,7 +459,6 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
         primitiveListOriginal = createStackWithRandomData(TEST_SIZE, currentSeed);
         primitiveList.sort(lowerRange, upperRange);
         assertOrder(primitiveListOriginal, primitiveList, lowerRange, upperRange);
-#end !*/
 
         //B) Sort with Comparator
         //B-1) Full sort

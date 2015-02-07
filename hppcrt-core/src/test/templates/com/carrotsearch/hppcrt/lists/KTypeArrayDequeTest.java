@@ -1352,18 +1352,16 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
 
         //A) Sort a deque of random values of primitive types
 
-/*! #if ($TemplateOptions.KTypePrimitive)
         //A-1) full sort
         KTypeArrayDeque<KType> primitiveDeque = creatDequeWithRandomData(TEST_SIZE, currentSeed);
         KTypeArrayDeque<KType> primitiveDequeOriginal = creatDequeWithRandomData(TEST_SIZE, currentSeed);
         primitiveDeque.sort();
         assertOrder(primitiveDequeOriginal, primitiveDeque, 0, primitiveDequeOriginal.size());
-         //A-2) Partial sort
+        //A-2) Partial sort
         primitiveDeque = creatDequeWithRandomData(TEST_SIZE, currentSeed);
         primitiveDequeOriginal = creatDequeWithRandomData(TEST_SIZE, currentSeed);
         primitiveDeque.sort(lowerRange, upperRange);
         assertOrder(primitiveDequeOriginal, primitiveDeque, lowerRange, upperRange);
-#end !*/
 
         //B) Sort with Comparator
         //B-1) Full sort
