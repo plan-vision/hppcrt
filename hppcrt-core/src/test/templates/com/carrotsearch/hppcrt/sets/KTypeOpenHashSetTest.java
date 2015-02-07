@@ -8,6 +8,7 @@ import static com.carrotsearch.hppcrt.TestUtils.*;
 import static org.junit.Assert.*;
 
 import com.carrotsearch.hppcrt.*;
+import com.carrotsearch.hppcrt.hash.MurmurHash3;
 import com.carrotsearch.hppcrt.lists.*;
 import com.carrotsearch.hppcrt.TestUtils;
 import com.carrotsearch.hppcrt.cursors.*;
@@ -24,12 +25,8 @@ import com.carrotsearch.randomizedtesting.annotations.*;
  */
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
 /*! #set( $ROBIN_HOOD_FOR_GENERICS = true) !*/
-/*! #set( $SINGLE_ARRAY_FOR_PRIMITIVES = true) !*/
-/*! #set( $DEBUG = false) !*/
 // If RH is defined, RobinHood Hashing is in effect
 /*! #set( $RH = ($TemplateOptions.KTypeGeneric && $ROBIN_HOOD_FOR_GENERICS) ) !*/
-//If SA is defined, no allocated array is used but instead default sentinel values
-/*! #set( $SA = ($TemplateOptions.KTypePrimitive && $SINGLE_ARRAY_FOR_PRIMITIVES) ) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
 {
@@ -69,18 +66,18 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
 
             for (int i = 0; i < this.set.keys.length; i++)
             {
-                if (!is_allocated(this.set.allocated, i, this.set.keys))
+                if (!is_allocated(i, this.set.keys))
                 {
                     //if not allocated, generic version if patched to null for GC sake
-                    /*! #if (($TemplateOptions.KTypeGeneric)  || $SA  ) !*/
-                    TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), this.set.keys[i]);
+                    /*! #if (($TemplateOptions.KTypeGeneric)  || !$RH  ) !*/
+                    TestUtils.assertEquals2(this.key0, this.set.keys[i]);
                     /*! #end !*/
                 }
                 else
                 {
                     /*! #if ($RH) !*/
                     //check hash cache consistency
-                    Assert.assertEquals(Internals.rehash(this.set.keys[i]) & mask, this.set.allocated[i]);
+                    Assert.assertEquals(REHASH(this.set.keys[i]) & mask, this.set.hash_cache[i]);
                     /*! #end !*/
 
                     //try to reach the key by contains()
@@ -96,21 +93,18 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
                 }
             }
 
-/*! #if ($SA)
+            if (this.set.allocatedDefaultKey) {
 
-        if (set.allocatedDefaultKey) {
+                //try to reach the key by contains()
+                Assert.assertTrue(this.set.contains(this.key0));
 
-            //try to reach the key by contains()
-            Assert.assertTrue(this.set.contains(Intrinsics.defaultKTypeValue()));
+                //check slot
+                Assert.assertEquals(-2, this.set.lslot());
 
-            //check slot
-           Assert.assertEquals(-2, this.set.lslot());
-
-            //Retrieve again by lkey() :
-            TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), this.set.lkey());
-            occupied++;
-         }
-#end !*/
+                //Retrieve again by lkey() :
+                TestUtils.assertEquals2(this.key0, this.set.lkey());
+                occupied++;
+            }
 
             Assert.assertEquals(occupied, this.set.size());
 
@@ -491,14 +485,13 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         int counted = 0;
         for (final KTypeCursor<KType> cursor : this.set)
         {
-            /*! #if ($SA)
+
             if (cursor.index == this.set.keys.length) {
 
-                TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), cursor.value);
+                TestUtils.assertEquals2(this.key0, cursor.value);
                 counted++;
                 continue;
             }
-            #end !*/
 
             counted++;
             Assert.assertTrue(this.set.contains(cursor.value));
@@ -522,14 +515,13 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         int counted = 0;
         for (final KTypeCursor<KType> cursor : this.set)
         {
-            /*! #if ($SA)
+
             if (cursor.index == this.set.keys.length) {
 
-                TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), cursor.value);
+                TestUtils.assertEquals2(this.key0, cursor.value);
                 counted++;
                 continue;
             }
-            #end !*/
 
             counted++;
             Assert.assertTrue(this.set.contains(cursor.value));
@@ -585,9 +577,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
 
         Assert.assertTrue(this.set.contains(this.key0));
 
-        /*! #if ($SA)
         Assert.assertEquals(-2, this.set.lslot());
-        #end !*/
 
         TestUtils.assertEquals2(this.key0, this.set.lkey());
     }
@@ -1054,19 +1044,17 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         //List the keys in the reverse-order of the internal buffer, since forEach() is iterating in reverse also:
         final KTypeArrayList<KType> keyList = new KTypeArrayList<KType>();
 
-        /*! #if ($SA)
         if (newSet.allocatedDefaultKey) {
 
-            keyList.add(Intrinsics.defaultKTypeValue());
+            keyList.add(this.key0);
         }
-        #end !*/
 
         //Test forEach predicate and stop at each key in turn.
         final KTypeArrayList<KType> keyListTest = new KTypeArrayList<KType>();
 
         for (int k = newSet.keys.length - 1; k >= 0; k--) {
 
-            if (is_allocated(newSet.allocated, k, newSet.keys)) {
+            if (is_allocated(k, newSet.keys)) {
 
                 keyList.add(newSet.keys[k]);
             }
@@ -1082,16 +1070,14 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
 
             keyList.clear();
 
-            /*! #if ($SA)
             if (newSet.allocatedDefaultKey) {
 
-                keyList.add(Intrinsics.defaultKTypeValue());
+                keyList.add(this.key0);
             }
-            #end !*/
 
             for (int k = newSet.keys.length - 1; k >= 0; k--) {
 
-                if (is_allocated(newSet.allocated, k, newSet.keys)) {
+                if (is_allocated(k, newSet.keys)) {
 
                     keyList.add(newSet.keys[k]);
                 }
@@ -1171,16 +1157,14 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         //List the keys in the reverse-order of the internal buffer, since forEach() is iterating in reverse also:
         final KTypeArrayList<KType> keyList = new KTypeArrayList<KType>();
 
-        /*! #if ($SA)
         if (newSet.allocatedDefaultKey) {
 
-            keyList.add(Intrinsics.defaultKTypeValue());
+            keyList.add(this.key0);
         }
-        #end !*/
 
         for (int i = newSet.keys.length - 1; i >= 0; i--) {
 
-            if (is_allocated(newSet.allocated, i, newSet.keys)) {
+            if (is_allocated(i, newSet.keys)) {
 
                 keyList.add(newSet.keys[i]);
             }
@@ -1238,19 +1222,17 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         //List the keys in the reverse-order of the internal buffer, since forEach() is iterating in reverse also:
         final KTypeArrayList<KType> keyList = new KTypeArrayList<KType>();
 
-        /*! #if ($SA)
         if (newSet.allocatedDefaultKey) {
 
-            keyList.add(Intrinsics.defaultKTypeValue());
+            keyList.add(this.key0);
         }
-        #end !*/
 
         //Test forEach predicate and stop at each key in turn.
         final KTypeArrayList<KType> keyListTest = new KTypeArrayList<KType>();
 
         for (int k = newSet.keys.length - 1; k >= 0; k--) {
 
-            if (is_allocated(newSet.allocated, k, newSet.keys)) {
+            if (is_allocated(k, newSet.keys)) {
 
                 keyList.add(newSet.keys[k]);
             }
@@ -1265,16 +1247,14 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
             keyListTest.clear();
             keyList.clear();
 
-            /*! #if ($SA)
             if (newSet.allocatedDefaultKey) {
 
-                keyList.add(Intrinsics.defaultKTypeValue());
+                keyList.add(this.key0);
             }
-            #end !*/
 
             for (int k = newSet.keys.length - 1; k >= 0; k--) {
 
-                if (is_allocated(newSet.allocated, k, newSet.keys)) {
+                if (is_allocated(k, newSet.keys)) {
 
                     keyList.add(newSet.keys[k]);
                 }
@@ -1326,36 +1306,32 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         return newSet;
     }
 
-/*! #if ($RH) !*/
-    //Test for existence in RH or template
-
-    /*! #if ($TemplateOptions.inline("is_allocated",
-    "(alloc, slot, keys)",
-    "alloc[slot] != -1")) !*/
     /**
      * Robin-Hood / template version
-     * (actual method is inlined in generated code)
+     * (no need to inline)
      */
-    private boolean is_allocated(final int[] alloc, final int slot, final KType[] keys) {
+    private boolean is_allocated(final int slot, final KType[] keys) {
 
-        return alloc[slot] != -1;
+        return !Intrinsics.equalsKTypeDefault(keys[slot]);
+    }
+
+    /*! #if ($TemplateOptions.inlineWithFullSpecialization("REHASH",
+    "(value)",
+    "MurmurHash3.hash(value.hashCode())",
+    "PhiMix.hash(value)",
+    "(int)PhiMix.hash(value)",
+    "PhiMix.hash(Float.floatToIntBits(value))",
+    "(int)PhiMix.hash(Double.doubleToLongBits(value))",
+    "")) !*/
+    /**
+     * REHASH method for rehashing the keys.
+     * (inlined in generated code)
+     * Thanks to single array mode, no need to check for null/0 or booleans.
+     */
+    private int REHASH(final KType value) {
+
+        return MurmurHash3.hash(value.hashCode());
     }
     /*! #end !*/
 
-/*! #elseif ($SA)
-  //Test for existence with default value sentinels
-
-     #if ($TemplateOptions.inline("is_allocated",
-    "(alloc, slot, keys)",
-    "!Intrinsics.equalsKTypeDefault(keys[slot])"))
-    //nothing !
-    #end
-#else
-  //Test for existence with boolean array
-    #if ($TemplateOptions.inline("is_allocated",
-    "(alloc, slot, keys)",
-    "alloc[slot]"))
-    //nothing !
-    #end
-#end !*/
 }

@@ -13,11 +13,11 @@ import org.openjdk.jmh.annotations.State;
 
 import com.carrotsearch.hppcrt.BitUtil;
 import com.carrotsearch.hppcrt.DistributionGenerator;
-import com.carrotsearch.hppcrt.Implementations;
-import com.carrotsearch.hppcrt.MapImplementation;
-import com.carrotsearch.hppcrt.MapImplementation.ComparableInt;
-import com.carrotsearch.hppcrt.MapImplementation.HASH_QUALITY;
 import com.carrotsearch.hppcrt.XorShiftRandom;
+import com.carrotsearch.hppcrt.implementations.Implementations;
+import com.carrotsearch.hppcrt.implementations.MapImplementation;
+import com.carrotsearch.hppcrt.implementations.MapImplementation.ComparableInt;
+import com.carrotsearch.hppcrt.implementations.MapImplementation.HASH_QUALITY;
 import com.carrotsearch.hppcrt.lists.IntArrayList;
 import com.carrotsearch.hppcrt.maps.ObjectIntOpenIdentityHashMap;
 

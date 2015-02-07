@@ -1,3 +1,14 @@
+[0.6.8]
+** Bug fixes
+
+HPPCRT-32: CustomHashSet wrongly uses equals()/hashCode() instead of strategies
+
+** New features
+
+Issue #27 : Caliper benchmark framework looks abandoned, migrate the benchmarks to JMH
+
+HPPCRT-33: Adopt perfomance enhancements found in fastutil 6.6x and Koloboke
+
 [0.6.7]
 ** Bug fixes
 

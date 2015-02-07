@@ -1,19 +1,23 @@
-package com.carrotsearch.hppcrt;
+package com.carrotsearch.hppcrt.implementations;
 
 import java.util.Random;
 
-import com.carrotsearch.hppcrt.maps.*;
+import com.carrotsearch.hppcrt.Util;
+import com.carrotsearch.hppcrt.XorShiftRandom;
+import com.gs.collections.impl.map.mutable.primitive.ObjectIntHashMap;
 
-public class HppcIdentityMap extends MapImplementation<ObjectIntOpenIdentityHashMap<MapImplementation.ComparableInt>>
+public class GsObjectMap extends MapImplementation<ObjectIntHashMap<MapImplementation.ComparableInt>>
 {
+
     private ComparableInt[] insertKeys;
     private ComparableInt[] containsKeys;
     private ComparableInt[] removedKeys;
     private int[] insertValues;
 
-    protected HppcIdentityMap(final int size, final float loadFactor)
+    protected GsObjectMap(final int size, final float loadFactor)
     {
-        super(new ObjectIntOpenIdentityHashMap<ComparableInt>(size, loadFactor));
+        //load factor is fixed to 0.5 !
+        super(new ObjectIntHashMap<ComparableInt>(size));
     }
 
     /**
@@ -32,30 +36,29 @@ public class HppcIdentityMap extends MapImplementation<ObjectIntOpenIdentityHash
         this.insertValues = new int[keysToInsert.length];
 
         //Auto box into Integers, they must have the same length anyway.
-        for (int ii = 0; ii < keysToInsert.length; ii++) {
+        for (int i = 0; i < keysToInsert.length; i++) {
 
-            this.insertKeys[ii] = new ComparableInt(keysToInsert[ii], hashQ);
+            this.insertKeys[i] = new ComparableInt(keysToInsert[i], hashQ);
 
-            this.insertValues[ii] = prng.nextInt();
+            this.insertValues[i] = prng.nextInt();
         }
 
-        //Auto box into Integers, they must have the same length anyway.
-        for (int ii = 0; ii < keysForContainsQuery.length; ii++) {
+        //Auto box into Integers
+        for (int i = 0; i < keysForContainsQuery.length; i++) {
 
-            this.containsKeys[ii] = new ComparableInt(keysForContainsQuery[ii], hashQ);
+            this.containsKeys[i] = new ComparableInt(keysForContainsQuery[i], hashQ);
         }
 
-        //Auto box into Integers, they must have the same length anyway.
-        for (int ii = 0; ii < keysForRemovalQuery.length; ii++) {
+        //Auto box into Integers
+        for (int i = 0; i < keysForRemovalQuery.length; i++) {
 
-            this.removedKeys[ii] = new ComparableInt(keysForRemovalQuery[ii], hashQ);
+            this.removedKeys[i] = new ComparableInt(keysForRemovalQuery[i], hashQ);
         }
 
         //don't make things too easy, shuffle it so the bench do some pointer chasing in memory.
         //for the inserted keys
 
         Util.shuffle(this.insertKeys, prng);
-
     }
 
     @Override
@@ -72,25 +75,25 @@ public class HppcIdentityMap extends MapImplementation<ObjectIntOpenIdentityHash
     @Override
     public int benchPutAll() {
 
-        final ObjectIntOpenIdentityHashMap<ComparableInt> instance = this.instance;
+        final ObjectIntHashMap<ComparableInt> instance = this.instance;
         final int[] values = this.insertValues;
 
-        int count = 0;
+        final int count = 0;
 
         final ComparableInt[] keys = this.insertKeys;
 
         for (int i = 0; i < keys.length; i++) {
 
-            count += instance.put(keys[i], values[i]);
+            instance.put(keys[i], values[i]);
         }
 
-        return count;
+        return instance.size();
     }
 
     @Override
     public int benchContainKeys()
     {
-        final ObjectIntOpenIdentityHashMap<ComparableInt> instance = this.instance;
+        final ObjectIntHashMap<ComparableInt> instance = this.instance;
 
         int count = 0;
 
@@ -107,17 +110,17 @@ public class HppcIdentityMap extends MapImplementation<ObjectIntOpenIdentityHash
     @Override
     public int benchRemoveKeys() {
 
-        final ObjectIntOpenIdentityHashMap<ComparableInt> instance = this.instance;
+        final ObjectIntHashMap<ComparableInt> instance = this.instance;
 
-        int count = 0;
+        final int count = 0;
 
         final ComparableInt[] keys = this.removedKeys;
 
         for (int i = 0; i < keys.length; i++) {
 
-            count += instance.remove(keys[i]);
+            instance.remove(keys[i]);
         }
 
-        return count;
+        return instance.size();
     }
 }

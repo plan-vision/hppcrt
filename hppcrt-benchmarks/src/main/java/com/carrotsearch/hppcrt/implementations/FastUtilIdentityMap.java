@@ -1,20 +1,22 @@
-package com.carrotsearch.hppcrt;
+package com.carrotsearch.hppcrt.implementations;
+
+import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 
 import java.util.Random;
 
-import com.carrotsearch.hppcrt.maps.ObjectIntOpenHashMap;
+import com.carrotsearch.hppcrt.Util;
+import com.carrotsearch.hppcrt.XorShiftRandom;
 
-public class HppcObjectMap extends MapImplementation<ObjectIntOpenHashMap<MapImplementation.ComparableInt>>
+public class FastUtilIdentityMap extends MapImplementation<Reference2IntOpenHashMap<MapImplementation.ComparableInt>>
 {
-
     private ComparableInt[] insertKeys;
     private ComparableInt[] containsKeys;
     private ComparableInt[] removedKeys;
     private int[] insertValues;
 
-    protected HppcObjectMap(final int size, final float loadFactor)
+    protected FastUtilIdentityMap(final int size, final float loadFactor)
     {
-        super(new ObjectIntOpenHashMap<ComparableInt>(size, loadFactor));
+        super(new Reference2IntOpenHashMap<ComparableInt>(size, loadFactor));
     }
 
     /**
@@ -33,29 +35,30 @@ public class HppcObjectMap extends MapImplementation<ObjectIntOpenHashMap<MapImp
         this.insertValues = new int[keysToInsert.length];
 
         //Auto box into Integers, they must have the same length anyway.
-        for (int i = 0; i < keysToInsert.length; i++) {
+        for (int ii = 0; ii < keysToInsert.length; ii++) {
 
-            this.insertKeys[i] = new ComparableInt(keysToInsert[i], hashQ);
+            this.insertKeys[ii] = new ComparableInt(keysToInsert[ii], hashQ);
 
-            this.insertValues[i] = prng.nextInt();
+            this.insertValues[ii] = prng.nextInt();
         }
 
-        //Auto box into Integers
-        for (int i = 0; i < keysForContainsQuery.length; i++) {
+        //Auto box into Integers, they must have the same length anyway.
+        for (int ii = 0; ii < keysForContainsQuery.length; ii++) {
 
-            this.containsKeys[i] = new ComparableInt(keysForContainsQuery[i], hashQ);
+            this.containsKeys[ii] = new ComparableInt(keysForContainsQuery[ii], hashQ);
         }
 
-        //Auto box into Integers
-        for (int i = 0; i < keysForRemovalQuery.length; i++) {
+        //Auto box into Integers, they must have the same length anyway.
+        for (int ii = 0; ii < keysForRemovalQuery.length; ii++) {
 
-            this.removedKeys[i] = new ComparableInt(keysForRemovalQuery[i], hashQ);
+            this.removedKeys[ii] = new ComparableInt(keysForRemovalQuery[ii], hashQ);
         }
 
         //don't make things too easy, shuffle it so the bench do some pointer chasing in memory.
         //for the inserted keys
 
         Util.shuffle(this.insertKeys, prng);
+
     }
 
     @Override
@@ -72,7 +75,7 @@ public class HppcObjectMap extends MapImplementation<ObjectIntOpenHashMap<MapImp
     @Override
     public int benchPutAll() {
 
-        final ObjectIntOpenHashMap<ComparableInt> instance = this.instance;
+        final Reference2IntOpenHashMap<ComparableInt> instance = this.instance;
         final int[] values = this.insertValues;
 
         int count = 0;
@@ -90,7 +93,7 @@ public class HppcObjectMap extends MapImplementation<ObjectIntOpenHashMap<MapImp
     @Override
     public int benchContainKeys()
     {
-        final ObjectIntOpenHashMap<ComparableInt> instance = this.instance;
+        final Reference2IntOpenHashMap<ComparableInt> instance = this.instance;
 
         int count = 0;
 
@@ -107,7 +110,7 @@ public class HppcObjectMap extends MapImplementation<ObjectIntOpenHashMap<MapImp
     @Override
     public int benchRemoveKeys() {
 
-        final ObjectIntOpenHashMap<ComparableInt> instance = this.instance;
+        final Reference2IntOpenHashMap<ComparableInt> instance = this.instance;
 
         int count = 0;
 
@@ -115,7 +118,7 @@ public class HppcObjectMap extends MapImplementation<ObjectIntOpenHashMap<MapImp
 
         for (int i = 0; i < keys.length; i++) {
 
-            count += instance.remove(keys[i]);
+            count += instance.removeInt(keys[i]);
         }
 
         return count;

@@ -1,9 +1,11 @@
-package com.carrotsearch.hppcrt;
+package com.carrotsearch.hppcrt.implementations;
 
 import java.util.Arrays;
 import java.util.Random;
 
 import org.apache.mahout.math.map.OpenIntIntHashMap;
+
+import com.carrotsearch.hppcrt.XorShiftRandom;
 
 public class MahoutMap extends MapImplementation<OpenIntIntHashMap>
 {

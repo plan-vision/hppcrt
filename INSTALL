@@ -1,4 +1,3 @@
-
 Maven shortcuts
 ---------------
 
@@ -6,56 +5,27 @@ Maven shortcuts
 mvn clean
 
 # Generate Eclipse project files (the setup is a bit complex, so use this!)
-mvn compile eclipse:eclipse
+mvn compile eclipse:clean eclipse:eclipse
 
-# All unit tests
+# Compile 
+mvn clean compile
+
+# Compile all, run all unit tests
 mvn clean test
 
-# Install packages in a local repository.
+# Install packages in a local repository, also builds benchmarks
 mvn clean install
 
-# Create a distribution package
-mvn clean package -Prelease
+# Rebuild jars, builds the benchmarks jar, skip the tests execution
+mvn -DskipTests=true clean install
+
+# Generate site, also running Findbugs in the process
+mvn site
+
+# Build sources jar
+mvn source:jar
+
+# Try to resolve all dependencies to be able to work off the Net
+mvn dependency:go-offline
 
 
-hppc-core targets
------------------
-
-# Run tests with clover
-mvn -Pclover
-
-# Generate code quality reports
-mvn -Pclover site 
-
-
-Deployment
-----------
-
-# Deploy a snapshot of artefacts to SonaType's snapshots repo
-mvn clean deploy
-
-# Deploy a release
-mvn -Psign,release,site-labs clean package deploy
-
-
-Clover
-------
-
-A local license is required for Clover support. Edit your ~/.m2/settings.xml and 
-add an active profile definiting these settings:
-
-...
-  <profiles>
-          <profile>
-            <id>clover-license</id>
-            <properties>
-              <clover.license.path>[...]\clover.license</clover.license.path>
-              <maven.clover.licenseLocation>[...]\clover.license</maven.clover.licenseLocation>
-            </properties>
-          </profile>
-  </profiles>
-
-  <activeProfiles>
-    <activeProfile>clover-license</activeProfile>
-  </activeProfiles>
-...

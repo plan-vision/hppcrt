@@ -21,6 +21,7 @@ public final class KTypeArrays
      */
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     final private static Object[] BLANKING_OBJECT_ARRAY = new Object[KTypeArrays.BLANK_ARRAY_SIZE];
+
     /*! #else
     final private static KType[] BLANKING_OBJECT_ARRAY = Intrinsics.<KType[]>newKTypeArray(KTypeArrays.BLANK_ARRAY_SIZE);
     #end  !*/
@@ -50,7 +51,6 @@ public final class KTypeArrays
      * Rotate utility :
      * Transforms the range [[slice_1:  from; mid - 1][slice_2: mid, to - 1]] of KTypeIndexedContainer, into
      * [[slice_2][slice_1]] in place, i.e swap the two slices while keeping their own internal order.
-     * @author Thomas Baudel for the original code
      * @param table
      * @param from the start range to consider
      * @param mid start index of the second slice
@@ -72,14 +72,14 @@ public final class KTypeArrays
     public static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void reverse(final KType[] table, final int from, final int to) {
 
         final int halfSize = (to - from) >>> 1;
-    KType tmpValue;
+        KType tmpValue;
 
-    for (int i = 0; i < halfSize; i++)
-    {
-        tmpValue = table[i + from];
-        table[i + from] = table[to - i - 1];
-        table[to - i - 1] = tmpValue;
-    }
+        for (int i = 0; i < halfSize; i++)
+        {
+            tmpValue = table[i + from];
+            table[i + from] = table[to - i - 1];
+            table[to - i - 1] = tmpValue;
+        }
     }
 
     /**
@@ -127,7 +127,5 @@ public final class KTypeArrays
                     startIndex + (nbChunks << KTypeArrays.BLANK_ARRAY_SIZE_IN_BIT_SHIFT) + rem, Intrinsics.defaultKTypeValue());
         }
     }
-
-
 
 }

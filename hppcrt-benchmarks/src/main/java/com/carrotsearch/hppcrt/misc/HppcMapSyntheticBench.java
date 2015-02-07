@@ -197,7 +197,6 @@ public final class HppcMapSyntheticBench
 
         while (testMap.size() < minPushedElements || testMap.size() < testMap.capacity())
         {
-
             final int K = this.prng.nextInt();
             final long V = this.prng.nextLong();
             Klist.add(K);
@@ -319,7 +318,6 @@ public final class HppcMapSyntheticBench
 
         while (testMap.size() < minPushedElements || testMap.size() < testMap.capacity())
         {
-
             final int K = gene.getNext();
             final long V = this.prng.nextLong();
             Klist.add(K);

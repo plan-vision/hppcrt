@@ -17,8 +17,8 @@ import com.carrotsearch.hppcrt.procedures.*;
  */
 /*! ${TemplateOptions.doNotGenerateKType("all")} !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
-public interface IntKTypeAssociativeContainer<KType>
-        extends Iterable<IntKTypeCursor<KType>>
+public interface IntKTypeAssociativeContainer<U>
+extends Iterable<IntKTypeCursor<U>>
 {
     /**
      * Returns a cursor over the entries (key-value pairs) in this map. The iterator is
@@ -39,7 +39,7 @@ public interface IntKTypeAssociativeContainer<KType>
      * to the container.
      */
     @Override
-    Iterator<IntKTypeCursor<KType>> iterator();
+    Iterator<IntKTypeCursor<U>> iterator();
 
     /**
      * Returns <code>true</code> if this container has an association to a value for
@@ -92,7 +92,7 @@ public interface IntKTypeAssociativeContainer<KType>
      * by chaining the call (even if the argument is an anonymous type) to retrieve computed values,
      * for example.
      */
-    <T extends IntKTypeProcedure<? super KType>> T forEach(T procedure);
+    <T extends IntKTypeProcedure<? super U>> T forEach(T procedure);
 
     /**
      * Applies a <code>predicate</code> to container elements, as long as the predicate
@@ -102,7 +102,7 @@ public interface IntKTypeAssociativeContainer<KType>
      * by chaining the call (even if the argument is an anonymous type) to retrieve computed values,
      * for example.
      */
-    <T extends IntKTypePredicate<? super KType>> T forEach(T predicate);
+    <T extends IntKTypePredicate<? super U>> T forEach(T predicate);
 
     /**
      * Clear all keys and values in the container.
@@ -121,5 +121,5 @@ public interface IntKTypeAssociativeContainer<KType>
      * over the key set and any modifications (if allowed) introduced to the collection will
      * propagate to the associative container immediately.
      */
-    KTypeContainer<KType> values();
+    KTypeContainer<U> values();
 }

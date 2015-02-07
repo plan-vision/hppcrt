@@ -1,22 +1,25 @@
-package com.carrotsearch.hppcrt;
-
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+package com.carrotsearch.hppcrt.implementations;
 
 import java.util.Arrays;
 import java.util.Random;
 
-public class FastUtilMap extends MapImplementation<Int2IntOpenHashMap>
+import net.openhft.koloboke.collect.hash.HashConfig;
+import net.openhft.koloboke.collect.map.hash.HashIntIntMap;
+import net.openhft.koloboke.collect.map.hash.HashIntIntMaps;
+
+import com.carrotsearch.hppcrt.XorShiftRandom;
+
+public class HftcMap extends MapImplementation<HashIntIntMap>
 {
     private int[] insertKeys;
     private int[] containsKeys;
     private int[] removedKeys;
     private int[] insertValues;
 
-    public FastUtilMap(final int size, final float loadFactor)
+    public HftcMap(final int size, final float loadFactor)
     {
-        super(new Int2IntOpenHashMap(
-                size,
-                loadFactor));
+        super(HashIntIntMaps.getDefaultFactory().
+                withHashConfig(HashConfig.fromLoads(loadFactor / 2, loadFactor, loadFactor)).newMutableMap(size));
     }
 
     /**
@@ -54,7 +57,7 @@ public class FastUtilMap extends MapImplementation<Int2IntOpenHashMap>
     @Override
     public int benchPutAll() {
 
-        final Int2IntOpenHashMap instance = this.instance;
+        final HashIntIntMap instance = this.instance;
         final int[] values = this.insertValues;
 
         int count = 0;
@@ -72,7 +75,7 @@ public class FastUtilMap extends MapImplementation<Int2IntOpenHashMap>
     @Override
     public int benchContainKeys()
     {
-        final Int2IntOpenHashMap instance = this.instance;
+        final HashIntIntMap instance = this.instance;
 
         int count = 0;
 
@@ -89,7 +92,7 @@ public class FastUtilMap extends MapImplementation<Int2IntOpenHashMap>
     @Override
     public int benchRemoveKeys() {
 
-        final Int2IntOpenHashMap instance = this.instance;
+        final HashIntIntMap instance = this.instance;
 
         int count = 0;
 

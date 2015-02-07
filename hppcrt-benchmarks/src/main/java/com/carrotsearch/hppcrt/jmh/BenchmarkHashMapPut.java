@@ -34,6 +34,6 @@ public class BenchmarkHashMapPut extends BenchmarkHashMapBase
 
     public static void main(final String[] args) throws RunnerException
     {
-        BenchmarkSuiteRunner.runJmhBasicBenchmarkWithCommandLine(BenchmarkHashMapPut.class, args, 1000, 2000);
+        BenchmarkSuiteRunner.runJmhBasicBenchmarkWithCommandLine(BenchmarkHashMapPut.class, args, 2000, 3000);
     }
 }

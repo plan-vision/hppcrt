@@ -84,6 +84,6 @@ public class BenchmarkHashMapContains extends BenchmarkHashMapBase
 
     public static void main(final String[] args) throws RunnerException
     {
-        BenchmarkSuiteRunner.runJmhBasicBenchmarkWithCommandLine(BenchmarkHashMapContains.class, args, 1000, 2000);
+        BenchmarkSuiteRunner.runJmhBasicBenchmarkWithCommandLine(BenchmarkHashMapContains.class, args, 2000, 3000);
     }
 }
