@@ -94,7 +94,7 @@ public final class Intrinsics
 
     /**
      * Identical as {@link equalsVType} except that
-     * no e1 Objects are assumed to be not-null.
+     * e1 Objects are assumed to be not-null.
      */
     public static boolean equalsVTypeNotNull(final Object e1, final Object e2)
     {
