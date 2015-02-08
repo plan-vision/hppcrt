@@ -226,14 +226,14 @@ public class DistributionGenerator
         this.GENERATORS = new Generator[] { this.RANDOM, this.LINEAR, this.RAND_INCREMENT, this.LINEAR_DECREMENT, this.RAND_DECREMENT, this.HIGHBITS };
     }
 
-    /////////////////////////////////
-    //main for tests
-    /////////////////////////////////
+    private static void testGenerators(final long initValue, final int size, final long prngSeed, final int nbValuesToGenerate) {
 
-    public static void main(final String[] args) {
+        System.out.println("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        System.out.println(String.format(">>>> Testing DistributionGenerator : initValue=%d, targetSize=%d, Random seed =%d", initValue, size, prngSeed));
+        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
-        final DistributionGenerator testDistrib = new DistributionGenerator(-100, 200, new XorShiftRandom(1234789));
-        final DistributionGenerator testDistribPrepare = new DistributionGenerator(-100, 200, new XorShiftRandom(1234789));
+        final DistributionGenerator testDistrib = new DistributionGenerator(initValue, size, new Random(prngSeed));
+        final DistributionGenerator testDistribPrepare = new DistributionGenerator(initValue, size, new Random(prngSeed));
 
         for (int jj = 0; jj < testDistrib.GENERATORS.length; jj++) {
 
@@ -243,7 +243,7 @@ public class DistributionGenerator
 
             final IntArrayList generatedValues = new IntArrayList();
 
-            for (int ii = 0; ii < 500; ii++) {
+            for (int ii = 0; ii < nbValuesToGenerate; ii++) {
 
                 generatedValues.add(gene.getNext());
             }
@@ -251,10 +251,21 @@ public class DistributionGenerator
             System.out.println(">>>> Test iterated getNext(), size = " + generatedValues.size() + " :\n" + generatedValues.toString());
 
             //test bulk:
-            final int[] prepared = testDistribPrepare.GENERATORS[jj].prepare(500);
+            final int[] prepared = testDistribPrepare.GENERATORS[jj].prepare(nbValuesToGenerate);
             System.out.println(">>>> Test bulk prepare(), size = " + prepared.length + " :\n" + Arrays.toString(prepared));
             System.out.println("");
 
         } //end for
+    }
+
+    /////////////////////////////////
+    //main for tests
+    /////////////////////////////////
+
+    public static void main(final String[] args) {
+
+        DistributionGenerator.testGenerators(-100, 200, 1234789L, 500);
+        DistributionGenerator.testGenerators((long) (Integer.MIN_VALUE * 0.5), Integer.MAX_VALUE - 10, 79914664L, 500);
+
     }
 }
