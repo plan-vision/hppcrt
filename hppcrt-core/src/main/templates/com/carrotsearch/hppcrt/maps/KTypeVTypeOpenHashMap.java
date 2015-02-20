@@ -78,7 +78,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -263,7 +263,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     public VType put(KType key, VType value)
     {
 
-        if (Intrinsics.equalsKTypeDefault(key)) {
+        if (key == Intrinsics.defaultKTypeValue()) {
 
             if (this.allocatedDefaultKey) {
 
@@ -439,7 +439,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     @Override
     public VType putOrAdd(KType key, VType putValue, VType additionValue)
     {
-        if (Intrinsics.equalsKTypeDefault(key)) {
+        if (Intrinsics.defaultKTypeValue() == key) {
 
             if (this.allocatedDefaultKey) {
 
@@ -570,7 +570,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         assert this.assigned == this.resizeAt;
 
         //default sentinel value is never in the keys[] array, so never trigger reallocs
-        assert !Intrinsics.equalsKTypeDefault(pendingKey);
+        assert (pendingKey != Intrinsics.defaultKTypeValue());
 
         // Try to allocate new buffers first. If we OOM, it'll be now without
         // leaving the data structure in an inconsistent state.
@@ -714,7 +714,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     @Override
     public VType remove(final KType key)
     {
-        if (Intrinsics.equalsKTypeDefault(key)) {
+        if (key == Intrinsics.defaultKTypeValue()) {
 
             if (this.allocatedDefaultKey) {
 
@@ -937,7 +937,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     @Override
     public VType get(final KType key)
     {
-        if (Intrinsics.equalsKTypeDefault(key)) {
+        if (key == Intrinsics.defaultKTypeValue()) {
 
             if (this.allocatedDefaultKey) {
 
@@ -1021,7 +1021,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
         assert this.lastSlot >= 0 : "Call containsKey() first.";
 
-        assert !Intrinsics.equalsKTypeDefault(this.keys[this.lastSlot]) : "Last call to exists did not have any associated value.";
+        assert (this.keys[this.lastSlot] != Intrinsics.defaultKTypeValue()) : "Last call to exists did not have any associated value.";
 
         return this.keys[this.lastSlot];
     }
@@ -1040,7 +1040,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
         assert this.lastSlot >= 0 : "Call containsKey() first.";
 
-        assert !Intrinsics.equalsKTypeDefault(this.keys[this.lastSlot]) : "Last call to exists did not have any associated value.";
+        assert (this.keys[this.lastSlot] != Intrinsics.defaultKTypeValue()) : "Last call to exists did not have any associated value.";
 
         return this.values[this.lastSlot];
     }
@@ -1064,7 +1064,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
         assert this.lastSlot >= 0 : "Call containsKey() first.";
 
-        assert !Intrinsics.equalsKTypeDefault(this.keys[this.lastSlot]) : "Last call to exists did not have any associated value.";
+        assert (this.keys[this.lastSlot] != Intrinsics.defaultKTypeValue()) : "Last call to exists did not have any associated value.";
 
         final VType previous = this.values[this.lastSlot];
         this.values[this.lastSlot] = value;
@@ -1107,7 +1107,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     @Override
     public boolean containsKey(final KType key)
     {
-        if (Intrinsics.equalsKTypeDefault(key)) {
+        if (key == Intrinsics.defaultKTypeValue()) {
 
             if (this.allocatedDefaultKey) {
                 this.lastSlot = -2;
@@ -1473,7 +1473,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * A view of the keys inside this hash map.
      */
     public final class KeysContainer
-            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenHashMap<KType, VType> owner =
                 KTypeVTypeOpenHashMap.this;
@@ -2114,18 +2114,17 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         this.defaultValue = defaultValue;
     }
 
-    //Test for existence in RH or template
-
+    //Test for existence in template
     /*! #if ($TemplateOptions.inline("is_allocated",
     "(slot, keys)",
-    "!Intrinsics.equalsKTypeDefault(keys[slot])")) !*/
+    "keys[slot] != Intrinsics.defaultKTypeValue()")) !*/
     /**
-     * Robin-Hood / template version
+     *  template version
      * (actual method is inlined in generated code)
      */
     private boolean is_allocated(final int slot, final KType[] keys) {
 
-        return !Intrinsics.equalsKTypeDefault(keys[slot]);
+        return keys[slot] != Intrinsics.defaultKTypeValue();
     }
 
     /*! #end !*/

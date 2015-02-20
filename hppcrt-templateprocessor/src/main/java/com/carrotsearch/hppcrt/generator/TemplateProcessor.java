@@ -388,25 +388,23 @@ public final class TemplateProcessor
 
                 if ("defaultKTypeValue".equals(method))
                 {
-                    sb.append(templateOptions.isKTypeGeneric()
-                            ? "null" : TemplateProcessor.getDefaultValue(templateOptions.getKType().getType()));
+                    sb.append(TemplateProcessor.getDefaultValue(templateOptions.getKType().getType()));
                 }
                 else if ("defaultVTypeValue".equals(method))
                 {
-                    sb.append(templateOptions.isVTypeGeneric()
-                            ? "null" : TemplateProcessor.getDefaultValue(templateOptions.getVType().getType()));
+                    sb.append(TemplateProcessor.getDefaultValue(templateOptions.getVType().getType()));
                 }
                 else if ("newKTypeArray".equals(method))
                 {
                     sb.append(templateOptions.isKTypeGeneric()
                             ? "Internals.<KType[]>newArray(" + params.get(0) + ")"
-                            : "new " + templateOptions.getKType().getType() + " [" + params.get(0) + "]");
+                                    : "new " + templateOptions.getKType().getType() + " [" + params.get(0) + "]");
                 }
                 else if ("newVTypeArray".equals(method))
                 {
                     sb.append(templateOptions.isVTypeGeneric()
                             ? "Internals.<VType[]>newArray(" + params.get(0) + ")"
-                            : "new " + templateOptions.getVType().getType() + " [" + params.get(0) + "]");
+                                    : "new " + templateOptions.getVType().getType() + " [" + params.get(0) + "]");
                 }
                 else if ("equalsKType".equals(method) || "equalsKTypeNotNull".equals(method) ||
                         "equalsVType".equals(method) || "equalsVTypeNotNull".equals(method))
@@ -439,11 +437,6 @@ public final class TemplateProcessor
                     {
                         sb.append(String.format("((%1$s) == (%2$s))", params.toArray()));
                     }
-                }
-                else if ("equalsKTypeDefault".equals(method))
-                {
-                    sb.append(String.format("((%1$s) == " +
-                            TemplateProcessor.getDefaultValue(templateOptions.getKType().getType()) + ")", params.toArray()));
                 }
                 else if ("compareKType".equals(method) || "compareKTypeUnchecked".equals(method))
                 {
@@ -848,9 +841,9 @@ public final class TemplateProcessor
 
             input = input.replaceAll("(KTypeVType)([A-Z][a-zA-Z]*)(<.+?>)?",
                     (k.isGeneric() ? "Object" : k.getBoxedType()) +
-                            (v.isGeneric() ? "Object" : v.getBoxedType()) +
-                            "$2" +
-                            (options.isAnyGeneric() ? "$3" : ""));
+                    (v.isGeneric() ? "Object" : v.getBoxedType()) +
+                    "$2" +
+                    (options.isAnyGeneric() ? "$3" : ""));
 
             input = input.replaceAll("(VType)([A-Z][a-zA-Z]*)",
                     (v.isGeneric() ? "Object" : v.getBoxedType()) + "$2");
@@ -1087,7 +1080,7 @@ public final class TemplateProcessor
             defaultValue = "null";
         }
 
-        return "(" + defaultValue + ")";
+        return defaultValue;
     }
 
     /**

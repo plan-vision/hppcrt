@@ -1312,7 +1312,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
      */
     private boolean is_allocated(final int slot, final KType[] keys) {
 
-        return !Intrinsics.equalsKTypeDefault(keys[slot]);
+        return keys[slot] != Intrinsics.defaultKTypeValue();
     }
 
     /*! #if ($TemplateOptions.inlineWithFullSpecialization("REHASH",

@@ -2415,7 +2415,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
      */
     private boolean is_allocated(final int slot, final KType[] keys) {
 
-        return !Intrinsics.equalsKTypeDefault(keys[slot]);
+        return keys[slot] != Intrinsics.defaultKTypeValue();
     }
 
     /*! #if ($TemplateOptions.inlineWithFullSpecialization("REHASH",

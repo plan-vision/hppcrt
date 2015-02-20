@@ -355,7 +355,7 @@ public class KTypeArraysTest<KType> extends AbstractKTypeTest<KType>
             if ((i >= startBlankingIndex) && (i < endBlankingIndex)) {
 
                 //this is blanked
-                if (!Intrinsics.equalsKTypeDefault(arrayToTest[i])) {
+                if (Intrinsics.defaultKTypeValue() != arrayToTest[i]) {
                     Assert.assertTrue("value = " + castType(arrayToTest[i]), false);
                 }
             }
