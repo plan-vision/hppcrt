@@ -41,16 +41,24 @@ import com.carrotsearch.hppcrt.generator.TemplateOptions.DoNotGenerateTypeExcept
  */
 public final class TemplateProcessor
 {
-    private final Pattern INTRINSICS_METHOD_CALL;
+    private static final Pattern INTRINSICS_METHOD_CALL = Pattern.compile("(Intrinsics.\\s*)(<[^>]+>\\s*)?([a-zA-Z]+)", Pattern.MULTILINE | Pattern.DOTALL);
 
-    private final Pattern IMPORT_DECLARATION;
+    private static final Pattern IMPORT_DECLARATION = Pattern.compile("(import\\s+[\\w.\\*\\s]*;)", Pattern.MULTILINE | Pattern.DOTALL);
 
-    public boolean verbose = false;
-    public boolean incremental = true;
-    public File templatesDir;
-    public File outputDir;
+    private boolean verbose = false;
+    private boolean incremental = true;
+
+    private File templatesDir;
+    private File outputDir;
+
+    private long timeVelocity, timeIntrinsics, timeTypeClassRefs, timeComments;
 
     private final VelocityEngine velocity;
+
+    private static final String[] PROGRESS_BAR_PATTERN = new String[] { "||", "//", "--", "\\\\" };
+
+    private int progressBarCount;
+    private long progressBarLastDisplayDate;
 
     private class VelocityLogger implements LogChute
     {
@@ -96,14 +104,6 @@ public final class TemplateProcessor
         this.velocity = ve;
 
         ve.init();
-
-        //compile basic patterns
-        this.INTRINSICS_METHOD_CALL = Pattern.compile("(Intrinsics.\\s*)(<[^>]+>\\s*)?([a-zA-Z]+)",
-                Pattern.MULTILINE | Pattern.DOTALL);
-
-        this.IMPORT_DECLARATION = Pattern.compile("(import\\s+[\\w.\\*\\s]*;)",
-                Pattern.MULTILINE | Pattern.DOTALL);
-
     }
 
     /**
@@ -152,11 +152,11 @@ public final class TemplateProcessor
                 this.templatesDir);
 
         // Process templates
-        System.out.println("Processing " + inputs.size() + " templates to: " + this.outputDir.getPath());
+        System.out.println("Processing " + inputs.size() + " templates to: '" + this.outputDir.getPath() + "'");
         final long start = System.currentTimeMillis();
         processTemplates(inputs, outputs);
         final long end = System.currentTimeMillis();
-        System.out.println(String.format(Locale.ENGLISH, "Processed in %.2f sec.", (end - start) / 1000.0));
+        System.out.println(String.format(Locale.ENGLISH, "\nProcessed in %.2f sec.", (end - start) / 1000.0));
 
         // Remove non-marked files.
         int generated = 0;
@@ -209,6 +209,7 @@ public final class TemplateProcessor
                     final TemplateOptions options = new TemplateOptions(t, null);
                     options.sourceFile = f.file;
                     generate(f, outputs, options);
+                    displayProgressBar();
                 }
             }
             //B) (KType * VType) specializations
@@ -221,6 +222,7 @@ public final class TemplateProcessor
                         final TemplateOptions options = new TemplateOptions(ktype, vtype);
                         options.sourceFile = f.file;
                         generate(f, outputs, options);
+                        displayProgressBar();
                     }
                 }
             }
@@ -258,25 +260,31 @@ public final class TemplateProcessor
                 input = filterVelocity(f, input, templateOptions);
 
                 this.timeVelocity += (t1 = System.currentTimeMillis()) - t0;
+                displayProgressBar();
 
                 //1) Apply inlining
                 input = filterInlines(f, input, templateOptions);
+                displayProgressBar();
 
                 //2) filter intrinsics last, low-level calls replacements
                 input = filterIntrinsics(f, input, templateOptions);
 
                 this.timeIntrinsics += (t0 = System.currentTimeMillis()) - t1;
+                displayProgressBar();
 
                 //3) convert signatures
                 input = filterTypeClassRefs(f, input, templateOptions);
                 this.timeTypeClassRefs += (t1 = System.currentTimeMillis()) - t0;
+                displayProgressBar();
 
                 //4) Filter comments
                 input = filterComments(f, input, templateOptions);
                 this.timeComments += (t0 = System.currentTimeMillis()) - t1;
+                displayProgressBar();
 
                 output.updated = true;
                 saveFile(output.file, input);
+                displayProgressBar();
             }
             catch (final ParseErrorException e) {
 
@@ -305,9 +313,15 @@ public final class TemplateProcessor
                     output.file.delete();
                     outputs.remove(output);
 
-                    System.out.println("[INFO] : output from template '" + f.fullPath +
-                            "' with KType = " + doNotGenException.currentKType + " and VType =  " +
-                            doNotGenException.currentVType + " was bypassed...");
+                    if (this.verbose) {
+
+                        System.out.println("[INFO] : output from template '" + f.fullPath +
+                                "' with KType = " + doNotGenException.currentKType + " and VType =  " +
+                                doNotGenException.currentVType + " was bypassed...");
+                    }
+                    else {
+                        displayProgressBar();
+                    }
                 }
                 else {
 
@@ -323,8 +337,6 @@ public final class TemplateProcessor
         }
     }
 
-    long timeVelocity, timeIntrinsics, timeTypeClassRefs, timeComments;
-
     private String filterIntrinsics(final TemplateFile f, String input,
             final TemplateOptions templateOptions)
     {
@@ -333,7 +345,7 @@ public final class TemplateProcessor
         while (true)
         {
             //0) First, check for imports
-            Matcher m = this.IMPORT_DECLARATION.matcher(input);
+            Matcher m = TemplateProcessor.IMPORT_DECLARATION.matcher(input);
 
             while (m.find())
             {
@@ -344,11 +356,11 @@ public final class TemplateProcessor
                 input = input.substring(m.end());
 
                 //restart search :
-                m = this.IMPORT_DECLARATION.matcher(input);
+                m = TemplateProcessor.IMPORT_DECLARATION.matcher(input);
             }
 
             //1) Now try to find real method calls
-            m = this.INTRINSICS_METHOD_CALL.matcher(input);
+            m = TemplateProcessor.INTRINSICS_METHOD_CALL.matcher(input);
 
             if (m.find())
             {
@@ -388,23 +400,23 @@ public final class TemplateProcessor
 
                 if ("defaultKTypeValue".equals(method))
                 {
-                    sb.append(TemplateProcessor.getDefaultValue(templateOptions.getKType().getType()));
+                    sb.append(templateOptions.getKType().getDefaultValue());
                 }
                 else if ("defaultVTypeValue".equals(method))
                 {
-                    sb.append(TemplateProcessor.getDefaultValue(templateOptions.getVType().getType()));
+                    sb.append(templateOptions.getVType().getDefaultValue());
                 }
                 else if ("newKTypeArray".equals(method))
                 {
                     sb.append(templateOptions.isKTypeGeneric()
                             ? "Internals.<KType[]>newArray(" + params.get(0) + ")"
-                                    : "new " + templateOptions.getKType().getType() + " [" + params.get(0) + "]");
+                            : "new " + templateOptions.getKType().getType() + " [" + params.get(0) + "]");
                 }
                 else if ("newVTypeArray".equals(method))
                 {
                     sb.append(templateOptions.isVTypeGeneric()
                             ? "Internals.<VType[]>newArray(" + params.get(0) + ")"
-                                    : "new " + templateOptions.getVType().getType() + " [" + params.get(0) + "]");
+                            : "new " + templateOptions.getVType().getType() + " [" + params.get(0) + "]");
                 }
                 else if ("equalsKType".equals(method) || "equalsKTypeNotNull".equals(method) ||
                         "equalsVType".equals(method) || "equalsVTypeNotNull".equals(method))
@@ -841,9 +853,9 @@ public final class TemplateProcessor
 
             input = input.replaceAll("(KTypeVType)([A-Z][a-zA-Z]*)(<.+?>)?",
                     (k.isGeneric() ? "Object" : k.getBoxedType()) +
-                    (v.isGeneric() ? "Object" : v.getBoxedType()) +
-                    "$2" +
-                    (options.isAnyGeneric() ? "$3" : ""));
+                            (v.isGeneric() ? "Object" : v.getBoxedType()) +
+                            "$2" +
+                            (options.isAnyGeneric() ? "$3" : ""));
 
             input = input.replaceAll("(VType)([A-Z][a-zA-Z]*)",
                     (v.isGeneric() ? "Object" : v.getBoxedType()) + "$2");
@@ -1034,7 +1046,7 @@ public final class TemplateProcessor
         return list;
     }
 
-    static File canonicalFile(final File target)
+    public static File canonicalFile(final File target)
     {
         try
         {
@@ -1046,41 +1058,18 @@ public final class TemplateProcessor
         }
     }
 
-    private static String getDefaultValue(final String typeName) {
+    private void displayProgressBar() {
 
-        final String litteral = typeName.trim();
+        final long currentTime = System.currentTimeMillis();
 
-        String defaultValue = null;
+        if (currentTime - this.progressBarLastDisplayDate > 100) {
 
-        if (litteral.equals("byte")) {
-            defaultValue = "(byte)0";
-        }
-        else if (litteral.equals("char")) {
-            defaultValue = "\'\\u0000\'";
-        }
-        else if (litteral.equals("short")) {
-            defaultValue = "(short)0";
-        }
-        else if (litteral.equals("int")) {
-            defaultValue = "0";
-        }
-        else if (litteral.equals("long")) {
-            defaultValue = "0L";
-        }
-        else if (litteral.equals("float")) {
-            defaultValue = "0f";
-        }
-        else if (litteral.equals("double")) {
-            defaultValue = "0.0D";
-        }
-        else if (litteral.equals("boolean")) {
-            defaultValue = "false";
-        }
-        else {
-            defaultValue = "null";
-        }
+            this.progressBarCount = (this.progressBarCount + 1) % TemplateProcessor.PROGRESS_BAR_PATTERN.length;
+            //display a line made of dots and advancing dot by dot, by steps of 100ms
+            System.out.print("\b\b." + TemplateProcessor.PROGRESS_BAR_PATTERN[this.progressBarCount]);
 
-        return defaultValue;
+            this.progressBarLastDisplayDate = currentTime;
+        }
     }
 
     /**
