@@ -1,23 +1,21 @@
 package com.carrotsearch.hppcrt.implementations;
 
-import gnu.trove.map.hash.TObjectIntHashMap;
-
 import java.util.Random;
 
 import com.carrotsearch.hppcrt.Util;
 import com.carrotsearch.hppcrt.XorShiftRandom;
+import com.carrotsearch.hppcrt.maps.ObjectIntOpenIdentityHashMap;
 
-public class TroveObjectMap extends MapImplementation<TObjectIntHashMap<MapImplementation.ComparableInt>>
+public class HppcIdentityIntMap extends MapImplementation<ObjectIntOpenIdentityHashMap<MapImplementation.ComparableInt>>
 {
-
     private ComparableInt[] insertKeys;
     private ComparableInt[] containsKeys;
     private ComparableInt[] removedKeys;
     private int[] insertValues;
 
-    protected TroveObjectMap(final int size, final float loadFactor)
+    protected HppcIdentityIntMap(final int size, final float loadFactor)
     {
-        super(new TObjectIntHashMap<ComparableInt>(size, loadFactor));
+        super(new ObjectIntOpenIdentityHashMap<ComparableInt>(size, loadFactor));
     }
 
     /**
@@ -36,23 +34,23 @@ public class TroveObjectMap extends MapImplementation<TObjectIntHashMap<MapImple
         this.insertValues = new int[keysToInsert.length];
 
         //Auto box into Integers, they must have the same length anyway.
-        for (int i = 0; i < keysToInsert.length; i++) {
+        for (int ii = 0; ii < keysToInsert.length; ii++) {
 
-            this.insertKeys[i] = new ComparableInt(keysToInsert[i], hashQ);
+            this.insertKeys[ii] = new ComparableInt(keysToInsert[ii], hashQ);
 
-            this.insertValues[i] = prng.nextInt();
+            this.insertValues[ii] = prng.nextInt();
         }
 
-        //Auto box into Integers
-        for (int i = 0; i < keysForContainsQuery.length; i++) {
+        //Auto box into Integers, they must have the same length anyway.
+        for (int ii = 0; ii < keysForContainsQuery.length; ii++) {
 
-            this.containsKeys[i] = new ComparableInt(keysForContainsQuery[i], hashQ);
+            this.containsKeys[ii] = new ComparableInt(keysForContainsQuery[ii], hashQ);
         }
 
-        //Auto box into Integers
-        for (int i = 0; i < keysForRemovalQuery.length; i++) {
+        //Auto box into Integers, they must have the same length anyway.
+        for (int ii = 0; ii < keysForRemovalQuery.length; ii++) {
 
-            this.removedKeys[i] = new ComparableInt(keysForRemovalQuery[i], hashQ);
+            this.removedKeys[ii] = new ComparableInt(keysForRemovalQuery[ii], hashQ);
         }
     }
 
@@ -70,7 +68,7 @@ public class TroveObjectMap extends MapImplementation<TObjectIntHashMap<MapImple
     @Override
     public int benchPutAll() {
 
-        final TObjectIntHashMap<ComparableInt> instance = this.instance;
+        final ObjectIntOpenIdentityHashMap<ComparableInt> instance = this.instance;
         final int[] values = this.insertValues;
 
         int count = 0;
@@ -88,7 +86,7 @@ public class TroveObjectMap extends MapImplementation<TObjectIntHashMap<MapImple
     @Override
     public int benchContainKeys()
     {
-        final TObjectIntHashMap<ComparableInt> instance = this.instance;
+        final ObjectIntOpenIdentityHashMap<ComparableInt> instance = this.instance;
 
         int count = 0;
 
@@ -105,7 +103,7 @@ public class TroveObjectMap extends MapImplementation<TObjectIntHashMap<MapImple
     @Override
     public int benchRemoveKeys() {
 
-        final TObjectIntHashMap<ComparableInt> instance = this.instance;
+        final ObjectIntOpenIdentityHashMap<ComparableInt> instance = this.instance;
 
         int count = 0;
 

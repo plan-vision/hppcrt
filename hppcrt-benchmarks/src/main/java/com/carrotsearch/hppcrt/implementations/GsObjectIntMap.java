@@ -2,12 +2,11 @@ package com.carrotsearch.hppcrt.implementations;
 
 import java.util.Random;
 
-import org.apache.mahout.math.map.OpenObjectIntHashMap;
-
 import com.carrotsearch.hppcrt.Util;
 import com.carrotsearch.hppcrt.XorShiftRandom;
+import com.gs.collections.impl.map.mutable.primitive.ObjectIntHashMap;
 
-public class MahoutObjectMap extends MapImplementation<OpenObjectIntHashMap<MapImplementation.ComparableInt>>
+public class GsObjectIntMap extends MapImplementation<ObjectIntHashMap<MapImplementation.ComparableInt>>
 {
 
     private ComparableInt[] insertKeys;
@@ -15,9 +14,10 @@ public class MahoutObjectMap extends MapImplementation<OpenObjectIntHashMap<MapI
     private ComparableInt[] removedKeys;
     private int[] insertValues;
 
-    protected MahoutObjectMap(final int size, final float loadFactor)
+    protected GsObjectIntMap(final int size, final float loadFactor)
     {
-        super(new OpenObjectIntHashMap<ComparableInt>(size, loadFactor / 2, loadFactor));
+        //load factor is fixed to 0.5 !
+        super(new ObjectIntHashMap<ComparableInt>(size));
     }
 
     /**
@@ -70,25 +70,25 @@ public class MahoutObjectMap extends MapImplementation<OpenObjectIntHashMap<MapI
     @Override
     public int benchPutAll() {
 
-        final OpenObjectIntHashMap<ComparableInt> instance = this.instance;
+        final ObjectIntHashMap<ComparableInt> instance = this.instance;
         final int[] values = this.insertValues;
 
-        int count = 0;
+        final int count = 0;
 
         final ComparableInt[] keys = this.insertKeys;
 
         for (int i = 0; i < keys.length; i++) {
 
-            count += instance.put(keys[i], values[i]) ? 1 : 0;
+            instance.put(keys[i], values[i]);
         }
 
-        return count;
+        return instance.size();
     }
 
     @Override
     public int benchContainKeys()
     {
-        final OpenObjectIntHashMap<ComparableInt> instance = this.instance;
+        final ObjectIntHashMap<ComparableInt> instance = this.instance;
 
         int count = 0;
 
@@ -105,17 +105,17 @@ public class MahoutObjectMap extends MapImplementation<OpenObjectIntHashMap<MapI
     @Override
     public int benchRemoveKeys() {
 
-        final OpenObjectIntHashMap<ComparableInt> instance = this.instance;
+        final ObjectIntHashMap<ComparableInt> instance = this.instance;
 
-        int count = 0;
+        final int count = 0;
 
         final ComparableInt[] keys = this.removedKeys;
 
         for (int i = 0; i < keys.length; i++) {
 
-            count += instance.removeKey(keys[i]) ? 1 : 0;
+            instance.remove(keys[i]);
         }
 
-        return count;
+        return instance.size();
     }
 }

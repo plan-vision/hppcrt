@@ -1,15 +1,13 @@
 package com.carrotsearch.hppcrt.implementations;
 
-import java.util.Random;
+import gnu.trove.map.hash.TObjectIntHashMap;
 
-import org.openjdk.jmh.infra.Blackhole;
+import java.util.Random;
 
 import com.carrotsearch.hppcrt.Util;
 import com.carrotsearch.hppcrt.XorShiftRandom;
-import com.carrotsearch.hppcrt.maps.ObjectIntOpenCustomHashMap;
-import com.carrotsearch.hppcrt.strategies.ObjectHashingStrategy;
 
-public class HppcCustomMap extends MapImplementation<ObjectIntOpenCustomHashMap<MapImplementation.ComparableInt>>
+public class TroveObjectIntMap extends MapImplementation<TObjectIntHashMap<MapImplementation.ComparableInt>>
 {
 
     private ComparableInt[] insertKeys;
@@ -17,30 +15,9 @@ public class HppcCustomMap extends MapImplementation<ObjectIntOpenCustomHashMap<
     private ComparableInt[] removedKeys;
     private int[] insertValues;
 
-    protected HppcCustomMap(final int size, final float loadFactor)
+    protected TroveObjectIntMap(final int size, final float loadFactor)
     {
-        super(new ObjectIntOpenCustomHashMap<MapImplementation.ComparableInt>(size, loadFactor,
-                //A good behaved startegy that compensates bad hashCode() implementation.
-                new ObjectHashingStrategy<MapImplementation.ComparableInt>() {
-
-            @Override
-            public int computeHashCode(final MapImplementation.ComparableInt object) {
-
-                //eat some CPU to simulate method cost
-                Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
-
-                return object.value;
-            }
-
-            @Override
-            public boolean equals(final MapImplementation.ComparableInt o1, final MapImplementation.ComparableInt o2) {
-
-                //eat some CPU to simulate method cost
-                Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
-
-                return o1.value == o2.value;
-            }
-        }));
+        super(new TObjectIntHashMap<ComparableInt>(size, loadFactor));
     }
 
     /**
@@ -93,8 +70,7 @@ public class HppcCustomMap extends MapImplementation<ObjectIntOpenCustomHashMap<
     @Override
     public int benchPutAll() {
 
-        final ObjectIntOpenCustomHashMap<MapImplementation.ComparableInt> instance = this.instance;
-
+        final TObjectIntHashMap<ComparableInt> instance = this.instance;
         final int[] values = this.insertValues;
 
         int count = 0;
@@ -112,7 +88,7 @@ public class HppcCustomMap extends MapImplementation<ObjectIntOpenCustomHashMap<
     @Override
     public int benchContainKeys()
     {
-        final ObjectIntOpenCustomHashMap<MapImplementation.ComparableInt> instance = this.instance;
+        final TObjectIntHashMap<ComparableInt> instance = this.instance;
 
         int count = 0;
 
@@ -129,7 +105,7 @@ public class HppcCustomMap extends MapImplementation<ObjectIntOpenCustomHashMap<
     @Override
     public int benchRemoveKeys() {
 
-        final ObjectIntOpenCustomHashMap<MapImplementation.ComparableInt> instance = this.instance;
+        final TObjectIntHashMap<ComparableInt> instance = this.instance;
 
         int count = 0;
 

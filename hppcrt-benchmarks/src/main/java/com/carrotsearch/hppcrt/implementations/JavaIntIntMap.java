@@ -6,14 +6,14 @@ import java.util.Random;
 import com.carrotsearch.hppcrt.Util;
 import com.carrotsearch.hppcrt.XorShiftRandom;
 
-public class JavaMap extends MapImplementation<HashMap<Integer, Integer>>
+public class JavaIntIntMap extends MapImplementation<HashMap<Integer, Integer>>
 {
     private Integer[] insertKeys;
     private Integer[] insertValues;
     private Integer[] containsKeys;
     private Integer[] removedKeys;
 
-    public JavaMap(final int size, final float loadFactor)
+    public JavaIntIntMap(final int size, final float loadFactor)
     {
         super(new HashMap<Integer, Integer>(size, loadFactor));
     }

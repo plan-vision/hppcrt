@@ -1,24 +1,25 @@
 package com.carrotsearch.hppcrt.implementations;
 
-import gnu.trove.map.hash.TIntIntHashMap;
-
 import java.util.Arrays;
 import java.util.Random;
 
+import net.openhft.koloboke.collect.hash.HashConfig;
+import net.openhft.koloboke.collect.map.hash.HashIntIntMap;
+import net.openhft.koloboke.collect.map.hash.HashIntIntMaps;
+
 import com.carrotsearch.hppcrt.XorShiftRandom;
 
-public class TroveMap extends MapImplementation<TIntIntHashMap>
+public class KolobokeIntIntMap extends MapImplementation<HashIntIntMap>
 {
     private int[] insertKeys;
     private int[] containsKeys;
     private int[] removedKeys;
     private int[] insertValues;
 
-    public TroveMap(final int size, final float loadFactor)
+    public KolobokeIntIntMap(final int size, final float loadFactor)
     {
-        super(new TIntIntHashMap(
-                size,
-                loadFactor));
+        super(HashIntIntMaps.getDefaultFactory().
+                withHashConfig(HashConfig.fromLoads(loadFactor / 2, loadFactor, loadFactor)).newMutableMap(size));
     }
 
     /**
@@ -56,7 +57,7 @@ public class TroveMap extends MapImplementation<TIntIntHashMap>
     @Override
     public int benchPutAll() {
 
-        final TIntIntHashMap instance = this.instance;
+        final HashIntIntMap instance = this.instance;
         final int[] values = this.insertValues;
 
         int count = 0;
@@ -74,7 +75,7 @@ public class TroveMap extends MapImplementation<TIntIntHashMap>
     @Override
     public int benchContainKeys()
     {
-        final TIntIntHashMap instance = this.instance;
+        final HashIntIntMap instance = this.instance;
 
         int count = 0;
 
@@ -91,7 +92,7 @@ public class TroveMap extends MapImplementation<TIntIntHashMap>
     @Override
     public int benchRemoveKeys() {
 
-        final TIntIntHashMap instance = this.instance;
+        final HashIntIntMap instance = this.instance;
 
         int count = 0;
 
@@ -104,4 +105,5 @@ public class TroveMap extends MapImplementation<TIntIntHashMap>
 
         return count;
     }
+
 }

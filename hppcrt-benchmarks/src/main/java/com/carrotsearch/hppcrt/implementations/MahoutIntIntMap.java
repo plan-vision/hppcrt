@@ -1,23 +1,24 @@
 package com.carrotsearch.hppcrt.implementations;
 
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-
 import java.util.Arrays;
 import java.util.Random;
 
+import org.apache.mahout.math.map.OpenIntIntHashMap;
+
 import com.carrotsearch.hppcrt.XorShiftRandom;
 
-public class FastUtilMap extends MapImplementation<Int2IntOpenHashMap>
+public class MahoutIntIntMap extends MapImplementation<OpenIntIntHashMap>
 {
     private int[] insertKeys;
     private int[] containsKeys;
     private int[] removedKeys;
     private int[] insertValues;
 
-    protected FastUtilMap(final int size, final float loadFactor)
+    public MahoutIntIntMap(final int size, final float loadFactor)
     {
-        super(new Int2IntOpenHashMap(
+        super(new OpenIntIntHashMap(
                 size,
+                0.1,
                 loadFactor));
     }
 
@@ -40,6 +41,7 @@ public class FastUtilMap extends MapImplementation<Int2IntOpenHashMap>
 
             this.insertValues[i] = prng.nextInt();
         }
+
     }
 
     @Override
@@ -56,7 +58,7 @@ public class FastUtilMap extends MapImplementation<Int2IntOpenHashMap>
     @Override
     public int benchPutAll() {
 
-        final Int2IntOpenHashMap instance = this.instance;
+        final OpenIntIntHashMap instance = this.instance;
         final int[] values = this.insertValues;
 
         int count = 0;
@@ -65,7 +67,7 @@ public class FastUtilMap extends MapImplementation<Int2IntOpenHashMap>
 
         for (int i = 0; i < keys.length; i++) {
 
-            count += instance.put(keys[i], values[i]);
+            count += (instance.put(keys[i], values[i]) ? 1 : 0);
         }
 
         return count;
@@ -74,7 +76,7 @@ public class FastUtilMap extends MapImplementation<Int2IntOpenHashMap>
     @Override
     public int benchContainKeys()
     {
-        final Int2IntOpenHashMap instance = this.instance;
+        final OpenIntIntHashMap instance = this.instance;
 
         int count = 0;
 
@@ -91,7 +93,7 @@ public class FastUtilMap extends MapImplementation<Int2IntOpenHashMap>
     @Override
     public int benchRemoveKeys() {
 
-        final Int2IntOpenHashMap instance = this.instance;
+        final OpenIntIntHashMap instance = this.instance;
 
         int count = 0;
 
@@ -99,10 +101,9 @@ public class FastUtilMap extends MapImplementation<Int2IntOpenHashMap>
 
         for (int i = 0; i < keys.length; i++) {
 
-            count += instance.remove(keys[i]);
+            count += instance.removeKey(keys[i]) ? 1 : 0;
         }
 
         return count;
     }
-
 }

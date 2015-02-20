@@ -4,9 +4,9 @@ import java.util.Random;
 
 import com.carrotsearch.hppcrt.Util;
 import com.carrotsearch.hppcrt.XorShiftRandom;
-import com.gs.collections.impl.map.mutable.primitive.ObjectIntHashMap;
+import com.carrotsearch.hppcrt.maps.ObjectIntOpenHashMap;
 
-public class GsObjectMap extends MapImplementation<ObjectIntHashMap<MapImplementation.ComparableInt>>
+public class HppcObjectIntMap extends MapImplementation<ObjectIntOpenHashMap<MapImplementation.ComparableInt>>
 {
 
     private ComparableInt[] insertKeys;
@@ -14,10 +14,9 @@ public class GsObjectMap extends MapImplementation<ObjectIntHashMap<MapImplement
     private ComparableInt[] removedKeys;
     private int[] insertValues;
 
-    protected GsObjectMap(final int size, final float loadFactor)
+    protected HppcObjectIntMap(final int size, final float loadFactor)
     {
-        //load factor is fixed to 0.5 !
-        super(new ObjectIntHashMap<ComparableInt>(size));
+        super(new ObjectIntOpenHashMap<ComparableInt>(size, loadFactor));
     }
 
     /**
@@ -70,25 +69,25 @@ public class GsObjectMap extends MapImplementation<ObjectIntHashMap<MapImplement
     @Override
     public int benchPutAll() {
 
-        final ObjectIntHashMap<ComparableInt> instance = this.instance;
+        final ObjectIntOpenHashMap<ComparableInt> instance = this.instance;
         final int[] values = this.insertValues;
 
-        final int count = 0;
+        int count = 0;
 
         final ComparableInt[] keys = this.insertKeys;
 
         for (int i = 0; i < keys.length; i++) {
 
-            instance.put(keys[i], values[i]);
+            count += instance.put(keys[i], values[i]);
         }
 
-        return instance.size();
+        return count;
     }
 
     @Override
     public int benchContainKeys()
     {
-        final ObjectIntHashMap<ComparableInt> instance = this.instance;
+        final ObjectIntOpenHashMap<ComparableInt> instance = this.instance;
 
         int count = 0;
 
@@ -105,17 +104,17 @@ public class GsObjectMap extends MapImplementation<ObjectIntHashMap<MapImplement
     @Override
     public int benchRemoveKeys() {
 
-        final ObjectIntHashMap<ComparableInt> instance = this.instance;
+        final ObjectIntOpenHashMap<ComparableInt> instance = this.instance;
 
-        final int count = 0;
+        int count = 0;
 
         final ComparableInt[] keys = this.removedKeys;
 
         for (int i = 0; i < keys.length; i++) {
 
-            instance.remove(keys[i]);
+            count += instance.remove(keys[i]);
         }
 
-        return instance.size();
+        return count;
     }
 }

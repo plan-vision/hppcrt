@@ -2,7 +2,9 @@ package com.carrotsearch.hppcrt.implementations;
 
 import java.util.Random;
 
-import net.openhft.koloboke.collect.Equivalence;
+import org.openjdk.jmh.infra.Blackhole;
+
+import net.openhft.koloboke.collect.StatelessEquivalence;
 import net.openhft.koloboke.collect.hash.HashConfig;
 import net.openhft.koloboke.collect.map.hash.HashObjIntMap;
 import net.openhft.koloboke.collect.map.hash.HashObjIntMaps;
@@ -10,17 +12,39 @@ import net.openhft.koloboke.collect.map.hash.HashObjIntMaps;
 import com.carrotsearch.hppcrt.Util;
 import com.carrotsearch.hppcrt.XorShiftRandom;
 
-public class HftcIdentityMap extends MapImplementation<HashObjIntMap<MapImplementation.ComparableInt>>
+public class KolobokeObjectIntMap extends MapImplementation<HashObjIntMap<MapImplementation.ComparableInt>>
 {
     private ComparableInt[] insertKeys;
     private ComparableInt[] containsKeys;
     private ComparableInt[] removedKeys;
     private int[] insertValues;
 
-    protected HftcIdentityMap(final int size, final float loadFactor)
+    protected KolobokeObjectIntMap(final int size, final float loadFactor)
     {
-        super(HashObjIntMaps.<MapImplementation.ComparableInt> getDefaultFactory().withKeyEquivalence(Equivalence.identity()).
-                withHashConfig(HashConfig.fromLoads(loadFactor / 2, loadFactor, loadFactor)).newMutableMap(size));
+        //since Objects are not mixed in Koloboke, a strategy must be used.
+        super(HashObjIntMaps.<MapImplementation.ComparableInt> getDefaultFactory().
+                withHashConfig(HashConfig.fromLoads(loadFactor / 2, loadFactor, loadFactor)).
+                withKeyEquivalence(new StatelessEquivalence<MapImplementation.ComparableInt>() {
+
+                    @Override
+                    public boolean equivalent(final MapImplementation.ComparableInt i1, final MapImplementation.ComparableInt i2) {
+
+                        //eat some CPU to simulate method cost
+                        Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
+
+                        return i1.value == i2.value;
+                    }
+
+                    @Override
+                    public int hash(final MapImplementation.ComparableInt i) {
+
+                        //eat some CPU to simulate method cost
+                        Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
+
+                        return i.value * -1640531527; // magic mix
+                    }
+                }).
+                newMutableMap(size));
     }
 
     /**
@@ -39,23 +63,23 @@ public class HftcIdentityMap extends MapImplementation<HashObjIntMap<MapImplemen
         this.insertValues = new int[keysToInsert.length];
 
         //Auto box into Integers, they must have the same length anyway.
-        for (int ii = 0; ii < keysToInsert.length; ii++) {
+        for (int i = 0; i < keysToInsert.length; i++) {
 
-            this.insertKeys[ii] = new ComparableInt(keysToInsert[ii], hashQ);
+            this.insertKeys[i] = new ComparableInt(keysToInsert[i], hashQ);
 
-            this.insertValues[ii] = prng.nextInt();
+            this.insertValues[i] = prng.nextInt();
         }
 
-        //Auto box into Integers, they must have the same length anyway.
-        for (int ii = 0; ii < keysForContainsQuery.length; ii++) {
+        //Auto box into Integers
+        for (int i = 0; i < keysForContainsQuery.length; i++) {
 
-            this.containsKeys[ii] = new ComparableInt(keysForContainsQuery[ii], hashQ);
+            this.containsKeys[i] = new ComparableInt(keysForContainsQuery[i], hashQ);
         }
 
-        //Auto box into Integers, they must have the same length anyway.
-        for (int ii = 0; ii < keysForRemovalQuery.length; ii++) {
+        //Auto box into Integers
+        for (int i = 0; i < keysForRemovalQuery.length; i++) {
 
-            this.removedKeys[ii] = new ComparableInt(keysForRemovalQuery[ii], hashQ);
+            this.removedKeys[i] = new ComparableInt(keysForRemovalQuery[i], hashQ);
         }
     }
 

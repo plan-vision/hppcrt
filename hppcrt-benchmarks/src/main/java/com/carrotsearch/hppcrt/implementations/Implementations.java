@@ -5,75 +5,75 @@ package com.carrotsearch.hppcrt.implementations;
  */
 public enum Implementations
 {
-    HPPC
+    HPPC_INT_INT
     {
         @Override
         public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
-            return new HppcMap(size, loadFactor);
+            return new HppcIntIntMap(size, loadFactor);
         }
     },
 
-    FASTUTIL
+    FASTUTIL_INT_INT
     {
         @Override
         public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
-            return new FastUtilMap(size, loadFactor);
+            return new FastUtilIntIntMap(size, loadFactor);
         }
     },
 
-    KOLOBOKE
+    KOLOBOKE_INT_INT
     {
         @Override
         public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
-            return new HftcMap(size, loadFactor);
+            return new KolobokeIntIntMap(size, loadFactor);
         }
     },
 
-    GS
+    GS_INT_INT
     {
         @Override
         public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
-            return new GsMap(size, loadFactor);
+            return new GsIntIntMap(size, loadFactor);
         }
     },
 
-    MAHOUT
+    MAHOUT_INT_INT
     {
         @Override
         public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
-            return new MahoutMap(size, loadFactor);
+            return new MahoutIntIntMap(size, loadFactor);
         }
     },
 
-    TROVE
+    TROVE_INT_INT
     {
         @Override
         public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
-            return new TroveMap(size, loadFactor);
+            return new TroveIntIntMap(size, loadFactor);
         }
     },
 
-    JAVA
+    JAVA_INT_INT
     {
         @Override
         public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
-            return new JavaMap(size, loadFactor);
+            return new JavaIntIntMap(size, loadFactor);
         }
     },
 
-    HPPC_OBJ
+    HPPC_OBJ_INT
     {
         @Override
         public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
-            return new HppcObjectMap(size, loadFactor);
+            return new HppcObjectIntMap(size, loadFactor);
         }
 
         @Override
@@ -83,12 +83,12 @@ public enum Implementations
         }
     },
 
-    HPPC_OBJ_STRATEGY
+    HPPC_OBJ_INT_STRATEGY
     {
         @Override
         public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
-            return new HppcCustomMap(size, loadFactor);
+            return new HppcObjectIntCustomMap(size, loadFactor);
         }
 
         @Override
@@ -98,12 +98,12 @@ public enum Implementations
         }
     },
 
-    FASTUTIL_OBJ
+    FASTUTIL_OBJ_INT
     {
         @Override
         public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
-            return new FastUtilObjectMap(size, loadFactor);
+            return new FastUtilObjectIntMap(size, loadFactor);
         }
 
         @Override
@@ -113,12 +113,12 @@ public enum Implementations
         }
     },
 
-    KOLOBOKE_OBJ
+    KOLOBOKE_OBJ_INT
     {
         @Override
         public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
-            return new HftcObjectMap(size, loadFactor);
+            return new KolobokeObjectIntMap(size, loadFactor);
         }
 
         @Override
@@ -128,12 +128,12 @@ public enum Implementations
         }
     },
 
-    GS_OBJ
+    GS_OBJ_INT
     {
         @Override
         public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
-            return new GsObjectMap(size, loadFactor);
+            return new GsObjectIntMap(size, loadFactor);
         }
 
         @Override
@@ -143,12 +143,12 @@ public enum Implementations
         }
     },
 
-    MAHOUT_OBJ
+    MAHOUT_OBJ_INT
     {
         @Override
         public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
-            return new MahoutObjectMap(size, loadFactor);
+            return new MahoutObjectIntMap(size, loadFactor);
         }
 
         @Override
@@ -158,12 +158,12 @@ public enum Implementations
         }
     },
 
-    TROVE_OBJ
+    TROVE_OBJ_INT
     {
         @Override
         public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
-            return new TroveObjectMap(size, loadFactor);
+            return new TroveObjectIntMap(size, loadFactor);
         }
 
         @Override
@@ -173,12 +173,12 @@ public enum Implementations
         }
     },
 
-    HPPC_IDENTITY
+    HPPC_IDENTITY_INT
     {
         @Override
         public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
-            return new HppcIdentityMap(size, loadFactor);
+            return new HppcIdentityIntMap(size, loadFactor);
         }
 
         /**
@@ -191,12 +191,12 @@ public enum Implementations
         }
     },
 
-    FASTUTIL_IDENTITY
+    FASTUTIL_IDENTITY_INT
     {
         @Override
         public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
-            return new FastUtilIdentityMap(size, loadFactor);
+            return new FastUtilIdentityIntMap(size, loadFactor);
         }
 
         /**
@@ -209,12 +209,12 @@ public enum Implementations
         }
     },
 
-    KOLOBOKE_IDENTITY
+    KOLOBOKE_IDENTITY_INT
     {
         @Override
         public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
-            return new HftcIdentityMap(size, loadFactor);
+            return new KolobokeIdentityIntMap(size, loadFactor);
         }
 
         /**

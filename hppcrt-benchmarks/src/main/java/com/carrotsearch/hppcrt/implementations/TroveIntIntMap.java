@@ -1,22 +1,24 @@
 package com.carrotsearch.hppcrt.implementations;
 
+import gnu.trove.map.hash.TIntIntHashMap;
+
 import java.util.Arrays;
 import java.util.Random;
 
 import com.carrotsearch.hppcrt.XorShiftRandom;
-import com.gs.collections.impl.map.mutable.primitive.IntIntHashMap;
 
-public class GsMap extends MapImplementation<IntIntHashMap>
+public class TroveIntIntMap extends MapImplementation<TIntIntHashMap>
 {
     private int[] insertKeys;
     private int[] containsKeys;
     private int[] removedKeys;
     private int[] insertValues;
 
-    public GsMap(final int size, final float loadFactor)
+    public TroveIntIntMap(final int size, final float loadFactor)
     {
-        //load factor is fixed to 0.5 !
-        super(new IntIntHashMap(size));
+        super(new TIntIntHashMap(
+                size,
+                loadFactor));
     }
 
     /**
@@ -54,27 +56,25 @@ public class GsMap extends MapImplementation<IntIntHashMap>
     @Override
     public int benchPutAll() {
 
-        final IntIntHashMap instance = this.instance;
-
+        final TIntIntHashMap instance = this.instance;
         final int[] values = this.insertValues;
 
-        final int count = 0;
+        int count = 0;
 
         final int[] keys = this.insertKeys;
 
         for (int i = 0; i < keys.length; i++) {
 
-            //those ones do not return the previous value....
-            instance.put(keys[i], values[i]);
+            count += instance.put(keys[i], values[i]);
         }
 
-        return instance.size();
+        return count;
     }
 
     @Override
     public int benchContainKeys()
     {
-        final IntIntHashMap instance = this.instance;
+        final TIntIntHashMap instance = this.instance;
 
         int count = 0;
 
@@ -91,19 +91,17 @@ public class GsMap extends MapImplementation<IntIntHashMap>
     @Override
     public int benchRemoveKeys() {
 
-        final IntIntHashMap instance = this.instance;
+        final TIntIntHashMap instance = this.instance;
 
-        final int count = 0;
+        int count = 0;
 
         final int[] keys = this.removedKeys;
 
         for (int i = 0; i < keys.length; i++) {
 
-            //those ones do not return the previous value....
-            instance.remove(keys[i]);
+            count += instance.remove(keys[i]);
         }
 
-        return instance.size();
+        return count;
     }
-
 }

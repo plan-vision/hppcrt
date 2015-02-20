@@ -7,14 +7,14 @@ import java.util.Random;
 import com.carrotsearch.hppcrt.Util;
 import com.carrotsearch.hppcrt.XorShiftRandom;
 
-public class FastUtilIdentityMap extends MapImplementation<Reference2IntOpenHashMap<MapImplementation.ComparableInt>>
+public class FastUtilIdentityIntMap extends MapImplementation<Reference2IntOpenHashMap<MapImplementation.ComparableInt>>
 {
     private ComparableInt[] insertKeys;
     private ComparableInt[] containsKeys;
     private ComparableInt[] removedKeys;
     private int[] insertValues;
 
-    protected FastUtilIdentityMap(final int size, final float loadFactor)
+    protected FastUtilIdentityIntMap(final int size, final float loadFactor)
     {
         super(new Reference2IntOpenHashMap<ComparableInt>(size, loadFactor));
     }

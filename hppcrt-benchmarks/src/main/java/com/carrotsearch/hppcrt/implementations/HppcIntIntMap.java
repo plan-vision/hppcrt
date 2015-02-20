@@ -6,14 +6,14 @@ import java.util.Random;
 import com.carrotsearch.hppcrt.XorShiftRandom;
 import com.carrotsearch.hppcrt.maps.IntIntOpenHashMap;
 
-public class HppcMap extends MapImplementation<IntIntOpenHashMap>
+public class HppcIntIntMap extends MapImplementation<IntIntOpenHashMap>
 {
     private int[] insertKeys;
     private int[] containsKeys;
     private int[] removedKeys;
     private int[] insertValues;
 
-    protected HppcMap(final int size, final float loadFactor)
+    protected HppcIntIntMap(final int size, final float loadFactor)
     {
         super(new IntIntOpenHashMap(size, loadFactor));
     }
