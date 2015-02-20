@@ -59,6 +59,15 @@ public enum Implementations
         }
     },
 
+    JAVOLUTION_INT_INT
+    {
+        @Override
+        public MapImplementation<?> getInstance(final int size, final float loadFactor)
+        {
+            return new JavolutionIntIntMap(size, loadFactor);
+        }
+    },
+
     JAVA_INT_INT
     {
         @Override
