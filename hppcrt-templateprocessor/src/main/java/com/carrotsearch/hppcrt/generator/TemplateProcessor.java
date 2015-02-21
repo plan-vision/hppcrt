@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map.Entry;
 import java.util.UnknownFormatConversionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,8 +46,6 @@ public final class TemplateProcessor
 
     //TODO: Maybe load from class path ?
     private static String INTRINSICS_FILE_NAME = "com/carrotsearch/hppcrt/Intrinsics.java";
-
-    private static final Pattern INTRINSICS_METHOD_CALL = Pattern.compile("(Intrinsics.\\s*)(<[^>]+>\\s*)?([a-zA-Z]+)", Pattern.MULTILINE | Pattern.DOTALL);
 
     private static final Pattern IMPORT_DECLARATION = Pattern.compile("(import\\s+[\\w.\\*\\s]*;)", Pattern.MULTILINE | Pattern.DOTALL);
 
@@ -207,6 +206,7 @@ public final class TemplateProcessor
         ctx.put("TemplateOptions", options);
 
         //Attach some GenericTools that may be useful for code generation :
+
         ctx.put("esct", new EscapeTool());
         ctx.put("classt", new ClassTool());
         ctx.put("contextt", new ContextTool());
@@ -457,69 +457,70 @@ public final class TemplateProcessor
         return input;
     }
 
-    private String filterInlinesSet(final TemplateFile f, String input, final HashMap<String, String> inlineTypeDefinitions) {
+    private String filterInlinesSet(final TemplateFile f, final String input, final HashMap<String, InlinedMethodDef> inlineTypeDefinitions) {
 
-        final StringBuffer sb = new StringBuffer();
+        final StringBuilder sb = new StringBuilder();
+        final StringBuilder currentInput = new StringBuilder(input);
 
-        //1) Make 2 passes max.
-        int nbRemainingPasses = 2;
+        //1) passes until no inline occures
+        boolean continueProcessing = true;
 
-        while (nbRemainingPasses >= 1) {
+        while (continueProcessing) {
 
-            nbRemainingPasses--;
+            continueProcessing = false;
 
             //Attempt on each of inlineDefinitions
-            for (final String callName : inlineTypeDefinitions.keySet()) {
+            for (final Entry<String, InlinedMethodDef> inlinedMethod : inlineTypeDefinitions.entrySet()) {
 
                 String bodyPattern = "";
 
-                final Pattern p = Pattern.compile(callName, Pattern.MULTILINE | Pattern.DOTALL);
+                final Pattern p = inlinedMethod.getValue().compiledCallName;
 
                 //flush
                 sb.setLength(0);
 
                 //0) First, check for imports
-                Matcher m = TemplateProcessor.IMPORT_DECLARATION.matcher(input);
+                Matcher m = TemplateProcessor.IMPORT_DECLARATION.matcher(currentInput);
 
                 while (m.find())
                 {
                     //append what is before
-                    sb.append(input.substring(0, m.end()));
+                    sb.append(currentInput, 0, m.end());
 
-                    //truncate after the found region
-                    input = input.substring(m.end());
+                    //re-start after the found region
+                    currentInput.delete(0, m.end());
 
                     //restart search :
-                    m = TemplateProcessor.IMPORT_DECLARATION.matcher(input);
+                    m = TemplateProcessor.IMPORT_DECLARATION.matcher(currentInput);
                 }
 
                 //1) Search for the pattern
                 while (true)
                 {
-                    m = p.matcher(input);
+                    m = p.matcher(currentInput);
 
                     //end if found matcher
                     if (m.find())
                     {
+                        continueProcessing = true;
+
                         if (this.verbose) {
 
-                            System.out.println("[INFO] filterInlines(): Pattern finding '" +
-                                    m.toString() + "'...");
-
-                            System.out.println("[INFO] filterInlines(): found matching for '" + callName +
-                                    "' in file '" + f.fullPath + "' with " + inlineTypeDefinitions.get(callName));
+                            System.out.println("[INFO] filterInlines(): found matching for '" + inlinedMethod.getKey() +
+                                    "' in file '" + f.fullPath + "' with " + inlinedMethod.getValue());
                         }
 
-                        sb.append(input.substring(0, m.start()));
+                        sb.append(currentInput, 0, m.start());
 
                         int bracketCount = 0;
                         int last = m.end();
+
                         final ArrayList<String> params = new ArrayList<String>();
 
                         //go back 1 character to capture the first parenthesis again
                         outer: for (int i = m.end() - 1; i < input.length(); i++)
                         {
-                            switch (input.charAt(i))
+                            switch (currentInput.charAt(i))
                             {
                                 case '(':
                                     bracketCount++;
@@ -528,9 +529,9 @@ public final class TemplateProcessor
                                     bracketCount--;
                                     if (bracketCount == 0)
                                     {
-                                        params.add(input.substring(last, i).trim());
+                                        params.add(currentInput.substring(last, i).trim());
 
-                                        input = input.substring(i + 1);
+                                        currentInput.delete(0, i + 1);
                                         break outer;
                                     }
                                     break;
@@ -538,7 +539,7 @@ public final class TemplateProcessor
                                     if (bracketCount == 1)
                                     {
                                         //add a parameter
-                                        params.add(input.substring(last, i));
+                                        params.add(currentInput.substring(last, i));
 
                                         last = i + 1;
                                     }
@@ -549,7 +550,7 @@ public final class TemplateProcessor
                         //fill-in the arguments depending of the type
                         bodyPattern = "";
 
-                        bodyPattern = inlineTypeDefinitions.get(callName);
+                        bodyPattern = inlinedMethod.getValue().getBody();
 
                         //apply replacement, if not null
                         if (!bodyPattern.isEmpty()) {
@@ -565,8 +566,10 @@ public final class TemplateProcessor
                                     }
                                 }
                                 else {
-                                    //the method has no arguments
-                                    sb.append("(" + bodyPattern + ")");
+                                    //the method has no arguments, simply pass the bodyPattern with no transform
+                                    sb.append("(");
+                                    sb.append(bodyPattern);
+                                    sb.append(")");
 
                                     if (this.verbose) {
                                         System.out.println("[INFO] filterInlines(): Applying inlined body '" +
@@ -583,18 +586,19 @@ public final class TemplateProcessor
                     else
                     {
                         //not found, append the contents directly
-                        sb.append(input);
+                        sb.append(currentInput);
                         break;
                     }
                 } //end while true
 
                 //re-process the same input for each method call
-                input = sb.toString();
+                currentInput.setLength(0);
+                currentInput.append(sb);
 
             } //end for call names
         } //end while
 
-        return input.toString();
+        return currentInput.toString();
     }
 
     private String filterComments(final TemplateFile f, final String input, final TemplateOptions templateOptions)

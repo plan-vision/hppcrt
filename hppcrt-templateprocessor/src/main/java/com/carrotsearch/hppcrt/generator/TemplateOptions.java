@@ -4,6 +4,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,8 +23,11 @@ public class TemplateOptions
     final public Type ktype;
     final public Type vtype;
 
-    public HashMap<String, String> inlineKTypeDefinitions = new HashMap<String, String>();
-    public HashMap<String, String> inlineVTypeDefinitions = new HashMap<String, String>();
+    /**
+     * Call names to InlinedMethodDef mappings
+     */
+    public final HashMap<String, InlinedMethodDef> inlineKTypeDefinitions = new HashMap<String, InlinedMethodDef>();
+    public final HashMap<String, InlinedMethodDef> inlineVTypeDefinitions = new HashMap<String, InlinedMethodDef>();
 
     private boolean verbose = false;
 
@@ -262,70 +266,72 @@ public class TemplateOptions
         args = args.replace(")", "").trim();
 
         //Pick the ones matching TemplateOptions current Type(s) :
-        String ktypeBody = "";
+        String body = "";
 
         if (this.ktype == Type.GENERIC) {
-            ktypeBody = genericCallBody;
+            body = genericCallBody;
 
         }
         else if (this.ktype == Type.BYTE) {
-            ktypeBody = integerCallBody;
+            body = integerCallBody;
 
         }
         else if (this.ktype == Type.CHAR) {
-            ktypeBody = integerCallBody;
+            body = integerCallBody;
 
         }
         else if (this.ktype == Type.SHORT) {
-            ktypeBody = integerCallBody;
+            body = integerCallBody;
 
         }
         else if (this.ktype == Type.INT) {
-            ktypeBody = integerCallBody;
+            body = integerCallBody;
 
         }
         else if (this.ktype == Type.LONG) {
-            ktypeBody = longCallBody;
+            body = longCallBody;
 
         }
         else if (this.ktype == Type.FLOAT) {
-            ktypeBody = floatCallBody;
+            body = floatCallBody;
 
         }
         else if (this.ktype == Type.DOUBLE) {
-            ktypeBody = doubleCallBody;
+            body = doubleCallBody;
 
         }
         else if (this.ktype == Type.BOOLEAN) {
-            ktypeBody = booleanCallBody;
+            body = booleanCallBody;
         }
 
-        final String formatedCallName = TemplateOptions.reformatCallName(callName);
+        //Update Pattern cache
+        if (!this.inlineKTypeDefinitions.containsKey(callName)) {
+            this.inlineKTypeDefinitions.put(callName, new InlinedMethodDef(callName));
+        }
 
         //the method has no arguments
         if (args.isEmpty()) {
 
-            this.inlineKTypeDefinitions.put(formatedCallName, ktypeBody);
+            this.inlineKTypeDefinitions.get(callName).setBody(body);
 
             if (this.verbose) {
 
                 System.out.println("TemplateOptions : " + toString() + " captured the inlined KType function def '" +
-                        formatedCallName + "' with no argument : " +
-                        this.inlineKTypeDefinitions.get(formatedCallName));
+                        callName + "' with no argument : " +
+                        this.inlineKTypeDefinitions.get(callName));
             }
         }
         else {
 
             final String[] argsArray = args.split(",");
 
-            this.inlineKTypeDefinitions.put(formatedCallName,
-                    TemplateOptions.reformatArguments(ktypeBody, argsArray));
+            this.inlineKTypeDefinitions.get(callName).setBody(TemplateOptions.reformatArguments(body, argsArray));
 
             if (this.verbose) {
 
                 System.out.println("TemplateOptions : " + toString() + " captured the inlined KType function def '" +
-                        formatedCallName + "' with multiple arguments : " +
-                        this.inlineKTypeDefinitions.get(formatedCallName));
+                        callName + "' with multiple arguments : " +
+                        this.inlineKTypeDefinitions.get(callName));
             }
         }
 
@@ -346,74 +352,72 @@ public class TemplateOptions
         args = args.replace(")", "").trim();
 
         //Pick the ones matching TemplateOptions current Type(s) :
+        String body = "";
 
-        String vtypeBody = "";
-
-        //
         if (this.vtype == Type.GENERIC) {
+            body = genericCallBody;
 
-            vtypeBody = genericCallBody;
         }
         else if (this.vtype == Type.BYTE) {
+            body = integerCallBody;
 
-            vtypeBody = integerCallBody;
         }
         else if (this.vtype == Type.CHAR) {
+            body = integerCallBody;
 
-            vtypeBody = integerCallBody;
         }
         else if (this.vtype == Type.SHORT) {
+            body = integerCallBody;
 
-            vtypeBody = integerCallBody;
         }
         else if (this.vtype == Type.INT) {
+            body = integerCallBody;
 
-            vtypeBody = integerCallBody;
         }
         else if (this.vtype == Type.LONG) {
+            body = longCallBody;
 
-            vtypeBody = longCallBody;
         }
         else if (this.vtype == Type.FLOAT) {
+            body = floatCallBody;
 
-            vtypeBody = floatCallBody;
         }
         else if (this.vtype == Type.DOUBLE) {
+            body = doubleCallBody;
 
-            vtypeBody = doubleCallBody;
         }
         else if (this.vtype == Type.BOOLEAN) {
-
-            vtypeBody = booleanCallBody;
+            body = booleanCallBody;
         }
 
-        final String formatedCallName = TemplateOptions.reformatCallName(callName);
+        //Update Pattern cache
+        if (!this.inlineVTypeDefinitions.containsKey(callName)) {
+            this.inlineVTypeDefinitions.put(callName, new InlinedMethodDef(callName));
+        }
 
         //the method has no arguments
         if (args.isEmpty()) {
 
-            this.inlineVTypeDefinitions.put(formatedCallName,
-                    vtypeBody);
+            this.inlineVTypeDefinitions.get(callName).setBody(body);
 
             if (this.verbose) {
 
                 System.out.println("TemplateOptions : " + toString() + " captured the inlined VType function def '" +
-                        formatedCallName + "' with no argument : " +
-                        this.inlineVTypeDefinitions.get(formatedCallName));
+                        callName + "' with no argument : " +
+                        this.inlineVTypeDefinitions.get(callName));
             }
         }
         else {
 
             final String[] argsArray = args.split(",");
 
-            this.inlineVTypeDefinitions.put(formatedCallName,
-                    TemplateOptions.reformatArguments(vtypeBody, argsArray));
+            this.inlineVTypeDefinitions.get(callName).setBody(TemplateOptions.reformatArguments(body, argsArray));
 
             if (this.verbose) {
 
                 System.out.println("TemplateOptions : " + toString() + " captured the inlined VType function def '" +
-                        formatedCallName + "' with multiple arguments : " +
-                        this.inlineVTypeDefinitions.get(formatedCallName));
+                        callName + "' with multiple arguments : " +
+                        this.inlineVTypeDefinitions.get(callName));
             }
         }
 
@@ -447,26 +451,30 @@ public class TemplateOptions
      * @param argsArray
      * @return
      */
-    protected static String reformatArguments(String methodBodyStr, final String[] argsArray)
+    protected static String reformatArguments(final String methodBodyStr, final String[] argsArray)
     {
         int argPosition = 0;
         boolean argumentIsFound = false;
+
+        final StringBuilder sb = new StringBuilder();
+
+        final StringBuilder currentBody = new StringBuilder(methodBodyStr);
 
         //for each of the arguments
         for (int i = 0; i < argsArray.length; i++)
         {
             argumentIsFound = false;
 
-            final StringBuffer body = new StringBuffer();
+            sb.setLength(0);
 
             while (true)
             {
-                final Matcher m = TemplateOptions.JAVA_IDENTIFIER_PATTERN.matcher(methodBodyStr);
+                final Matcher m = TemplateOptions.JAVA_IDENTIFIER_PATTERN.matcher(currentBody);
 
                 if (m.find())
                 {
                     //copy from the start of the (remaining) method body to start of the current find :
-                    body.append(methodBodyStr.substring(0, m.start()));
+                    sb.append(currentBody, 0, m.start());
 
                     //this java identifier is known, replace
                     if (m.group().equals(argsArray[i].trim()))
@@ -479,28 +487,31 @@ public class TemplateOptions
                         }
 
                         //append replacement
-                        body.append("%" + argPosition + "$s");
+                        sb.append('%');
+                        sb.append(argPosition);
+                        sb.append("$s");
                     }
                     else
                     {
                         //else append verbatim
-                        body.append(m.group());
+                        sb.append(m.group());
                     }
 
-                    //Truncate methodBodyStr to only keep the remaining string, after the current find :
-                    methodBodyStr = methodBodyStr.substring(m.end());
+                    //Truncate currentBody to only keep the remaining string, after the current find :
+                    currentBody.delete(0, m.end());
 
                 } //end if find
                 else
                 {
                     //append verbatim
-                    body.append(methodBodyStr);
+                    sb.append(currentBody);
                     break;
                 }
             } //end while
 
             //re-run for the next argument with the whole previous computation
-            methodBodyStr = body.toString();
+            currentBody.setLength(0);
+            currentBody.append(sb);
 
             //if a particular argument do not exist in method body, we must skip its position anyway.
             if (!argumentIsFound) {
@@ -509,43 +520,7 @@ public class TemplateOptions
             }
         }  //end for each arguments
 
-        return methodBodyStr;
-    }
-
-    /**
-     * Reformat the call name to a Pattern able
-     * to have optional Generic arguments
-     * @param callName
-     * @return
-     */
-    protected static String reformatCallName(final String callName)
-    {
-        String reformatted = "";
-        //Search if the name is qualified ("this." ," ClassName.")
-        final String[] splittedCallName = callName.split("\\.");
-
-        if (splittedCallName.length == 1) {
-
-            //not qualified, form a 2 group regex with an optional generic pattern, ex:
-            //"foo" ==> "(<[^>]+>\\s*)?(foo)"
-            //also captures the first parenthesis of the function just after callName.
-            reformatted = "(<[^>]+>\\s*)?" + "(" + callName + ")(\\()";
-
-        }
-        else if (splittedCallName.length == 2) {
-
-            //qualified, form a 3 group regex with a generic pattern, ex :
-            //"Intrinsics.newKTypeArray" ==> "(Intrinsics.\\s*)(<[^>]+>\\s*)?(newKTypeArray)"
-            //also captures the first parenthesis of the function just after callName.
-            reformatted = "(" + splittedCallName[0] + ".\\s*)" + "(<[^>]+>\\s*)?" + "(" + splittedCallName[1] + ")(\\()";
-
-        }
-        else {
-            //not managed
-            throw new ParseErrorException("[ERROR] : Not able to manage this call form: " + callName);
-        }
-
-        return reformatted;
+        return currentBody.toString();
     }
 
     @Override
@@ -580,10 +555,6 @@ public class TemplateOptions
         matcher.find();
 
         System.out.println(matcher.toString());
-
-        System.out.println(TemplateOptions.reformatCallName("Intrinsics.defaultKTypeValue"));
-
-        System.out.println(TemplateOptions.reformatCallName("indexToBufferPosition"));
 
         testInstance.inlineKType("is_allocated",
                 "(alloc, slot, keys)",
