@@ -1128,7 +1128,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     }
 
     //Test for existence in template
-    /*! #if ($TemplateOptions.inline("is_allocated",
+    /*! #if ($TemplateOptions.inlineKType("is_allocated",
     "(slot, keys)",
     "keys[slot] != Intrinsics.defaultKTypeValue()")) !*/
     /**
@@ -1142,7 +1142,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.inline("probe_distance",
+    /*! #if ($TemplateOptions.inlineKType("probe_distance",
     "(slot, cached)",
     "slot < cached[slot] ? slot + cached.length - cached[slot] : slot - cached[slot]")) !*/
     /**
@@ -1168,7 +1168,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.inlineWithFullSpecialization("REHASH",
+    /*! #if ($TemplateOptions.inlineKTypeWithFullSpecialization("REHASH",
     "(value)",
     "MurmurHash3.hash(value.hashCode())",
     "PhiMix.hash(value)",

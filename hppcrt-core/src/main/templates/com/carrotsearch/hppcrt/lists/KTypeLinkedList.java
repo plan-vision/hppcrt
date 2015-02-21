@@ -29,7 +29,7 @@ import com.carrotsearch.hppcrt.sorting.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeLinkedList<KType>
-        extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, KTypeDeque<KType>, Cloneable
+extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, KTypeDeque<KType>, Cloneable
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -1807,7 +1807,7 @@ public class KTypeLinkedList<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> newInstance()
+    KTypeLinkedList<KType> newInstance()
     {
         return new KTypeLinkedList<KType>();
     }
@@ -1817,7 +1817,7 @@ public class KTypeLinkedList<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> newInstanceWithCapacity(final int initialCapacity)
+    KTypeLinkedList<KType> newInstanceWithCapacity(final int initialCapacity)
     {
         return new KTypeLinkedList<KType>(initialCapacity);
     }
@@ -1827,7 +1827,7 @@ public class KTypeLinkedList<KType>
      * The elements are copied from the argument to the internal buffer.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> from(final KType... elements)
+    KTypeLinkedList<KType> from(final KType... elements)
     {
         final KTypeLinkedList<KType> list = new KTypeLinkedList<KType>(elements.length);
         list.add(elements);
@@ -1838,7 +1838,7 @@ public class KTypeLinkedList<KType>
      * Create a list from elements of another container.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> from(final KTypeContainer<KType> container)
+    KTypeLinkedList<KType> from(final KTypeContainer<KType> container)
     {
         return new KTypeLinkedList<KType>(container);
     }
@@ -2105,7 +2105,7 @@ public class KTypeLinkedList<KType>
         return this.buffer[KTypeLinkedList.getLinkBefore(this.beforeAfterPointers[KTypeLinkedList.TAIL_POSITION])];
     }
 
-    /*! #if ($TemplateOptions.inline("KTypeLinkedList.getLinkNodeValue","(beforeIndex, afterIndex)",
+    /*! #if ($TemplateOptions.inlineKType("KTypeLinkedList.getLinkNodeValue","(beforeIndex, afterIndex)",
       "((long) beforeIndex << 32) | afterIndex")) !*/
     /**
      * Builds a LinkList node value from its before an after links.
@@ -2121,7 +2121,7 @@ public class KTypeLinkedList<KType>
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.inline("KTypeLinkedList.getLinkBefore","(nodeValue)", "(int) (nodeValue >> 32)")) !*/
+    /*! #if ($TemplateOptions.inlineKType("KTypeLinkedList.getLinkBefore","(nodeValue)", "(int) (nodeValue >> 32)")) !*/
     private static int getLinkBefore(final long nodeValue)
     {
         return (int) (nodeValue >> 32);
@@ -2129,7 +2129,7 @@ public class KTypeLinkedList<KType>
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.inline("KTypeLinkedList.getLinkAfter","(nodeValue)",
+    /*! #if ($TemplateOptions.inlineKType("KTypeLinkedList.getLinkAfter","(nodeValue)",
        "(int) (nodeValue & 0x00000000FFFFFFFFL)")) !*/
     private static int getLinkAfter(final long nodeValue)
     {
@@ -2138,7 +2138,7 @@ public class KTypeLinkedList<KType>
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.inline("KTypeLinkedList.setLinkBeforeNodeValue","(nodeValue, newBefore)",
+    /*! #if ($TemplateOptions.inlineKType("KTypeLinkedList.setLinkBeforeNodeValue","(nodeValue, newBefore)",
        "((long) newBefore << 32) | (nodeValue & 0x00000000FFFFFFFFL)")) !*/
     private static long setLinkBeforeNodeValue(final long nodeValue, final int newBefore)
     {
@@ -2147,7 +2147,7 @@ public class KTypeLinkedList<KType>
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.inline("KTypeLinkedList.setLinkAfterNodeValue","(nodeValue, newAfter)",
+    /*! #if ($TemplateOptions.inlineKType("KTypeLinkedList.setLinkAfterNodeValue","(nodeValue, newAfter)",
        "newAfter | (nodeValue & 0xFFFFFFFF00000000L)")) !*/
     private static long setLinkAfterNodeValue(final long nodeValue, final int newAfter)
     {

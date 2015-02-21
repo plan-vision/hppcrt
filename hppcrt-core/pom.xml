@@ -95,8 +95,8 @@
             <phase>generate-sources</phase>
             <configuration>
                 <fork>true</fork>
-                <meminitial>256m</meminitial>
-                <maxmem>512m</maxmem>
+                <meminitial>512m</meminitial>
+                <maxmem>1024m</maxmem>
               <target> 
                 <property name="classpath" refid="maven.plugin.classpath" />
                 <echo file="${project.basedir}/.builder.classpath">${classpath}</echo>

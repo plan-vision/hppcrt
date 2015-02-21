@@ -2115,7 +2115,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     }
 
     //Test for existence in template
-    /*! #if ($TemplateOptions.inline("is_allocated",
+    /*! #if ($TemplateOptions.inlineKType("is_allocated",
     "(slot, keys)",
     "keys[slot] != Intrinsics.defaultKTypeValue()")) !*/
     /**
@@ -2129,7 +2129,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.inline("probe_distance",
+    /*! #if ($TemplateOptions.inlineKType("probe_distance",
     "(slot, cache)",
     "slot < cache[slot] ? slot + cache.length - cache[slot] : slot - cache[slot]")) !*/
     /**
@@ -2155,7 +2155,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.inlineWithFullSpecialization("REHASH",
+    /*! #if ($TemplateOptions.inlineKTypeWithFullSpecialization("REHASH",
     "(value)",
     "MurmurHash3.hash(value.hashCode())",
     "PhiMix.hash(value)",

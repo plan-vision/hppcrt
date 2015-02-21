@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.velocity.VelocityContext;
+import org.apache.velocity.exception.ParseErrorException;
 
 /**
  * Template options for velocity directives in templates.
@@ -21,6 +22,11 @@ public class TemplateOptions
     final public Type ktype;
     final public Type vtype;
 
+    public HashMap<String, String> inlineKTypeDefinitions = new HashMap<String, String>();
+    public HashMap<String, String> inlineVTypeDefinitions = new HashMap<String, String>();
+
+    private boolean verbose = false;
+
     /**
      * Reference over the current Velocity context, so that
      * the current context could be set of get from the TemplateOptions object itself.
@@ -28,36 +34,6 @@ public class TemplateOptions
     public VelocityContext context = null;
 
     public File sourceFile;
-
-    public static class LocalInlineBodies
-    {
-        public LocalInlineBodies(final String genericBody,
-                final String integerBody,
-                final String longBody,
-                final String floatBody, final String doubleBody, final String booleanBody) {
-
-            this.genericBody = genericBody;
-            this.integerBody = integerBody;
-            this.longBody = longBody;
-            this.floatBody = floatBody;
-            this.doubleBody = doubleBody;
-            this.booleanBody = booleanBody;
-        }
-
-        public final String genericBody;
-        public final String integerBody;
-        public final String longBody;
-        public final String floatBody;
-        public final String doubleBody;
-        public final String booleanBody;
-
-        @Override
-        public String toString() {
-
-            return String.format("{LocalInlineBodies(gen='%s', int='%s', long=%s, float='%s', double='%s', bool='%s')}",
-                    this.genericBody, this.integerBody, this.longBody, this.floatBody, this.doubleBody, this.booleanBody);
-        }
-    }
 
     /**
      * Exception to throw when we don't want to generate a particular type
@@ -78,8 +54,6 @@ public class TemplateOptions
             this.currentVType = v;
         }
     }
-
-    public HashMap<String, LocalInlineBodies> localInlinesMap = new HashMap<String, LocalInlineBodies>();
 
     public TemplateOptions(final Type ktype, final Type vtype)
     {
@@ -202,9 +176,14 @@ public class TemplateOptions
 
             if (notToBeGenerated.toUpperCase().equals("ALL") || this.ktype == Type.valueOf(notToBeGenerated.toUpperCase())) {
 
-                throw new DoNotGenerateTypeException(this.ktype, this.vtype);
+                doNotGenerate();
             }
         }
+    }
+
+    public void doNotGenerate()
+    {
+        throw new DoNotGenerateTypeException(this.ktype, this.vtype);
     }
 
     public void doNotGenerateVType(final String... notGeneratingType)
@@ -216,86 +195,227 @@ public class TemplateOptions
         {
             if (notToBeGenerated.toUpperCase().equals("ALL") || this.vtype == Type.valueOf(notToBeGenerated.toUpperCase()))
             {
-                throw new DoNotGenerateTypeException(this.ktype, this.vtype);
+                doNotGenerate();
             }
         }
     }
 
-    public boolean inline(final String callName, String args, String universalCallBody) {
+    ///////////////////////////////////////////
+    //////////////// Inline management ////////
+    ///////////////////////////////////////////
+
+    public boolean inlineKType(final String callName, final String args, final String universalCallBody) {
+
+        return inlineKTypeWithFullSpecialization(callName, args,
+                universalCallBody,
+                universalCallBody,
+                universalCallBody,
+                universalCallBody,
+                universalCallBody,
+                universalCallBody);
+    }
+
+    public boolean inlineVType(final String callName, final String args, final String universalCallBody) {
+
+        return inlineVTypeWithFullSpecialization(callName, args,
+                universalCallBody,
+                universalCallBody,
+                universalCallBody,
+                universalCallBody,
+                universalCallBody,
+                universalCallBody);
+    }
+
+    public boolean inlineKTypeGenericAndPrimitive(final String callName, final String args, final String genericCallBody, final String primitiveCallBody) {
+
+        return inlineKTypeWithFullSpecialization(callName, args,
+                genericCallBody,
+                primitiveCallBody,
+                primitiveCallBody,
+                primitiveCallBody,
+                primitiveCallBody,
+                primitiveCallBody);
+    }
+
+    public boolean inlineVTypeGenericAndPrimitive(final String callName, final String args, final String genericCallBody, final String primitiveCallBody) {
+
+        return inlineVTypeWithFullSpecialization(callName, args,
+                genericCallBody,
+                primitiveCallBody,
+                primitiveCallBody,
+                primitiveCallBody,
+                primitiveCallBody,
+                primitiveCallBody);
+    }
+
+    public boolean inlineKTypeWithFullSpecialization(
+            final String callName, String args,
+            final String genericCallBody,
+            final String integerCallBody,
+            final String longCallBody,
+            final String floatCallBody,
+            final String doubleCallBody,
+            final String booleanCallBody) {
 
         //Rebuild the arguments with a pattern understandable by the matcher
-        args = args.replace("(", "");
-        args = args.replace(")", "");
+        args = args.replace("(", "").trim();
+        args = args.replace(")", "").trim();
 
-        final String[] argsArray = args.split(",");
+        //Pick the ones matching TemplateOptions current Type(s) :
+        String ktypeBody = "";
 
-        universalCallBody = reformatJavaArguments(universalCallBody, argsArray);
+        if (this.ktype == Type.GENERIC) {
+            ktypeBody = genericCallBody;
 
-        this.localInlinesMap.put(callName,
-                new LocalInlineBodies(
-                        universalCallBody,
-                        universalCallBody,
-                        universalCallBody,
-                        universalCallBody,
-                        universalCallBody,
-                        universalCallBody));
+        }
+        else if (this.ktype == Type.BYTE) {
+            ktypeBody = integerCallBody;
+
+        }
+        else if (this.ktype == Type.CHAR) {
+            ktypeBody = integerCallBody;
+
+        }
+        else if (this.ktype == Type.SHORT) {
+            ktypeBody = integerCallBody;
+
+        }
+        else if (this.ktype == Type.INT) {
+            ktypeBody = integerCallBody;
+
+        }
+        else if (this.ktype == Type.LONG) {
+            ktypeBody = longCallBody;
+
+        }
+        else if (this.ktype == Type.FLOAT) {
+            ktypeBody = floatCallBody;
+
+        }
+        else if (this.ktype == Type.DOUBLE) {
+            ktypeBody = doubleCallBody;
+
+        }
+        else if (this.ktype == Type.BOOLEAN) {
+            ktypeBody = booleanCallBody;
+        }
+
+        final String formatedCallName = TemplateOptions.reformatCallName(callName);
+
+        //the method has no arguments
+        if (args.isEmpty()) {
+
+            this.inlineKTypeDefinitions.put(formatedCallName, ktypeBody);
+
+            if (this.verbose) {
+
+                System.out.println("TemplateOptions : " + toString() + " captured the inlined KType function def '" +
+                        formatedCallName + "' with no argument : " +
+                        this.inlineKTypeDefinitions.get(formatedCallName));
+            }
+        }
+        else {
+
+            final String[] argsArray = args.split(",");
+
+            this.inlineKTypeDefinitions.put(formatedCallName,
+                    TemplateOptions.reformatArguments(ktypeBody, argsArray));
+
+            if (this.verbose) {
+
+                System.out.println("TemplateOptions : " + toString() + " captured the inlined KType function def '" +
+                        formatedCallName + "' with multiple arguments : " +
+                        this.inlineKTypeDefinitions.get(formatedCallName));
+            }
+        }
 
         return false;
     }
 
-    public boolean inlineGenericAndPrimitive(final String callName, String args, String genericCallBody, String primitiveCallBody) {
+    public boolean inlineVTypeWithFullSpecialization(
+            final String callName, String args,
+            final String genericCallBody,
+            final String integerCallBody,
+            final String longCallBody,
+            final String floatCallBody,
+            final String doubleCallBody,
+            final String booleanCallBody) {
 
         //Rebuild the arguments with a pattern understandable by the matcher
-        args = args.replace("(", "");
-        args = args.replace(")", "");
+        args = args.replace("(", "").trim();
+        args = args.replace(")", "").trim();
 
-        final String[] argsArray = args.split(",");
+        //Pick the ones matching TemplateOptions current Type(s) :
 
-        genericCallBody = reformatJavaArguments(genericCallBody, argsArray);
+        String vtypeBody = "";
 
-        primitiveCallBody = reformatJavaArguments(primitiveCallBody, argsArray);
+        //
+        if (this.vtype == Type.GENERIC) {
 
-        this.localInlinesMap.put(callName,
-                new LocalInlineBodies(
-                        genericCallBody,
-                        primitiveCallBody,
-                        primitiveCallBody,
-                        primitiveCallBody,
-                        primitiveCallBody,
-                        primitiveCallBody));
+            vtypeBody = genericCallBody;
+        }
+        else if (this.vtype == Type.BYTE) {
 
-        return false;
-    }
+            vtypeBody = integerCallBody;
+        }
+        else if (this.vtype == Type.CHAR) {
 
-    public boolean inlineWithFullSpecialization(final String callName, String args,
-            String genericCallBody,
-            String integerCallBody,
-            String longCallBody,
-            String floatCallBody,
-            String doubleCallBody,
-            String booleanCallBody) {
+            vtypeBody = integerCallBody;
+        }
+        else if (this.vtype == Type.SHORT) {
 
-        //Rebuild the arguments with a pattern understandable by the matcher
-        args = args.replace("(", "");
-        args = args.replace(")", "");
+            vtypeBody = integerCallBody;
+        }
+        else if (this.vtype == Type.INT) {
 
-        final String[] argsArray = args.split(",");
+            vtypeBody = integerCallBody;
+        }
+        else if (this.vtype == Type.LONG) {
 
-        genericCallBody = reformatJavaArguments(genericCallBody, argsArray);
-        integerCallBody = reformatJavaArguments(integerCallBody, argsArray);
-        longCallBody = reformatJavaArguments(longCallBody, argsArray);
-        floatCallBody = reformatJavaArguments(floatCallBody, argsArray);
-        doubleCallBody = reformatJavaArguments(doubleCallBody, argsArray);
-        booleanCallBody = reformatJavaArguments(booleanCallBody, argsArray);
+            vtypeBody = longCallBody;
+        }
+        else if (this.vtype == Type.FLOAT) {
 
-        this.localInlinesMap.put(callName,
-                new LocalInlineBodies(
-                        genericCallBody,
-                        integerCallBody,
-                        longCallBody,
-                        floatCallBody,
-                        doubleCallBody,
-                        booleanCallBody));
+            vtypeBody = floatCallBody;
+        }
+        else if (this.vtype == Type.DOUBLE) {
+
+            vtypeBody = doubleCallBody;
+        }
+        else if (this.vtype == Type.BOOLEAN) {
+
+            vtypeBody = booleanCallBody;
+        }
+
+        final String formatedCallName = TemplateOptions.reformatCallName(callName);
+
+        //the method has no arguments
+        if (args.isEmpty()) {
+
+            this.inlineVTypeDefinitions.put(formatedCallName,
+                    vtypeBody);
+
+            if (this.verbose) {
+
+                System.out.println("TemplateOptions : " + toString() + " captured the inlined VType function def '" +
+                        formatedCallName + "' with no argument : " +
+                        this.inlineVTypeDefinitions.get(formatedCallName));
+            }
+        }
+        else {
+
+            final String[] argsArray = args.split(",");
+
+            this.inlineVTypeDefinitions.put(formatedCallName,
+                    TemplateOptions.reformatArguments(vtypeBody, argsArray));
+
+            if (this.verbose) {
+
+                System.out.println("TemplateOptions : " + toString() + " captured the inlined VType function def '" +
+                        formatedCallName + "' with multiple arguments : " +
+                        this.inlineVTypeDefinitions.get(formatedCallName));
+            }
+        }
 
         return false;
     }
@@ -327,7 +447,7 @@ public class TemplateOptions
      * @param argsArray
      * @return
      */
-    private String reformatJavaArguments(String methodBodyStr, final String[] argsArray)
+    protected static String reformatArguments(String methodBodyStr, final String[] argsArray)
     {
         int argPosition = 0;
         boolean argumentIsFound = false;
@@ -393,47 +513,112 @@ public class TemplateOptions
     }
 
     /**
+     * Reformat the call name to a Pattern able
+     * to have optional Generic arguments
+     * @param callName
+     * @return
+     */
+    protected static String reformatCallName(final String callName)
+    {
+        String reformatted = "";
+        //Search if the name is qualified ("this." ," ClassName.")
+        final String[] splittedCallName = callName.split("\\.");
+
+        if (splittedCallName.length == 1) {
+
+            //not qualified, form a 2 group regex with an optional generic pattern, ex:
+            //"foo" ==> "(<[^>]+>\\s*)?(foo)"
+            //also captures the first parenthesis of the function just after callName.
+            reformatted = "(<[^>]+>\\s*)?" + "(" + callName + ")(\\()";
+
+        }
+        else if (splittedCallName.length == 2) {
+
+            //qualified, form a 3 group regex with a generic pattern, ex :
+            //"Intrinsics.newKTypeArray" ==> "(Intrinsics.\\s*)(<[^>]+>\\s*)?(newKTypeArray)"
+            //also captures the first parenthesis of the function just after callName.
+            reformatted = "(" + splittedCallName[0] + ".\\s*)" + "(<[^>]+>\\s*)?" + "(" + splittedCallName[1] + ")(\\()";
+
+        }
+        else {
+            //not managed
+            throw new ParseErrorException("[ERROR] : Not able to manage this call form: " + callName);
+        }
+
+        return reformatted;
+    }
+
+    @Override
+    public String toString() {
+        return "{KType=" + this.ktype + ", VType=" + this.vtype + "}";
+    }
+
+    public void setVerbose(final boolean verb) {
+
+        this.verbose = verb;
+    }
+
+    /**
      * Main for test purposes
      */
     public static void main(final String[] args) {
 
         final TemplateOptions testInstance = new TemplateOptions(Type.GENERIC, null);
 
-        testInstance.inline("is_allocated",
+        testInstance.setVerbose(true);
+
+        Matcher matcher = Pattern.compile("(Intrinsics.\\s*)(<[^>]+>\\s*)?(newKTypeArray)(\\()",
+                Pattern.MULTILINE | Pattern.DOTALL).matcher("Intrinsics. <KType[]>newKTypeArray(toto)");
+
+        matcher.find();
+
+        System.out.println(matcher.toString());
+
+        matcher = Pattern.compile("(Intrinsics.\\s*)(<[^>]+>\\s*)?(newKTypeArray)(\\()",
+                Pattern.MULTILINE | Pattern.DOTALL).matcher("Intrinsics.<KType[]> newKTypeArray(size); \n");
+
+        matcher.find();
+
+        System.out.println(matcher.toString());
+
+        System.out.println(TemplateOptions.reformatCallName("Intrinsics.defaultKTypeValue"));
+
+        System.out.println(TemplateOptions.reformatCallName("indexToBufferPosition"));
+
+        testInstance.inlineKType("is_allocated",
                 "(alloc, slot, keys)",
                 "alloc[slot] != -1");
 
-        System.out.println(testInstance.localInlinesMap.toString());
+        System.out.println(testInstance.inlineKTypeDefinitions.toString());
 
-        testInstance.inline("is_allocated",
+        testInstance.inlineKType("is_allocated",
                 "(alloc, slot, keys)",
                 "Intrinsics.equalsKTypeDefault(keys[slot])");
 
-        System.out.println(testInstance.localInlinesMap.toString());
+        System.out.println(testInstance.inlineKTypeDefinitions.toString());
 
-        testInstance.inline("is_allocated",
+        testInstance.inlineKType("is_allocated",
                 "(alloc, slot, keys)",
                 "Intrinsics.equalsKTypeDefault(keys[slot]= keys / slot + alloc)");
 
-        System.out.println(testInstance.localInlinesMap.toString());
+        System.out.println(testInstance.inlineKTypeDefinitions.toString());
 
-        testInstance.inline("is_allocated",
+        testInstance.inlineKType("is_allocated",
                 "(alloc, slot, keys)",
                 "alloc[slot]");
 
-        System.out.println(testInstance.localInlinesMap.toString());
+        System.out.println(testInstance.inlineKTypeDefinitions.toString());
 
-        testInstance.inline("is_allocated",
+        testInstance.inlineKType("is_allocated",
                 "(alloc, slot, keys)",
                 "slot[alloc]");
 
-        System.out.println(testInstance.localInlinesMap.toString());
+        System.out.println(testInstance.inlineKTypeDefinitions.toString());
 
-        testInstance.inline("is_allocated",
+        testInstance.inlineKType("is_allocated",
                 "(alloc, slot, keys)",
                 "slot[slot[keys[keys[alloc]]]]");
 
-        System.out.println(testInstance.localInlinesMap.toString());
-
+        System.out.println(testInstance.inlineKTypeDefinitions.toString());
     }
 }

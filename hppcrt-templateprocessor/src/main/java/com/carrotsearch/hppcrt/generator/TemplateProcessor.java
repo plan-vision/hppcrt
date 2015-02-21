@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -41,14 +42,19 @@ import com.carrotsearch.hppcrt.generator.TemplateOptions.DoNotGenerateTypeExcept
  */
 public final class TemplateProcessor
 {
+
+    //TODO: Maybe load from class path ?
+    private static String INTRINSICS_FILE_NAME = "com/carrotsearch/hppcrt/Intrinsics.java";
+
     private static final Pattern INTRINSICS_METHOD_CALL = Pattern.compile("(Intrinsics.\\s*)(<[^>]+>\\s*)?([a-zA-Z]+)", Pattern.MULTILINE | Pattern.DOTALL);
 
     private static final Pattern IMPORT_DECLARATION = Pattern.compile("(import\\s+[\\w.\\*\\s]*;)", Pattern.MULTILINE | Pattern.DOTALL);
 
-    private boolean verbose = false;
+    private boolean verbose = true;
     private boolean incremental = true;
 
     private File templatesDir;
+    private File dependenciesDir;
     private File outputDir;
 
     private long timeVelocity, timeIntrinsics, timeTypeClassRefs, timeComments;
@@ -87,8 +93,7 @@ public final class TemplateProcessor
     }
 
     /**
-     * Initialize Velocity engines and Regex Patterns
-     * and so on.
+     * Initialize Velocity engine.
      */
     public TemplateProcessor()
     {
@@ -98,12 +103,10 @@ public final class TemplateProcessor
         //Attach a Velocity logger to see internal Velocity log messages on console
         p.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new VelocityLogger());
 
-        final VelocityEngine ve = new VelocityEngine();
-        ve.setExtendedProperties(p);
+        this.velocity = new VelocityEngine();
+        this.velocity.setExtendedProperties(p);
 
-        this.velocity = ve;
-
-        ve.init();
+        this.velocity.init();
     }
 
     /**
@@ -138,25 +141,28 @@ public final class TemplateProcessor
         this.templatesDir = dir;
     }
 
+    public void setDependenciesDir(final File dir)
+    {
+        this.dependenciesDir = dir;
+    }
+
     /**
      * 
      */
     public void execute()
     {
         // Collect files/ checksums from the output folder.
-        final List<OutputFile> outputs = collectOutputFiles(new ArrayList<OutputFile>(),
-                this.outputDir);
+        final List<OutputFile> outputs = collectOutputFiles(new ArrayList<OutputFile>(), this.outputDir);
 
-        // Collect template files in the input folder.
-        final List<TemplateFile> inputs = collectTemplateFiles(new ArrayList<TemplateFile>(),
-                this.templatesDir);
+        // Collect template files in the input folder, recursively
+        final List<TemplateFile> inputs = collectTemplateFiles(new ArrayList<TemplateFile>(), this.templatesDir);
 
         // Process templates
         System.out.println("Processing " + inputs.size() + " templates to: '" + this.outputDir.getPath() + "'");
         final long start = System.currentTimeMillis();
         processTemplates(inputs, outputs);
         final long end = System.currentTimeMillis();
-        System.out.println(String.format(Locale.ENGLISH, "\nProcessed in %.2f sec.", (end - start) / 1000.0));
+        System.out.println(String.format(Locale.ENGLISH, "\nProcessed in %.2f sec.", (end - start) * 1e-3));
 
         // Remove non-marked files.
         int generated = 0;
@@ -192,6 +198,94 @@ public final class TemplateProcessor
     }
 
     /**
+     * init a new Velocity Context for a specific TemplateOptions
+     */
+    private void initTemplateOptionsContext(final TemplateOptions options) {
+
+        final VelocityContext ctx = new VelocityContext();
+
+        ctx.put("TemplateOptions", options);
+
+        //Attach some GenericTools that may be useful for code generation :
+        ctx.put("esct", new EscapeTool());
+        ctx.put("classt", new ClassTool());
+        ctx.put("contextt", new ContextTool());
+        ctx.put("convt", new ConversionTool());
+        ctx.put("fieldt", new FieldTool());
+        ctx.put("matht", new MathTool());
+        ctx.put("numbert", new NumberTool());
+        ctx.put("rendert", new RenderTool());
+
+        //reference the context itself into the TemplateOptions object
+        options.context = ctx;
+    }
+
+    /**
+     * Inject a Velocity dependency : This method captures all Velocity directives (ex inlines) found in deps, using
+     * options as input/output for data; There is no code generation here.
+     * @param dep
+     */
+    private void addSingleDependency(final TemplateFile dep, final TemplateOptions options) {
+
+        if (this.verbose) {
+
+            System.out.println("[INFO] addSingleDependency(): adding for options " + options.toString() +
+                    " the dependency: '" + dep.file.toString() + "'...");
+
+        }
+
+        final StringWriter strNull = new StringWriter();
+
+        options.sourceFile = dep.file;
+
+        try {
+            this.velocity.evaluate(options.context, strNull, dep.file.getName(), readFile(dep.file));
+
+        }
+        catch (final ParseErrorException e) {
+
+            System.out.println("[ERROR] : parsing template '" + dep.fullPath +
+                    "' with " + options + " with error: '" + e.getMessage() + "'");
+
+            //rethrow the beast to stop the thing dead.
+            throw e;
+        }
+        catch (final ResourceNotFoundException e) {
+
+            System.out.println("[ERROR] : resource not found for template '" + dep.fullPath +
+                    "' with " + options + " with error: '" + e.getMessage() + "'");
+
+            //rethrow the beast to stop the thing dead.
+            throw e;
+        }
+        catch (final MethodInvocationException e) {
+
+            if (e.getCause() instanceof DoNotGenerateTypeException) {
+
+                final DoNotGenerateTypeException doNotGenException = (DoNotGenerateTypeException) e.getCause();
+
+                if (this.verbose) {
+
+                    System.out.println("[INFO] : output from template '" + dep.fullPath +
+                            "' with KType = " + doNotGenException.currentKType + " and VType =  " +
+                            doNotGenException.currentVType + " was bypassed...");
+                }
+                else {
+                    displayProgressBar();
+                }
+            }
+            else {
+
+                System.out.println("[ERROR] : method invocation from template '" + dep.fullPath +
+                        "' with " + options + " failed with error: '" + e.getMessage() + "'");
+
+                //rethrow the beast to stop the thing dead.
+                throw e;
+            }
+        } //end MethodInvocationException
+    }
+
+    /**
      * Apply templates to <code>.ktype</code> files (single-argument).
      */
     private void processTemplates(final List<TemplateFile> inputs, final List<OutputFile> outputs)
@@ -207,7 +301,12 @@ public final class TemplateProcessor
                 for (final Type t : Type.values())
                 {
                     final TemplateOptions options = new TemplateOptions(t, null);
-                    options.sourceFile = f.file;
+
+                    options.setVerbose(this.verbose);
+
+                    //Init a new Velocity Context for the current templateOptions
+                    initTemplateOptionsContext(options);
+
                     generate(f, outputs, options);
                     displayProgressBar();
                 }
@@ -220,7 +319,12 @@ public final class TemplateProcessor
                     for (final Type vtype : Type.values())
                     {
                         final TemplateOptions options = new TemplateOptions(ktype, vtype);
-                        options.sourceFile = f.file;
+
+                        options.setVerbose(this.verbose);
+
+                        //Init a new Velocity Context for the current templateOptions
+                        initTemplateOptionsContext(options);
+
                         generate(f, outputs, options);
                         displayProgressBar();
                     }
@@ -253,31 +357,35 @@ public final class TemplateProcessor
             String input = readFile(f.file);
             long t1, t0 = System.currentTimeMillis();
 
-            //0) Apply velocity : if TemplateOptions.isDoNotGenerateKType() or TemplateOptions.isDoNotGenerateVType() throw a
-            //DoNotGenerateTypeException , do not generate the final file.
             try {
+
+                //1) Add all dependencies, that will be needed, i.e Intrinsics
+                final File intrinsicsFile = new File(new TemplateFile(this.dependenciesDir).fullPath + File.separator +
+                        TemplateProcessor.INTRINSICS_FILE_NAME);
+
+                addSingleDependency(new TemplateFile(intrinsicsFile), templateOptions);
+
+                //2) Apply velocity : if TemplateOptions.isDoNotGenerateKType() or TemplateOptions.isDoNotGenerateVType() throw a
+                //DoNotGenerateTypeException , do not generate the final file.
+
+                //set current file !
+                templateOptions.sourceFile = f.file;
 
                 input = filterVelocity(f, input, templateOptions);
 
                 this.timeVelocity += (t1 = System.currentTimeMillis()) - t0;
                 displayProgressBar();
 
-                //1) Apply inlining
+                //3) Apply generix inlining, (which inlines Intrinsics...)
                 input = filterInlines(f, input, templateOptions);
                 displayProgressBar();
 
-                //2) filter intrinsics last, low-level calls replacements
-                input = filterIntrinsics(f, input, templateOptions);
-
-                this.timeIntrinsics += (t0 = System.currentTimeMillis()) - t1;
-                displayProgressBar();
-
-                //3) convert signatures
+                //4) convert signatures
                 input = filterTypeClassRefs(f, input, templateOptions);
                 this.timeTypeClassRefs += (t1 = System.currentTimeMillis()) - t0;
                 displayProgressBar();
 
-                //4) Filter comments
+                //5) Filter comments
                 input = filterComments(f, input, templateOptions);
                 this.timeComments += (t0 = System.currentTimeMillis()) - t1;
                 displayProgressBar();
@@ -289,8 +397,7 @@ public final class TemplateProcessor
             catch (final ParseErrorException e) {
 
                 System.out.println("[ERROR] : parsing template '" + f.fullPath +
-                        "' with KType = " + templateOptions.getKType() + " and VType =  " +
-                        (templateOptions.hasVType() ? templateOptions.getVType().toString() : "null") + " with error: '" + e.getMessage() + "'");
+                        "' with " + templateOptions + " with error: '" + e.getMessage() + "'");
 
                 //rethrow the beast to stop the thing dead.
                 throw e;
@@ -298,8 +405,7 @@ public final class TemplateProcessor
             catch (final ResourceNotFoundException e) {
 
                 System.out.println("[ERROR] : resource not found for template '" + f.fullPath +
-                        "' with KType = " + templateOptions.getKType() + " and VType =  " +
-                        (templateOptions.hasVType() ? templateOptions.getVType().toString() : "null") + " with error: '" + e.getMessage() + "'");
+                        "' with " + templateOptions + " with error: '" + e.getMessage() + "'");
 
                 //rethrow the beast to stop the thing dead.
                 throw e;
@@ -326,8 +432,7 @@ public final class TemplateProcessor
                 else {
 
                     System.out.println("[ERROR] : method invocation from template '" + f.fullPath +
-                            "' with KType = " + templateOptions.getKType() + " and VType =  " +
-                            (templateOptions.hasVType() ? templateOptions.getVType().toString() : "null") + " failed with error: '" + e.getMessage() + "'");
+                            "' with " + templateOptions + " failed with error: '" + e.getMessage() + "'");
 
                     //rethrow the beast to stop the thing dead.
                     throw e;
@@ -337,394 +442,165 @@ public final class TemplateProcessor
         }
     }
 
-    private String filterIntrinsics(final TemplateFile f, String input,
-            final TemplateOptions templateOptions)
-    {
-        final StringBuffer sb = new StringBuffer();
-
-        while (true)
-        {
-            //0) First, check for imports
-            Matcher m = TemplateProcessor.IMPORT_DECLARATION.matcher(input);
-
-            while (m.find())
-            {
-                //append what is before
-                sb.append(input.substring(0, m.end()));
-
-                //truncate after the found region
-                input = input.substring(m.end());
-
-                //restart search :
-                m = TemplateProcessor.IMPORT_DECLARATION.matcher(input);
-            }
-
-            //1) Now try to find real method calls
-            m = TemplateProcessor.INTRINSICS_METHOD_CALL.matcher(input);
-
-            if (m.find())
-            {
-                sb.append(input.substring(0, m.start()));
-
-                final String method = m.group(3);
-
-                int bracketCount = 0;
-                int last = m.end() + 1;
-                final ArrayList<String> params = new ArrayList<String>();
-
-                outer: for (int i = m.end(); i < input.length(); i++)
-                {
-                    switch (input.charAt(i))
-                    {
-                        case '(':
-                            bracketCount++;
-                            break;
-                        case ')':
-                            bracketCount--;
-                            if (bracketCount == 0)
-                            {
-                                params.add(input.substring(last, i).trim());
-                                input = input.substring(i + 1);
-                                break outer;
-                            }
-                            break;
-                        case ',':
-                            if (bracketCount == 1)
-                            {
-                                params.add(input.substring(last, i));
-                                last = i + 1;
-                            }
-                            break;
-                    }
-                }
-
-                if ("defaultKTypeValue".equals(method))
-                {
-                    sb.append(templateOptions.getKType().getDefaultValue());
-                }
-                else if ("defaultVTypeValue".equals(method))
-                {
-                    sb.append(templateOptions.getVType().getDefaultValue());
-                }
-                else if ("newKTypeArray".equals(method))
-                {
-                    sb.append(templateOptions.isKTypeGeneric()
-                            ? "Internals.<KType[]>newArray(" + params.get(0) + ")"
-                            : "new " + templateOptions.getKType().getType() + " [" + params.get(0) + "]");
-                }
-                else if ("newVTypeArray".equals(method))
-                {
-                    sb.append(templateOptions.isVTypeGeneric()
-                            ? "Internals.<VType[]>newArray(" + params.get(0) + ")"
-                            : "new " + templateOptions.getVType().getType() + " [" + params.get(0) + "]");
-                }
-                else if ("equalsKType".equals(method) || "equalsKTypeNotNull".equals(method) ||
-                        "equalsVType".equals(method) || "equalsVTypeNotNull".equals(method))
-                {
-                    final boolean isK = "equalsKType".equals(method) || "equalsKTypeNotNull".equals(method);
-                    final boolean isV = "equalsVType".equals(method) || "equalsVTypeNotNull".equals(method);
-
-                    final boolean isDouble = (isK && templateOptions.ktype == Type.DOUBLE) || (isV && templateOptions.vtype == Type.DOUBLE);
-                    final boolean isFloat = (isK && templateOptions.ktype == Type.FLOAT) || (isV && templateOptions.vtype == Type.FLOAT);
-
-                    if ((templateOptions.isKTypeGeneric() && "equalsKType".equals(method)) ||
-                            (templateOptions.isVTypeGeneric() && "equalsVType".equals(method)))
-                    {
-                        sb.append(String.format("((%1$s) == null ? (%2$s) == null : (%1$s).equals(%2$s))", params.toArray()));
-                    }
-                    else if ((templateOptions.isKTypeGeneric() && "equalsKTypeNotNull".equals(method)) ||
-                            (templateOptions.isVTypeGeneric() && "equalsVTypeNotNull".equals(method)))
-                    {
-                        sb.append(String.format("((%1$s).equals(%2$s))", params.toArray()));
-                    }
-                    else if (isDouble)
-                    {
-                        sb.append(String.format("(Double.doubleToLongBits(%1$s) == Double.doubleToLongBits(%2$s))", params.toArray()));
-                    }
-                    else if (isFloat)
-                    {
-                        sb.append(String.format("(Float.floatToIntBits(%1$s) == Float.floatToIntBits(%2$s))", params.toArray()));
-                    }
-                    else //all other cases.
-                    {
-                        sb.append(String.format("((%1$s) == (%2$s))", params.toArray()));
-                    }
-                }
-                else if ("compareKType".equals(method) || "compareKTypeUnchecked".equals(method))
-                {
-                    if (templateOptions.isKTypeGeneric() && "compareKType".equals(method))
-                    {
-                        sb.append(String.format("((%1$s).compareTo(%2$s))", params.toArray()));
-                    }
-                    else if (templateOptions.isKTypeGeneric() && "compareKTypeUnchecked".equals(method))
-                    {
-                        sb.append(String.format("(((Comparable<? super KType>)%1$s).compareTo(%2$s))", params.toArray()));
-                    }
-                    else if (templateOptions.ktype == Type.DOUBLE)
-                    {
-                        sb.append(String.format("(Double.compare(%1$s , %2$s))", params.toArray()));
-                    }
-                    else if (templateOptions.ktype == Type.FLOAT)
-                    {
-                        sb.append(String.format("(Float.compare(%1$s , %2$s))", params.toArray()));
-                    }
-                    else if (templateOptions.ktype == Type.BYTE)
-                    {
-                        sb.append(String.format("(Byte.compare(%1$s , %2$s))", params.toArray()));
-                    }
-                    else if (templateOptions.ktype == Type.CHAR)
-                    {
-                        sb.append(String.format("(Character.compare(%1$s , %2$s))", params.toArray()));
-                    }
-                    else if (templateOptions.ktype == Type.SHORT)
-                    {
-                        sb.append(String.format("(Short.compare(%1$s , %2$s))", params.toArray()));
-                    }
-                    else if (templateOptions.ktype == Type.INT)
-                    {
-                        sb.append(String.format("(Integer.compare(%1$s , %2$s))", params.toArray()));
-                    }
-                    else if (templateOptions.ktype == Type.LONG)
-                    {
-                        sb.append(String.format("(Long.compare(%1$s , %2$s))", params.toArray()));
-                    }
-                    else
-                    {
-                        //particular case for booleans
-                        sb.append(String.format("((%1$s == %2$s) ? 0 : (%1$s ? 1 : -1))", params.toArray()));
-                    }
-                }
-                else if ("isCompSupKType".equals(method) || "isCompSupKTypeUnchecked".equals(method))
-                {
-                    if (templateOptions.isKTypeGeneric() && "isCompSupKType".equals(method))
-                    {
-                        sb.append(String.format("((%1$s).compareTo(%2$s) > 0)", params.toArray()));
-                    }
-                    else if (templateOptions.isKTypeGeneric() && "isCompSupKTypeUnchecked".equals(method))
-                    {
-                        sb.append(String.format("(((Comparable<? super KType>)%1$s).compareTo(%2$s) > 0)", params.toArray()));
-                    }
-                    else if (templateOptions.ktype == Type.DOUBLE)
-                    {
-                        sb.append(String.format("(Double.compare(%1$s , %2$s) > 0)", params.toArray()));
-                    }
-                    else if (templateOptions.ktype == Type.FLOAT)
-                    {
-                        sb.append(String.format("(Float.compare(%1$s , %2$s) > 0)", params.toArray()));
-                    }
-                    else if (templateOptions.isKTypeNumeric())
-                    {
-                        sb.append(String.format("(%1$s > %2$s)", params.toArray()));
-                    }
-                    else
-                    {
-                        //particular case for booleans
-                        sb.append(String.format("((%1$s == %2$s) ? false : %1$s)", params.toArray()));
-                    }
-                }
-                else if ("isCompInfKType".equals(method) || "isCompInfKTypeUnchecked".equals(method))
-                {
-                    if (templateOptions.isKTypeGeneric() && "isCompInfKType".equals(method))
-                    {
-                        sb.append(String.format("((%1$s).compareTo(%2$s) < 0)", params.toArray()));
-                    }
-                    else if (templateOptions.isKTypeGeneric() && "isCompInfKTypeUnchecked".equals(method))
-                    {
-                        sb.append(String.format("(((Comparable<? super KType>)%1$s).compareTo(%2$s) < 0)", params.toArray()));
-                    }
-                    else if (templateOptions.ktype == Type.DOUBLE)
-                    {
-                        sb.append(String.format("(Double.compare(%1$s , %2$s) < 0)", params.toArray()));
-                    }
-                    else if (templateOptions.ktype == Type.FLOAT)
-                    {
-                        sb.append(String.format("(Float.compare(%1$s , %2$s) < 0)", params.toArray()));
-                    }
-                    else if (templateOptions.isKTypeNumeric())
-                    {
-                        sb.append(String.format("(%1$s < %2$s)", params.toArray()));
-                    }
-                    else
-                    {
-                        //particular case for booleans
-                        sb.append(String.format("((%1$s == %2$s) ? false : %2$s)", params.toArray()));
-                    }
-                }
-                else if ("isCompEqualKType".equals(method) || "isCompEqualKTypeUnchecked".equals(method))
-                {
-                    if (templateOptions.isKTypeGeneric() && "isCompEqualKType".equals(method))
-                    {
-                        sb.append(String.format("((%1$s).compareTo(%2$s) == 0)", params.toArray()));
-                    }
-                    else if (templateOptions.isKTypeGeneric() && "isCompEqualKTypeUnchecked".equals(method))
-                    {
-                        sb.append(String.format("(((Comparable<? super KType>)%1$s).compareTo(%2$s) == 0)", params.toArray()));
-                    }
-                    else if (templateOptions.ktype == Type.DOUBLE)
-                    {
-                        sb.append(String.format("(Double.doubleToLongBits(%1$s) == Double.doubleToLongBits(%2$s))", params.toArray()));
-                    }
-                    else if (templateOptions.ktype == Type.FLOAT)
-                    {
-                        sb.append(String.format("(Float.floatToIntBits(%1$s) == Float.floatToIntBits(%2$s))", params.toArray()));
-                    }
-                    else
-                    {
-                        sb.append(String.format("(%1$s == %2$s)", params.toArray()));
-                    }
-                }
-                else
-                {
-                    throw new ParseErrorException("[ERROR] : Unrecognized Intrinsic call: " + method);
-                }
-            }
-            else
-            {
-                sb.append(input);
-                break;
-            }
-        }
-
-        return sb.toString();
-    }
-
     private String filterInlines(final TemplateFile f, String input, final TemplateOptions templateOptions)
     {
+        if (templateOptions.hasKType()) {
+
+            input = filterInlinesSet(f, input, templateOptions.inlineKTypeDefinitions);
+        }
+
+        if (templateOptions.hasVType()) {
+
+            input = filterInlinesSet(f, input, templateOptions.inlineVTypeDefinitions);
+        }
+
+        return input;
+    }
+
+    private String filterInlinesSet(final TemplateFile f, String input, final HashMap<String, String> inlineTypeDefinitions) {
+
         final StringBuffer sb = new StringBuffer();
 
-        //Make 1 pass per call name of localInlinesMap
-        for (final String callName : templateOptions.localInlinesMap.keySet()) {
+        //1) Make 2 passes max.
+        int nbRemainingPasses = 2;
 
-            String bodyPattern = "";
+        while (nbRemainingPasses >= 1) {
 
-            //Rebuild matchers by admitting spaces between "." (this . foo )
-            final String[] splittedCallName = callName.split(".");
+            nbRemainingPasses--;
 
-            String callNamePattern = callName;
+            //Attempt on each of inlineDefinitions
+            for (final String callName : inlineTypeDefinitions.keySet()) {
 
-            if (splittedCallName.length > 1) {
+                String bodyPattern = "";
 
-                callNamePattern = "";
+                final Pattern p = Pattern.compile(callName, Pattern.MULTILINE | Pattern.DOTALL);
 
-                //Re-collapse without spaces
-                for (int j = 0; j < splittedCallName.length - 1; j++) {
+                //flush
+                sb.setLength(0);
 
-                    splittedCallName[j].trim();
-                    callNamePattern += splittedCallName[j] + ".";
+                //0) First, check for imports
+                Matcher m = TemplateProcessor.IMPORT_DECLARATION.matcher(input);
+
+                while (m.find())
+                {
+                    //append what is before
+                    sb.append(input.substring(0, m.end()));
+
+                    //truncate after the found region
+                    input = input.substring(m.end());
+
+                    //restart search :
+                    m = TemplateProcessor.IMPORT_DECLARATION.matcher(input);
                 }
 
-                callNamePattern += splittedCallName[splittedCallName.length - 1].trim();
-            } //end if splittedCallName.length > 1
-
-            final Pattern p = Pattern.compile(callNamePattern, Pattern.MULTILINE | Pattern.DOTALL);
-
-            //flush
-            sb.setLength(0);
-
-            while (true)
-            {
-                final Matcher m = p.matcher(input);
-
-                //end if found matcher
-                if (m.find())
+                //1) Search for the pattern
+                while (true)
                 {
-                    sb.append(input.substring(0, m.start()));
+                    m = p.matcher(input);
 
-                    //parsing of the arguments
-                    int bracketCount = 0;
-                    int last = m.end() + 1;
-                    final ArrayList<String> params = new ArrayList<String>();
-
-                    outer: for (int i = m.end(); i < input.length(); i++)
+                    //end if found matcher
+                    if (m.find())
                     {
-                        switch (input.charAt(i))
+                        if (this.verbose) {
+
+                            System.out.println("[INFO] filterInlines(): Pattern finding '" +
+                                    m.toString() + "'...");
+
+                            System.out.println("[INFO] filterInlines(): found matching for '" + callName +
+                                    "' in file '" + f.fullPath + "' with " + inlineTypeDefinitions.get(callName));
+                        }
+
+                        sb.append(input.substring(0, m.start()));
+
+                        int bracketCount = 0;
+                        int last = m.end();
+                        final ArrayList<String> params = new ArrayList<String>();
+
+                        //go back 1 character to capture the first parenthesis again
+                        outer: for (int i = m.end() - 1; i < input.length(); i++)
                         {
-                            case '(':
-                                bracketCount++;
-                                break;
-                            case ')':
-                                bracketCount--;
-                                if (bracketCount == 0)
-                                {
-                                    params.add(input.substring(last, i).trim());
-                                    input = input.substring(i + 1);
-                                    break outer;
+                            switch (input.charAt(i))
+                            {
+                                case '(':
+                                    bracketCount++;
+                                    break;
+                                case ')':
+                                    bracketCount--;
+                                    if (bracketCount == 0)
+                                    {
+                                        params.add(input.substring(last, i).trim());
+
+                                        input = input.substring(i + 1);
+                                        break outer;
+                                    }
+                                    break;
+                                case ',':
+                                    if (bracketCount == 1)
+                                    {
+                                        //add a parameter
+                                        params.add(input.substring(last, i));
+
+                                        last = i + 1;
+                                    }
+                                    break;
+                            }
+                        } //end for
+
+                        //fill-in the arguments depending of the type
+                        bodyPattern = "";
+
+                        bodyPattern = inlineTypeDefinitions.get(callName);
+
+                        //apply replacement, if not null
+                        if (!bodyPattern.isEmpty()) {
+
+                            try {
+                                if (params.size() > 0) {
+
+                                    sb.append(String.format("(" + bodyPattern + ")", params.toArray()));
+
+                                    if (this.verbose) {
+                                        System.out.println("[INFO] filterInlines(): Applying inlined body '" +
+                                                bodyPattern + "' to args: '" + params.toString() + "'...");
+                                    }
                                 }
-                                break;
-                            case ',':
-                                if (bracketCount == 1)
-                                {
-                                    params.add(input.substring(last, i));
-                                    last = i + 1;
+                                else {
+                                    //the method has no arguments
+                                    sb.append("(" + bodyPattern + ")");
+
+                                    if (this.verbose) {
+                                        System.out.println("[INFO] filterInlines(): Applying inlined body '" +
+                                                bodyPattern + "' with no args...");
+                                    }
                                 }
-                                break;
+                            }
+                            catch (final UnknownFormatConversionException e) {
+
+                                throw new ParseErrorException("[ERROR] filterInlines(): unable to apply body '" + bodyPattern + "' with params '" + params.toString() + "'...");
+                            }
                         }
+                    } //else m.find()
+                    else
+                    {
+                        //not found, append the contents directly
+                        sb.append(input);
+                        break;
                     }
+                } //end while true
 
-                    //fill-in the arguments depending of the type
-                    bodyPattern = "";
+                //re-process the same input for each method call
+                input = sb.toString();
 
-                    if (templateOptions.ktype == Type.GENERIC) {
-
-                        bodyPattern = templateOptions.localInlinesMap.get(callName).genericBody;
-                    }
-                    else if (templateOptions.ktype == Type.LONG) {
-
-                        bodyPattern = templateOptions.localInlinesMap.get(callName).longBody;
-                    }
-                    else if (templateOptions.ktype == Type.BOOLEAN) {
-
-                        bodyPattern = templateOptions.localInlinesMap.get(callName).booleanBody;
-                    }
-                    else if (templateOptions.ktype == Type.FLOAT) {
-
-                        bodyPattern = templateOptions.localInlinesMap.get(callName).floatBody;
-                    }
-                    else if (templateOptions.ktype == Type.DOUBLE) {
-
-                        bodyPattern = templateOptions.localInlinesMap.get(callName).doubleBody;
-                    }
-                    else {
-                        //all other integers : int, short, char, byte
-                        bodyPattern = templateOptions.localInlinesMap.get(callName).integerBody;
-                    }
-
-                    //apply replacement, if not null
-                    if (!bodyPattern.isEmpty()) {
-
-                        try {
-
-                            sb.append(String.format("(" + bodyPattern + ")", params.toArray()));
-
-                        }
-                        catch (final UnknownFormatConversionException e) {
-
-                            throw new ParseErrorException("[ERROR] : filterInlines() unable to apply body '" + bodyPattern + "' with params " + params.toString());
-                        }
-                    }
-
-                } //else m.find()
-                else
-                {
-                    //not found, append the contents directly
-                    sb.append(input);
-                    break;
-                }
-            } //end while true
-
-            //re-process the same input for each method call
-            input = sb.toString();
-
-        } //end for call names
+            } //end for call names
+        } //end while
 
         return input.toString();
     }
 
-    private String filterComments(final TemplateFile f, final String input,
-            final TemplateOptions templateOptions)
+    private String filterComments(final TemplateFile f, final String input, final TemplateOptions templateOptions)
     {
-        final Pattern p = Pattern.compile("(/\\*!)|(!\\*/)", Pattern.MULTILINE
-                | Pattern.DOTALL);
+        final Pattern p = Pattern.compile("(/\\*!)|(!\\*/)", Pattern.MULTILINE | Pattern.DOTALL);
+
         return p.matcher(input).replaceAll("");
     }
 
@@ -898,26 +774,9 @@ public final class TemplateProcessor
      */
     private String filterVelocity(final TemplateFile f, final String template, final TemplateOptions options)
     {
-        final VelocityContext ctx = new VelocityContext();
-
-        ctx.put("TemplateOptions", options);
-
-        //Attach some GenericTools that may be useful for code generation :
-        ctx.put("esct", new EscapeTool());
-        ctx.put("classt", new ClassTool());
-        ctx.put("contextt", new ContextTool());
-        ctx.put("convt", new ConversionTool());
-        ctx.put("fieldt", new FieldTool());
-        ctx.put("matht", new MathTool());
-        ctx.put("numbert", new NumberTool());
-        ctx.put("rendert", new RenderTool());
-
         final StringWriter sw = new StringWriter();
 
-        //reference the context itself into the TemplateOptions object
-        options.context = ctx;
-
-        this.velocity.evaluate(ctx, sw, f.file.getName(), template);
+        this.velocity.evaluate(options.context, sw, f.file.getName(), template);
 
         return sw.toString();
     }
@@ -1031,11 +890,35 @@ public final class TemplateProcessor
             public boolean accept(final File dir, final String name)
             {
                 final File f = new File(dir, name);
+
+                //if recursiveSearch is on, search in the sub-dirs
+                //but even with false;
                 if (f.isDirectory())
                 {
                     collectTemplateFiles(list, f);
                     return false;
                 }
+
+                return name.endsWith(".java");
+            }
+        }))
+        {
+            list.add(new TemplateFile(file));
+        }
+        return list;
+    }
+
+    /**
+     * Collect all template files from this current Dir only.
+     */
+    private List<TemplateFile> collectTemplateFilesCurrentDir(final List<TemplateFile> list, final File dir)
+    {
+        for (final File file : dir.listFiles(new FilenameFilter()
+        {
+            @Override
+            public boolean accept(final File dir, final String name)
+            {
+                final File f = new File(dir, name);
 
                 return name.endsWith(".java");
             }
@@ -1080,6 +963,12 @@ public final class TemplateProcessor
         final TemplateProcessor processor = new TemplateProcessor();
         processor.setTemplatesDir(new File(args[0]));
         processor.setDestDir(new File(args[1]));
+
+        if (args.length >= 3) {
+
+            processor.setDependenciesDir(new File(args[2]));
+        }
+
         processor.execute();
     }
 }

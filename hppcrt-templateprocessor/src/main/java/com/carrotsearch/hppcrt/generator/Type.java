@@ -36,6 +36,14 @@ public enum Type
         return name().toLowerCase();
     }
 
+    /**
+     * Used in Velocity when 2 Type(s) are tested for equality in template.
+     */
+    @Override
+    public String toString() {
+        return getType();
+    }
+
     public boolean isGeneric()
     {
         return this == GENERIC;
