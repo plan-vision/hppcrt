@@ -281,8 +281,8 @@ public final class Intrinsics
         "e1.compareTo(e2) == 0",
         "e1 == e2",
         "e1 == e2",
-        "Float.compare(e1 , e2) == 0",
-        "Double.compare(e1 , e2) == 0",
+        "Float.floatToIntBits(e1) == Float.floatToIntBits(e2)",
+        "Double.doubleToLongBits(e1) == Double.doubleToLongBits(e2)",
         "e1 == e2")) !*/
 
         return e1.compareTo(e2) == 0;
@@ -302,8 +302,8 @@ public final class Intrinsics
         "((Comparable<? super KType>) e1).compareTo(e2) == 0",
         "e1 == e2",
         "e1 == e2",
-        "Float.compare(e1 , e2) == 0",
-        "Double.compare(e1 , e2) == 0",
+        "Float.floatToIntBits(e1) == Float.floatToIntBits(e2)",
+        "Double.doubleToLongBits(e1) == Double.doubleToLongBits(e2)",
         "e1 == e2")) !*/
 
         return ((Comparable<? super T>) e1).compareTo(e2) == 0;
