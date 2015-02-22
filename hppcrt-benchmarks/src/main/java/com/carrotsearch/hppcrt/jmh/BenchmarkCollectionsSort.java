@@ -41,7 +41,6 @@ public class BenchmarkCollectionsSort
     @Setup
     public void setUp() throws Exception
     {
-
         this.data = Lists.newArrayList();
         this.indexes = new int[this.size];
         this.indexesClone = new int[this.size];
@@ -67,14 +66,14 @@ public class BenchmarkCollectionsSort
 
         final Object[] input = this.data.toArray();
         final int[] ordered = IndirectSort.mergesort(input, 0, input.length, new Comparator<Object>()
-        {
+                {
             @Override
             @SuppressWarnings({ "unchecked", "rawtypes" })
             public int compare(final Object o1, final Object o2)
             {
                 return ((Comparable) o1).compareTo(o2);
             }
-        });
+                });
 
         count += ordered[0];
 
@@ -102,7 +101,7 @@ public class BenchmarkCollectionsSort
         int count = 0;
 
         Arrays.sort(indexesClone, new Comparator<Integer>()
-        {
+                {
             final ArrayList<String> dta = BenchmarkCollectionsSort.this.data;
 
             @Override
@@ -111,7 +110,7 @@ public class BenchmarkCollectionsSort
                 return this.dta.get(o1.intValue()).compareTo(
                         this.dta.get(o2.intValue()));
             }
-        });
+                });
         count += indexesClone[0];
 
         return count;

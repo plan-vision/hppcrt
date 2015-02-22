@@ -11,14 +11,13 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.runner.RunnerException;
 
 import com.carrotsearch.hppcrt.BenchmarkSuiteRunner;
-import com.carrotsearch.hppcrt.BigramCounting;
-import com.carrotsearch.hppcrt.BigramCountingBase;
+import com.carrotsearch.hppcrt.implementations.BigramCountingBase;
 
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Thread)
 public class BenchmarkBigramCounting
 {
-    private BigramCounting bc;
+    private BigramCountingBase bc;
 
     @Param
     public Library library;
@@ -29,31 +28,21 @@ public class BenchmarkBigramCounting
         TROVE,
         FASTUTIL_OPEN,
         FASTUTIL_LINKED,
-        MAHOUT
-    }
-
-    static
-    {
-        try
-        {
-            BigramCountingBase.prepareData();
-        }
-        catch (final Exception e)
-        {
-            throw new RuntimeException(e);
-        }
+        MAHOUT,
+        JAVA_NAIVE,
+        JAVA_SMART
     }
 
     @Setup
     public void setUp() throws Exception
     {
-        this.bc = new BigramCounting();
+        this.bc = new BigramCountingBase();
+        this.bc.prepareData();
     }
 
     @Benchmark
     public int timeLibrary()
     {
-
         int count = 0;
 
         switch (this.library)
@@ -72,6 +61,12 @@ public class BenchmarkBigramCounting
                 break;
             case MAHOUT:
                 count += this.bc.mahoutCollections();
+                break;
+            case JAVA_NAIVE:
+                count += this.bc.jcfNaive();
+                break;
+            case JAVA_SMART:
+                count += this.bc.jcfSmarter();
                 break;
             default:
                 break;

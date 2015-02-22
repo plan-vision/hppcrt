@@ -9,7 +9,9 @@ HPPCRT-32: CustomHashSet wrongly uses equals()/hashCode() instead of strategies
 
 ** New features
 
-Issue #27 : Caliper benchmark framework looks abandoned, migrate the benchmarks to JMH
+HPPC-101: Drop JUB, switch to JMH for benchmarks
+
+Issue #27: Caliper benchmark framework looks abandoned, migrate the benchmarks to JMH
 
 HPPCRT-33: Adopt perfomance enhancements found in fastutil 6.6x and Koloboke
 
