@@ -5,13 +5,13 @@ import java.util.Comparator;
 import com.carrotsearch.hppcrt.Intrinsics;
 import com.carrotsearch.hppcrt.KTypeIndexedContainer;
 
+/*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
 /**
  * Utility class gathering sorting algorithms for <code>KType</code>s containers.
  * It is a replacement for {@link java.util.Arrays} sorting routines, with
  * memory and speed guarantees documented in Javadoc.
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
-
 public final class KTypeSort
 {
     /**
@@ -139,8 +139,8 @@ public final class KTypeSort
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
     /*! #else
-                            KTypeComparator<? super KType>
-                               #end !*/
+                                    KTypeComparator<? super KType>
+                                       #end !*/
     comp)
     {
         KTypeSort.quicksort(table, 0, table.length, comp);
@@ -179,8 +179,8 @@ public final class KTypeSort
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
     /*! #else
-                            KTypeComparator<? super KType>
-                            #end !*/
+                                    KTypeComparator<? super KType>
+                                    #end !*/
     comp)
     {
         KTypeSort.quicksort(table, 0, table.size(), comp);

@@ -8,6 +8,7 @@ import org.junit.rules.MethodRule;
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 
+/*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
 /**
  * Unit helpers for <code>KType</code>.
  */

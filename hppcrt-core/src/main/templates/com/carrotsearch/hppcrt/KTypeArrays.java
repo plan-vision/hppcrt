@@ -2,6 +2,7 @@ package com.carrotsearch.hppcrt;
 
 import java.util.Arrays;
 
+/*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
 /**
  * Utility class gathering array or KTypeIndexedContainer handling algorithms for <code>KType</code>s.
  * This is a kind of complement for {@link java.util.Arrays}.
@@ -72,14 +73,14 @@ public final class KTypeArrays
     public static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void reverse(final KType[] table, final int from, final int to) {
 
         final int halfSize = (to - from) >>> 1;
-        KType tmpValue;
+    KType tmpValue;
 
-        for (int i = 0; i < halfSize; i++)
-        {
-            tmpValue = table[i + from];
-            table[i + from] = table[to - i - 1];
-            table[to - i - 1] = tmpValue;
-        }
+    for (int i = 0; i < halfSize; i++)
+    {
+        tmpValue = table[i + from];
+        table[i + from] = table[to - i - 1];
+        table[to - i - 1] = tmpValue;
+    }
     }
 
     /**

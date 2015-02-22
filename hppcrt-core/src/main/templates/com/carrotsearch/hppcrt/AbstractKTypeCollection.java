@@ -5,6 +5,7 @@ import java.util.Arrays;
 import com.carrotsearch.hppcrt.cursors.KTypeCursor;
 import com.carrotsearch.hppcrt.predicates.KTypePredicate;
 
+/*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
 /**
  * Common superclass for collections.
  */

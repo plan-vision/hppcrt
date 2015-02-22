@@ -19,6 +19,7 @@ import com.carrotsearch.hppcrt.sorting.*;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
 
+/*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
 /**
  * Unit tests for {@link KTypeLinkedList}.
  */
@@ -328,13 +329,13 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         this.list.add(newArray(this.k0, this.k1, this.k2, this.k1, this.k4));
 
         Assert.assertEquals(3, this.list.removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeLinkedListTest.this.key1 || v == KTypeLinkedListTest.this.key2;
             };
-        }));
+                }));
 
         TestUtils.assertListEquals(this.list.toArray(), 0, 4);
     }
@@ -346,25 +347,25 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         this.list.add(newArray(this.k0, this.k1, this.k2, this.k1, this.k4));
 
         Assert.assertEquals(5, this.list.removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return true;
             };
-        }));
+                }));
 
         Assert.assertEquals(0, this.list.size());
 
         //try again
         Assert.assertEquals(0, this.list.removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return true;
             };
-        }));
+                }));
 
         Assert.assertEquals(0, this.list.size());
     }
@@ -376,13 +377,13 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         this.list.add(newArray(this.k0, this.k1, this.k2, this.k1, this.k0));
 
         Assert.assertEquals(2, this.list.retainAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeLinkedListTest.this.key1 || v == KTypeLinkedListTest.this.key2;
             };
-        }));
+                }));
 
         TestUtils.assertListEquals(this.list.toArray(), 1, 2, 1);
     }
@@ -399,7 +400,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size
             Assert.assertEquals(5, this.list.removeAll(new KTypePredicate<KType>()
-            {
+                    {
                 @Override
                 public boolean apply(final KType v)
                 {
@@ -408,7 +409,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
                     }
                     return v == KTypeLinkedListTest.this.key1;
                 };
-            }));
+                    }));
             Assert.fail();
         }
         catch (final RuntimeException e)

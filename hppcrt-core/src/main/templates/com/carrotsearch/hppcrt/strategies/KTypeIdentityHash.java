@@ -1,7 +1,5 @@
 package com.carrotsearch.hppcrt.strategies;
 
-import com.carrotsearch.hppcrt.Intrinsics;
-
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN","BYTE","CHAR","SHORT","INT","LONG","FLOAT", "DOUBLE")} !*/
 /**
  * Standard  {@link KTypeHashingStrategy} providing an 'identity'
@@ -9,7 +7,8 @@ import com.carrotsearch.hppcrt.Intrinsics;
  * hashCode() is the 'native' one obtained by  {@link System#identityHashCode(Object)}
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
-public final class KTypeIdentityHash<KType> implements KTypeHashingStrategy<KType> {
+public final class KTypeIdentityHash<KType> implements KTypeHashingStrategy<KType>
+{
 
     public KTypeIdentityHash() {
         // nothing

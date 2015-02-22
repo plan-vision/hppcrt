@@ -3,13 +3,15 @@ package com.carrotsearch.hppcrt.strategies;
 import com.carrotsearch.hppcrt.Internals;
 import com.carrotsearch.hppcrt.Intrinsics;
 
+/*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
 /**
  * Standard  {@link KTypeHashingStrategy} for <code>KType</code>, providing the same behaviour as equals()/ hashCode()
  * gives for objects.
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
-public final class KTypeStandardHash<KType> implements KTypeHashingStrategy<KType> {
+public final class KTypeStandardHash<KType> implements KTypeHashingStrategy<KType>
+{
 
     public KTypeStandardHash() {
         // nothing

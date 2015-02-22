@@ -19,6 +19,7 @@ import com.carrotsearch.hppcrt.sorting.*;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
 
+/*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
 /**
  * Unit tests for {@link KTypeStack}.
  */

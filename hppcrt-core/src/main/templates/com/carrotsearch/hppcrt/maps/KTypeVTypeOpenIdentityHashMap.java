@@ -6,6 +6,7 @@ import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
 import com.carrotsearch.hppcrt.hash.*;
 
+/*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN", "BYTE", "CHAR", "SHORT", "INT", "LONG", "FLOAT", "DOUBLE")} !*/
 /*! #set( $DEBUG = false) !*/
 /**
@@ -33,7 +34,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenIdentityHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -1174,7 +1175,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
      * A view of the keys inside this hash map.
      */
     public final class KeysContainer
-            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenIdentityHashMap<KType, VType> owner =
                 KTypeVTypeOpenIdentityHashMap.this;
@@ -1722,7 +1723,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
         @SuppressWarnings("unchecked")
         final/* #end */
         KTypeVTypeOpenIdentityHashMap<KType, VType> cloned =
-                new KTypeVTypeOpenIdentityHashMap<KType, VType>(this.size(), this.loadFactor);
+        new KTypeVTypeOpenIdentityHashMap<KType, VType>(this.size(), this.loadFactor);
 
         cloned.putAll(this);
 

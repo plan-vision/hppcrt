@@ -43,10 +43,6 @@ import com.carrotsearch.hppcrt.generator.TemplateOptions.DoNotGenerateTypeExcept
  */
 public final class TemplateProcessor
 {
-
-    //TODO: Maybe load from class path ?
-    private static String INTRINSICS_FILE_NAME = "com/carrotsearch/hppcrt/Intrinsics.java";
-
     private static final Pattern IMPORT_DECLARATION = Pattern.compile("(import\\s+[\\w.\\*\\s]*;)", Pattern.MULTILINE | Pattern.DOTALL);
 
     private boolean verbose = true;
@@ -58,12 +54,14 @@ public final class TemplateProcessor
 
     private long timeVelocity, timeIntrinsics, timeTypeClassRefs, timeComments;
 
-    private final VelocityEngine velocity;
+    private VelocityEngine velocity;
 
     private static final String[] PROGRESS_BAR_PATTERN = new String[] { "||", "//", "--", "\\\\" };
 
     private int progressBarCount;
     private long progressBarLastDisplayDate;
+
+    private boolean isVelocityInitialized = false;
 
     private class VelocityLogger implements LogChute
     {
@@ -75,18 +73,24 @@ public final class TemplateProcessor
         @Override
         public void log(final int level, final String message) {
 
-            System.out.println("[VELOCITY]-" + level + " : " + message);
+            if (TemplateProcessor.this.verbose || level <= 2) {
+
+                System.out.println("[VELOCITY]-" + level + " : " + message);
+            }
         }
 
         @Override
         public void log(final int level, final String message, final Throwable t) {
 
-            System.out.println("[VELOCITY]-" + level + "-!!EXCEPTION!! : " + message + " , exception msg: " + t.getMessage());
+            if (TemplateProcessor.this.verbose || level <= 2) {
+
+                System.out.println("[VELOCITY]-" + level + "-!!EXCEPTION!! : " + message + " , exception msg: " + t.getMessage());
+            }
         }
 
         @Override
         public boolean isLevelEnabled(final int level) {
-            // let Velocity talk
+            //let it  talk
             return true;
         }
     }
@@ -96,16 +100,39 @@ public final class TemplateProcessor
      */
     public TemplateProcessor()
     {
-        final ExtendedProperties p = new ExtendedProperties();
-        p.setProperty(RuntimeConstants.SET_NULL_ALLOWED, "false");
+        //do nothing here.
+    }
 
-        //Attach a Velocity logger to see internal Velocity log messages on console
-        p.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new VelocityLogger());
+    private void initVelocity() {
 
-        this.velocity = new VelocityEngine();
-        this.velocity.setExtendedProperties(p);
+        if (!this.isVelocityInitialized) {
 
-        this.velocity.init();
+            final ExtendedProperties p = new ExtendedProperties();
+            p.setProperty(RuntimeConstants.SET_NULL_ALLOWED, "false");
+
+            //Attach a Velocity logger to see internal Velocity log messages on console
+            p.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new VelocityLogger());
+
+            //Set resource path to be templatesDir using Resource Loader:
+            p.setProperty(RuntimeConstants.RESOURCE_MANAGER_LOGWHENFOUND, true);
+
+            //set the templatesDir to search for the directives, i.e '#import" here....
+            p.setProperty("resource.loader", "file");
+            p.setProperty("file.resource.loader.path", ". , "
+                    + new TemplateFile(this.templatesDir).fullPath + " , "
+                    + new TemplateFile(this.dependenciesDir).fullPath);
+            p.setProperty("file.resource.loader.cache", true);
+
+            //declare "import" as a user directive
+            p.setProperty("userdirective", "com.carrotsearch.hppcrt.generator.ImportDirective");
+
+            this.velocity = new VelocityEngine();
+            this.velocity.setExtendedProperties(p);
+
+            this.velocity.init();
+
+            this.isVelocityInitialized = true;
+        }
     }
 
     /**
@@ -150,6 +177,8 @@ public final class TemplateProcessor
      */
     public void execute()
     {
+        initVelocity();
+
         // Collect files/ checksums from the output folder.
         final List<OutputFile> outputs = collectOutputFiles(new ArrayList<OutputFile>(), this.outputDir);
 
@@ -157,11 +186,11 @@ public final class TemplateProcessor
         final List<TemplateFile> inputs = collectTemplateFiles(new ArrayList<TemplateFile>(), this.templatesDir);
 
         // Process templates
-        System.out.println("Processing " + inputs.size() + " templates to: '" + this.outputDir.getPath() + "'");
+        System.out.println("Processing " + inputs.size() + " templates to: '" + this.outputDir.getPath() + "'\n");
         final long start = System.currentTimeMillis();
         processTemplates(inputs, outputs);
         final long end = System.currentTimeMillis();
-        System.out.println(String.format(Locale.ENGLISH, "\nProcessed in %.2f sec.", (end - start) * 1e-3));
+        System.out.println(String.format(Locale.ENGLISH, "\nProcessed in %.2f sec.\n", (end - start) * 1e-3));
 
         // Remove non-marked files.
         int generated = 0;
@@ -218,71 +247,6 @@ public final class TemplateProcessor
 
         //reference the context itself into the TemplateOptions object
         options.context = ctx;
-    }
-
-    /**
-     * Inject a Velocity dependency : This method captures all Velocity directives (ex inlines) found in deps, using
-     * options as input/output for data; There is no code generation here.
-     * @param dep
-     */
-    private void addSingleDependency(final TemplateFile dep, final TemplateOptions options) {
-
-        if (this.verbose) {
-
-            System.out.println("[INFO] addSingleDependency(): adding for options " + options.toString() +
-                    " the dependency: '" + dep.file.toString() + "'...");
-
-        }
-
-        final StringWriter strNull = new StringWriter();
-
-        options.sourceFile = dep.file;
-
-        try {
-            this.velocity.evaluate(options.context, strNull, dep.file.getName(), readFile(dep.file));
-
-        }
-        catch (final ParseErrorException e) {
-
-            System.out.println("[ERROR] : parsing template '" + dep.fullPath +
-                    "' with " + options + " with error: '" + e.getMessage() + "'");
-
-            //rethrow the beast to stop the thing dead.
-            throw e;
-        }
-        catch (final ResourceNotFoundException e) {
-
-            System.out.println("[ERROR] : resource not found for template '" + dep.fullPath +
-                    "' with " + options + " with error: '" + e.getMessage() + "'");
-
-            //rethrow the beast to stop the thing dead.
-            throw e;
-        }
-        catch (final MethodInvocationException e) {
-
-            if (e.getCause() instanceof DoNotGenerateTypeException) {
-
-                final DoNotGenerateTypeException doNotGenException = (DoNotGenerateTypeException) e.getCause();
-
-                if (this.verbose) {
-
-                    System.out.println("[INFO] : output from template '" + dep.fullPath +
-                            "' with KType = " + doNotGenException.currentKType + " and VType =  " +
-                            doNotGenException.currentVType + " was bypassed...");
-                }
-                else {
-                    displayProgressBar();
-                }
-            }
-            else {
-
-                System.out.println("[ERROR] : method invocation from template '" + dep.fullPath +
-                        "' with " + options + " failed with error: '" + e.getMessage() + "'");
-
-                //rethrow the beast to stop the thing dead.
-                throw e;
-            }
-        } //end MethodInvocationException
     }
 
     /**
@@ -359,13 +323,7 @@ public final class TemplateProcessor
 
             try {
 
-                //1) Add all dependencies, that will be needed, i.e Intrinsics
-                final File intrinsicsFile = new File(new TemplateFile(this.dependenciesDir).fullPath + File.separator +
-                        TemplateProcessor.INTRINSICS_FILE_NAME);
-
-                addSingleDependency(new TemplateFile(intrinsicsFile), templateOptions);
-
-                //2) Apply velocity : if TemplateOptions.isDoNotGenerateKType() or TemplateOptions.isDoNotGenerateVType() throw a
+                //1) Apply velocity : if TemplateOptions.isDoNotGenerateKType() or TemplateOptions.isDoNotGenerateVType() throw a
                 //DoNotGenerateTypeException , do not generate the final file.
 
                 //set current file !
@@ -376,16 +334,16 @@ public final class TemplateProcessor
                 this.timeVelocity += (t1 = System.currentTimeMillis()) - t0;
                 displayProgressBar();
 
-                //3) Apply generix inlining, (which inlines Intrinsics...)
+                //2) Apply generix inlining, (which inlines Intrinsics...)
                 input = filterInlines(f, input, templateOptions);
                 displayProgressBar();
 
-                //4) convert signatures
+                //3) convert signatures
                 input = filterTypeClassRefs(f, input, templateOptions);
                 this.timeTypeClassRefs += (t1 = System.currentTimeMillis()) - t0;
                 displayProgressBar();
 
-                //5) Filter comments
+                //4) Filter comments
                 input = filterComments(f, input, templateOptions);
                 this.timeComments += (t0 = System.currentTimeMillis()) - t1;
                 displayProgressBar();
@@ -444,12 +402,12 @@ public final class TemplateProcessor
 
     private String filterInlines(final TemplateFile f, String input, final TemplateOptions templateOptions)
     {
-        if (templateOptions.hasKType()) {
+        if (templateOptions.hasKType() && !templateOptions.inlineKTypeDefinitions.isEmpty()) {
 
             input = filterInlinesSet(f, input, templateOptions.inlineKTypeDefinitions);
         }
 
-        if (templateOptions.hasVType()) {
+        if (templateOptions.hasVType() && !templateOptions.inlineVTypeDefinitions.isEmpty()) {
 
             input = filterInlinesSet(f, input, templateOptions.inlineVTypeDefinitions);
         }
