@@ -73,7 +73,7 @@ public final class TemplateProcessor
         @Override
         public void log(final int level, final String message) {
 
-            if (TemplateProcessor.this.verbose || level <= 2) {
+            if (level <= 2) {
 
                 System.out.println("[VELOCITY]-" + level + " : " + message);
             }
@@ -82,7 +82,7 @@ public final class TemplateProcessor
         @Override
         public void log(final int level, final String message, final Throwable t) {
 
-            if (TemplateProcessor.this.verbose || level <= 2) {
+            if (level <= 2) {
 
                 System.out.println("[VELOCITY]-" + level + "-!!EXCEPTION!! : " + message + " , exception msg: " + t.getMessage());
             }
@@ -691,9 +691,9 @@ public final class TemplateProcessor
 
             input = input.replaceAll("(KTypeVType)([A-Z][a-zA-Z]*)(<.+?>)?",
                     (k.isGeneric() ? "Object" : k.getBoxedType()) +
-                            (v.isGeneric() ? "Object" : v.getBoxedType()) +
-                            "$2" +
-                            (options.isAnyGeneric() ? "$3" : ""));
+                    (v.isGeneric() ? "Object" : v.getBoxedType()) +
+                    "$2" +
+                    (options.isAnyGeneric() ? "$3" : ""));
 
             input = input.replaceAll("(VType)([A-Z][a-zA-Z]*)",
                     (v.isGeneric() ? "Object" : v.getBoxedType()) + "$2");
