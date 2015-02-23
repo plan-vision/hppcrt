@@ -26,7 +26,6 @@
         <generate
             templatesDir="${basedir}/src/main/templates" 
             destDir="${basedir}/target/generated-sources/main/java" 
-            dependenciesDir="${basedir}/src/main/templates" 
             incremental="true" verbose="false" />
 
         <generate

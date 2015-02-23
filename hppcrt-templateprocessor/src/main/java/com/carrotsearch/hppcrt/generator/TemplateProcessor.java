@@ -113,17 +113,25 @@ public final class TemplateProcessor
             //Attach a Velocity logger to see internal Velocity log messages on console
             p.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new VelocityLogger());
 
-            //Set resource path to be templatesDir using Resource Loader:
+            //Set resource path to be templatesDir + dependenciesDir, using Resource Loader:
+            //log something when someting is found
             p.setProperty(RuntimeConstants.RESOURCE_MANAGER_LOGWHENFOUND, true);
 
             //set the templatesDir to search for the directives, i.e '#import" here....
             p.setProperty("resource.loader", "file");
+
+            //if the dependencies are not set, make them the same as the templates.
+            if (this.dependenciesDir == null) {
+                this.dependenciesDir = this.templatesDir;
+            }
+
             p.setProperty("file.resource.loader.path", ". , "
                     + new TemplateFile(this.templatesDir).fullPath + " , "
                     + new TemplateFile(this.dependenciesDir).fullPath);
+
             p.setProperty("file.resource.loader.cache", true);
 
-            //declare "import" as a user directive
+            //declare "import" as a user directive:
             p.setProperty("userdirective", "com.carrotsearch.hppcrt.generator.ImportDirective");
 
             this.velocity = new VelocityEngine();
@@ -691,9 +699,9 @@ public final class TemplateProcessor
 
             input = input.replaceAll("(KTypeVType)([A-Z][a-zA-Z]*)(<.+?>)?",
                     (k.isGeneric() ? "Object" : k.getBoxedType()) +
-                    (v.isGeneric() ? "Object" : v.getBoxedType()) +
-                    "$2" +
-                    (options.isAnyGeneric() ? "$3" : ""));
+                            (v.isGeneric() ? "Object" : v.getBoxedType()) +
+                            "$2" +
+                            (options.isAnyGeneric() ? "$3" : ""));
 
             input = input.replaceAll("(VType)([A-Z][a-zA-Z]*)",
                     (v.isGeneric() ? "Object" : v.getBoxedType()) + "$2");
@@ -751,6 +759,7 @@ public final class TemplateProcessor
         try
         {
             final byte[] contents = new byte[(int) file.length()];
+
             final DataInputStream dataInputStream = new DataInputStream(new FileInputStream(
                     file));
             dataInputStream.readFully(contents);
@@ -929,6 +938,10 @@ public final class TemplateProcessor
         if (args.length >= 3) {
 
             processor.setDependenciesDir(new File(args[2]));
+        }
+        else {
+            //if no dep, set it to be same as templatesDir
+            processor.setDependenciesDir(processor.templatesDir);
         }
 
         processor.execute();
