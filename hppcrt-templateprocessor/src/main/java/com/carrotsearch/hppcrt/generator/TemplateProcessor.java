@@ -45,6 +45,12 @@ public final class TemplateProcessor
 {
     private static final Pattern IMPORT_DECLARATION = Pattern.compile("(import\\s+[\\w.\\*\\s]*;)", Pattern.MULTILINE | Pattern.DOTALL);
 
+    private static final Pattern COMMENTS_PATTERN = Pattern.compile("(/\\*!)|(!\\*/)", Pattern.MULTILINE | Pattern.DOTALL);
+
+    private static final Pattern SIGNATURE_PATTERN = Pattern.compile("<[^<>]*>", Pattern.MULTILINE | Pattern.DOTALL);
+
+    private static final Pattern SIGNATURE_START = Pattern.compile("<[\\?A-Z]");
+
     private boolean verbose = true;
     private boolean incremental = true;
 
@@ -114,10 +120,13 @@ public final class TemplateProcessor
             p.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new VelocityLogger());
 
             //Set resource path to be templatesDir + dependenciesDir, using Resource Loader:
-            //log something when someting is found
-            p.setProperty(RuntimeConstants.RESOURCE_MANAGER_LOGWHENFOUND, true);
+            //log something when a resource is found
+            p.setProperty(RuntimeConstants.RESOURCE_MANAGER_LOGWHENFOUND, "true");
 
-            //set the templatesDir to search for the directives, i.e '#import" here....
+            p.setProperty(RuntimeConstants.INPUT_ENCODING, "UTF-8");
+            p.setProperty(RuntimeConstants.OUTPUT_ENCODING, "UTF-8");
+
+            //set the templatesDir to search for the '#import'ed  files....
             p.setProperty("resource.loader", "file");
 
             //if the dependencies are not set, make them the same as the templates.
@@ -129,9 +138,10 @@ public final class TemplateProcessor
                     + new TemplateFile(this.templatesDir).fullPath + " , "
                     + new TemplateFile(this.dependenciesDir).fullPath);
 
-            p.setProperty("file.resource.loader.cache", true);
+            p.setProperty("file.resource.loader.cache", "true");
+            p.setProperty("file.resource.loader.modificationCheckInterval", "-1");
 
-            //declare "import" as a user directive:
+            //declare "#import" as a user directive:
             p.setProperty("userdirective", "com.carrotsearch.hppcrt.generator.ImportDirective");
 
             this.velocity = new VelocityEngine();
@@ -276,9 +286,6 @@ public final class TemplateProcessor
 
                     options.setVerbose(this.verbose);
 
-                    //Init a new Velocity Context for the current templateOptions
-                    initTemplateOptionsContext(options);
-
                     generate(f, outputs, options);
                     displayProgressBar();
                 }
@@ -293,9 +300,6 @@ public final class TemplateProcessor
                         final TemplateOptions options = new TemplateOptions(ktype, vtype);
 
                         options.setVerbose(this.verbose);
-
-                        //Init a new Velocity Context for the current templateOptions
-                        initTemplateOptionsContext(options);
 
                         generate(f, outputs, options);
                         displayProgressBar();
@@ -333,10 +337,6 @@ public final class TemplateProcessor
 
                 //1) Apply velocity : if TemplateOptions.isDoNotGenerateKType() or TemplateOptions.isDoNotGenerateVType() throw a
                 //DoNotGenerateTypeException , do not generate the final file.
-
-                //set current file !
-                templateOptions.sourceFile = f.file;
-
                 input = filterVelocity(f, input, templateOptions);
 
                 this.timeVelocity += (t1 = System.currentTimeMillis()) - t0;
@@ -569,9 +569,7 @@ public final class TemplateProcessor
 
     private String filterComments(final TemplateFile f, final String input, final TemplateOptions templateOptions)
     {
-        final Pattern p = Pattern.compile("(/\\*!)|(!\\*/)", Pattern.MULTILINE | Pattern.DOTALL);
-
-        return p.matcher(input).replaceAll("");
+        return TemplateProcessor.COMMENTS_PATTERN.matcher(input).replaceAll("");
     }
 
     private String filterTypeClassRefs(final TemplateFile f, String input, final TemplateOptions options)
@@ -593,8 +591,7 @@ public final class TemplateProcessor
 
     private String rewriteSignatures(final TemplateFile f, final String input, final TemplateOptions options)
     {
-        final Pattern p = Pattern.compile("<[\\?A-Z]");
-        final Matcher m = p.matcher(input);
+        final Matcher m = TemplateProcessor.SIGNATURE_START.matcher(input);
 
         final StringBuilder sb = new StringBuilder();
         int fromIndex = 0;
@@ -628,16 +625,19 @@ public final class TemplateProcessor
             return signature;
         }
 
-        final Pattern p = Pattern.compile("<[^<>]*>", Pattern.MULTILINE | Pattern.DOTALL);
-
         final StringBuilder sb = new StringBuilder(signature);
-        Matcher m = p.matcher(sb);
+
+        Matcher m = TemplateProcessor.SIGNATURE_PATTERN.matcher(sb);
+
         while (m.find())
         {
             String group = m.group();
             group = group.substring(1, group.length() - 1);
+
             final List<String> args = new ArrayList<String>(Arrays.asList(group.split(",")));
+
             final StringBuilder b = new StringBuilder();
+
             for (final Iterator<String> i = args.iterator(); i.hasNext();)
             {
                 String arg = i.next().trim();
@@ -679,7 +679,8 @@ public final class TemplateProcessor
             }
 
             sb.replace(m.start(), m.end(), b.toString());
-            m = p.matcher(sb);
+
+            m = TemplateProcessor.SIGNATURE_PATTERN.matcher(sb);
         }
         return sb.toString().replace('{', '<').replace('}', '>');
     }
@@ -699,9 +700,9 @@ public final class TemplateProcessor
 
             input = input.replaceAll("(KTypeVType)([A-Z][a-zA-Z]*)(<.+?>)?",
                     (k.isGeneric() ? "Object" : k.getBoxedType()) +
-                            (v.isGeneric() ? "Object" : v.getBoxedType()) +
-                            "$2" +
-                            (options.isAnyGeneric() ? "$3" : ""));
+                    (v.isGeneric() ? "Object" : v.getBoxedType()) +
+                    "$2" +
+                    (options.isAnyGeneric() ? "$3" : ""));
 
             input = input.replaceAll("(VType)([A-Z][a-zA-Z]*)",
                     (v.isGeneric() ? "Object" : v.getBoxedType()) + "$2");
@@ -744,7 +745,15 @@ public final class TemplateProcessor
      */
     private String filterVelocity(final TemplateFile f, final String template, final TemplateOptions options)
     {
+        //each Template file receives an independent Context,
+        //so references don't leak from file to file....
+        //(like in separate compilation idioms)
+        initTemplateOptionsContext(options);
+
         final StringWriter sw = new StringWriter();
+
+        //set current file as source file.
+        options.sourceFile = f.file;
 
         this.velocity.evaluate(options.context, sw, f.file.getName(), template);
 
@@ -869,27 +878,6 @@ public final class TemplateProcessor
                     collectTemplateFiles(list, f);
                     return false;
                 }
-
-                return name.endsWith(".java");
-            }
-        }))
-        {
-            list.add(new TemplateFile(file));
-        }
-        return list;
-    }
-
-    /**
-     * Collect all template files from this current Dir only.
-     */
-    private List<TemplateFile> collectTemplateFilesCurrentDir(final List<TemplateFile> list, final File dir)
-    {
-        for (final File file : dir.listFiles(new FilenameFilter()
-        {
-            @Override
-            public boolean accept(final File dir, final String name)
-            {
-                final File f = new File(dir, name);
 
                 return name.endsWith(".java");
             }
