@@ -8,7 +8,6 @@ import com.carrotsearch.hppcrt.hash.*;
 
 /*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN", "BYTE", "CHAR", "SHORT", "INT", "LONG", "FLOAT", "DOUBLE")} !*/
-/*! #set( $DEBUG = false) !*/
 /**
  * An identity hash map of <code>KType</code> to <code>VType</code>, implemented using open
  * addressing with linear probing for collision resolution.
@@ -67,7 +66,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     #end
      * <p>
      * Direct map iteration: iterate  {keys[i], values[i]} for i in [0; keys.length[ where keys[i] != null, then also
-     * {null, {@link #defaultKeyValue} } is in the map if {@link #allocatedDefaultKey} = true.
+     * {null, {@link #allocatedDefaultKeyValue} } is in the map if {@link #allocatedDefaultKey} = true.
      * </p>
      * 
      * <p><b>Direct iteration warning: </b>
@@ -102,7 +101,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     /**
      * if allocatedDefaultKey = true, contains the associated V to the key = null
      */
-    public VType defaultKeyValue;
+    public VType allocatedDefaultKeyValue;
 
     /**
      * Cached number of assigned slots in {@link #keys}.
@@ -204,13 +203,13 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
             if (this.allocatedDefaultKey) {
 
-                final VType previousValue = this.defaultKeyValue;
-                this.defaultKeyValue = value;
+                final VType previousValue = this.allocatedDefaultKeyValue;
+                this.allocatedDefaultKeyValue = value;
 
                 return previousValue;
             }
 
-            this.defaultKeyValue = value;
+            this.allocatedDefaultKeyValue = value;
 
             this.allocatedDefaultKey = true;
 
@@ -219,11 +218,38 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         final int mask = this.keys.length - 1;
 
-        int slot = PhiMix.hash(System.identityHashCode(key)) & mask;
-
         final KType[] keys = this.keys;
         final VType[] values = this.values;
 
+        //copied straight from  fastutil "fast-path"
+        int slot;
+        KType curr;
+
+        //1.1 The rehashed key slot is occupied...
+        if ((curr = keys[slot = PhiMix.hash(System.identityHashCode(key)) & mask]) != Intrinsics.defaultKTypeValue()) {
+
+            //1.2 the occupied place is indeed key, so only updates the value and nothing else.
+            if (curr == key) {
+
+                final VType oldValue = this.values[slot];
+                values[slot] = value;
+
+                return oldValue;
+            }
+
+            //1.3 key is colliding, manage below :
+        }
+        else if (this.assigned < this.resizeAt) {
+
+            //1.4 key is not colliding, without resize, so insert, return defaultValue.
+            keys[slot] = key;
+            values[slot] = value;
+            this.assigned++;
+
+            return this.defaultValue;
+        }
+
+        //2. Slow path, find a place somewhere down there...
         while (is_allocated(slot, keys))
         {
             if (key == keys[slot])
@@ -323,12 +349,12 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
             if (this.allocatedDefaultKey) {
 
-                this.defaultKeyValue += additionValue;
+                this.allocatedDefaultKeyValue += additionValue;
 
-                return this.defaultKeyValue;
+                return this.allocatedDefaultKeyValue;
             }
 
-            this.defaultKeyValue = putValue;
+            this.allocatedDefaultKeyValue = putValue;
 
             this.allocatedDefaultKey = true;
 
@@ -337,10 +363,36 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         final int mask = this.keys.length - 1;
 
-        int slot = PhiMix.hash(System.identityHashCode(key)) & mask;
-
         final KType[] keys = this.keys;
         final VType[] values = this.values;
+        VType value =  putValue;
+
+        //copied straight from  fastutil "fast-path"
+        int slot;
+        KType curr;
+
+        //1.1 The rehashed key slot is occupied...
+        if ((curr = keys[slot =  PhiMix.hash(System.identityHashCode(key)) & mask]) != Intrinsics.defaultKTypeValue()) {
+
+            //1.2 the occupied place is indeed key, so only increments the value and nothing else.
+            if (curr == key) {
+
+                final VType oldValue = this.values[slot];
+                values[slot] += additionValue;
+                return values[slot];
+            }
+
+            //1.3 key is colliding, manage below :
+        }
+        else if (this.assigned < this.resizeAt) {
+
+            //1.4 key is not colliding, without resize, so insert, return defaultValue.
+            keys[slot] = key;
+            values[slot] = value;
+            this.assigned++;
+
+            return putValue;
+        }
 
         while (is_allocated( slot, keys))
         {
@@ -482,8 +534,12 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
             if (this.allocatedDefaultKey) {
 
-                final VType previousValue = this.defaultKeyValue;
+                final VType previousValue = this.allocatedDefaultKeyValue;
 
+                /*! #if ($TemplateOptions.VTypeGeneric) !*/
+                //help the GC
+                this.allocatedDefaultKeyValue = Intrinsics.defaultVTypeValue();
+                /*! #end !*/
                 this.allocatedDefaultKey = false;
                 return previousValue;
             }
@@ -493,20 +549,22 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         final int mask = this.keys.length - 1;
 
-        int slot = PhiMix.hash(System.identityHashCode(key)) & mask;
-
         final KType[] keys = this.keys;
         final VType[] values = this.values;
 
-        //Fast path 1: the first slot is empty, bailout returning  this.defaultValue
-        if (!is_allocated(slot, keys)) {
+        //copied straight from  fastutil "fast-path"
+        int slot;
+        KType curr;
+
+        //1.1 The rehashed slot is free, nothing to remove, return default value
+        if ((curr = keys[slot = PhiMix.hash(System.identityHashCode(key)) & mask]) == Intrinsics.defaultKTypeValue()) {
 
             return this.defaultValue;
         }
 
-        //Fast path 2 : the first slot contains the key, remove it and return
-        if (key == keys[slot])
-        {
+        //1.2) The rehashed entry is occupied by the key, remove it, return value
+        if (curr == key) {
+
             final VType value = values[slot];
 
             this.assigned--;
@@ -515,7 +573,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             return value;
         }
 
-        //Fast path 3  :position now on the 2nd slot
+        //2. Hash collision, search for the key along the path
         slot = (slot + 1) & mask;
 
         while (is_allocated(slot, keys))
@@ -663,7 +721,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
             if (this.allocatedDefaultKey) {
 
-                return this.defaultKeyValue;
+                return this.allocatedDefaultKeyValue;
             }
 
             return this.defaultValue;
@@ -671,24 +729,26 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         final int mask = this.keys.length - 1;
 
-        int slot = PhiMix.hash(System.identityHashCode(key)) & mask;
-
         final KType[] keys = this.keys;
         final VType[] values = this.values;
 
-        //Fast path 1: the first slot is empty, bailout returning  this.defaultValue
-        if (!is_allocated(slot, keys)) {
+        //copied straight from  fastutil "fast-path"
+        int slot;
+        KType curr;
+
+        //1.1 The rehashed slot is free, nothing to get, return default value
+        if ((curr = keys[slot = PhiMix.hash(System.identityHashCode(key)) & mask]) == Intrinsics.defaultKTypeValue()) {
 
             return this.defaultValue;
         }
 
-        //Fast path 2 : the first slot contains the key, return the value
-        if (key == keys[slot])
-        {
+        //1.2) The rehashed entry is occupied by the key, return value
+        if (curr == key) {
+
             return values[slot];
         }
 
-        ///Fast path 3 : position now on the 2nd slot
+        //2. Hash collision, search for the key along the path
         slot = (slot + 1) & mask;
 
         while (is_allocated(slot, keys))
@@ -744,7 +804,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         if (this.lastSlot == -2) {
 
-            return this.defaultKeyValue;
+            return this.allocatedDefaultKeyValue;
         }
 
         assert this.lastSlot >= 0 : "Call containsKey() first.";
@@ -766,8 +826,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     {
         if (this.lastSlot == -2) {
 
-            final VType previous = this.defaultKeyValue;
-            this.defaultKeyValue = value;
+            final VType previous = this.allocatedDefaultKeyValue;
+            this.allocatedDefaultKeyValue = value;
             return previous;
         }
 
@@ -782,8 +842,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
     /**
      * @return Returns the slot of the last key looked up in a call to {@link #containsKey} if
-     * it returned <code>true</code>.
-     * 
+     * it returned <code>true</code>
+     * or else -2 if {@link #containsKey} were successful on key = 0
      * @see #containsKey
      */
     public int lslot()
@@ -830,27 +890,27 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         final int mask = this.keys.length - 1;
 
-        int slot = PhiMix.hash(System.identityHashCode(key)) & mask;
-
         final KType[] keys = this.keys;
 
-        ////Fast path 1: the first slot is empty, bailout returning false
-        if (!is_allocated(slot, keys)) {
+        //copied straight from  fastutil "fast-path"
+        int slot;
+        KType curr;
 
-            //unsuccessful search
+        //1.1 The rehashed slot is free, return false
+        if ((curr = keys[slot = PhiMix.hash(System.identityHashCode(key)) & mask]) == Intrinsics.defaultKTypeValue()) {
+
             this.lastSlot = -1;
-
             return false;
         }
 
-        ////Fast path 2 : the first slot contains the key, return true
-        if (key == keys[slot])
-        {
+        //1.2) The rehashed entry is occupied by the key, return true
+        if (curr == key) {
+
             this.lastSlot = slot;
             return true;
         }
 
-        ////Fast path 3 : position now on the 2nd slot
+        //2. Hash collision, search for the key along the path
         slot = (slot + 1) & mask;
 
         while (is_allocated(slot, keys))
@@ -881,17 +941,15 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         this.assigned = 0;
         this.lastSlot = -1;
 
-        // States are always cleared.
-        //Faster than Arrays.fill(keys, null); // Help the GC.
-        KTypeArrays.blankArray(this.keys, 0, this.keys.length);
-
         this.allocatedDefaultKey = false;
 
         /*! #if ($TemplateOptions.VTypeGeneric) !*/
         //help the GC
-        this.defaultKeyValue = Intrinsics.defaultVTypeValue();
+        this.allocatedDefaultKeyValue = Intrinsics.defaultVTypeValue();
         /*! #end !*/
 
+        //Faster than Arrays.fill(keys, null); // Help the GC.
+        KTypeArrays.blankArray(this.keys, 0, this.keys.length);
         /*! #if ($TemplateOptions.VTypeGeneric) !*/
         //Faster than Arrays.fill(values, null); // Help the GC.
         VTypeArrays.<VType> blankArray(this.values, 0, this.values.length);
@@ -937,7 +995,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         int h = 0;
 
         if (this.allocatedDefaultKey) {
-            h += 0 + Internals.rehash(this.defaultKeyValue);
+            h += 0 + Internals.rehash(this.allocatedDefaultKeyValue);
         }
 
         final KType[] keys = this.keys;
@@ -1033,7 +1091,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
                     this.cursor.index = KTypeVTypeOpenIdentityHashMap.this.keys.length;
                     this.cursor.key = Intrinsics.defaultKTypeValue();
-                    this.cursor.value = KTypeVTypeOpenIdentityHashMap.this.defaultKeyValue;
+                    this.cursor.value = KTypeVTypeOpenIdentityHashMap.this.allocatedDefaultKeyValue;
 
                     return this.cursor;
 
@@ -1108,7 +1166,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         if (this.allocatedDefaultKey) {
 
-            procedure.apply(Intrinsics.<KType> defaultKTypeValue(), this.defaultKeyValue);
+            procedure.apply(Intrinsics.<KType> defaultKTypeValue(), this.allocatedDefaultKeyValue);
         }
 
         final KType[] keys = this.keys;
@@ -1136,7 +1194,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         if (this.allocatedDefaultKey) {
 
-            if (!predicate.apply(Intrinsics.<KType> defaultKTypeValue(), this.defaultKeyValue)) {
+            if (!predicate.apply(Intrinsics.<KType> defaultKTypeValue(), this.allocatedDefaultKeyValue)) {
 
                 return predicate;
             }
@@ -1437,7 +1495,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         public boolean contains(final VType value)
         {
 
-            if (this.owner.allocatedDefaultKey && Intrinsics.equalsVType(value, this.owner.defaultKeyValue)) {
+            if (this.owner.allocatedDefaultKey && Intrinsics.equalsVType(value, this.owner.allocatedDefaultKeyValue)) {
 
                 return true;
             }
@@ -1464,7 +1522,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
             if (this.owner.allocatedDefaultKey) {
 
-                procedure.apply(this.owner.defaultKeyValue);
+                procedure.apply(this.owner.allocatedDefaultKeyValue);
             }
 
             final KType[] keys = this.owner.keys;
@@ -1486,7 +1544,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
             if (this.owner.allocatedDefaultKey) {
 
-                if (!predicate.apply(this.owner.defaultKeyValue))
+                if (!predicate.apply(this.owner.allocatedDefaultKeyValue))
                 {
                     return predicate;
                 }
@@ -1528,7 +1586,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
             if (this.owner.allocatedDefaultKey) {
 
-                if (Intrinsics.equalsVType(e, this.owner.defaultKeyValue)) {
+                if (Intrinsics.equalsVType(e, this.owner.allocatedDefaultKeyValue)) {
 
                     this.owner.allocatedDefaultKey = false;
                 }
@@ -1566,7 +1624,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
             if (this.owner.allocatedDefaultKey) {
 
-                if (predicate.apply(this.owner.defaultKeyValue)) {
+                if (predicate.apply(this.owner.allocatedDefaultKeyValue)) {
 
                     this.owner.allocatedDefaultKey = false;
                 }
@@ -1635,7 +1693,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
             if (this.owner.allocatedDefaultKey) {
 
-                target[count++] = this.owner.defaultKeyValue;
+                target[count++] = this.owner.allocatedDefaultKeyValue;
             }
 
             final KType[] keys = this.owner.keys;
@@ -1680,7 +1738,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                 if (KTypeVTypeOpenIdentityHashMap.this.allocatedDefaultKey) {
 
                     this.cursor.index = KTypeVTypeOpenIdentityHashMap.this.values.length;
-                    this.cursor.value = KTypeVTypeOpenIdentityHashMap.this.defaultKeyValue;
+                    this.cursor.value = KTypeVTypeOpenIdentityHashMap.this.allocatedDefaultKeyValue;
 
                     return this.cursor;
 
@@ -1727,7 +1785,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         cloned.putAll(this);
 
-        cloned.defaultKeyValue = this.defaultKeyValue;
+        cloned.allocatedDefaultKeyValue = this.allocatedDefaultKeyValue;
         cloned.allocatedDefaultKey = this.allocatedDefaultKey;
         cloned.defaultValue = this.defaultValue;
 

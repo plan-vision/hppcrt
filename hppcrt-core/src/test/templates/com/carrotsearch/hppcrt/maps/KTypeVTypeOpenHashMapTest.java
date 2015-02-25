@@ -110,12 +110,12 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
                 Assert.assertEquals(-2, this.map.lslot());
 
                 //get() test
-                Assert.assertEquals(vcastType(this.map.defaultKeyValue), vcastType(this.map.get(this.key0)));
+                Assert.assertEquals(vcastType(this.map.allocatedDefaultKeyValue), vcastType(this.map.get(this.key0)));
 
                 //Retrieve again by lkey(), lget() :
 
                 TestUtils.assertEquals2(this.key0, this.map.lkey());
-                Assert.assertEquals(vcastType(this.map.defaultKeyValue), vcastType(this.map.lget()));
+                Assert.assertEquals(vcastType(this.map.allocatedDefaultKeyValue), vcastType(this.map.lget()));
 
                 occupied++;
             }
@@ -804,7 +804,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             if (cursor.index == this.map.keys.length) {
 
                 TestUtils.assertEquals2(this.key0, cursor.key);
-                TestUtils.assertEquals2(this.map.defaultKeyValue, cursor.value);
+                TestUtils.assertEquals2(this.map.allocatedDefaultKeyValue, cursor.value);
                 count++;
                 continue;
             }
@@ -832,7 +832,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             if (cursor.index == this.map.keys.length) {
 
                 TestUtils.assertEquals2(this.key0, cursor.key);
-                TestUtils.assertEquals2(this.map.defaultKeyValue, cursor.value);
+                TestUtils.assertEquals2(this.map.allocatedDefaultKeyValue, cursor.value);
                 count++;
                 continue;
             }
@@ -1257,7 +1257,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         {
             if (cursor.index == this.map.keys.length) {
 
-                TestUtils.assertEquals2(this.map.defaultKeyValue, cursor.value);
+                TestUtils.assertEquals2(this.map.allocatedDefaultKeyValue, cursor.value);
                 counted++;
                 continue;
             }
@@ -1278,7 +1278,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         {
             if (cursor.index == this.map.keys.length) {
 
-                TestUtils.assertEquals2(this.map.defaultKeyValue, cursor.value);
+                TestUtils.assertEquals2(this.map.allocatedDefaultKeyValue, cursor.value);
                 counted++;
                 continue;
             }
@@ -1870,7 +1870,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         if (newMap.allocatedDefaultKey) {
 
             keyList.add(this.key0);
-            valueList.add(vcastType(newMap.defaultKeyValue));
+            valueList.add(vcastType(newMap.allocatedDefaultKeyValue));
         }
 
         //Test forEach predicate and stop at each key in turn.
@@ -1900,7 +1900,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             if (newMap.allocatedDefaultKey) {
 
                 keyList.add(this.key0);
-                valueList.add(vcastType(newMap.defaultKeyValue));
+                valueList.add(vcastType(newMap.allocatedDefaultKeyValue));
             }
 
             for (int k = newMap.keys.length - 1; k >= 0; k--) {
@@ -2013,7 +2013,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             if (newMap.allocatedDefaultKey) {
 
                 keyList.add(this.key0);
-                valueList.add(vcastType(newMap.defaultKeyValue));
+                valueList.add(vcastType(newMap.allocatedDefaultKeyValue));
             }
 
             for (int k = 0; k < newMap.keys.length; k++) {
@@ -2105,7 +2105,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         if (newMap.allocatedDefaultKey) {
 
             keyList.add(this.key0);
-            valueList.add(vcastType(newMap.defaultKeyValue));
+            valueList.add(vcastType(newMap.allocatedDefaultKeyValue));
         }
 
         for (int i = newMap.keys.length - 1; i >= 0; i--) {
@@ -2169,7 +2169,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         if (newMap.allocatedDefaultKey) {
 
             keyList.add(this.key0);
-            valueList.add(vcastType(newMap.defaultKeyValue));
+            valueList.add(vcastType(newMap.allocatedDefaultKeyValue));
         }
 
         for (int k = 0; k < newMap.keys.length; k++) {
@@ -2231,7 +2231,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         if (newMap.allocatedDefaultKey) {
 
             keyList.add(this.key0);
-            valueList.add(vcastType(newMap.defaultKeyValue));
+            valueList.add(vcastType(newMap.allocatedDefaultKeyValue));
         }
 
         //Test forEach predicate and stop at each key in turn.
@@ -2261,7 +2261,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             if (newMap.allocatedDefaultKey) {
 
                 keyList.add(this.key0);
-                valueList.add(vcastType(newMap.defaultKeyValue));
+                valueList.add(vcastType(newMap.allocatedDefaultKeyValue));
             }
 
             for (int k = newMap.keys.length - 1; k >= 0; k--) {
@@ -2354,7 +2354,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
             if (newMap.allocatedDefaultKey) {
 
                 keyList.add(this.key0);
-                valueList.add(vcastType(newMap.defaultKeyValue));
+                valueList.add(vcastType(newMap.allocatedDefaultKeyValue));
             }
 
             for (int k = 0; k < newMap.keys.length; k++) {

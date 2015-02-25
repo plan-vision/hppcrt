@@ -8,7 +8,6 @@ import com.carrotsearch.hppcrt.hash.*;
 
 /*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN", "BYTE", "CHAR", "SHORT", "INT", "LONG", "FLOAT", "DOUBLE")} !*/
-/*! #set( $DEBUG = false) !*/
 /**
  * An identity hash set of <code>KType</code> types, implemented using open
  * addressing with linear probing for collision resolution.
@@ -39,8 +38,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenIdentityHashSet<KType>
-extends AbstractKTypeCollection<KType>
-implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+        extends AbstractKTypeCollection<KType>
+        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -179,9 +178,32 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         final int mask = this.keys.length - 1;
 
-        int slot = PhiMix.hash(System.identityHashCode(e)) & mask;
-
         final KType[] keys = this.keys;
+
+        //copied straight from  fastutil "fast-path"
+        int slot;
+        KType curr;
+
+        //1.1 The rehashed key slot is occupied...
+        if ((curr = keys[slot = PhiMix.hash(System.identityHashCode(e)) & mask]) != Intrinsics.defaultKTypeValue()) {
+
+            //1.2 the occupied place is indeed key, return false
+            if (curr == e) {
+
+                return false;
+            }
+
+            //1.3 key is colliding, manage below :
+        }
+        else if (this.assigned < this.resizeAt) {
+
+            //1.4 key is not colliding, without resize, so insert, return true.
+            keys[slot] = e;
+
+            this.assigned++;
+
+            return true;
+        }
 
         while (is_allocated(slot, keys))
         {
@@ -365,26 +387,27 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         final int mask = this.keys.length - 1;
 
-        int slot = PhiMix.hash(System.identityHashCode(key)) & mask;
-
         final KType[] keys = this.keys;
 
-        ////Fast path 1: the first slot is empty, bailout returning  false
-        if (!is_allocated(slot, keys)) {
+        //copied straight from  fastutil "fast-path"
+        int slot;
+        KType curr;
+
+        //1.1 The rehashed slot is free, nothing to remove, return false
+        if ((curr = keys[slot = PhiMix.hash(System.identityHashCode(key)) & mask]) == Intrinsics.defaultKTypeValue()) {
 
             return false;
         }
 
-        ////Fast path 2 : the first slot contains the key, remove it and return
-        if (key == keys[slot])
-        {
+        //1.2) The rehashed entry is occupied by the key, remove it, return true
+        if (curr == key) {
+
             this.assigned--;
             shiftConflictingKeys(slot);
-
             return true;
         }
 
-        ////Fast path 3: position now on the 2nd slot
+        //2. Hash collision, search for the key along the path
         slot = (slot + 1) & mask;
 
         while (is_allocated(slot, keys))
@@ -473,6 +496,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     /**
      * @return Returns the slot of the last key looked up in a call to {@link #contains} if
      * it returned <code>true</code>.
+     * or else -2 if {@link #contains} were succesfull on key = 0/null
      * @see #contains
      */
     public int lslot()
@@ -509,27 +533,27 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         final int mask = this.keys.length - 1;
 
-        int slot = PhiMix.hash(System.identityHashCode(key)) & mask;
-
         final KType[] keys = this.keys;
 
-        ////Fast path 1: the first slot is empty, bailout returning false
-        if (!is_allocated(slot, keys)) {
+        //copied straight from  fastutil "fast-path"
+        int slot;
+        KType curr;
 
-            //unsuccessful search
+        //1.1 The rehashed slot is free, return false
+        if ((curr = keys[slot = PhiMix.hash(System.identityHashCode(key)) & mask]) == Intrinsics.defaultKTypeValue()) {
+
             this.lastSlot = -1;
-
             return false;
         }
 
-        ////Fast path 2 : the first slot contains the key, return true
-        if (key == keys[slot])
-        {
+        //1.2) The rehashed entry is occupied by the key, return true
+        if (curr == key) {
+
             this.lastSlot = slot;
             return true;
         }
 
-        ////Fast path 3 : position now on the 2nd slot
+        //2. Hash collision, search for the key along the path
         slot = (slot + 1) & mask;
 
         while (is_allocated(slot, keys))
@@ -790,6 +814,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
             }
         }
 
+        assert count == this.size();
         return target;
     }
 

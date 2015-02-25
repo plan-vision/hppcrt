@@ -228,15 +228,39 @@ public class KTypeOpenCustomHashSet<KType>
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
-        int slot = PhiMix.hash(strategy.computeHashCode(e)) & mask;
-
         final KType[] keys = this.keys;
+
+        //copied straight from  fastutil "fast-path"
+        int slot;
+        KType curr;
+
+        //1.1 The rehashed key slot is occupied...
+        if ((curr = keys[slot = PhiMix.hash(strategy.computeHashCode(e)) & mask]) != Intrinsics.defaultKTypeValue()) {
+
+            //1.2 the occupied place is indeed key, return false
+            if (strategy.equals(curr, e)) {
+
+                return false;
+            }
+
+            //1.3 key is colliding, manage below :
+        }
+        else if (this.assigned < this.resizeAt) {
+
+            //1.4 key is not colliding, without resize, so insert, return true.
+            keys[slot] = e;
+
+            this.assigned++;
+
+            /*! #if ($RH) !*/
+            this.hash_cache[slot] = slot;
+            /*! #end !*/
+
+            return true;
+        }
 
         /*! #if ($RH) !*/
         final int[] cached = this.hash_cache;
-        /*!  #end !*/
-
-        /*! #if ($RH) !*/
         KType tmpKey;
         int tmpAllocated;
         int initial_slot = slot;
@@ -535,35 +559,33 @@ public class KTypeOpenCustomHashSet<KType>
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
-        int slot = PhiMix.hash(strategy.computeHashCode(key)) & mask;
-
-        /*! #if ($RH) !*/
-        int dist = 0;
-        /*! #end !*/
-
         final KType[] keys = this.keys;
 
-        /*! #if ($RH) !*/
-        final int[] cached = this.hash_cache;
-        /*! #end !*/
+        //copied straight from  fastutil "fast-path"
+        int slot;
+        KType curr;
 
-        ////Fast path 1: the first slot is empty, bailout returning  false
-        if (!is_allocated(slot, keys)) {
+        //1.1 The rehashed slot is free, nothing to remove, return false
+        if ((curr = keys[slot = PhiMix.hash(strategy.computeHashCode(key)) & mask]) == Intrinsics.defaultKTypeValue()) {
 
             return false;
         }
 
-        ////Fast path 2 : the first slot contains the key, remove it and return
-        if (strategy.equals(key, keys[slot]))
-        {
+        //1.2) The rehashed entry is occupied by the key, remove it, return true
+        if (strategy.equals(curr, key)) {
+
             this.assigned--;
             shiftConflictingKeys(slot);
-
             return true;
         }
 
-        ////Fast path 3: position now on the 2nd slot
+        //2. Hash collision, search for the key along the path
         slot = (slot + 1) & mask;
+
+        /*! #if ($RH) !*/
+        int dist = 0;
+        final int[] cached = this.hash_cache;
+        /*! #end !*/
 
         while (is_allocated(slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/)
@@ -682,7 +704,7 @@ public class KTypeOpenCustomHashSet<KType>
     /**
      * @return Returns the slot of the last key looked up in a call to {@link #contains} if
      * it returned <code>true</code>.
-     * or else -2 if {@link #contains} were succesfull on key = 0
+     * or else -2 if {@link #contains} were succesfull on key = 0/null
      * @see #contains
      */
     public int lslot()
@@ -720,35 +742,32 @@ public class KTypeOpenCustomHashSet<KType>
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
-        int slot = PhiMix.hash(strategy.computeHashCode(key)) & mask;
+         //copied straight from  fastutil "fast-path"
+        int slot;
+        KType curr;
 
-        /*! #if ($RH) !*/
-        int dist = 0;
-        /*! #end !*/
+        //1.1 The rehashed slot is free, return false
+        if ((curr = keys[slot = PhiMix.hash(strategy.computeHashCode(key)) & mask]) == Intrinsics.defaultKTypeValue()) {
 
-        final KType[] keys = this.keys;
-
-        /*! #if ($RH) !*/
-        final int[] cached = this.hash_cache;
-        /*! #end !*/
-
-        ////Fast path 1: the first slot is empty, bailout returning false
-        if (!is_allocated(slot, keys)) {
-
-            //unsuccessful search
             this.lastSlot = -1;
             return false;
         }
 
-        ////Fast path 2 : the first slot contains the key, return true
-        if (strategy.equals(key, keys[slot]))
-        {
+        //1.2) The rehashed entry is occupied by the key, return true
+        if (strategy.equals(curr, key)) {
+
             this.lastSlot = slot;
             return true;
         }
 
-        ////Fast path 3 : position now on the 2nd slot
+        //2. Hash collision, search for the key along the path
         slot = (slot + 1) & mask;
+
+        /*! #if ($RH) !*/
+        final int[] cached = this.hash_cache;
+        int dist = 0;
+        /*! #end !*/
+
 
         while (is_allocated(slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/)

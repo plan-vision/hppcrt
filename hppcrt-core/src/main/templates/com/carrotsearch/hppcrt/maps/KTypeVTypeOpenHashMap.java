@@ -79,7 +79,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -112,7 +112,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     #end
      * <p>
      * Direct map iteration: iterate  {keys[i], values[i]} for i in [0; keys.length[ where keys[i] != 0/null, then also
-     * {0/null, {@link #defaultKeyValue} } is in the map if {@link #allocatedDefaultKey} = true.
+     * {0/null, {@link #allocatedDefaultKeyValue} } is in the map if {@link #allocatedDefaultKey} = true.
      * </p>
      * 
      * <p><b>Direct iteration warning: </b>
@@ -160,7 +160,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     /**
      * if allocatedDefaultKey = true, contains the associated V to the key = 0/null
      */
-    public VType defaultKeyValue;
+    public VType allocatedDefaultKeyValue;
 
     /**
      * Cached number of assigned slots in {@link #keys}.
@@ -263,18 +263,17 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     @Override
     public VType put(KType key, VType value)
     {
-
         if (key == Intrinsics.defaultKTypeValue()) {
 
             if (this.allocatedDefaultKey) {
 
-                final VType previousValue = this.defaultKeyValue;
-                this.defaultKeyValue = value;
+                final VType previousValue = this.allocatedDefaultKeyValue;
+                this.allocatedDefaultKeyValue = value;
 
                 return previousValue;
             }
 
-            this.defaultKeyValue = value;
+            this.allocatedDefaultKeyValue = value;
             this.allocatedDefaultKey = true;
 
             return this.defaultValue;
@@ -282,16 +281,44 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
         final int mask = this.keys.length - 1;
 
-        int slot = REHASH(key) & mask;
-
         final KType[] keys = this.keys;
         final VType[] values = this.values;
 
-        /*! #if ($RH) !*/
-        final int[] cached = this.hash_cache;
-        /*! #end !*/
+        //copied straight from  fastutil "fast-path"
+        int slot;
+        KType curr;
+
+        //1.1 The rehashed key slot is occupied...
+        if ((curr = keys[slot = REHASH(key) & mask]) != Intrinsics.defaultKTypeValue()) {
+
+            //1.2 the occupied place is indeed key, so only updates the value and nothing else.
+            if (Intrinsics.equalsKTypeNotNull(curr, key)) {
+
+                final VType oldValue = this.values[slot];
+                values[slot] = value;
+
+                return oldValue;
+            }
+
+            //1.3 key is colliding, manage below :
+        }
+        else if (this.assigned < this.resizeAt) {
+
+            //1.4 key is not colliding, without resize, so insert, return defaultValue.
+            keys[slot] = key;
+            values[slot] = value;
+            this.assigned++;
+
+            /*! #if ($RH) !*/
+            this.hash_cache[slot] = slot;
+            /*! #end !*/
+
+            return this.defaultValue;
+        }
 
         /*! #if ($RH) !*/
+        final int[] cached = this.hash_cache;
+
         KType tmpKey;
         VType tmpValue;
         int tmpAllocated;
@@ -300,6 +327,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         int existing_distance = 0;
         /*! #end !*/
 
+        //2. Slow path, find a place somewhere down there...
         while (is_allocated(slot, keys))
         {
             if (Intrinsics.equalsKTypeNotNull(key, keys[slot]))
@@ -331,7 +359,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
                 /*! #if($DEBUG) !*/
                 //Check invariants
-
                 assert cached[slot] == (REHASH(keys[slot]) & mask);
                 assert initial_slot == (REHASH(key) & mask);
                 /*! #end !*/
@@ -370,8 +397,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
             /*! #end !*/
             /*! #end !*/
-
         }
+
         return this.defaultValue;
     }
 
@@ -412,7 +439,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         return false;
     }
 
-    /*! #if ($TemplateOptions.VTypeNumeric) !*/
+/*! #if ($TemplateOptions.VTypeNumeric) !*/
     /**
      * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. An equivalent
      * of the following code:
@@ -435,8 +462,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * @param additionValue The value to add to the existing value if <code>key</code> exists.
      * @return Returns the current value associated with <code>key</code> (after changes).
      */
-    /*! #end !*/
-    /*! #if ($TemplateOptions.VTypeNumeric)
+/*! #end !*/
+/*! #if ($TemplateOptions.VTypeNumeric)
     @Override
     public VType putOrAdd(KType key, VType putValue, VType additionValue)
     {
@@ -444,32 +471,58 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
             if (this.allocatedDefaultKey) {
 
-                this.defaultKeyValue += additionValue;
+                this.allocatedDefaultKeyValue += additionValue;
 
-                return this.defaultKeyValue;
+                return this.allocatedDefaultKeyValue;
             }
 
-            this.defaultKeyValue = putValue;
+            this.allocatedDefaultKeyValue = putValue;
 
             this.allocatedDefaultKey = true;
 
             return putValue;
         }
 
-        final int mask = keys.length - 1;
-
-        int slot = REHASH(key) & mask;
-
-        #if ($RH)
-        final int[] cached = this.hash_cache;
-        #end
+        final int mask = this.keys.length - 1;
 
         final KType[] keys = this.keys;
         final VType[] values = this.values;
 
         VType value =  putValue;
 
-    	#if ($RH)
+         //copied straight from  fastutil "fast-path"
+        int slot;
+        KType curr;
+
+        //1.1 The rehashed key slot is occupied...
+        if ((curr = keys[slot = REHASH(key) & mask]) != Intrinsics.defaultKTypeValue()) {
+
+            //1.2 the occupied place is indeed key, so only increments the value and nothing else.
+            if (Intrinsics.equalsKTypeNotNull(curr, key)) {
+
+                final VType oldValue = this.values[slot];
+                values[slot] += additionValue;
+                return values[slot];
+            }
+
+            //1.3 key is colliding, manage below :
+        }
+        else if (this.assigned < this.resizeAt) {
+
+            //1.4 key is not colliding, without resize, so insert, return defaultValue.
+            keys[slot] = key;
+            values[slot] = value;
+            this.assigned++;
+
+            #if ($RH)
+            this.hash_cache[slot] = slot;
+            #end
+
+            return putValue;
+        }
+
+        #if ($RH)
+        final int[] cached = this.hash_cache;
         KType tmpKey;
         VType tmpValue;
         int tmpAllocated;
@@ -533,7 +586,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     }
     #end !*/
 
-    /*! #if ($TemplateOptions.VTypeNumeric) !*/
+/*! #if ($TemplateOptions.VTypeNumeric) !*/
     /**
      * An equivalent of calling
      * <pre>
@@ -554,8 +607,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * @param additionValue The value to put or add to the existing value if <code>key</code> exists.
      * @return Returns the current value associated with <code>key</code> (after changes).
      */
-    /*! #end !*/
-    /*! #if ($TemplateOptions.VTypeNumeric)
+/*! #end !*/
+/*! #if ($TemplateOptions.VTypeNumeric)
     @Override
     public VType addTo(KType key, VType additionValue)
     {
@@ -719,11 +772,11 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
             if (this.allocatedDefaultKey) {
 
-                final VType previousValue = this.defaultKeyValue;
+                final VType previousValue = this.allocatedDefaultKeyValue;
 
                 /*! #if ($TemplateOptions.VTypeGeneric) !*/
                 //help the GC
-                this.defaultKeyValue = Intrinsics.defaultVTypeValue();
+                this.allocatedDefaultKeyValue = Intrinsics.defaultVTypeValue();
                 /*! #end !*/
 
                 this.allocatedDefaultKey = false;
@@ -735,28 +788,22 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
         final int mask = this.keys.length - 1;
 
-        int slot = REHASH(key) & mask;
-
-        /*! #if ($RH) !*/
-        int dist = 0;
-        /*! #end !*/
-
         final KType[] keys = this.keys;
         final VType[] values = this.values;
 
-        /*! #if ($RH) !*/
-        final int[] cached = this.hash_cache;
-        /*!  #end !*/
+        //copied straight from  fastutil "fast-path"
+        int slot;
+        KType curr;
 
-        ////Fast path 1: the first slot is empty, bailout returning  this.defaultValue
-        if (!is_allocated(slot, keys)) {
+        //1.1 The rehashed slot is free, nothing to remove, return default value
+        if ((curr = keys[slot = REHASH(key) & mask]) == Intrinsics.defaultKTypeValue()) {
 
             return this.defaultValue;
         }
 
-        ////Fast path 2 : the first slot contains the key, remove it and return
-        if (Intrinsics.equalsKTypeNotNull(key, keys[slot]))
-        {
+        //1.2) The rehashed entry is occupied by the key, remove it, return value
+        if (Intrinsics.equalsKTypeNotNull(curr, key)) {
+
             final VType value = values[slot];
 
             this.assigned--;
@@ -765,9 +812,15 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             return value;
         }
 
-        ////Fast path 3  :position now on the 2nd slot
+        //2. Hash collision, search for the key along the path
         slot = (slot + 1) & mask;
 
+        /*! #if ($RH) !*/
+        int dist = 0;
+        final int[] cached = this.hash_cache;
+        /*!  #end !*/
+
+        //2. Slow path here
         while (is_allocated(slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/)
         {
@@ -820,8 +873,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
                 assert slotOther == (REHASH(keys[slotCurr]) & mask);
                 /*! #end !*/
                 /*! #else
-                 slotOther = REHASH(keys[slotCurr]) & mask;
-                #end !*/
+                     slotOther = REHASH(keys[slotCurr]) & mask;
+                    #end !*/
 
                 if (slotPrev <= slotCurr)
                 {
@@ -942,7 +995,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
             if (this.allocatedDefaultKey) {
 
-                return this.defaultKeyValue;
+                return this.allocatedDefaultKeyValue;
             }
 
             return this.defaultValue;
@@ -950,33 +1003,32 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
         final int mask = this.keys.length - 1;
 
-        int slot = REHASH(key) & mask;
-
-        /*! #if ($RH) !*/
-        int dist = 0;
-        /*! #end !*/
-
         final KType[] keys = this.keys;
         final VType[] values = this.values;
 
-        /*! #if ($RH) !*/
-        final int[] cached = this.hash_cache;
-        /*!  #end !*/
+        //copied straight from  fastutil "fast-path"
+        int slot;
+        KType curr;
 
-        ////Fast path 1: the first slot is empty, bailout returning  this.defaultValue
-        if (!is_allocated(slot, keys)) {
+        //1.1 The rehashed slot is free, nothing to get, return default value
+        if ((curr = keys[slot = REHASH(key) & mask]) == Intrinsics.defaultKTypeValue()) {
 
             return this.defaultValue;
         }
 
-        ////Fast path 2 : the first slot contains the key, return the value
-        if (Intrinsics.equalsKTypeNotNull(key, keys[slot]))
-        {
+        //1.2) The rehashed entry is occupied by the key, return value
+        if (Intrinsics.equalsKTypeNotNull(curr, key)) {
+
             return values[slot];
         }
 
-        ////Fast path 3 : position now on the 2nd slot
+        //2. Hash collision, search for the key along the path
         slot = (slot + 1) & mask;
+
+        /*! #if ($RH) !*/
+        int dist = 0;
+        final int[] cached = this.hash_cache;
+        /*! #end !*/
 
         while (is_allocated(slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/)
@@ -1014,7 +1066,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      */
     public KType lkey()
     {
-
         if (this.lastSlot == -2) {
 
             return Intrinsics.defaultKTypeValue();
@@ -1036,7 +1087,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     {
         if (this.lastSlot == -2) {
 
-            return this.defaultKeyValue;
+            return this.allocatedDefaultKeyValue;
         }
 
         assert this.lastSlot >= 0 : "Call containsKey() first.";
@@ -1058,8 +1109,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     {
         if (this.lastSlot == -2) {
 
-            final VType previous = this.defaultKeyValue;
-            this.defaultKeyValue = value;
+            final VType previous = this.allocatedDefaultKeyValue;
+            this.allocatedDefaultKeyValue = value;
             return previous;
         }
 
@@ -1122,36 +1173,33 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
         final int mask = this.keys.length - 1;
 
-        int slot = REHASH(key) & mask;
-
-        /*! #if ($RH) !*/
-        int dist = 0;
-        /*! #end !*/
-
         final KType[] keys = this.keys;
 
-        /*! #if ($RH) !*/
-        final int[] cached = this.hash_cache;
-        /*!  #end !*/
+        //copied straight from  fastutil "fast-path"
+        int slot;
+        KType curr;
 
-        ////Fast path 1: the first slot is empty, bailout returning false
-        if (!is_allocated(slot, keys)) {
+        //1.1 The rehashed slot is free, return false
+        if ((curr = keys[slot = REHASH(key) & mask]) == Intrinsics.defaultKTypeValue()) {
 
-            //unsuccessful search
             this.lastSlot = -1;
-
             return false;
         }
 
-        ////Fast path 2 : the first slot contains the key, return true
-        if (Intrinsics.equalsKTypeNotNull(key, keys[slot]))
-        {
+        //1.2) The rehashed entry is occupied by the key, return true
+        if (Intrinsics.equalsKTypeNotNull(curr, key)) {
+
             this.lastSlot = slot;
             return true;
         }
 
-        ////Fast path 3 : position now on the 2nd slot
+        //2. Hash collision, search for the key along the path
         slot = (slot + 1) & mask;
+
+        /*! #if ($RH) !*/
+        int dist = 0;
+        final int[] cached = this.hash_cache;
+        /*! #end !*/
 
         while (is_allocated(slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/)
@@ -1170,7 +1218,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
         //unsuccessful search
         this.lastSlot = -1;
-
         return false;
     }
 
@@ -1185,12 +1232,11 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         this.assigned = 0;
         this.lastSlot = -1;
 
-        // States are always cleared.
         this.allocatedDefaultKey = false;
 
         /*! #if ($TemplateOptions.VTypeGeneric) !*/
         //help the GC
-        this.defaultKeyValue = Intrinsics.defaultVTypeValue();
+        this.allocatedDefaultKeyValue = Intrinsics.defaultVTypeValue();
         /*! #end !*/
 
         //Faster than Arrays.fill(keys, null); // Help the GC.
@@ -1241,7 +1287,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         int h = 0;
 
         if (this.allocatedDefaultKey) {
-            h += 0 + Internals.rehash(this.defaultKeyValue);
+            h += 0 + Internals.rehash(this.allocatedDefaultKeyValue);
         }
 
         final KType[] keys = this.keys;
@@ -1333,7 +1379,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
                     this.cursor.index = KTypeVTypeOpenHashMap.this.keys.length;
                     this.cursor.key = Intrinsics.defaultKTypeValue();
-                    this.cursor.value = KTypeVTypeOpenHashMap.this.defaultKeyValue;
+                    this.cursor.value = KTypeVTypeOpenHashMap.this.allocatedDefaultKeyValue;
 
                     return this.cursor;
 
@@ -1408,7 +1454,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
         if (this.allocatedDefaultKey) {
 
-            procedure.apply(Intrinsics.<KType> defaultKTypeValue(), this.defaultKeyValue);
+            procedure.apply(Intrinsics.<KType> defaultKTypeValue(), this.allocatedDefaultKeyValue);
         }
 
         final KType[] keys = this.keys;
@@ -1435,7 +1481,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     {
         if (this.allocatedDefaultKey) {
 
-            if (!predicate.apply(Intrinsics.<KType> defaultKTypeValue(), this.defaultKeyValue)) {
+            if (!predicate.apply(Intrinsics.<KType> defaultKTypeValue(), this.allocatedDefaultKeyValue)) {
 
                 return predicate;
             }
@@ -1474,7 +1520,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * A view of the keys inside this hash map.
      */
     public final class KeysContainer
-            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenHashMap<KType, VType> owner =
                 KTypeVTypeOpenHashMap.this;
@@ -1734,7 +1780,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         @Override
         public boolean contains(final VType value)
         {
-            if (this.owner.allocatedDefaultKey && Intrinsics.equalsVType(value, this.owner.defaultKeyValue)) {
+            if (this.owner.allocatedDefaultKey && Intrinsics.equalsVType(value, this.owner.allocatedDefaultKeyValue)) {
 
                 return true;
             }
@@ -1760,7 +1806,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         {
             if (this.owner.allocatedDefaultKey) {
 
-                procedure.apply(this.owner.defaultKeyValue);
+                procedure.apply(this.owner.allocatedDefaultKeyValue);
             }
 
             final KType[] keys = this.owner.keys;
@@ -1782,7 +1828,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         {
             if (this.owner.allocatedDefaultKey) {
 
-                if (!predicate.apply(this.owner.defaultKeyValue))
+                if (!predicate.apply(this.owner.allocatedDefaultKeyValue))
                 {
                     return predicate;
                 }
@@ -1824,7 +1870,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
             if (this.owner.allocatedDefaultKey) {
 
-                if (Intrinsics.equalsVType(e, this.owner.defaultKeyValue)) {
+                if (Intrinsics.equalsVType(e, this.owner.allocatedDefaultKeyValue)) {
 
                     this.owner.allocatedDefaultKey = false;
                 }
@@ -1862,7 +1908,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
             if (this.owner.allocatedDefaultKey) {
 
-                if (predicate.apply(this.owner.defaultKeyValue)) {
+                if (predicate.apply(this.owner.allocatedDefaultKeyValue)) {
 
                     this.owner.allocatedDefaultKey = false;
                 }
@@ -1929,7 +1975,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
             if (this.owner.allocatedDefaultKey) {
 
-                target[count++] = this.owner.defaultKeyValue;
+                target[count++] = this.owner.allocatedDefaultKeyValue;
             }
 
             final KType[] keys = this.owner.keys;
@@ -1974,7 +2020,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
                 if (KTypeVTypeOpenHashMap.this.allocatedDefaultKey) {
 
                     this.cursor.index = KTypeVTypeOpenHashMap.this.values.length;
-                    this.cursor.value = KTypeVTypeOpenHashMap.this.defaultKeyValue;
+                    this.cursor.value = KTypeVTypeOpenHashMap.this.allocatedDefaultKeyValue;
 
                     return this.cursor;
 
@@ -2018,7 +2064,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
         cloned.putAll(this);
 
-        cloned.defaultKeyValue = this.defaultKeyValue;
+        cloned.allocatedDefaultKeyValue = this.allocatedDefaultKeyValue;
         cloned.allocatedDefaultKey = this.allocatedDefaultKey;
         cloned.defaultValue = this.defaultValue;
 
@@ -2115,8 +2161,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         this.defaultValue = defaultValue;
     }
 
-    //Test for existence in template
-    /*! #if ($TemplateOptions.inlineKType("is_allocated",
+//Test for existence in template
+/*! #if ($TemplateOptions.inlineKType("is_allocated",
     "(slot, keys)",
     "keys[slot] != Intrinsics.defaultKTypeValue()")) !*/
     /**
@@ -2128,9 +2174,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         return keys[slot] != Intrinsics.defaultKTypeValue();
     }
 
-    /*! #end !*/
+/*! #end !*/
 
-    /*! #if ($TemplateOptions.inlineKType("probe_distance",
+/*! #if ($TemplateOptions.inlineKType("probe_distance",
     "(slot, cache)",
     "slot < cache[slot] ? slot + cache.length - cache[slot] : slot - cache[slot]")) !*/
     /**
@@ -2154,9 +2200,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         return slot - rh;
     }
 
-    /*! #end !*/
+/*! #end !*/
 
-    /*! #if ($TemplateOptions.inlineKTypeWithFullSpecialization("REHASH",
+/*! #if ($TemplateOptions.inlineKTypeWithFullSpecialization("REHASH",
     "(value)",
     "MurmurHash3.hash(value.hashCode())",
     "PhiMix.hash(value)",
@@ -2173,5 +2219,5 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
         return MurmurHash3.hash(value.hashCode());
     }
-    /*! #end !*/
+/*! #end !*/
 }
