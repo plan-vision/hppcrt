@@ -17,7 +17,7 @@ public class JavolutionIntIntMap extends MapImplementation<FastMap<Integer, Inte
 
     public JavolutionIntIntMap(final int size, final float loadFactor)
     {
-        //Javolution 6.0.0 "no need" preallocation, let's see...
+        //Javolution 6.0.0 "do not need" of preallocation, so let's see...
         super(new FastMap<Integer, Integer>());
     }
 

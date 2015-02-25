@@ -14,7 +14,7 @@ import org.openjdk.jmh.runner.options.VerboseMode;
 public class BenchmarkSuiteRunner
 {
     public static final int NB_MEASUREMENTS_DEFAULT = 10;
-    public static final int NB_WARMUPS_DEFAULT = 10;
+    public static final int NB_WARMUPS_DEFAULT = 15;
 
     public static final String USAGE = "Usage : --- [--warmup=[nb of iterations, default 10]] [--measure=[nb of measurements, default 10]] <other specific benchmark args>";
 

@@ -121,4 +121,10 @@ public class KolobokeIdentityIntMap extends MapImplementation<HashObjIntMap<MapI
 
         return count;
     }
+
+    @Override
+    public boolean isIdentityMap() {
+
+        return true;
+    }
 }

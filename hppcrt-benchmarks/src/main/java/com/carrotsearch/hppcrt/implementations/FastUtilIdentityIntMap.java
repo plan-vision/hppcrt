@@ -117,4 +117,10 @@ public class FastUtilIdentityIntMap extends MapImplementation<Reference2IntOpenH
 
         return count;
     }
+
+    @Override
+    public boolean isIdentityMap() {
+
+        return true;
+    }
 }

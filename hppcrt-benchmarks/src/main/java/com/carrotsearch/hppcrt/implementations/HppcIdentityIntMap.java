@@ -116,4 +116,10 @@ public class HppcIdentityIntMap extends MapImplementation<ObjectIntOpenIdentityH
 
         return count;
     }
+
+    @Override
+    public boolean isIdentityMap() {
+
+        return true;
+    }
 }

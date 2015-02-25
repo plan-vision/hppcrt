@@ -37,12 +37,12 @@ public class BenchmarkHashMapBase
 
     @Param({
 
-            "6000000"
+        "6000000"
     })
     public int targetSize;
 
     @Param({
-        "0.75"
+            "0.75"
     })
     public float loadFactor;
 
@@ -104,7 +104,7 @@ public class BenchmarkHashMapBase
         //Generate a dry run into a HashSet until the size has reached nbElementsToPush
         Map<ComparableInt, Integer> dryRunHashSet = null;
 
-        if (this.impl.instance instanceof ObjectIntOpenIdentityHashMap<?>) {
+        if (this.impl.isIdentityMap()) {
 
             //all instances are unique anyway, use an IdentityMap to compute
             dryRunHashSet = new IdentityHashMap<ComparableInt, Integer>(nbElementsToPush);
@@ -179,7 +179,7 @@ public class BenchmarkHashMapBase
             throw new DoNotExecuteBenchmarkException();
         }
 
-        //1-2)skip senseless benchmark combinations 2 : Distribution is irrelevant to Identity Hash, so use only the Random one !
+        //1-2)skip senseless benchmark combinations 2 : if Distribution is irrelevant, use only the Random one !
         if (!this.implementation.isDistributionApplicable() && this.distribution != Distribution.RANDOM) {
             throw new DoNotExecuteBenchmarkException();
         }

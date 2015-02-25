@@ -122,4 +122,13 @@ public abstract class MapImplementation<IMPLEM>
 
     public abstract int size();
 
+    /**
+     * By default, not an IdentityMap, override if needed
+     * @return
+     */
+    public boolean isIdentityMap() {
+
+        return false;
+    }
+
 }
