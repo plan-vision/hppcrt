@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Random;
 
 import javolution.util.FastMap;
+import javolution.util.function.Equality;
 
 import com.carrotsearch.hppcrt.Util;
 import com.carrotsearch.hppcrt.XorShiftRandom;
@@ -18,7 +19,28 @@ public class JavolutionIntIntMap extends MapImplementation<FastMap<Integer, Inte
     public JavolutionIntIntMap(final int size, final float loadFactor)
     {
         //Javolution 6.0.0 "do not need" of preallocation, so let's see...
-        super(new FastMap<Integer, Integer>());
+        //the no-Equaltity hangs with HIFGBITS,, so we must provide a custom Equality with
+        //scrambling: use the same as Koloboke has for objects
+        super(new FastMap<Integer, Integer>(new Equality<Integer>() {
+
+            @Override
+            public int hashCodeOf(final Integer object) {
+
+                return object.intValue() * -1640531527; // magic mix;
+            }
+
+            @Override
+            public boolean areEqual(final Integer left, final Integer right) {
+
+                return left.intValue() == right.intValue();
+            }
+
+            @Override
+            public int compare(final Integer left, final Integer right) {
+
+                return left.compareTo(right);
+            }
+        }));
     }
 
     /**

@@ -37,12 +37,12 @@ public class BenchmarkHashMapBase
 
     @Param({
 
-        "6000000"
+            "6000000"
     })
     public int targetSize;
 
     @Param({
-            "0.75"
+        "0.75"
     })
     public float loadFactor;
 
