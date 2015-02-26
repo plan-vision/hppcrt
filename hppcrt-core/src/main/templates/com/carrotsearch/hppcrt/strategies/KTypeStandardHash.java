@@ -6,7 +6,7 @@ import com.carrotsearch.hppcrt.Intrinsics;
 /*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
 /**
- * Standard  {@link KTypeHashingStrategy} for <code>KType</code>, providing the same behaviour as equals()/ hashCode()
+ * Standard  {@link KTypeHashingStrategy} for <code>KType</code>s, providing the same behavior as equals()/ hashCode()
  * gives for objects.
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/

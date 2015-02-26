@@ -3,7 +3,7 @@ package com.carrotsearch.hppcrt.strategies;
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN","BYTE","CHAR","SHORT","INT","LONG","FLOAT", "DOUBLE")} !*/
 /**
  * Standard  {@link KTypeHashingStrategy} providing an 'identity'
- * behaviour for objects, where they are compared by reference, and their
+ * behavior for objects, where they are compared by reference, and their
  * hashCode() is the 'native' one obtained by  {@link System#identityHashCode(Object)}
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/

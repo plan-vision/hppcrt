@@ -2,13 +2,14 @@ package com.carrotsearch.hppcrt.strategies;
 
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
 /**
- * Interface to support custom hashing strategies in Hash Maps and Hash Sets using <code>KType</code>
+ * Interface to support custom hashing strategies in Hash containers using <code>KType</code>s
  * keys, as replacement of the original equals() and hashCode() methods.
  * 
  * @param <T>
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
-public interface KTypeHashingStrategy<KType> {
+public interface KTypeHashingStrategy<KType>
+{
 
     /**
      * Compute the hash code for the specific object.

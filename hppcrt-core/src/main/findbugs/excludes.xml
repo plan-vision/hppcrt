@@ -20,4 +20,10 @@
     <Match>
        <Bug pattern="CN_IDIOM_NO_SUPER_CALL" /> <!-- HPPC clone() implem -->
    </Match>
+   <Match>
+       <Bug pattern="SE_COMPARATOR_SHOULD_BE_SERIALIZABLE" /> <!-- HPPC don't care about serialization -->
+   </Match>
+   <Match>
+       <Bug pattern="RV_NEGATING_RESULT_OF_COMPARETO" /> <!-- HPPC : Negating the result of compareTo()/compare() , no problem here values are small -->
+   </Match>
 </FindBugsFilter>

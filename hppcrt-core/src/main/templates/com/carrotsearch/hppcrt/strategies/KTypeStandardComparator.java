@@ -4,8 +4,8 @@ import com.carrotsearch.hppcrt.Intrinsics;
 
 /*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
 /**
- * Standard  {@link KTypeComparator} for <code>KType</code>, providing the same behaviour as natural ordering
- * for primitives, and Comparable for objects.
+ * Standard  {@link KTypeComparator} for <code>KType</code>s, providing the same behavior as either natural ordering
+ * for primitives, or Comparable for objects.
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeStandardComparator<KType> implements KTypeComparator<KType>

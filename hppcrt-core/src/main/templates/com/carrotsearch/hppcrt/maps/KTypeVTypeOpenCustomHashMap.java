@@ -53,7 +53,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenCustomHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -494,7 +494,6 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
             //1.2 the occupied place is indeed key, so only increments the value and nothing else.
             if (strategy.equals(curr, key)) {
 
-                final VType oldValue = this.values[slot];
                 values[slot] += additionValue;
                 return values[slot];
             }
@@ -1531,7 +1530,7 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
      * A view of the keys inside this hash map.
      */
     public final class KeysContainer
-            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenCustomHashMap<KType, VType> owner =
                 KTypeVTypeOpenCustomHashMap.this;
@@ -2073,7 +2072,7 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
         @SuppressWarnings("unchecked")
         final/* #end */
         KTypeVTypeOpenCustomHashMap<KType, VType> cloned =
-                new KTypeVTypeOpenCustomHashMap<KType, VType>(this.size(), this.loadFactor, this.hashStrategy);
+        new KTypeVTypeOpenCustomHashMap<KType, VType>(this.size(), this.loadFactor, this.hashStrategy);
 
         cloned.putAll(this);
 
