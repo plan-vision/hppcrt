@@ -7,6 +7,7 @@ import com.carrotsearch.hppcrt.cursors.*;
 import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
 import com.carrotsearch.hppcrt.sorting.*;
+import com.carrotsearch.hppcrt.strategies.*;
 
 /**
  * An extension to {@link KTypeArrayList} adding stack-related utility methods. The top of

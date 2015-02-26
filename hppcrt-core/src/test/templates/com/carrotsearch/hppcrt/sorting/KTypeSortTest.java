@@ -7,6 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.carrotsearch.hppcrt.*;
+import com.carrotsearch.hppcrt.strategies.*;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
 
@@ -110,9 +111,9 @@ public class KTypeSortTest<KType> extends AbstractKTypeTest<KType>
     private void sortCertification(final Algorithm algorithm)
     {
         final int[] n_values =
-            {
+        {
                 100, 1023, 1024, 1025, 1024 * 32
-            };
+        };
 
         for (final int n : n_values)
         {
@@ -282,12 +283,12 @@ public class KTypeSortTest<KType> extends AbstractKTypeTest<KType>
                 final KType[] orderComparable = newArray(order);
 
                 KTypeSort.quicksort(orderComparable);
-                assertOrder(orderComparable, orderComparable.length);
+                assertOrder(orderComparable);
                 break;
 
             case QUICKSORT_COMPARATOR:
                 KTypeSort.quicksort(order, comp);
-                assertOrder(order, order.length);
+                assertOrder(order);
                 break;
             default:
                 Assert.fail();

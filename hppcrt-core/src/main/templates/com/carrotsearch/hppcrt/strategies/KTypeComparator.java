@@ -1,4 +1,4 @@
-package com.carrotsearch.hppcrt.sorting;
+package com.carrotsearch.hppcrt.strategies;
 
 import java.util.Comparator;
 

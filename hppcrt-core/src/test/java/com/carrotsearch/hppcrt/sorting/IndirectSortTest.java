@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import com.carrotsearch.hppcrt.CloverSupport;
 import com.carrotsearch.hppcrt.XorShiftRandom;
+import com.carrotsearch.hppcrt.strategies.*;
 
 /**
  * Test cases for {@link IndirectSort}.
@@ -27,10 +28,13 @@ public class IndirectSortTest
      */
     private static class OrderedInputComparator implements IndirectComparator
     {
-        public int compare(int a, int b)
+        @Override
+        public int compare(final int a, final int b)
         {
-            if (a < b) return -1;
-            if (a > b) return 1;
+            if (a < b)
+                return -1;
+            if (a > b)
+                return 1;
             return 0;
         }
     }
@@ -41,7 +45,7 @@ public class IndirectSortTest
     private static class ReverseOrderedInputComparator extends OrderedInputComparator
     {
         @Override
-        public int compare(int a, int b)
+        public int compare(final int a, final int b)
         {
             return -super.compare(a, b);
         }
@@ -63,46 +67,46 @@ public class IndirectSortTest
     @Test
     public void testSortCertificationMergeSort()
     {
-        sortCertification(Algorithm.MERGESORT);
+        IndirectSortTest.sortCertification(Algorithm.MERGESORT);
     }
 
     @Test
     public void testSortCertificationMergeSortRT()
     {
-        sortCertification(Algorithm.MERGESORT_RT);
+        IndirectSortTest.sortCertification(Algorithm.MERGESORT_RT);
     }
 
     @Test
     public void testSortCertificationQuicksort()
     {
-        sortCertification(Algorithm.QUICKSORT);
+        IndirectSortTest.sortCertification(Algorithm.QUICKSORT);
     }
 
     /**
      * Run a "sort certification" test.
      */
-    private static void sortCertification(Algorithm algorithm)
+    private static void sortCertification(final Algorithm algorithm)
     {
-        int [] n_values =
-            {
+        final int[] n_values =
+        {
                 100, 1023, 1024, 1025, 1024 * 32
-            };
+        };
 
-        for (int n : n_values)
+        for (final int n : n_values)
         {
             for (int m = 1; m < 2 * n; m *= 2)
             {
-                for (DataDistribution dist : DataDistribution.values())
+                for (final DataDistribution dist : DataDistribution.values())
                 {
-                    int [] x = generate(dist, n, m);
+                    final int[] x = IndirectSortTest.generate(dist, n, m);
 
-                    String testName = dist + "-" + n + "-" + m;
-                    testOn(algorithm, x, testName + "-normal");
-                    testOn(algorithm, reverse(x, 0, n), testName + "-reversed");
-                    testOn(algorithm, reverse(x, 0, n / 2), testName + "-reversed_front");
-                    testOn(algorithm, reverse(x, n / 2, n), testName + "-reversed_back");
-                    testOn(algorithm, sort(x), testName + "-sorted");
-                    testOn(algorithm, dither(x), testName + "-dither");
+                    final String testName = dist + "-" + n + "-" + m;
+                    IndirectSortTest.testOn(algorithm, x, testName + "-normal");
+                    IndirectSortTest.testOn(algorithm, IndirectSortTest.reverse(x, 0, n), testName + "-reversed");
+                    IndirectSortTest.testOn(algorithm, IndirectSortTest.reverse(x, 0, n / 2), testName + "-reversed_front");
+                    IndirectSortTest.testOn(algorithm, IndirectSortTest.reverse(x, n / 2, n), testName + "-reversed_back");
+                    IndirectSortTest.testOn(algorithm, IndirectSortTest.sort(x), testName + "-sorted");
+                    IndirectSortTest.testOn(algorithm, IndirectSortTest.dither(x), testName + "-dither");
                 }
             }
         }
@@ -113,11 +117,11 @@ public class IndirectSortTest
      * 
      * @param m Step for sawtooth, stagger, plateau and shuffle.
      */
-    private  static int[] generate(final DataDistribution dist, int n, int m)
+    private static int[] generate(final DataDistribution dist, final int n, final int m)
     {
         // Start from a constant seed (repeatable tests).
         final Random rand = new Random(0x11223344);
-        final int [] x = new int [n];
+        final int[] x = new int[n];
         for (int i = 0, j = 0, k = 1; i < n; i++)
         {
             switch (dist)
@@ -150,32 +154,32 @@ public class IndirectSortTest
 
     private static int[] sort(int[] x)
     {
-        x = copy(x);
+        x = IndirectSortTest.copy(x);
         Arrays.sort(x);
         return x;
     }
 
     private static int[] dither(int[] x)
     {
-        x = copy(x);
+        x = IndirectSortTest.copy(x);
         for (int i = 0; i < x.length; i++)
             x[i] += i % 5;
         return x;
     }
 
-    private static int[] reverse(int[] x, int start, int end)
+    private static int[] reverse(int[] x, final int start, final int end)
     {
-        x = copy(x);
+        x = IndirectSortTest.copy(x);
         for (int i = start, j = end - 1; i < j; i++, j--)
         {
-            int v = x[i];
+            final int v = x[i];
             x[i] = x[j];
             x[j] = v;
         }
         return x;
     }
 
-    private static int [] copy(int [] x)
+    private static int[] copy(final int[] x)
     {
         return x.clone();
     }
@@ -183,11 +187,11 @@ public class IndirectSortTest
     /*
      * 
      */
-    private static void testOn(Algorithm algo, int [] x, String testName)
+    private static void testOn(final Algorithm algo, final int[] x, final String testName)
     {
         final IndirectComparator c = new IndirectComparator.AscendingIntComparator(x);
 
-        final int [] order;
+        final int[] order;
         switch (algo)
         {
             case MERGESORT:
@@ -195,7 +199,7 @@ public class IndirectSortTest
                 break;
             case MERGESORT_RT:
                 order = new int[x.length];
-                int[] tmp = new int[x.length];
+                final int[] tmp = new int[x.length];
                 IndirectSort.mergesort(0, x.length, c, tmp, order);
                 break;
             case QUICKSORT:
@@ -207,7 +211,7 @@ public class IndirectSortTest
                 throw new RuntimeException();
         }
 
-        assertOrder(order, x.length, c);
+        IndirectSortTest.assertOrder(order, x.length, c);
     }
 
     /**
@@ -217,7 +221,7 @@ public class IndirectSortTest
     public void testEmptyAndSingle()
     {
         final IndirectComparator comparator = new OrderedInputComparator();
-        int [] mSortOrder = IndirectSort.mergesort(0, 0, comparator);
+        int[] mSortOrder = IndirectSort.mergesort(0, 0, comparator);
         Assert.assertEquals(mSortOrder.length, 0);
 
         for (int i = 0; i < 1000; i++)
@@ -234,8 +238,8 @@ public class IndirectSortTest
     public void testOrderedMergeSort()
     {
         final IndirectComparator comparator = new OrderedInputComparator();
-        int [] order = IndirectSort.mergesort(0, DATA_LENGTH, comparator);
-        assertOrder(order, DATA_LENGTH, comparator);
+        final int[] order = IndirectSort.mergesort(0, IndirectSortTest.DATA_LENGTH, comparator);
+        IndirectSortTest.assertOrder(order, IndirectSortTest.DATA_LENGTH, comparator);
     }
 
     /**
@@ -245,14 +249,14 @@ public class IndirectSortTest
     public void testReversedMergeSort()
     {
         final IndirectComparator comparator = new ReverseOrderedInputComparator();
-        final int [] order = IndirectSort.mergesort(0, DATA_LENGTH, comparator);
-        assertOrder(order, DATA_LENGTH, comparator);
+        final int[] order = IndirectSort.mergesort(0, IndirectSortTest.DATA_LENGTH, comparator);
+        IndirectSortTest.assertOrder(order, IndirectSortTest.DATA_LENGTH, comparator);
     }
 
     /*
      * 
      */
-    private static void assertOrder(final int [] order, int length,
+    private static void assertOrder(final int[] order, final int length,
             final IndirectComparator comparator)
     {
         for (int i = 1; i < length; i++)
@@ -274,7 +278,7 @@ public class IndirectSortTest
 
         for (int round = 0; round < rounds; round++)
         {
-            final int [] input = generateRandom(maxSize, vocabulary, rnd);
+            final int[] input = generateRandom(maxSize, vocabulary, rnd);
 
             final IndirectComparator comparator = new IndirectComparator.AscendingIntComparator(
                     input);
@@ -282,8 +286,8 @@ public class IndirectSortTest
             final int start = rnd.nextInt(input.length - 1);
             final int length = (input.length - start);
 
-            int [] order = IndirectSort.mergesort(start, length, comparator);
-            assertOrder(order, length, comparator);
+            final int[] order = IndirectSort.mergesort(start, length, comparator);
+            IndirectSortTest.assertOrder(order, length, comparator);
         }
     }
 
@@ -300,7 +304,7 @@ public class IndirectSortTest
 
         for (int round = 0; round < rounds; round++)
         {
-            final int [] input = generateRandom(maxSize, vocabulary, rnd);
+            final int[] input = generateRandom(maxSize, vocabulary, rnd);
 
             final IndirectComparator comparator = new IndirectComparator.DescendingIntComparator(
                     input);
@@ -308,8 +312,8 @@ public class IndirectSortTest
             final int start = rnd.nextInt(input.length - 1);
             final int length = (input.length - start);
 
-            int [] order = IndirectSort.mergesort(start, length, comparator);
-            assertOrder(order, length, comparator);
+            final int[] order = IndirectSort.mergesort(start, length, comparator);
+            IndirectSortTest.assertOrder(order, length, comparator);
         }
     }
 
@@ -325,7 +329,7 @@ public class IndirectSortTest
 
         for (int round = 0; round < rounds; round++)
         {
-            final double [] input = generateRandom(maxSize, rnd);
+            final double[] input = generateRandom(maxSize, rnd);
 
             final IndirectComparator comparator = new IndirectComparator.AscendingDoubleComparator(
                     input);
@@ -333,8 +337,8 @@ public class IndirectSortTest
             final int start = rnd.nextInt(input.length - 1);
             final int length = (input.length - start);
 
-            int [] order = IndirectSort.mergesort(start, length, comparator);
-            assertOrder(order, length, comparator);
+            final int[] order = IndirectSort.mergesort(start, length, comparator);
+            IndirectSortTest.assertOrder(order, length, comparator);
         }
     }
 
@@ -346,14 +350,15 @@ public class IndirectSortTest
     public void testMergeSortIsStable()
     {
         final Random rnd = new XorShiftRandom(0xdeadbeef);
-        final int [] data = new int [10000];
+        final int[] data = new int[10000];
 
         for (int i = 0; i < data.length; i++)
             data[i] = rnd.nextInt(0x100);
 
-        int [] order = IndirectSort.mergesort(0, data.length, new IndirectComparator()
+        final int[] order = IndirectSort.mergesort(0, data.length, new IndirectComparator()
         {
-            public int compare(int indexA, int indexB)
+            @Override
+            public int compare(final int indexA, final int indexB)
             {
                 return (data[indexA] & 0xf0) - (data[indexB] & 0xf0);
             }
@@ -363,7 +368,7 @@ public class IndirectSortTest
         {
             if ((data[order[i - 1]] & 0xf0) == (data[order[i]] & 0xf0))
             {
-                assertTrue(order[i - 1] < order[i]);
+                Assert.assertTrue(order[i - 1] < order[i]);
             }
         }
     }
@@ -371,10 +376,10 @@ public class IndirectSortTest
     /*
      * 
      */
-    private int [] generateRandom(final int maxSize, final int vocabulary,
+    private int[] generateRandom(final int maxSize, final int vocabulary,
             final Random rnd)
     {
-        final int [] input = new int [2 + rnd.nextInt(maxSize)];
+        final int[] input = new int[2 + rnd.nextInt(maxSize)];
         for (int i = 0; i < input.length; i++)
         {
             input[i] = vocabulary / 2 - rnd.nextInt(vocabulary);
@@ -385,9 +390,9 @@ public class IndirectSortTest
     /*
      * 
      */
-    private double [] generateRandom(final int maxSize, final Random rnd)
+    private double[] generateRandom(final int maxSize, final Random rnd)
     {
-        final double [] input = new double [2 + rnd.nextInt(maxSize)];
+        final double[] input = new double[2 + rnd.nextInt(maxSize)];
         for (int i = 0; i < input.length; i++)
         {
             input[i] = rnd.nextGaussian();

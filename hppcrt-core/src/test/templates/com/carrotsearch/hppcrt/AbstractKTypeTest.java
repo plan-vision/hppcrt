@@ -1,11 +1,13 @@
 package com.carrotsearch.hppcrt;
 
+import java.util.Comparator;
 import java.util.Random;
 
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.rules.MethodRule;
 
+import com.carrotsearch.hppcrt.strategies.*;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 
 /*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
@@ -232,19 +234,29 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
     }
 
     /**
-     * Test natural ordering for a array between [startIndex; endIndex[, starting from original
+     * Test KTypeComparator<KType> ordering for a array between [startIndex; endIndex[, starting from original
      * @param expected
      * @param actual
      * @param length
      */
-    public void assertOrder(final KType[] original, final KType[] order, final int startIndex, final int endIndex)
+    public void assertOrder(final KType[] original, final KType[] order, final int startIndex, final int endIndex,
+            /*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> /*! #else  final KTypeComparator<KType> #end !*/comp)
     {
         Assert.assertEquals(original.length, order.length);
+
+        /*! #if ($TemplateOptions.KTypeGeneric) !*/
+        Comparator<? super KType>
+        /*! #else  KTypeComparator<KType> #end !*/
+        internalCompare = comp;
+
+        if (comp == null) {
+            internalCompare = new KTypeStandardComparator<KType>();
+        }
 
         //A) check that the required range is ordered
         for (int i = startIndex + 1; i < endIndex; i++)
         {
-            if (castType(order[i - 1]) > castType(order[i]))
+            if (internalCompare.compare(order[i - 1], order[i]) > 0)
             {
                 Assert.assertTrue(String.format("Not ordered: (previous, next) = (%d, %d) at index %d",
                         castType(order[i - 1]), castType(order[i]), i), false);
@@ -254,7 +266,7 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
         //B) Check that the rest is untouched also
         for (int i = 0; i < startIndex; i++)
         {
-            if (castType(original[i]) != castType(order[i]))
+            if (internalCompare.compare(original[i], order[i]) != 0)
             {
                 Assert.assertTrue(String.format("This index has been touched: (original, erroneously modified) = (%d, %d) at index %d",
                         castType(original[i]), castType(order[i]), i), false);
@@ -263,7 +275,7 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
 
         for (int i = endIndex; i < original.length; i++)
         {
-            if (castType(original[i]) != castType(order[i]))
+            if (internalCompare.compare(original[i], order[i]) != 0)
             {
                 Assert.assertTrue(String.format("This index has been touched: (original, erroneously modified) = (%d, %d) at index %d",
                         castType(original[i]), castType(order[i]), i), false);
@@ -277,9 +289,34 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
      * @param actual
      * @param length
      */
-    public void assertOrder(final KType[] order, final int length)
+    public void assertOrder(final KType[] order)
     {
-        assertOrder(order, order, 0, length - 1);
+        assertOrder(order, order, 0, order.length - 1, null);
+    }
+
+    /**
+     * Test natural ordering for a array between [startIndex; endIndex[, starting from original
+     * @param expected
+     * @param actual
+     * @param length
+     */
+    public void assertOrder(final KType[] original, final KType[] order, final int startIndex, final int endIndex)
+    {
+        assertOrder(original, order, startIndex, endIndex, null);
+    }
+
+    /**
+     * Test KTypeComparator<KType> ordering of the whole array
+     * @param expected
+     * @param actual
+     * @param length
+     */
+    public void assertOrder(final KType[] order,
+            /*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> /*! #else  final KTypeComparator<KType> #end !*/comp)
+    {
+        if (order.length > 0) {
+            assertOrder(order, order, 0, order.length - 1, comp);
+        }
     }
 
     /**

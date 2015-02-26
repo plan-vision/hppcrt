@@ -1,7 +1,7 @@
-
 package com.carrotsearch.hppcrt.sorting;
 
 import java.util.Comparator;
+import com.carrotsearch.hppcrt.strategies.*;
 
 /**
  * Compare objects at two given indices and return the result of their comparison
@@ -16,6 +16,7 @@ public interface IndirectComparator extends IntComparator
     /**
      * See class documentation.
      */
+    @Override
     public int compare(int indexA, int indexB);
 
     /**
@@ -23,20 +24,23 @@ public interface IndirectComparator extends IntComparator
      */
     public static class AscendingIntComparator implements IndirectComparator
     {
-        private final int [] array;
+        private final int[] array;
 
-        public AscendingIntComparator(int [] array)
+        public AscendingIntComparator(final int[] array)
         {
             this.array = array;
         }
 
-        public int compare(int indexA, int indexB)
+        @Override
+        public int compare(final int indexA, final int indexB)
         {
-            final int a = array[indexA];
-            final int b = array[indexB];
+            final int a = this.array[indexA];
+            final int b = this.array[indexB];
 
-            if (a < b) return -1;
-            if (a > b) return 1;
+            if (a < b)
+                return -1;
+            if (a > b)
+                return 1;
             return 0;
         }
     }
@@ -46,12 +50,13 @@ public interface IndirectComparator extends IntComparator
      */
     public static class DescendingIntComparator extends AscendingIntComparator
     {
-        public DescendingIntComparator(int [] array)
+        public DescendingIntComparator(final int[] array)
         {
             super(array);
         }
 
-        public final int compare(int indexA, int indexB)
+        @Override
+        public final int compare(final int indexA, final int indexB)
         {
             return -super.compare(indexA, indexB);
         }
@@ -62,20 +67,23 @@ public interface IndirectComparator extends IntComparator
      */
     public static class AscendingShortComparator implements IndirectComparator
     {
-        private final short [] array;
+        private final short[] array;
 
-        public AscendingShortComparator(short [] array)
+        public AscendingShortComparator(final short[] array)
         {
             this.array = array;
         }
 
-        public int compare(int indexA, int indexB)
+        @Override
+        public int compare(final int indexA, final int indexB)
         {
-            final short a = array[indexA];
-            final short b = array[indexB];
+            final short a = this.array[indexA];
+            final short b = this.array[indexB];
 
-            if (a < b) return -1;
-            if (a > b) return 1;
+            if (a < b)
+                return -1;
+            if (a > b)
+                return 1;
             return 0;
         }
     }
@@ -85,12 +93,13 @@ public interface IndirectComparator extends IntComparator
      */
     public static class DescendingShortComparator extends AscendingShortComparator
     {
-        public DescendingShortComparator(short [] array)
+        public DescendingShortComparator(final short[] array)
         {
             super(array);
         }
 
-        public final int compare(int indexA, int indexB)
+        @Override
+        public final int compare(final int indexA, final int indexB)
         {
             return -super.compare(indexA, indexB);
         }
@@ -101,20 +110,23 @@ public interface IndirectComparator extends IntComparator
      */
     public static class AscendingDoubleComparator implements IndirectComparator
     {
-        private final double [] array;
+        private final double[] array;
 
-        public AscendingDoubleComparator(double [] array)
+        public AscendingDoubleComparator(final double[] array)
         {
             this.array = array;
         }
 
-        public int compare(int indexA, int indexB)
+        @Override
+        public int compare(final int indexA, final int indexB)
         {
-            final double a = array[indexA];
-            final double b = array[indexB];
+            final double a = this.array[indexA];
+            final double b = this.array[indexB];
 
-            if (a < b) return -1;
-            if (a > b) return 1;
+            if (a < b)
+                return -1;
+            if (a > b)
+                return 1;
             return 0;
         }
     }
@@ -124,12 +136,13 @@ public interface IndirectComparator extends IntComparator
      */
     public static class DescendingDoubleComparator extends AscendingDoubleComparator
     {
-        public DescendingDoubleComparator(double [] array)
+        public DescendingDoubleComparator(final double[] array)
         {
             super(array);
         }
 
-        public final int compare(int indexA, int indexB)
+        @Override
+        public final int compare(final int indexA, final int indexB)
         {
             return -super.compare(indexA, indexB);
         }
@@ -140,20 +153,23 @@ public interface IndirectComparator extends IntComparator
      */
     public static class AscendingFloatComparator implements IndirectComparator
     {
-        private final float [] array;
+        private final float[] array;
 
-        public AscendingFloatComparator(float [] array)
+        public AscendingFloatComparator(final float[] array)
         {
             this.array = array;
         }
 
-        public int compare(int indexA, int indexB)
+        @Override
+        public int compare(final int indexA, final int indexB)
         {
-            final float a = array[indexA];
-            final float b = array[indexB];
+            final float a = this.array[indexA];
+            final float b = this.array[indexB];
 
-            if (a < b) return -1;
-            if (a > b) return 1;
+            if (a < b)
+                return -1;
+            if (a > b)
+                return 1;
             return 0;
         }
     }
@@ -163,12 +179,13 @@ public interface IndirectComparator extends IntComparator
      */
     public static class DescendingFloatComparator extends AscendingFloatComparator
     {
-        public DescendingFloatComparator(float [] array)
+        public DescendingFloatComparator(final float[] array)
         {
             super(array);
         }
 
-        public final int compare(int indexA, int indexB)
+        @Override
+        public final int compare(final int indexA, final int indexB)
         {
             return -super.compare(indexA, indexB);
         }
@@ -179,24 +196,25 @@ public interface IndirectComparator extends IntComparator
      */
     public final static class DelegatingComparator<T> implements IndirectComparator
     {
-        private final T [] array;
+        private final T[] array;
         private final Comparator<? super T> delegate;
 
-        public DelegatingComparator(T [] array, Comparator<? super T> delegate)
+        public DelegatingComparator(final T[] array, final Comparator<? super T> delegate)
         {
             this.array = array;
             this.delegate = delegate;
         }
 
-        public final int compare(int indexA, int indexB)
+        @Override
+        public final int compare(final int indexA, final int indexB)
         {
-            return delegate.compare(array[indexA], array[indexB]);
+            return this.delegate.compare(this.array[indexA], this.array[indexB]);
         }
 
         @Override
         public String toString()
         {
-            return this.getClass().getSimpleName() + " -> " + delegate;
+            return this.getClass().getSimpleName() + " -> " + this.delegate;
         }
     }
 }

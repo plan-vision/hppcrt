@@ -16,6 +16,7 @@ import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
 import com.carrotsearch.hppcrt.sets.*;
 import com.carrotsearch.hppcrt.sorting.*;
+import com.carrotsearch.hppcrt.strategies.*;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.*;
 
@@ -28,58 +29,31 @@ import com.carrotsearch.randomizedtesting.annotations.*;
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
 {
-
-/*! #if ($TemplateOptions.KTypeGeneric) !*/
-    /**
-     * Test class for mutable comparable type
-     */
-    public final class TestHolder implements Comparable<TestHolder>
-    {
-        public KType value;
-
-        public TestHolder()
-        {
-            //nothing
-        }
-
-        public TestHolder(final KType value)
-        {
-            this.value = value;
-        }
+    public final KTypeComparator<KType> NATURAL_COMPARATOR = new KTypeComparator<KType>() {
 
         @Override
-        public int hashCode()
-        {
-            return Internals.rehash(this.value);
+        public int compare(final KType e1, final KType e2) {
+
+            return Intrinsics.compareKTypeUnchecked(e1, e2);
         }
+    };
+
+    public final KTypeComparator<KType> INVERSE_COMPARATOR = new KTypeComparator<KType>() {
 
         @Override
-        public boolean equals(final Object other)
-        {
-            if (other instanceof KTypeHeapPriorityQueueTest.TestHolder) {
+        public int compare(final KType e1, final KType e2) {
 
-                @SuppressWarnings("unchecked")
-                final TestHolder otherKType = (TestHolder) other;
-
-                return Intrinsics.equalsKType(this.value, otherKType.value);
-            }
-
-            return false;
+            return -Intrinsics.compareKTypeUnchecked(e1, e2);
         }
-
-        @Override
-        public int compareTo(final TestHolder o) {
-
-            return Intrinsics.compareKTypeUnchecked(this.value, o.value);
-        }
-    }
-
-/*! #end !*/
+    };
 
     /**
      * Per-test fresh initialized instance.
      */
     public KTypeHeapPriorityQueue<KType> prioq;
+
+    public KTypeHeapPriorityQueue<KType> prioqNaturalComparator;
+    public KTypeHeapPriorityQueue<KType> prioqInverseComparator;
 
     public volatile long guard;
 
@@ -94,25 +68,49 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
     public void initialize()
     {
         this.prioq = new KTypeHeapPriorityQueue<KType>(null);
+        this.prioqNaturalComparator = new KTypeHeapPriorityQueue<KType>(this.NATURAL_COMPARATOR);
+        this.prioqInverseComparator = new KTypeHeapPriorityQueue<KType>(this.INVERSE_COMPARATOR);
     }
 
-    @After
-    public void checkConsistency()
+    private void checkConsistencyAfter(final KTypeHeapPriorityQueue<KType> prio)
     {
-        if (this.prioq != null)
+        if (prio != null)
         {
             //scan beyond the active zone
             //1-based indexing
-            for (int i = this.prioq.elementsCount + 1; i < this.prioq.buffer.length; i++)
+            for (int i = prio.elementsCount + 1; i < prio.buffer.length; i++)
             {
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                Assert.assertTrue(Intrinsics.<KType> defaultKTypeValue() == this.prioq.buffer[i]);
+                Assert.assertTrue(Intrinsics.<KType> defaultKTypeValue() == prio.buffer[i]);
                 /*! #end !*/
             }
-        }
 
-        //check heap property
-        Assert.assertTrue(isMinHeap(this.prioq));
+            //check heap property
+            Assert.assertTrue(isMinHeap(prio));
+
+            //Check that we can pop() all elements
+            final KType[] popedElements = Intrinsics.newKTypeArray(prio.size());
+
+            int ii = 0;
+            while (prio.size() > 0) {
+
+                popedElements[ii++] = prio.popTop();
+            }
+
+            //final size is zero
+            Assert.assertEquals(0, prio.size());
+
+            //Check that their order respects the comparison criteria :
+            assertOrder(popedElements, prio.comparator());
+        }
+    }
+
+    @After
+    public void checkConsistencyAfter()
+    {
+        checkConsistencyAfter(this.prioq);
+        checkConsistencyAfter(this.prioqInverseComparator);
+        checkConsistencyAfter(this.prioqNaturalComparator);
     }
 
     /* */
@@ -128,18 +126,21 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
     {
         this.prioq.add(this.key1);
         this.prioq.add(this.key2);
-        assertPrioQueueEquals(this.prioq, 1, 2);
-    }
-
-    /* */
-    @Test
-    public void testInsert2()
-    {
-        this.prioq.add(this.key1);
-        this.prioq.add(this.key2);
         this.prioq.add(this.key4);
         this.prioq.add(this.key3);
         assertPrioQueueEquals(this.prioq, 1, 2, 3, 4);
+
+        this.prioqNaturalComparator.add(this.key1);
+        this.prioqNaturalComparator.add(this.key2);
+        this.prioqNaturalComparator.add(this.key4);
+        this.prioqNaturalComparator.add(this.key3);
+        assertPrioQueueEquals(this.prioqNaturalComparator, 1, 2, 3, 4);
+
+        this.prioqInverseComparator.add(this.key1);
+        this.prioqInverseComparator.add(this.key2);
+        this.prioqInverseComparator.add(this.key4);
+        this.prioqInverseComparator.add(this.key3);
+        assertPrioQueueEquals(this.prioqInverseComparator, 1, 2, 3, 4);
     }
 
     /* */
@@ -155,9 +156,17 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         this.prioq.addAll(list2);
         this.prioq.addAll(list2);
         this.prioq.addAll(list3);
-
         assertPrioQueueEquals(this.prioq, 0, 0, 1, 1, 2, 2, 7, 8, 9);
 
+        this.prioqNaturalComparator.addAll(list2);
+        this.prioqNaturalComparator.addAll(list2);
+        this.prioqNaturalComparator.addAll(list3);
+        assertPrioQueueEquals(this.prioqNaturalComparator, 0, 0, 1, 1, 2, 2, 7, 8, 9);
+
+        this.prioqInverseComparator.addAll(list2);
+        this.prioqInverseComparator.addAll(list2);
+        this.prioqInverseComparator.addAll(list3);
+        assertPrioQueueEquals(this.prioqInverseComparator, 0, 0, 1, 1, 2, 2, 7, 8, 9);
     }
 
     /* */
@@ -230,13 +239,25 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
     public void testRemoveAll()
     {
         insertElements(this.prioq, 0, 1, 0, 1, 0);
-
         Assert.assertEquals(0, this.prioq.removeAllOccurrences(this.k2));
         Assert.assertEquals(3, this.prioq.removeAllOccurrences(this.k0));
         assertPrioQueueEquals(this.prioq, 1, 1);
-
         Assert.assertEquals(2, this.prioq.removeAllOccurrences(this.k1));
         Assert.assertTrue(this.prioq.isEmpty());
+
+        insertElements(this.prioqNaturalComparator, 0, 1, 0, 1, 0);
+        Assert.assertEquals(0, this.prioqNaturalComparator.removeAllOccurrences(this.k2));
+        Assert.assertEquals(3, this.prioqNaturalComparator.removeAllOccurrences(this.k0));
+        assertPrioQueueEquals(this.prioqNaturalComparator, 1, 1);
+        Assert.assertEquals(2, this.prioqNaturalComparator.removeAllOccurrences(this.k1));
+        Assert.assertTrue(this.prioqNaturalComparator.isEmpty());
+
+        insertElements(this.prioqInverseComparator, 0, 1, 0, 1, 0);
+        Assert.assertEquals(0, this.prioqInverseComparator.removeAllOccurrences(this.k2));
+        Assert.assertEquals(3, this.prioqInverseComparator.removeAllOccurrences(this.k0));
+        assertPrioQueueEquals(this.prioqInverseComparator, 1, 1);
+        Assert.assertEquals(2, this.prioqInverseComparator.removeAllOccurrences(this.k1));
+        Assert.assertTrue(this.prioqInverseComparator.isEmpty());
     }
 
     /* */
@@ -334,8 +355,6 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
     {
         final int count = 500;
 
-        this.prioq = new KTypeHeapPriorityQueue<KType>(10);
-
         for (int i = 0; i < count; i++)
         {
             this.prioq.add(cast(i));
@@ -343,6 +362,19 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
 
         Assert.assertEquals(count, this.prioq.size());
 
+        for (int i = 0; i < count; i++)
+        {
+            this.prioqNaturalComparator.add(cast(i));
+        }
+
+        Assert.assertEquals(count, this.prioqNaturalComparator.size());
+
+        for (int i = 0; i < count; i++)
+        {
+            this.prioqInverseComparator.add(cast(i));
+        }
+
+        Assert.assertEquals(count, this.prioqInverseComparator.size());
     }
 
     /* */
@@ -374,6 +406,33 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
 
     /* */
     @Test
+    public void testRemoveAllOccurencesComparator()
+    {
+        this.prioqNaturalComparator.add(this.key1); //del
+        this.prioqNaturalComparator.add(this.key2);
+        this.prioqNaturalComparator.add(this.key1); //del
+        this.prioqNaturalComparator.add(this.key3);
+        this.prioqNaturalComparator.add(this.key7);
+        this.prioqNaturalComparator.add(this.key5);
+        this.prioqNaturalComparator.add(this.key1); //del
+        this.prioqNaturalComparator.add(this.key8);
+        this.prioqNaturalComparator.add(this.key2);
+
+        Assert.assertEquals(9, this.prioqNaturalComparator.size());
+
+        final int nbRemoved = this.prioqNaturalComparator.removeAllOccurrences(this.key1);
+
+        Assert.assertEquals(3, nbRemoved);
+        Assert.assertEquals(6, this.prioqNaturalComparator.size());
+        Assert.assertTrue(this.prioqNaturalComparator.contains(this.key2));
+        Assert.assertTrue(this.prioqNaturalComparator.contains(this.key3));
+        Assert.assertTrue(this.prioqNaturalComparator.contains(this.key5));
+        Assert.assertTrue(this.prioqNaturalComparator.contains(this.key7));
+        Assert.assertTrue(this.prioqNaturalComparator.contains(this.key8));
+    }
+
+    /* */
+    @Test
     public void testContains()
     {
         this.prioq.add(this.key1); //del
@@ -396,6 +455,32 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertFalse(this.prioq.contains(this.key6)); //not in heap
         Assert.assertTrue(this.prioq.contains(this.key7));
         Assert.assertTrue(this.prioq.contains(this.key8));
+    }
+
+    /* */
+    @Test
+    public void testContainsComparator()
+    {
+        this.prioqInverseComparator.add(this.key1); //del
+        this.prioqInverseComparator.add(this.key2);
+        this.prioqInverseComparator.add(this.key1); //del
+        this.prioqInverseComparator.add(this.key3);
+        this.prioqInverseComparator.add(this.key7);
+        this.prioqInverseComparator.add(this.key5);
+        this.prioqInverseComparator.add(this.key1); //del
+        this.prioqInverseComparator.add(this.key8);
+        this.prioqInverseComparator.add(this.key2);
+
+        Assert.assertEquals(9, this.prioqInverseComparator.size());
+
+        Assert.assertTrue(this.prioqInverseComparator.contains(this.key1));
+        Assert.assertTrue(this.prioqInverseComparator.contains(this.key2));
+        Assert.assertTrue(this.prioqInverseComparator.contains(this.key3));
+        Assert.assertFalse(this.prioqInverseComparator.contains(this.key4)); //not in heap
+        Assert.assertTrue(this.prioqInverseComparator.contains(this.key5));
+        Assert.assertFalse(this.prioqInverseComparator.contains(this.key6)); //not in heap
+        Assert.assertTrue(this.prioqInverseComparator.contains(this.key7));
+        Assert.assertTrue(this.prioqInverseComparator.contains(this.key8));
     }
 
     /* */
@@ -539,7 +624,6 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
     {
         insertElements(this.prioq, 1, 2, 3, 4, 5, 6, 7);
         this.prioq.clear();
-        checkConsistency();
     }
 
     /* */
@@ -1780,19 +1864,36 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
     }
 
     /**
-     * Check if the prio queue content is identical to a given ordered sequence of elements.
+     * Check if the prio queue content is identical to a given sequence of elements.
      */
     private void assertPrioQueueEquals(final KTypeHeapPriorityQueue<KType> obj, final int... elements)
     {
+        //0) check size
         Assert.assertEquals(elements.length, obj.size());
 
+        //0-1) Convert elements into KType[]
+        final KType[] internalElements = Intrinsics.newKTypeArray(elements.length);
+
+        for (int i = 0; i < internalElements.length; i++) {
+
+            internalElements[i] = cast(elements[i]);
+        }
+
+        //1) check identical contents, re-ordered
         final KType[] arrayExport = (KType[]) obj.toArray();
 
-        Arrays.sort(arrayExport);
+        if (obj.comparator() == null) {
+            KTypeSort.quicksort(arrayExport);
+            KTypeSort.quicksort(internalElements);
+        }
+        else {
+            KTypeSort.quicksort(arrayExport, obj.comparator());
+            KTypeSort.quicksort(internalElements, obj.comparator());
+        }
 
         for (int ii = 0; ii < arrayExport.length; ii++)
         {
-            Assert.assertEquals(elements[ii], castType(arrayExport[ii]));
+            Assert.assertEquals("index = " + ii, castType(internalElements[ii]), castType(arrayExport[ii]));
         }
     }
 
