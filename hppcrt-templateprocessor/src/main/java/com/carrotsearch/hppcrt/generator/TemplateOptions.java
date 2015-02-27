@@ -253,7 +253,8 @@ public class TemplateOptions
     }
 
     public boolean inlineKTypeWithFullSpecialization(
-            final String callName, String args,
+
+            final String callName, final String args,
             final String genericCallBody,
             final String integerCallBody,
             final String longCallBody,
@@ -261,84 +262,37 @@ public class TemplateOptions
             final String doubleCallBody,
             final String booleanCallBody) {
 
-        //Rebuild the arguments with a pattern understandable by the matcher
-        args = args.replace("(", "").trim();
-        args = args.replace(")", "").trim();
-
-        //Pick the ones matching TemplateOptions current Type(s) :
-        String body = "";
-
-        if (this.ktype == Type.GENERIC) {
-            body = genericCallBody;
-
-        }
-        else if (this.ktype == Type.BYTE) {
-            body = integerCallBody;
-
-        }
-        else if (this.ktype == Type.CHAR) {
-            body = integerCallBody;
-
-        }
-        else if (this.ktype == Type.SHORT) {
-            body = integerCallBody;
-
-        }
-        else if (this.ktype == Type.INT) {
-            body = integerCallBody;
-
-        }
-        else if (this.ktype == Type.LONG) {
-            body = longCallBody;
-
-        }
-        else if (this.ktype == Type.FLOAT) {
-            body = floatCallBody;
-
-        }
-        else if (this.ktype == Type.DOUBLE) {
-            body = doubleCallBody;
-
-        }
-        else if (this.ktype == Type.BOOLEAN) {
-            body = booleanCallBody;
-        }
-
-        //Update Pattern cache
-        if (!this.inlineKTypeDefinitions.containsKey(callName)) {
-            this.inlineKTypeDefinitions.put(callName, new InlinedMethodDef(callName));
-        }
-
-        //the method has no arguments
-        if (args.isEmpty()) {
-
-            this.inlineKTypeDefinitions.get(callName).setBody(body);
-
-            if (this.verbose) {
-
-                System.out.println("TemplateOptions : " + toString() + " captured the inlined KType function def '" +
-                        callName + "' with no argument : " +
-                        this.inlineKTypeDefinitions.get(callName));
-            }
-        }
-        else {
-
-            final String[] argsArray = args.split(",");
-
-            this.inlineKTypeDefinitions.get(callName).setBody(TemplateOptions.reformatArguments(body, argsArray));
-
-            if (this.verbose) {
-
-                System.out.println("TemplateOptions : " + toString() + " captured the inlined KType function def '" +
-                        callName + "' with multiple arguments : " +
-                        this.inlineKTypeDefinitions.get(callName));
-            }
-        }
-
-        return false;
+        return internalInlineWithFullSpecialization(this.ktype, this.inlineKTypeDefinitions,
+                callName, args,
+                genericCallBody,
+                integerCallBody,
+                longCallBody,
+                floatCallBody,
+                doubleCallBody,
+                booleanCallBody);
     }
 
     public boolean inlineVTypeWithFullSpecialization(
+            final String callName, final String args,
+            final String genericCallBody,
+            final String integerCallBody,
+            final String longCallBody,
+            final String floatCallBody,
+            final String doubleCallBody,
+            final String booleanCallBody) {
+
+        return internalInlineWithFullSpecialization(this.vtype, this.inlineVTypeDefinitions,
+                callName, args,
+                genericCallBody,
+                integerCallBody,
+                longCallBody,
+                floatCallBody,
+                doubleCallBody,
+                booleanCallBody);
+    }
+
+    private boolean internalInlineWithFullSpecialization(final Type t,
+            final HashMap<String, InlinedMethodDef> inlineDefs,
             final String callName, String args,
             final String genericCallBody,
             final String integerCallBody,
@@ -354,71 +308,65 @@ public class TemplateOptions
         //Pick the ones matching TemplateOptions current Type(s) :
         String body = "";
 
-        if (this.vtype == Type.GENERIC) {
+        if (t == Type.GENERIC) {
             body = genericCallBody;
 
         }
-        else if (this.vtype == Type.BYTE) {
+        else if (t == Type.BYTE) {
             body = integerCallBody;
 
         }
-        else if (this.vtype == Type.CHAR) {
+        else if (t == Type.CHAR) {
             body = integerCallBody;
 
         }
-        else if (this.vtype == Type.SHORT) {
+        else if (t == Type.SHORT) {
             body = integerCallBody;
 
         }
-        else if (this.vtype == Type.INT) {
+        else if (t == Type.INT) {
             body = integerCallBody;
 
         }
-        else if (this.vtype == Type.LONG) {
+        else if (t == Type.LONG) {
             body = longCallBody;
 
         }
-        else if (this.vtype == Type.FLOAT) {
+        else if (t == Type.FLOAT) {
             body = floatCallBody;
 
         }
-        else if (this.vtype == Type.DOUBLE) {
+        else if (t == Type.DOUBLE) {
             body = doubleCallBody;
 
         }
-        else if (this.vtype == Type.BOOLEAN) {
+        else if (t == Type.BOOLEAN) {
             body = booleanCallBody;
         }
 
         //Update Pattern cache
-        if (!this.inlineVTypeDefinitions.containsKey(callName)) {
-            this.inlineVTypeDefinitions.put(callName, new InlinedMethodDef(callName));
+        if (!inlineDefs.containsKey(callName)) {
+            inlineDefs.put(callName, new InlinedMethodDef(callName));
         }
 
         //the method has no arguments
         if (args.isEmpty()) {
 
-            this.inlineVTypeDefinitions.get(callName).setBody(body);
+            inlineDefs.get(callName).setBody(body);
 
-            if (this.verbose) {
-
-                System.out.println("TemplateOptions : " + toString() + " captured the inlined VType function def '" +
-                        callName + "' with no argument : " +
-                        this.inlineVTypeDefinitions.get(callName));
-            }
         }
         else {
 
             final String[] argsArray = args.split(",");
 
-            this.inlineVTypeDefinitions.get(callName).setBody(TemplateOptions.reformatArguments(body, argsArray));
+            inlineDefs.get(callName).setBody(TemplateOptions.reformatArguments(body, argsArray));
+        }
 
-            if (this.verbose) {
+        if (this.verbose) {
 
-                System.out.println("TemplateOptions : " + toString() + " captured the inlined VType function def '" +
-                        callName + "' with multiple arguments : " +
-                        this.inlineVTypeDefinitions.get(callName));
-            }
+            System.out.println("TemplateOptions : " + toString() + " captured the inlined function name '" +
+                    callName + "' of type '" + t + "' as '" +
+                    inlineDefs.get(callName) + "'");
         }
 
         return false;

@@ -11,8 +11,7 @@ import com.carrotsearch.hppcrt.KTypeIndexedContainer;
  * and will indeed be replaced by a (VType) instantiation
  * of KTypeArrays.
  */
-/*! ${TemplateOptions.doNotGenerateKType("all")} !*/
-/*! ${TemplateOptions.doNotGenerateVType("all")} !*/
+/*! ${TemplateOptions.doNotGenerate()} !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class VTypeArrays
 {
