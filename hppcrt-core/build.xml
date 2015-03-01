@@ -26,12 +26,12 @@
         <generate
             templatesDir="${basedir}/src/main/templates" 
             destDir="${basedir}/target/generated-sources/main/java" 
-            incremental="true" verbose="false" />
+            incremental="true" verbose="off" />
 
         <generate
             templatesDir="${basedir}/src/test/templates" 
             destDir="${basedir}/target/generated-sources/test/java"
             dependenciesDir="${basedir}/src/main/templates" 
-            incremental="true" verbose="false" />
+            incremental="true" verbose="off" />
     </target>
 </project>

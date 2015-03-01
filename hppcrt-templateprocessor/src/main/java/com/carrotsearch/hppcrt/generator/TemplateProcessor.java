@@ -43,22 +43,27 @@ import com.carrotsearch.hppcrt.generator.TemplateOptions.DoNotGenerateTypeExcept
  */
 public final class TemplateProcessor
 {
-    private static final Pattern IMPORT_DECLARATION = Pattern.compile("(import\\s+[\\w.\\*\\s]*;)", Pattern.MULTILINE | Pattern.DOTALL);
-
     private static final Pattern COMMENTS_PATTERN = Pattern.compile("(/\\*!)|(!\\*/)", Pattern.MULTILINE | Pattern.DOTALL);
 
     private static final Pattern SIGNATURE_PATTERN = Pattern.compile("<[^<>]*>", Pattern.MULTILINE | Pattern.DOTALL);
 
     private static final Pattern SIGNATURE_START = Pattern.compile("<[\\?A-Z]");
 
-    private boolean verbose = true;
+    public enum VerboseLevel {
+        off,
+        min,
+        medium,
+        full;
+    }
+
+    private VerboseLevel verbose = VerboseLevel.full;
     private boolean incremental = true;
 
     private File templatesDir;
     private File dependenciesDir;
     private File outputDir;
 
-    private long timeVelocity, timeIntrinsics, timeTypeClassRefs, timeComments;
+    private long timeVelocity, timeInlines, timeTypeClassRefs, timeComments;
 
     private VelocityEngine velocity;
 
@@ -156,7 +161,7 @@ public final class TemplateProcessor
     /**
      * 
      */
-    public void setVerbose(final boolean verbose)
+    public void setVerbose(final VerboseLevel verbose)
     {
         this.verbose = verbose;
     }
@@ -195,6 +200,8 @@ public final class TemplateProcessor
      */
     public void execute()
     {
+        System.out.println("[INFO] Verbose level : " + this.verbose);
+
         initVelocity();
 
         // Collect files/ checksums from the output folder.
@@ -219,7 +226,7 @@ public final class TemplateProcessor
             if (!f.generated)
             {
                 deleted++;
-                if (this.verbose) {
+                if (isVerboseEnabled(VerboseLevel.min)) {
                     System.out.println("Deleted: " + f.file);
                 }
                 f.file.delete();
@@ -232,7 +239,7 @@ public final class TemplateProcessor
             if (f.updated)
             {
                 updated++;
-                if (this.verbose) {
+                if (isVerboseEnabled(VerboseLevel.min)) {
                     System.out.println("Updated: "
                             + relativePath(f.file, this.outputDir));
                 }
@@ -284,7 +291,7 @@ public final class TemplateProcessor
                 {
                     final TemplateOptions options = new TemplateOptions(t, null);
 
-                    options.setVerbose(this.verbose);
+                    options.setVerbose(isVerboseEnabled(VerboseLevel.full));
 
                     generate(f, outputs, options);
                     displayProgressBar();
@@ -299,7 +306,7 @@ public final class TemplateProcessor
                     {
                         final TemplateOptions options = new TemplateOptions(ktype, vtype);
 
-                        options.setVerbose(this.verbose);
+                        options.setVerbose(isVerboseEnabled(VerboseLevel.full));
 
                         generate(f, outputs, options);
                         displayProgressBar();
@@ -308,12 +315,12 @@ public final class TemplateProcessor
             }
         }
 
-        if (this.verbose) {
-            System.out.println(
-                    "Velocity: " + this.timeVelocity + "\n" +
-                            "Intrinsics: " + this.timeIntrinsics + "\n" +
-                            "TypeClassRefs: " + this.timeTypeClassRefs + "\n" +
-                            "Comments: " + this.timeComments + "\n");
+        if (isVerboseEnabled(VerboseLevel.min)) {
+            System.out.println(String.format("\nVelocity: %.1f s\nInlines: %.1f s\nTypeClassRefs: %.1f s\nComments: %.1f s",
+                    this.timeVelocity * 1e-3,
+                    this.timeInlines * 1e-3,
+                    this.timeTypeClassRefs * 1e-3,
+                    this.timeComments * 1e-3));
         }
     }
 
@@ -337,23 +344,28 @@ public final class TemplateProcessor
 
                 //1) Apply velocity : if TemplateOptions.isDoNotGenerateKType() or TemplateOptions.isDoNotGenerateVType() throw a
                 //DoNotGenerateTypeException , do not generate the final file.
+                t0 = System.currentTimeMillis();
                 input = filterVelocity(f, input, templateOptions);
 
                 this.timeVelocity += (t1 = System.currentTimeMillis()) - t0;
                 displayProgressBar();
 
-                //2) Apply generix inlining, (which inlines Intrinsics...)
+                //2) Apply generic inlining, (which inlines Intrinsics...)
+                t0 = System.currentTimeMillis();
                 input = filterInlines(f, input, templateOptions);
+                this.timeInlines += (t1 = System.currentTimeMillis()) - t0;
                 displayProgressBar();
 
                 //3) convert signatures
+                t0 = System.currentTimeMillis();
                 input = filterTypeClassRefs(f, input, templateOptions);
                 this.timeTypeClassRefs += (t1 = System.currentTimeMillis()) - t0;
                 displayProgressBar();
 
                 //4) Filter comments
+                t0 = System.currentTimeMillis();
                 input = filterComments(f, input, templateOptions);
-                this.timeComments += (t0 = System.currentTimeMillis()) - t1;
+                this.timeComments += (t1 = System.currentTimeMillis()) - t0;
                 displayProgressBar();
 
                 output.updated = true;
@@ -385,7 +397,7 @@ public final class TemplateProcessor
                     output.file.delete();
                     outputs.remove(output);
 
-                    if (this.verbose) {
+                    if (isVerboseEnabled(VerboseLevel.medium)) {
 
                         System.out.println("[INFO] : output from template '" + f.fullPath +
                                 "' with KType = " + doNotGenException.currentKType + " and VType =  " +
@@ -428,7 +440,8 @@ public final class TemplateProcessor
         final StringBuilder sb = new StringBuilder();
         final StringBuilder currentInput = new StringBuilder(input);
 
-        //1) passes until no inline occures
+        //1) Execute in passes until no more inlining occurs
+        //(which means inlines defs can contain inlinable defs and so on)
         boolean continueProcessing = true;
 
         while (continueProcessing) {
@@ -445,32 +458,17 @@ public final class TemplateProcessor
                 //flush
                 sb.setLength(0);
 
-                //0) First, check for imports
-                Matcher m = TemplateProcessor.IMPORT_DECLARATION.matcher(currentInput);
-
-                while (m.find())
-                {
-                    //append what is before
-                    sb.append(currentInput, 0, m.end());
-
-                    //re-start after the found region
-                    currentInput.delete(0, m.end());
-
-                    //restart search :
-                    m = TemplateProcessor.IMPORT_DECLARATION.matcher(currentInput);
-                }
-
                 //1) Search for the pattern
                 while (true)
                 {
-                    m = p.matcher(currentInput);
+                    final Matcher m = p.matcher(currentInput);
 
                     //end if found matcher
                     if (m.find())
                     {
                         continueProcessing = true;
 
-                        if (this.verbose) {
+                        if (isVerboseEnabled(VerboseLevel.full)) {
 
                             System.out.println("[INFO] filterInlines(): found matching for '" + inlinedMethod.getKey() +
                                     "' in file '" + f.fullPath + "' with " + inlinedMethod.getValue());
@@ -514,8 +512,6 @@ public final class TemplateProcessor
                         } //end for
 
                         //fill-in the arguments depending of the type
-                        bodyPattern = "";
-
                         bodyPattern = inlinedMethod.getValue().getBody();
 
                         //apply replacement, if not null
@@ -526,7 +522,7 @@ public final class TemplateProcessor
 
                                     sb.append(String.format("(" + bodyPattern + ")", params.toArray()));
 
-                                    if (this.verbose) {
+                                    if (isVerboseEnabled(VerboseLevel.full)) {
                                         System.out.println("[INFO] filterInlines(): Applying inlined body '" +
                                                 bodyPattern + "' to args: '" + params.toString() + "'...");
                                     }
@@ -537,7 +533,7 @@ public final class TemplateProcessor
                                     sb.append(bodyPattern);
                                     sb.append(")");
 
-                                    if (this.verbose) {
+                                    if (isVerboseEnabled(VerboseLevel.full)) {
                                         System.out.println("[INFO] filterInlines(): Applying inlined body '" +
                                                 bodyPattern + "' with no args...");
                                     }
@@ -700,9 +696,9 @@ public final class TemplateProcessor
 
             input = input.replaceAll("(KTypeVType)([A-Z][a-zA-Z]*)(<.+?>)?",
                     (k.isGeneric() ? "Object" : k.getBoxedType()) +
-                    (v.isGeneric() ? "Object" : v.getBoxedType()) +
-                    "$2" +
-                    (options.isAnyGeneric() ? "$3" : ""));
+                            (v.isGeneric() ? "Object" : v.getBoxedType()) +
+                            "$2" +
+                            (options.isAnyGeneric() ? "$3" : ""));
 
             input = input.replaceAll("(VType)([A-Z][a-zA-Z]*)",
                     (v.isGeneric() ? "Object" : v.getBoxedType()) + "$2");
@@ -912,6 +908,11 @@ public final class TemplateProcessor
 
             this.progressBarLastDisplayDate = currentTime;
         }
+    }
+
+    private boolean isVerboseEnabled(final VerboseLevel lvl) {
+
+        return lvl.ordinal() <= this.verbose.ordinal();
     }
 
     /**
