@@ -145,6 +145,8 @@
 				<excludes>
 					<exclude>**/KType*</exclude>
 					<exclude>**/*KType*</exclude>
+                     <exclude>**/VType*</exclude>
+					<exclude>**/*VType*</exclude>
 					<exclude>**/Intrinsics*</exclude>
 				</excludes>
 		  </configuration>
@@ -206,6 +208,8 @@
 				<excludes>
 					<exclude>**/KType*</exclude>
 					<exclude>**/*KType*</exclude>
+                    <exclude>**/VType*</exclude>
+					<exclude>**/*VType*</exclude>
 					<exclude>**/Intrinsics*</exclude>
 				</excludes>
 		  </configuration>
