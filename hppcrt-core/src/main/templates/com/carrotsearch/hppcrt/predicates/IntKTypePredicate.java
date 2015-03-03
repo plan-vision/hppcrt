@@ -6,7 +6,7 @@ package com.carrotsearch.hppcrt.predicates;
  * and will indeed be replaced by a (int, VType) instantiation
  * of KTypeVTypePredicate
  */
-//${TemplateOptions.doNotGenerateKType("all")}
+/*! ($TemplateOptions.doNotGenerate()) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public interface IntKTypePredicate<KType>
 {

@@ -8,10 +8,10 @@ import com.carrotsearch.hppcrt.cursors.IntKTypeCursor;
  * and will indeed be replaced by a (int, VType) instantiation
  * of KTypeVTypeMap
  */
-/*! ${TemplateOptions.doNotGenerateKType("all")} !*/
+/*! ($TemplateOptions.doNotGenerate()) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public interface IntKTypeMap<T>
-        extends IntKTypeAssociativeContainer<T>
+extends IntKTypeAssociativeContainer<T>
 {
     /**
      * Place a given key and value in the container.

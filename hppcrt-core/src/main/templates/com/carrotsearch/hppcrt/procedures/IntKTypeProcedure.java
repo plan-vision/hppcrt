@@ -6,7 +6,7 @@ package com.carrotsearch.hppcrt.procedures;
  * and will indeed be replaced by a (int, VType) instantiation
  * of KTypeVTypeProcedure
  */
-//${TemplateOptions.doNotGenerateKType("all")}
+/*! ($TemplateOptions.doNotGenerate()) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public interface IntKTypeProcedure<KType>
 {

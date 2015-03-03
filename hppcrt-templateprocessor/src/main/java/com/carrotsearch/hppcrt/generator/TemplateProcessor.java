@@ -30,8 +30,8 @@ import org.apache.velocity.runtime.log.LogChute;
 import org.apache.velocity.tools.generic.ClassTool;
 import org.apache.velocity.tools.generic.ContextTool;
 import org.apache.velocity.tools.generic.ConversionTool;
+import org.apache.velocity.tools.generic.DisplayTool;
 import org.apache.velocity.tools.generic.EscapeTool;
-import org.apache.velocity.tools.generic.FieldTool;
 import org.apache.velocity.tools.generic.MathTool;
 import org.apache.velocity.tools.generic.NumberTool;
 import org.apache.velocity.tools.generic.RenderTool;
@@ -119,7 +119,11 @@ public final class TemplateProcessor
         if (!this.isVelocityInitialized) {
 
             final ExtendedProperties p = new ExtendedProperties();
-            p.setProperty(RuntimeConstants.SET_NULL_ALLOWED, "false");
+
+            //Velocity 2.0+ will have this option removed,
+            //with the equivalent of SET_NULL_ALLOWED = true set permanently,
+            //so better to get used to.
+            p.setProperty(RuntimeConstants.SET_NULL_ALLOWED, "true");
 
             //Attach a Velocity logger to see internal Velocity log messages on console
             p.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new VelocityLogger());
@@ -260,15 +264,14 @@ public final class TemplateProcessor
         ctx.put("TemplateOptions", options);
 
         //Attach some GenericTools that may be useful for code generation :
-
         ctx.put("esct", new EscapeTool());
         ctx.put("classt", new ClassTool());
-        ctx.put("contextt", new ContextTool());
+        ctx.put("ctxt", new ContextTool());
         ctx.put("convt", new ConversionTool());
-        ctx.put("fieldt", new FieldTool());
         ctx.put("matht", new MathTool());
         ctx.put("numbert", new NumberTool());
         ctx.put("rendert", new RenderTool());
+        ctx.put("dispt", new DisplayTool());
 
         //reference the context itself into the TemplateOptions object
         options.context = ctx;

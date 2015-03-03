@@ -13,48 +13,6 @@ public final class Internals
     final public static int NB_OF_PROCESSORS = Runtime.getRuntime().availableProcessors();
 
     /**
-     * Rehash with perturbations methods
-     * @param o
-     * @param p
-     * @return
-     */
-    public static int rehash(final Object o, final int p) {
-        return o == null ? 0 : PhiMix.hash(o.hashCode() ^ p);
-    }
-
-    public static int rehash(final byte v, final int p) {
-        return PhiMix.hash(v ^ p);
-    }
-
-    public static int rehash(final short v, final int p) {
-        return PhiMix.hash(v ^ p);
-    }
-
-    public static int rehash(final int v, final int p) {
-        return PhiMix.hash(v ^ p);
-    }
-
-    public static int rehash(final long v, final int p) {
-        return (int) PhiMix.hash(v ^ p);
-    }
-
-    public static int rehash(final char v, final int p) {
-        return PhiMix.hash(v ^ p);
-    }
-
-    public static int rehash(final float v, final int p) {
-        return PhiMix.hash(Float.floatToIntBits(v) ^ p);
-    }
-
-    public static int rehash(final double v, final int p) {
-        return (int) PhiMix.hash(Double.doubleToLongBits(v) ^ p);
-    }
-
-    public static int rehash(final boolean b, final int p) {
-        return PhiMix.hash((b ? 1 : 0) ^ p);
-    }
-
-    /**
      * Keep using MurmurHash3 for better scrambling if the Object is
      * bad-behaved
      * @param o

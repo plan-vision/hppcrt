@@ -5,7 +5,7 @@ Maven shortcuts
 mvn clean
 
 # Generate Eclipse project files (the setup is a bit complex, so use this!)
-mvn compile eclipse:clean eclipse:eclipse
+mvn -DskipTests=true clean install eclipse:clean eclipse:eclipse
 
 # Compile 
 mvn clean compile

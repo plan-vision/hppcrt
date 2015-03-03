@@ -15,10 +15,10 @@ import com.carrotsearch.hppcrt.procedures.*;
  * 
  * @see KTypeContainer
  */
-/*! ${TemplateOptions.doNotGenerateKType("all")} !*/
+/*! ($TemplateOptions.doNotGenerate()) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public interface IntKTypeAssociativeContainer<U>
-extends Iterable<IntKTypeCursor<U>>
+        extends Iterable<IntKTypeCursor<U>>
 {
     /**
      * Returns a cursor over the entries (key-value pairs) in this map. The iterator is
