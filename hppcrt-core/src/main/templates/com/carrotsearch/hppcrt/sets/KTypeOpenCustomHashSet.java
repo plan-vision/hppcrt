@@ -202,7 +202,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (internalCapacity * loadFactor)) - 2;
 
-        this.perturbation = MurmurHash3.hash(33 * System.identityHashCode(this.keys) + System.identityHashCode(this));
+        //TODO
+        this.perturbation = HashContainerUtils.computePerturbationValue(internalCapacity);
     }
 
     /**
@@ -536,8 +537,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (capacity * this.loadFactor)) - 2;
 
-        this.perturbation = MurmurHash3.hash(33 * System.identityHashCode(this.keys) + System.identityHashCode(this));
-
+        //TODO
+        this.perturbation = HashContainerUtils.computePerturbationValue(capacity);
     }
 
     /**
@@ -752,12 +753,14 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
+        final KType[] keys = this.keys;
+
         //copied straight from  fastutil "fast-path"
         int slot;
         KType curr;
 
         //1.1 The rehashed slot is free, return false
-        if ((curr = this.keys[slot = REHASH(strategy, key) & mask]) == Intrinsics.defaultKTypeValue()) {
+        if ((curr = keys[slot = REHASH(strategy, key) & mask]) == Intrinsics.defaultKTypeValue()) {
 
             this.lastSlot = -1;
             return false;

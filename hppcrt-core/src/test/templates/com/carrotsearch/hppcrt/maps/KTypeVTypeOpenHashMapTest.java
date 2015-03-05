@@ -59,7 +59,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
     @After
     public void checkConsistency()
     {
-        this.perturbation = MurmurHash3.hash(33 * System.identityHashCode(this.map.keys) + System.identityHashCode(this.map.values));
+        this.perturbation = HashContainerUtils.computePerturbationValue(this.map.keys.length);
 
         if (this.map != null)
         {

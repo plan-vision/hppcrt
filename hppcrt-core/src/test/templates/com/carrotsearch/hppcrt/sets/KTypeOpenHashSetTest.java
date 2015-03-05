@@ -61,7 +61,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     @After
     public void checkConsistency()
     {
-        this.perturbation = MurmurHash3.hash(33 * System.identityHashCode(this.set.keys) + System.identityHashCode(this.set));
+        this.perturbation = HashContainerUtils.computePerturbationValue(this.set.keys.length);
 
         if (this.set != null)
         {

@@ -208,7 +208,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (internalCapacity * loadFactor)) - 2;
 
-        this.perturbation = MurmurHash3.hash(33 * System.identityHashCode(this.keys) + System.identityHashCode(this));
+        //TODO
+        this.perturbation = HashContainerUtils.computePerturbationValue(internalCapacity);
     }
 
     /**
@@ -538,7 +539,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (capacity * this.loadFactor)) - 2;
 
-        this.perturbation = MurmurHash3.hash(33 * System.identityHashCode(this.keys) + System.identityHashCode(this));
+        //TODO
+        this.perturbation = HashContainerUtils.computePerturbationValue(capacity);
     }
 
     /**

@@ -30,7 +30,7 @@ public final class HashContainerUtils
     /**
      * Computer static perturbations table.
      */
-    public final static int[] PERTURBATIONS = new Callable<int[]>() {
+    private final static int[] PERTURBATIONS = new Callable<int[]>() {
         @Override
         public int[] call() {
             final int[] result = new int[32];
@@ -46,8 +46,9 @@ public final class HashContainerUtils
      */
     public static int roundCapacity(final int requestedCapacity)
     {
-        if (requestedCapacity > HashContainerUtils.MAX_CAPACITY)
+        if (requestedCapacity > HashContainerUtils.MAX_CAPACITY) {
             return HashContainerUtils.MAX_CAPACITY;
+        }
 
         return Math.max(HashContainerUtils.MIN_CAPACITY, BitUtil.nextHighestPowerOfTwo(requestedCapacity));
     }
@@ -72,5 +73,17 @@ public final class HashContainerUtils
         }
 
         return current;
+    }
+
+    /**
+     * <p>Compute the key perturbation value applied before hashing. The returned value
+     * should be non-zero and ideally different for each capacity. This matters because
+     * keys are nearly-ordered by their hashed values so when adding one container's
+     * values to the other, the number of collisions can skyrocket into the worst case
+     * possible.
+     */
+    public static int computePerturbationValue(final int capacity)
+    {
+        return HashContainerUtils.PERTURBATIONS[Integer.numberOfLeadingZeros(capacity)];
     }
 }
