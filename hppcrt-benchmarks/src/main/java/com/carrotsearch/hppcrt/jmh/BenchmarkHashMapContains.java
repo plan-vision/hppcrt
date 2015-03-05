@@ -3,11 +3,8 @@ package com.carrotsearch.hppcrt.jmh;
 import java.util.Arrays;
 
 import org.openjdk.jmh.annotations.Benchmark;
-
 import org.openjdk.jmh.annotations.Param;
-
 import org.openjdk.jmh.annotations.Setup;
-
 import org.openjdk.jmh.runner.RunnerException;
 
 import com.carrotsearch.hppcrt.BenchmarkSuiteRunner;
@@ -38,12 +35,14 @@ public class BenchmarkHashMapContains extends BenchmarkHashMapBase
     /**
      * 
      */
+    //Since Get is read-only for the map, it is fine to setup() only once
+    //this time.
     @Setup
     public void setUp() throws Exception
     {
         setUpCommon();
 
-        //Generate a series of containsKeys // B) Process by get/contains
+        //Generate a series of containsKeys
         this.containsKeys = Arrays.copyOf(this.pushedKeys, this.pushedKeys.length);
 
         //Shuffle order, so the contains test order is different from

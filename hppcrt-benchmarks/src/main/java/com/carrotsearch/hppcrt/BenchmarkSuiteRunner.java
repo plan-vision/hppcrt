@@ -152,15 +152,15 @@ public class BenchmarkSuiteRunner
         Util.printSystemInfo("Benchmarks for " + jmhClass.getSimpleName() + " starting...");
 
         final Options opt = new OptionsBuilder()
-        .include(jmhClass.getSimpleName())
-        .forks(1)
-        .mode(Mode.SingleShotTime)
-        .warmupIterations(nbWarmups)
-        .measurementIterations(nbIterations)
-        .verbosity(VerboseMode.NORMAL)
-        .jvmArgsAppend("-Xms" + minHeapSizeMbytes + "m")
-        .jvmArgsAppend("-Xmx" + maxHeapSizeMbytes + "m")
-        .build();
+                .include(jmhClass.getSimpleName())
+                .forks(1)
+                .mode(Mode.SingleShotTime)
+                .warmupIterations(nbWarmups)
+                .measurementIterations(nbIterations)
+                .verbosity(VerboseMode.NORMAL)
+                .jvmArgsAppend("-Xms" + minHeapSizeMbytes + "m")
+                .jvmArgsAppend("-Xmx" + maxHeapSizeMbytes + "m")
+                .build();
 
         //run
         new Runner(opt).run();

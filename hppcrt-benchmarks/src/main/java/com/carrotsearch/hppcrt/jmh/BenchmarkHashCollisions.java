@@ -3,6 +3,7 @@ package com.carrotsearch.hppcrt.jmh;
 import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
@@ -22,7 +23,6 @@ import com.carrotsearch.hppcrt.sets.IntOpenHashSet;
 @State(Scope.Thread)
 public class BenchmarkHashCollisions
 {
-
     /* Prepare some test data */
     public IntOpenHashSet testSet;
     public IntIntOpenHashMap testMap;
@@ -55,7 +55,9 @@ public class BenchmarkHashCollisions
         // nothing
     }
 
-    @Setup
+    //Each @Benchmark iteration execution, we recreate everything
+    //to be able to see reallocations effects.
+    @Setup(Level.Iteration)
     public void setUp() throws Exception
     {
         //Instead of this.size, fill up
@@ -212,6 +214,6 @@ public class BenchmarkHashCollisions
      */
     public static void main(final String[] args) throws RunnerException
     {
-        BenchmarkSuiteRunner.runJmhBasicBenchmarkWithCommandLine(BenchmarkHashCollisions.class, args, 1000, 1500);
+        BenchmarkSuiteRunner.runJmhBasicBenchmarkWithCommandLine(BenchmarkHashCollisions.class, args, 1000, 2000);
     }
 }

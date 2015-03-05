@@ -41,6 +41,8 @@ public class ArrayDequeBenchmark
     @Benchmark
     public int testPushPops(final Blackhole b)
     {
+        this.jre.clear();
+
         int count = 0;
 
         for (int i = 0; i < ArrayDequeBenchmark.COUNT; i++)

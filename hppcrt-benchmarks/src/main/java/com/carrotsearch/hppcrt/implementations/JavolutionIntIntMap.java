@@ -19,8 +19,8 @@ public class JavolutionIntIntMap extends MapImplementation<FastMap<Integer, Inte
     public JavolutionIntIntMap(final int size, final float loadFactor)
     {
         //Javolution 6.0.0 "do not need" of preallocation, so let's see...
-        //the no-Equaltity hangs with HIFGBITS,, so we must provide a custom Equality with
-        //scrambling: use the same as Koloboke has for objects
+        //the no-Equaltity hangs with HIFGBITS so we must provide a custom Equality with
+        //scrambling: use the same as Koloboke uses for objects
         super(new FastMap<Integer, Integer>(new Equality<Integer>() {
 
             @Override

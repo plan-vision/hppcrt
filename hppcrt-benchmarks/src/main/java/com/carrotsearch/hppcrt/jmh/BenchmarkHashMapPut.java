@@ -1,9 +1,7 @@
 package com.carrotsearch.hppcrt.jmh;
 
 import org.openjdk.jmh.annotations.Benchmark;
-
 import org.openjdk.jmh.annotations.Setup;
-
 import org.openjdk.jmh.runner.RunnerException;
 
 import com.carrotsearch.hppcrt.BenchmarkSuiteRunner;
@@ -14,6 +12,8 @@ import com.carrotsearch.hppcrt.BenchmarkSuiteRunner;
  */
 public class BenchmarkHashMapPut extends BenchmarkHashMapBase
 {
+
+    //fine to Setup once here, but don't forget to clear at beginning of timePut() !
     @Setup
     public void setUp() throws Exception
     {
@@ -29,6 +29,8 @@ public class BenchmarkHashMapPut extends BenchmarkHashMapBase
     @Benchmark
     public int timePut()
     {
+        this.impl.clear();
+
         return this.impl.benchPutAll();
     }
 

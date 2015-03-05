@@ -3,8 +3,8 @@ package com.carrotsearch.hppcrt.jmh;
 import java.util.Arrays;
 
 import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Param;
-
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.runner.RunnerException;
 
@@ -33,7 +33,9 @@ public class BenchmarkHashMapRemove extends BenchmarkHashMapBase
         super();
     }
 
-    @Setup
+    //We cannot Setup Only Once here, because we must re-fill the map
+    //at each iteration with a heavy benchPutAll(), so better exclude it from measurement.
+    @Setup(Level.Invocation)
     public void setUp() throws Exception
     {
         setUpCommon();
