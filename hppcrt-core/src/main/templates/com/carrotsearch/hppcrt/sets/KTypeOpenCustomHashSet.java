@@ -52,8 +52,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenCustomHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -136,6 +136,12 @@ public class KTypeOpenCustomHashSet<KType>
     protected int lastSlot;
 
     /**
+     * Per-instance, per-allocation size perturbation
+     * introduced in rehashing to create a unique key distribution.
+     */
+    private int perturbation;
+
+    /**
      * Custom hashing strategy :
      * comparisons and hash codes of keys will be computed
      * with the strategy methods instead of the native Object equals() and hashCode() methods.
@@ -195,6 +201,8 @@ public class KTypeOpenCustomHashSet<KType>
         //allocate so that there is at least one slot that remains allocated = false
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (internalCapacity * loadFactor)) - 2;
+
+        this.perturbation = MurmurHash3.hash(33 * System.identityHashCode(this.keys) + System.identityHashCode(this));
     }
 
     /**
@@ -235,7 +243,7 @@ public class KTypeOpenCustomHashSet<KType>
         KType curr;
 
         //1.1 The rehashed key slot is occupied...
-        if ((curr = keys[slot = PhiMix.hash(strategy.computeHashCode(e)) & mask]) != Intrinsics.defaultKTypeValue()) {
+        if ((curr = keys[slot = REHASH(strategy, e) & mask]) != Intrinsics.defaultKTypeValue()) {
 
             //1.2 the occupied place is indeed key, return false
             if (strategy.equals(curr, e)) {
@@ -292,8 +300,8 @@ public class KTypeOpenCustomHashSet<KType>
 
                 /*! #if($DEBUG) !*/
                 //Check invariants
-                assert cached[slot] == (PhiMix.hash(strategy.computeHashCode(keys[slot])) & mask);
-                assert initial_slot == (PhiMix.hash(strategy.computeHashCode(e)) & mask);
+                assert cached[slot] == (REHASH(strategy, keys[slot]) & mask);
+                assert initial_slot == (REHASH(strategy, e) & mask);
                 /*! #end !*/
 
                 dist = existing_distance;
@@ -323,7 +331,7 @@ public class KTypeOpenCustomHashSet<KType>
             /*! #if ($RH) !*/
             /*! #if($DEBUG) !*/
             //Check invariants
-            assert cached[slot] == (PhiMix.hash(strategy.computeHashCode(keys[slot])) & mask);
+            assert cached[slot] == (REHASH(strategy, keys[slot]) & mask);
             /*! #end !*/
             /*! #end !*/
         }
@@ -447,7 +455,7 @@ public class KTypeOpenCustomHashSet<KType>
             if (is_allocated(i, oldKeys))
             {
                 e = oldKeys[i];
-                slot = PhiMix.hash(strategy.computeHashCode(e)) & mask;
+                slot = REHASH(strategy, e) & mask;
 
                 /*! #if ($RH) !*/
                 initial_slot = slot;
@@ -473,8 +481,8 @@ public class KTypeOpenCustomHashSet<KType>
 
                         /*! #if($DEBUG) !*/
                         //Check invariants
-                        assert cached[slot] == (PhiMix.hash(strategy.computeHashCode(keys[slot])) & mask);
-                        assert initial_slot == (PhiMix.hash(strategy.computeHashCode(e)) & mask);
+                        assert cached[slot] == (REHASH(strategy, keys[slot]) & mask);
+                        assert initial_slot == (REHASH(strategy, e) & mask);
                         /*! #end !*/
 
                         dist = existing_distance;
@@ -498,7 +506,7 @@ public class KTypeOpenCustomHashSet<KType>
                 /*! #if ($RH) !*/
                 /*! #if($DEBUG) !*/
                 //Check invariants
-                assert cached[slot] == (PhiMix.hash(strategy.computeHashCode(keys[slot])) & mask);
+                assert cached[slot] == (REHASH(strategy, keys[slot]) & mask);
                 /*! #end !*/
                 /*! #end !*/
             }
@@ -527,6 +535,8 @@ public class KTypeOpenCustomHashSet<KType>
         //allocate so that there is at least one slot that remains allocated = false
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (capacity * this.loadFactor)) - 2;
+
+        this.perturbation = MurmurHash3.hash(33 * System.identityHashCode(this.keys) + System.identityHashCode(this));
 
     }
 
@@ -566,7 +576,7 @@ public class KTypeOpenCustomHashSet<KType>
         KType curr;
 
         //1.1 The rehashed slot is free, nothing to remove, return false
-        if ((curr = keys[slot = PhiMix.hash(strategy.computeHashCode(key)) & mask]) == Intrinsics.defaultKTypeValue()) {
+        if ((curr = keys[slot = REHASH(strategy, key) & mask]) == Intrinsics.defaultKTypeValue()) {
 
             return false;
         }
@@ -634,10 +644,10 @@ public class KTypeOpenCustomHashSet<KType>
                 slotOther = cached[slotCurr];
                 /*! #if($DEBUG) !*/
                 //Check invariants
-                assert slotOther == (PhiMix.hash(strategy.computeHashCode(keys[slotCurr])) & mask);
+                assert slotOther == (REHASH(strategy, keys[slotCurr]) & mask);
                 /*! #end !*/
                 /*! #else
-                 slotOther = PhiMix.hash(strategy.computeHashCode(keys[slotCurr])) & mask;
+                 slotOther = REHASH(strategy , keys[slotCurr]) & mask;
                 #end !*/
 
                 if (slotPrev <= slotCurr)
@@ -665,8 +675,8 @@ public class KTypeOpenCustomHashSet<KType>
             /*! #if ($RH) !*/
             /*! #if($DEBUG) !*/
             //Check invariants
-            assert cached[slotCurr] == (PhiMix.hash(strategy.computeHashCode(keys[slotCurr])) & mask);
-            assert cached[slotPrev] == (PhiMix.hash(strategy.computeHashCode(keys[slotPrev])) & mask);
+            assert cached[slotCurr] == (REHASH(strategy, keys[slotCurr]) & mask);
+            assert cached[slotPrev] == (REHASH(strategy, keys[slotPrev]) & mask);
             /*! #end !*/
             /*! #end !*/
 
@@ -742,12 +752,12 @@ public class KTypeOpenCustomHashSet<KType>
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
-         //copied straight from  fastutil "fast-path"
+        //copied straight from  fastutil "fast-path"
         int slot;
         KType curr;
 
         //1.1 The rehashed slot is free, return false
-        if ((curr = keys[slot = PhiMix.hash(strategy.computeHashCode(key)) & mask]) == Intrinsics.defaultKTypeValue()) {
+        if ((curr = this.keys[slot = REHASH(strategy, key) & mask]) == Intrinsics.defaultKTypeValue()) {
 
             this.lastSlot = -1;
             return false;
@@ -1198,7 +1208,7 @@ public class KTypeOpenCustomHashSet<KType>
         /*! #if($DEBUG) !*/
         //Check : cached hashed slot is == computed value
         final int mask = cached.length - 1;
-        assert rh == (PhiMix.hash(this.hashStrategy.computeHashCode(this.keys[slot])) & mask);
+        assert rh == (REHASH(this.hashStrategy, this.keys[slot]) & mask);
         /*! #end !*/
 
         if (slot < rh) {
@@ -1209,5 +1219,17 @@ public class KTypeOpenCustomHashSet<KType>
         return slot - rh;
     }
 /*! #end !*/
+
+    /*! #if ($TemplateOptions.inlineKType("REHASH",
+    "(strategy, value)",
+    "PhiMix.hash(strategy.computeHashCode(value) + this.perturbation )")) !*/
+    /**
+     * (actual method is inlined in generated code)
+     */
+    private int REHASH(final KTypeHashingStrategy<? super KType> strategy, final KType value) {
+
+        return PhiMix.hash(strategy.computeHashCode(value) + this.perturbation);
+    }
+    /*! #end !*/
 
 }

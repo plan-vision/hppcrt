@@ -38,6 +38,8 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
 
     public volatile long guard;
 
+    private int perturbation;
+
     @BeforeClass
     public static void configure()
     {
@@ -59,6 +61,8 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     @After
     public void checkConsistency()
     {
+        this.perturbation = MurmurHash3.hash(33 * System.identityHashCode(this.set.keys) + System.identityHashCode(this.set));
+
         if (this.set != null)
         {
             int occupied = 0;
@@ -118,8 +122,8 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         // This test is only applicable to selected key types.
         Assume.assumeTrue(
                 int[].class.isInstance(this.set.keys) ||
-                        long[].class.isInstance(this.set.keys) ||
-                        Object[].class.isInstance(this.set.keys));
+                long[].class.isInstance(this.set.keys) ||
+                Object[].class.isInstance(this.set.keys));
 
         final IntArrayList hashChain = TestUtils.generateMurmurHash3CollisionChain(0x1fff, 0x7e, 0x1fff / 3);
 
@@ -355,13 +359,13 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         this.set.add(newArray(this.k0, this.k1, this.k2));
 
         Assert.assertEquals(1, this.set.removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeOpenHashSetTest.this.k1;
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.k0, this.k2);
     }
@@ -373,13 +377,13 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         this.set.add(this.key0, this.key1, this.key2, this.key4);
 
         Assert.assertEquals(2, this.set.removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return (v == KTypeOpenHashSetTest.this.key1) || (v == KTypeOpenHashSetTest.this.key0);
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.key2, this.key4);
     }
@@ -396,7 +400,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size + 1
             Assert.assertEquals(10, this.set.removeAll(new KTypePredicate<KType>()
-            {
+                    {
                 @Override
                 public boolean apply(final KType v)
                 {
@@ -405,7 +409,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
                     }
                     return v == KTypeOpenHashSetTest.this.key2 || v == KTypeOpenHashSetTest.this.key9 || v == KTypeOpenHashSetTest.this.key5;
                 };
-            }));
+                    }));
 
             Assert.fail();
         }
@@ -431,13 +435,13 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         this.set.add(newArray(this.k0, this.k1, this.k2, this.k3, this.k4, this.k5));
 
         Assert.assertEquals(4, this.set.retainAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeOpenHashSetTest.this.key1 || v == KTypeOpenHashSetTest.this.key2;
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.key1, this.key2);
     }
@@ -449,13 +453,13 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         this.set.add(newArray(this.key0, this.k1, this.k2, this.k3, this.k4, this.k5));
 
         Assert.assertEquals(4, this.set.retainAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeOpenHashSetTest.this.key0 || v == KTypeOpenHashSetTest.this.k3;
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.key0, this.k3);
     }
@@ -699,10 +703,10 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     {
         Assume.assumeTrue(
                 int[].class.isInstance(this.set.keys) ||
-                        short[].class.isInstance(this.set.keys) ||
-                        byte[].class.isInstance(this.set.keys) ||
-                        long[].class.isInstance(this.set.keys) ||
-                        Object[].class.isInstance(this.set.keys));
+                short[].class.isInstance(this.set.keys) ||
+                byte[].class.isInstance(this.set.keys) ||
+                long[].class.isInstance(this.set.keys) ||
+                Object[].class.isInstance(this.set.keys));
 
         this.set.add(this.key1, this.key2);
         String asString = this.set.toString();
@@ -1318,11 +1322,11 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
 
     /*! #if ($TemplateOptions.inlineKTypeWithFullSpecialization("REHASH",
     "(value)",
-    "MurmurHash3.hash(value.hashCode())",
-    "PhiMix.hash(value)",
-    "(int)PhiMix.hash(value)",
-    "PhiMix.hash(Float.floatToIntBits(value))",
-    "(int)PhiMix.hash(Double.doubleToLongBits(value))",
+    "MurmurHash3.hash(value.hashCode() + this.perturbation)",
+    "PhiMix.hash(value + this.perturbation)",
+    "(int)PhiMix.hash(value + this.perturbation)",
+    "PhiMix.hash(Float.floatToIntBits(value) + this.perturbation)",
+    "(int)PhiMix.hash(Double.doubleToLongBits(value) + this.perturbation)",
     "")) !*/
     /**
      * REHASH method for rehashing the keys.
@@ -1331,7 +1335,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
      */
     private int REHASH(final KType value) {
 
-        return MurmurHash3.hash(value.hashCode());
+        return MurmurHash3.hash(value.hashCode() + this.perturbation);
     }
     /*! #end !*/
 

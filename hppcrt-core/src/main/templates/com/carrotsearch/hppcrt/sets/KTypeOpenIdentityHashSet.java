@@ -38,8 +38,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenIdentityHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -107,6 +107,12 @@ public class KTypeOpenIdentityHashSet<KType>
     protected int lastSlot;
 
     /**
+     * Per-instance, per-allocation size perturbation
+     * introduced in rehashing to create a unique key distribution.
+     */
+    private int perturbation;
+
+    /**
      * Creates a hash set with the default capacity of {@value #DEFAULT_CAPACITY},
      * load factor of {@value #DEFAULT_LOAD_FACTOR}.
      */
@@ -129,7 +135,6 @@ public class KTypeOpenIdentityHashSet<KType>
      */
     public KTypeOpenIdentityHashSet(final int initialCapacity, final float loadFactor)
     {
-
         assert loadFactor > 0 && loadFactor <= 1 : "Load factor must be between (0, 1].";
 
         this.loadFactor = loadFactor;
@@ -146,6 +151,8 @@ public class KTypeOpenIdentityHashSet<KType>
         //allocate so that there is at least one slot that remains allocated = false
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (internalCapacity * loadFactor)) - 2;
+
+        this.perturbation = MurmurHash3.hash(33 * System.identityHashCode(this.keys) + System.identityHashCode(this));
     }
 
     /**
@@ -185,7 +192,7 @@ public class KTypeOpenIdentityHashSet<KType>
         KType curr;
 
         //1.1 The rehashed key slot is occupied...
-        if ((curr = keys[slot = PhiMix.hash(System.identityHashCode(e)) & mask]) != Intrinsics.defaultKTypeValue()) {
+        if ((curr = keys[slot = REHASH(e) & mask]) != Intrinsics.defaultKTypeValue()) {
 
             //1.2 the occupied place is indeed key, return false
             if (curr == e) {
@@ -332,7 +339,7 @@ public class KTypeOpenIdentityHashSet<KType>
             if (is_allocated(i, oldKeys))
             {
                 e = oldKeys[i];
-                slot = PhiMix.hash(System.identityHashCode(e)) & mask;
+                slot = REHASH(e) & mask;
 
                 while (is_allocated(slot, keys))
                 {
@@ -358,6 +365,8 @@ public class KTypeOpenIdentityHashSet<KType>
         //allocate so that there is at least one slot that remains allocated = false
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (capacity * this.loadFactor)) - 2;
+
+        this.perturbation = MurmurHash3.hash(33 * System.identityHashCode(this.keys) + System.identityHashCode(this));
     }
 
     /**
@@ -394,7 +403,7 @@ public class KTypeOpenIdentityHashSet<KType>
         KType curr;
 
         //1.1 The rehashed slot is free, nothing to remove, return false
-        if ((curr = keys[slot = PhiMix.hash(System.identityHashCode(key)) & mask]) == Intrinsics.defaultKTypeValue()) {
+        if ((curr = keys[slot = REHASH(key) & mask]) == Intrinsics.defaultKTypeValue()) {
 
             return false;
         }
@@ -443,7 +452,7 @@ public class KTypeOpenIdentityHashSet<KType>
 
             while (is_allocated(slotCurr, keys))
             {
-                slotOther = (PhiMix.hash(System.identityHashCode(keys[slotCurr])) & mask);
+                slotOther = (REHASH(keys[slotCurr]) & mask);
 
                 if (slotPrev <= slotCurr)
                 {
@@ -540,7 +549,7 @@ public class KTypeOpenIdentityHashSet<KType>
         KType curr;
 
         //1.1 The rehashed slot is free, return false
-        if ((curr = keys[slot = PhiMix.hash(System.identityHashCode(key)) & mask]) == Intrinsics.defaultKTypeValue()) {
+        if ((curr = keys[slot = REHASH(key) & mask]) == Intrinsics.defaultKTypeValue()) {
 
             this.lastSlot = -1;
             return false;
@@ -954,6 +963,18 @@ public class KTypeOpenIdentityHashSet<KType>
     private boolean is_allocated(final int slot, final KType[] keys) {
 
         return keys[slot] != Intrinsics.defaultKTypeValue();
+    }
+    /*! #end !*/
+
+    /*! #if ($TemplateOptions.inlineKType("REHASH",
+    "(value)",
+    "PhiMix.hash(System.identityHashCode(value) + this.perturbation)")) !*/
+    /**
+     * (actual method is inlined in generated code)
+     */
+    private int REHASH(final KType value) {
+
+        return PhiMix.hash(System.identityHashCode(value) + this.perturbation);
     }
     /*! #end !*/
 }

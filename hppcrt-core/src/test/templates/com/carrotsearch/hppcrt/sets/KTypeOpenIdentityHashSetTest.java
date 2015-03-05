@@ -1220,5 +1220,4 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
 
         return keys[slot] != Intrinsics.defaultKTypeValue();
     }
-
 }

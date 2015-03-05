@@ -8,6 +8,7 @@ import static com.carrotsearch.hppcrt.TestUtils.*;
 import static org.junit.Assert.*;
 
 import com.carrotsearch.hppcrt.*;
+import com.carrotsearch.hppcrt.hash.MurmurHash3;
 import com.carrotsearch.hppcrt.hash.PhiMix;
 import com.carrotsearch.hppcrt.lists.*;
 import com.carrotsearch.hppcrt.TestUtils;
@@ -64,6 +65,8 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
 
     };
 
+    private int perturbation;
+
     /* */
     @Before
     public void initialize()
@@ -79,6 +82,8 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
     @After
     public void checkConsistency()
     {
+        this.perturbation = MurmurHash3.hash(33 * System.identityHashCode(this.set.keys) + System.identityHashCode(this.set));
+
         if (this.set != null)
         {
             int occupied = 0;
@@ -98,7 +103,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
                 {
                     /*! #if ($RH) !*/
                     //check hash cache consistency
-                    Assert.assertEquals(PhiMix.hash(this.set.strategy().computeHashCode(this.set.keys[i])) & mask, this.set.hash_cache[i]);
+                    Assert.assertEquals(REHASH(this.set.strategy(), this.set.keys[i]) & mask, this.set.hash_cache[i]);
                     /*! #end !*/
 
                     //try to reach the key by contains()
@@ -391,13 +396,13 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         this.set.add(this.key0, this.key1, this.key2, this.key4);
 
         Assert.assertEquals(2, this.set.removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return (v == KTypeOpenCustomHashSetTest.this.key1) || (v == KTypeOpenCustomHashSetTest.this.key0);
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.key2, this.key4);
     }
@@ -466,13 +471,13 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         this.set.add(newArray(this.key0, this.k1, this.k2, this.k3, this.k4, this.k5));
 
         Assert.assertEquals(4, this.set.retainAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeOpenCustomHashSetTest.this.key0 || v == KTypeOpenCustomHashSetTest.this.k3;
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.key0, this.k3);
     }
@@ -1558,4 +1563,16 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
 
         return keys[slot] != Intrinsics.defaultKTypeValue();
     }
+
+    /*! #if ($TemplateOptions.inlineKType("REHASH",
+    "(strategy, value)",
+    "PhiMix.hash(strategy.computeHashCode(value) + this.perturbation )")) !*/
+    /**
+     * (actual method is inlined in generated code)
+     */
+    private int REHASH(final KTypeHashingStrategy<? super KType> strategy, final KType value) {
+
+        return PhiMix.hash(strategy.computeHashCode(value) + this.perturbation);
+    }
+    /*! #end !*/
 }

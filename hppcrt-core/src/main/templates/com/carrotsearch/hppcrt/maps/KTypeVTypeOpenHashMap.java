@@ -79,7 +79,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -188,6 +188,12 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     protected int lastSlot;
 
     /**
+     * Per-instance, per-allocation size perturbation
+     * introduced in rehashing to create a unique key distribution.
+     */
+    private int perturbation;
+
+    /**
      * Creates a hash map with the default capacity of {@value #DEFAULT_CAPACITY},
      * load factor of {@value #DEFAULT_LOAD_FACTOR}.
      * 
@@ -246,6 +252,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         //allocate so that there is at least one slot that remains allocated = false
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (internalCapacity * loadFactor)) - 2;
+
+        this.perturbation = MurmurHash3.hash(33 * System.identityHashCode(this.keys) + System.identityHashCode(this.values));
     }
 
     /**
@@ -759,6 +767,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         //allocate so that there is at least one slot that remains allocated = false
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (capacity * this.loadFactor)) - 2;
+
+        this.perturbation = MurmurHash3.hash(33 * System.identityHashCode(this.keys) + System.identityHashCode(this.values));
     }
 
     /**
@@ -1296,7 +1306,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         {
             if (is_allocated(i, keys))
             {
-                h += REHASH(keys[i]) + Internals.rehash(values[i]);
+                h += Internals.rehash(keys[i]) + Internals.rehash(values[i]);
             }
         }
 
@@ -1519,7 +1529,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * A view of the keys inside this hash map.
      */
     public final class KeysContainer
-            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenHashMap<KType, VType> owner =
                 KTypeVTypeOpenHashMap.this;
@@ -2201,13 +2211,13 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
 /*! #end !*/
 
-/*! #if ($TemplateOptions.inlineKTypeWithFullSpecialization("REHASH",
+    /*! #if ($TemplateOptions.inlineKTypeWithFullSpecialization("REHASH",
     "(value)",
-    "MurmurHash3.hash(value.hashCode())",
-    "PhiMix.hash(value)",
-    "(int)PhiMix.hash(value)",
-    "PhiMix.hash(Float.floatToIntBits(value))",
-    "(int)PhiMix.hash(Double.doubleToLongBits(value))",
+    "MurmurHash3.hash(value.hashCode() + this.perturbation)",
+    "PhiMix.hash(value + this.perturbation)",
+    "(int)PhiMix.hash(value + this.perturbation)",
+    "PhiMix.hash(Float.floatToIntBits(value) + this.perturbation)",
+    "(int)PhiMix.hash(Double.doubleToLongBits(value) + this.perturbation)",
     "")) !*/
     /**
      * REHASH method for rehashing the keys.
@@ -2216,7 +2226,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      */
     private int REHASH(final KType value) {
 
-        return MurmurHash3.hash(value.hashCode());
+        return MurmurHash3.hash(value.hashCode() + this.perturbation);
     }
-/*! #end !*/
+    /*! #end !*/
 }

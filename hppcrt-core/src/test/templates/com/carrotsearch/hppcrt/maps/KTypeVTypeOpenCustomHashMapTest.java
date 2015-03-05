@@ -8,6 +8,7 @@ import static com.carrotsearch.hppcrt.TestUtils.*;
 import static org.junit.Assert.*;
 
 import com.carrotsearch.hppcrt.*;
+import com.carrotsearch.hppcrt.hash.MurmurHash3;
 import com.carrotsearch.hppcrt.hash.PhiMix;
 import com.carrotsearch.hppcrt.lists.*;
 import com.carrotsearch.hppcrt.TestUtils;
@@ -64,6 +65,8 @@ public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKType
      */
     public KTypeVTypeOpenCustomHashMap<KType, VType> map = KTypeVTypeOpenCustomHashMap.newInstance(this.TEST_STRATEGY);
 
+    private int perturbation;
+
     @Before
     public void initialize() {
 
@@ -78,6 +81,8 @@ public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKType
     @After
     public void checkConsistency()
     {
+        this.perturbation = MurmurHash3.hash(33 * System.identityHashCode(this.map.keys) + System.identityHashCode(this.map.values));
+
         if (this.map != null)
         {
             int occupied = 0;
@@ -101,7 +106,7 @@ public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKType
                 {
                     /*! #if ($RH) !*/
                     //check hash cache consistency
-                    Assert.assertEquals(PhiMix.hash(this.map.strategy().computeHashCode(this.map.keys[i])) & mask, this.map.hash_cache[i]);
+                    Assert.assertEquals(REHASH(this.map.strategy(), this.map.keys[i]) & mask, this.map.hash_cache[i]);
                     /*! #end !*/
 
                     //try to reach the key by contains()
@@ -1842,7 +1847,6 @@ public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKType
 
         for (int i = 0; i < PREALLOCATED_SIZE; i++)
         {
-
             newMap.put(cast(i), vcast(randomVK.nextInt()));
 
             //internal size has not changed.
@@ -2453,18 +2457,18 @@ public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKType
         final KTypeVTypeOpenCustomHashMap<KType, VType> refMap3 = createMapWithRandomData(TEST_SIZE,
                 new KTypeHashingStrategy<KType>() {
 
-                    @Override
-                    public int computeHashCode(final KType object) {
+            @Override
+            public int computeHashCode(final KType object) {
 
-                        return Internals.rehash(object);
-                    }
+                return Internals.rehash(object);
+            }
 
-                    @Override
-                    public boolean equals(final KType o1, final KType o2) {
+            @Override
+            public boolean equals(final KType o1, final KType o2) {
 
-                        return Intrinsics.equalsKType(o1, o2);
-                    }
-                }, TEST_SEED);
+                return Intrinsics.equalsKType(o1, o2);
+            }
+        }, TEST_SEED);
 
         //because they do the same thing as above, but with semantically different strategies, ref3 is != ref
         Assert.assertFalse(refMap.equals(refMap3));
@@ -2480,46 +2484,46 @@ public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKType
         KTypeVTypeOpenCustomHashMap<KType, VType> refMap4 = createMapWithRandomData(TEST_SIZE,
                 new KTypeHashingStrategy<KType>() {
 
-                    @Override
-                    public boolean equals(final Object obj) {
+            @Override
+            public boolean equals(final Object obj) {
 
-                        return true;
-                    }
+                return true;
+            }
 
-                    @Override
-                    public int computeHashCode(final KType object) {
+            @Override
+            public int computeHashCode(final KType object) {
 
-                        return Internals.rehash(object);
-                    }
+                return Internals.rehash(object);
+            }
 
-                    @Override
-                    public boolean equals(final KType o1, final KType o2) {
+            @Override
+            public boolean equals(final KType o1, final KType o2) {
 
-                        return Intrinsics.equalsKType(o1, o2);
-                    }
-                }, TEST_SEED);
+                return Intrinsics.equalsKType(o1, o2);
+            }
+        }, TEST_SEED);
 
         KTypeVTypeOpenCustomHashMap<KType, VType> refMap4Image = createMapWithRandomData(TEST_SIZE,
                 new KTypeHashingStrategy<KType>() {
 
-                    @Override
-                    public boolean equals(final Object obj) {
+            @Override
+            public boolean equals(final Object obj) {
 
-                        return true;
-                    }
+                return true;
+            }
 
-                    @Override
-                    public int computeHashCode(final KType object) {
+            @Override
+            public int computeHashCode(final KType object) {
 
-                        return Internals.rehash(object);
-                    }
+                return Internals.rehash(object);
+            }
 
-                    @Override
-                    public boolean equals(final KType o1, final KType o2) {
+            @Override
+            public boolean equals(final KType o1, final KType o2) {
 
-                        return Intrinsics.equalsKType(o1, o2);
-                    }
-                }, TEST_SEED);
+                return Intrinsics.equalsKType(o1, o2);
+            }
+        }, TEST_SEED);
 
         Assert.assertEquals(refMap4, refMap4Image);
         //but strategy instances are indeed 2 different objects
@@ -2663,4 +2667,16 @@ public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKType
 
         return keys[slot] != Intrinsics.defaultKTypeValue();
     }
+
+    /*! #if ($TemplateOptions.inlineKType("REHASH",
+    "(strategy, value)",
+    "PhiMix.hash(strategy.computeHashCode(value) + this.perturbation )")) !*/
+    /**
+     * (actual method is inlined in generated code)
+     */
+    private int REHASH(final KTypeHashingStrategy<? super KType> strategy, final KType value) {
+
+        return PhiMix.hash(strategy.computeHashCode(value) + this.perturbation);
+    }
+    /*! #end !*/
 }

@@ -74,8 +74,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -159,6 +159,12 @@ public class KTypeOpenHashSet<KType>
     protected int lastSlot;
 
     /**
+     * Per-instance, per-allocation size perturbation
+     * introduced in rehashing to create a unique key distribution.
+     */
+    private int perturbation;
+
+    /**
      * Creates a hash set with the default capacity of {@value #DEFAULT_CAPACITY},
      * load factor of {@value #DEFAULT_LOAD_FACTOR}.
     `     */
@@ -201,6 +207,8 @@ public class KTypeOpenHashSet<KType>
         //allocate so that there is at least one slot that remains allocated = false
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (internalCapacity * loadFactor)) - 2;
+
+        this.perturbation = MurmurHash3.hash(33 * System.identityHashCode(this.keys) + System.identityHashCode(this));
     }
 
     /**
@@ -529,6 +537,8 @@ public class KTypeOpenHashSet<KType>
         //allocate so that there is at least one slot that remains allocated = false
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (capacity * this.loadFactor)) - 2;
+
+        this.perturbation = MurmurHash3.hash(33 * System.identityHashCode(this.keys) + System.identityHashCode(this));
     }
 
     /**
@@ -838,7 +848,7 @@ public class KTypeOpenHashSet<KType>
         {
             if (is_allocated(i, keys))
             {
-                h += REHASH(keys[i]);
+                h += Internals.rehash(keys[i]);
             }
         }
 
@@ -1192,11 +1202,11 @@ public class KTypeOpenHashSet<KType>
 
     /*! #if ($TemplateOptions.inlineKTypeWithFullSpecialization("REHASH",
     "(value)",
-    "MurmurHash3.hash(value.hashCode())",
-    "PhiMix.hash(value)",
-    "(int)PhiMix.hash(value)",
-    "PhiMix.hash(Float.floatToIntBits(value))",
-    "(int)PhiMix.hash(Double.doubleToLongBits(value))",
+    "MurmurHash3.hash(value.hashCode() + this.perturbation)",
+    "PhiMix.hash(value + this.perturbation)",
+    "(int)PhiMix.hash(value + this.perturbation)",
+    "PhiMix.hash(Float.floatToIntBits(value) + this.perturbation)",
+    "(int)PhiMix.hash(Double.doubleToLongBits(value) + this.perturbation)",
     "")) !*/
     /**
      * REHASH method for rehashing the keys.
@@ -1205,7 +1215,7 @@ public class KTypeOpenHashSet<KType>
      */
     private int REHASH(final KType value) {
 
-        return MurmurHash3.hash(value.hashCode());
+        return MurmurHash3.hash(value.hashCode() + this.perturbation);
     }
     /*! #end !*/
 
