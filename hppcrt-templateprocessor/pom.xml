@@ -20,6 +20,8 @@
 
   <properties>
     <skip.deployment>true</skip.deployment>
+    <version.velocity>1.7</version.velocity>
+    <version.velocity-tools>2.0</version.velocity-tools>
   </properties>
 
   <!-- Dependencies. -->
@@ -27,13 +29,13 @@
     <dependency>
       <groupId>org.apache.velocity</groupId>
       <artifactId>velocity</artifactId>
-      <version>1.7</version>
+      <version>${version.velocity}</version>
     </dependency>
     
     <dependency>
       <groupId>org.apache.velocity</groupId>
       <artifactId>velocity-tools</artifactId>
-      <version>2.0</version>
+      <version>${version.velocity-tools}</version>
     </dependency>
   </dependencies>
 

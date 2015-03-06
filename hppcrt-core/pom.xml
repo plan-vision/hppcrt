@@ -36,7 +36,7 @@
     <dependency>
       <groupId>com.carrotsearch.randomizedtesting</groupId>
       <artifactId>randomizedtesting-runner</artifactId>
-      <version>2.1.11</version>
+      <version>${version.randomizedtesting}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -50,39 +50,6 @@
   <!-- Build tuning. -->
   <build>
     <defaultGoal>install</defaultGoal>
-
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-eclipse-plugin</artifactId>
-          <configuration>
-            <buildcommands>
-              <buildCommand>
-                <name>org.ui.externaltools.ExternalToolBuilder</name>
-                <triggers>auto,full,</triggers>
-                <arguments>
-                  <LaunchConfigHandle>&lt;project&gt;/.externalToolBuilders/HPPC-generate-sources.launch</LaunchConfigHandle>
-                </arguments>
-              </buildCommand>
-              <buildCommand>
-                <name>org.eclipse.jdt.core.javabuilder</name>
-              </buildCommand>
-            </buildcommands>
-          </configuration>
-        </plugin>
-
-        <!-- We don't want to use surefire to run our tests so we skip it. -->
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <configuration>
-            <skipTests>true</skipTests>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-
     <plugins>
       <!-- Generate sources for primitives from template. -->
       <plugin>
@@ -95,8 +62,8 @@
             <phase>generate-sources</phase>
             <configuration>
                 <fork>true</fork>
-                <meminitial>512m</meminitial>
-                <maxmem>1024m</maxmem>
+                <meminitial>256m</meminitial>
+                <maxmem>512m</maxmem>
               <target> 
                 <property name="classpath" refid="maven.plugin.classpath" />
                 <echo file="${project.basedir}/.builder.classpath">${classpath}</echo>
@@ -176,7 +143,6 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
-
         <executions>
           <execution>
             <id>add-source</id>
@@ -265,21 +231,20 @@
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-project-info-reports-plugin</artifactId>
-              <version>2.7</version>
+              <version>${version.maven-project-info-reports-plugin}</version>
               <configuration>
                 <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
                 <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
               </configuration>
               <reports>
                 <report>dependencies</report>
-                <report>scm</report>
               </reports>
             </plugin>
 
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-surefire-report-plugin</artifactId>
-              <version>2.17</version>
+              <version>${version.maven-surefire-report-plugin}</version>
               <reportSets>
                 <reportSet>
                   <id>main</id>
@@ -296,7 +261,7 @@
             <plugin>
               <groupId>org.codehaus.mojo</groupId>
               <artifactId>findbugs-maven-plugin</artifactId>
-              <version>3.0.0</version>
+              <version>${version.findbugs-maven-plugin}</version>
               <configuration>
                 <excludeFilterFile>${basedir}/src/main/findbugs/excludes.xml</excludeFilterFile>
                 <findbugsXmlOutput>true</findbugsXmlOutput>
@@ -308,117 +273,4 @@
       </plugin>      
     </plugins>
   </build>
-
-  <profiles>
-    <!-- Labs' site rsync assembly. -->
-    <profile>
-      <id>site-labs</id>
-
-      <build>
-        <defaultGoal>assembly:single</defaultGoal>
-
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>make-labs-assembly</id>
-                <phase>install</phase>
-                <goals>
-                  <goal>single</goal>
-                </goals>
-                <configuration>
-                  <descriptors>
-                    <descriptor>src/main/assembly/site-labs.xml</descriptor>
-                  </descriptors>
-                  <attach>false</attach>
-                  <appendAssemblyId>false</appendAssemblyId>
-                  <finalName>site-labs</finalName>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <!-- Release mode (javadocs, sources, zip/tgz bundles, signing). -->
-    <profile>
-      <id>release</id>
-
-      <build>
-        <defaultGoal>package</defaultGoal>
-
-        <plugins>
-          <!-- Attach and modify JavaDocs. -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-javadocs</id>
-                <configuration>
-                  <encoding>${project.build.sourceEncoding}</encoding>
-                  <docfilessubdirs>true</docfilessubdirs>
-                  <windowtitle>HPPC-RT v${project.version} API Documentation (JavaDoc)</windowtitle>
-                  <doctitle>HPPC-RT v${project.version} API Documentation</doctitle>
-                  <header><![CDATA[<div id='header'><a class='logo' target='_top' href='https://github.com/vsonnier/hppc'></a>High Performance Primitive Collections Realtime (HPPC-RT) v${project.version} <br>API Documentation</div>]]></header>
-                  <overview>${basedir}/src/main/java/com/carrotsearch/hppcrt/overview.html</overview>
-                  <failonerror>false</failonerror>
-                  <use>false</use>
-                  <groups>
-                    <group>
-                      <title>HPPC-RT</title>
-                      <packages>com.carrotsearch.hppcrt*</packages>
-                    </group>
-                  </groups>
-                </configuration>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-
-          <!-- Attach sources -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-source-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-sources</id>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-
-          <!-- Configure assembly of ZIP and TAR.GZ bundles (stand-alone distributions). -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>make-release-assembly</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>single</goal>
-                </goals>
-                <configuration>
-                  <descriptors>
-                    <descriptor>src/main/assembly/bin.xml</descriptor>
-                  </descriptors>
-                  <tarLongFileMode>gnu</tarLongFileMode>
-                  <attach>false</attach>
-                  <appendAssemblyId>false</appendAssemblyId>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>

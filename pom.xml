@@ -1,354 +1,319 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <!-- We use SonaType for publishing artefacts. Parent POM makes things easier here. -->
-  <parent>
-    <groupId>org.sonatype.oss</groupId>
-    <artifactId>oss-parent</artifactId>
-    <version>9</version>
-  </parent>
+    <!-- We use SonaType for publishing artefacts. Parent POM makes things easier here. -->
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>9</version>
+    </parent>
 
-  <!-- Project info. -->
-  <groupId>com.github.vsonnier</groupId>
-  <artifactId>hppcrt-parent</artifactId>
-  <version>0.6.9-SNAPSHOT</version>
-  <packaging>pom</packaging>
+    <!-- Project info. -->
+    <groupId>com.github.vsonnier</groupId>
+    <artifactId>hppcrt-parent</artifactId>
+    <version>0.6.9-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
-  <name>HPPC-RT (parent POM)</name>
-  <description>Parent POM for HPPC-RT projects (High Performance Primitive Collections Realtime)</description>
+    <name>HPPC-RT (parent POM)</name>
+    <description>Parent POM for HPPC-RT projects (High Performance Primitive Collections Realtime)</description>
 
-  <prerequisites>
-    <maven>3.2.1</maven>
-  </prerequisites>
-
-  <!-- Extended project info. -->
-  <licenses>
-    <license>
-      <name>The Apache Software License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
-  
-  
-  <issueManagement>
-    <system>GitHub</system>
-    <url>https://github.com/vsonnier/hppc/issues</url>
-  </issueManagement>
-
-  <scm>
-    <url>git@github.com:vsonnier/hppc.git</url>
-    <connection>scm:git:git@github.com:vsonnier/hppc.git</connection>
-    <developerConnection>scm:git:git@github.com:vsonnier/hppc.git</developerConnection>
-  </scm>
-
-  <developers>
-    <developer>
-      <id>vincent.sonnier</id>
-      <name>Vincent Sonnier</name>
-      <email>vsonnier@gmail.com</email>
-      <url>https://github.com/vsonnier/hppc</url>
-    </developer>
-  </developers>
-
-  <!-- Global properties. -->
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.6</maven.compiler.source>
-    <maven.compiler.target>1.6</maven.compiler.target>
-
-    <skip.deployment>false</skip.deployment>
-  </properties>
-
-  <modules>
-    <module>hppcrt-templateprocessor</module>
-    <module>hppcrt-core</module>
-    <module>hppcrt-examples</module>
-    <module>hppcrt-benchmarks</module>
-  </modules>
-
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.12</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.ant</groupId>
-        <artifactId>ant</artifactId>
-        <version>1.9.4</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-assembly-plugin</artifactId>
-          <version>2.5.3</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-clean-plugin</artifactId>
-          <version>2.6.1</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.2</version>
-        </plugin>
+    <!-- Extended project info. -->
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
 
-        <plugin>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <version>2.8.1</version>
-          <configuration>
-            <skip>${deployed}</skip>
-          </configuration>
-        </plugin>
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/vsonnier/hppc/issues</url>
+    </issueManagement>
 
- 		<plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-eclipse-plugin</artifactId>
-          <version>2.9</version>
-          <configuration>
-            <downloadSources>true</downloadSources>
-            <downloadJavadocs>true</downloadJavadocs>
-            <buildOutputDirectory>${project.build.directory}/eclipse</buildOutputDirectory>
-          </configuration>
-        </plugin>
+    <scm>
+        <url>git@github.com:vsonnier/hppc.git</url>
+        <connection>scm:git:git@github.com:vsonnier/hppc.git</connection>
+        <developerConnection>scm:git:git@github.com:vsonnier/hppc.git</developerConnection>
+    </scm>
 
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-gpg-plugin</artifactId>
-          <version>1.6</version>
-        </plugin>
+    <developers>
+        <developer>
+            <id>vincent.sonnier</id>
+            <name>Vincent Sonnier</name>
+            <email>vsonnier@gmail.com</email>
+            <url>https://github.com/vsonnier/hppc</url>
+        </developer>
+    </developers>
 
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-install-plugin</artifactId>
-          <version>2.5.2</version>
-        </plugin>
+    <!-- Global properties. -->
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.6</maven.compiler.source>
+        <maven.compiler.target>1.6</maven.compiler.target>
 
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>2.5</version>
-		  <configuration>
-				<excludes>
-					<exclude>**/KType*</exclude>
-					<exclude>**/*KType*</exclude>
-                     <exclude>**/VType*</exclude>
-					<exclude>**/*VType*</exclude>
-					<exclude>**/Intrinsics*</exclude>
-				</excludes>
-		  </configuration>
-        </plugin>
-        
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-shade-plugin</artifactId>
-            <version>2.3</version>
-        </plugin>
+        <version.junit>4.12</version.junit>
+        <version.ant>1.9.4</version.ant>
 
- 		<plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-javadoc-plugin</artifactId>
-          <version>2.10.1</version>
-          <configuration>
-            <detectJavaApiLink>true</detectJavaApiLink>
-            <detectLinks>false</detectLinks>
-            <detectOfflineLinks>false</detectOfflineLinks>
-            <failOnError>false</failOnError>
-          </configuration>
-        </plugin>
+        <version.randomizedtesting>2.1.11</version.randomizedtesting>
+        <version.maven-assembly-plugin>2.5.3</version.maven-assembly-plugin>
+        <version.maven-clean-plugin>2.6.1</version.maven-clean-plugin>
+        <version.maven-compiler-plugin>3.2</version.maven-compiler-plugin>
+        <version.maven-dependency-plugin>2.10</version.maven-dependency-plugin>
+        <version.maven-eclipse-plugin>2.9</version.maven-eclipse-plugin>
+        <version.maven-deploy-plugin>2.8.2</version.maven-deploy-plugin>
+        <version.maven-install-plugin>2.5.2</version.maven-install-plugin>
+        <version.maven-jar-plugin>2.5</version.maven-jar-plugin>
+        <version.maven-shade-plugin>2.3</version.maven-shade-plugin>  
+        <version.maven-resources-plugin>2.7</version.maven-resources-plugin>
+        <version.maven-surefire-plugin>2.18.1</version.maven-surefire-plugin>
+        <version.maven-surefire-report-plugin>2.18.1</version.maven-surefire-report-plugin>
+        <version.maven-site-plugin>3.4</version.maven-site-plugin>
+        <version.maven-project-info-reports-plugin>2.8</version.maven-project-info-reports-plugin>
+        <version.maven-antrun-plugin>1.8</version.maven-antrun-plugin>
+        <version.maven-enforcer-plugin>1.4</version.maven-enforcer-plugin>
+        <version.maven-javadoc-plugin>2.10.1</version.maven-javadoc-plugin>
+        <version.maven-source-plugin>2.4</version.maven-source-plugin>
+        <version.findbugs-maven-plugin>3.0.0</version.findbugs-maven-plugin> 
+        <version.build-helper-maven-plugin>1.9.1</version.build-helper-maven-plugin>
 
- 		<plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-release-plugin</artifactId>
-          <version>2.5.1</version>
-          <configuration>
-            <useReleaseProfile>true</useReleaseProfile>
-            <releaseProfiles>release</releaseProfiles>
-            <goals>deploy</goals>
-            <autoVersionSubmodules>true</autoVersionSubmodules>
-            <allowTimestampedSnapshots>true</allowTimestampedSnapshots>
-          </configuration>
-        </plugin>        
+        <version.maven.api>3.0.3</version.maven.api>
 
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-resources-plugin</artifactId>
-          <version>2.7</version>
-        </plugin>
-        
-         <plugin>
-            <artifactId>maven-project-info-reports-plugin</artifactId>
-            <version>2.8</version>
-        </plugin>
+        <skip.deployment>false</skip.deployment>
+    </properties>
 
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-site-plugin</artifactId>
-          <version>3.4</version>
-        </plugin>
+    <modules>
+        <module>hppcrt-templateprocessor</module>
+        <module>hppcrt-core</module>
+        <module>hppcrt-benchmarks</module>
+    </modules>
 
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-source-plugin</artifactId>
-          <version>2.4</version>
-		   <configuration>
-				<excludes>
-					<exclude>**/KType*</exclude>
-					<exclude>**/*KType*</exclude>
-                    <exclude>**/VType*</exclude>
-					<exclude>**/*VType*</exclude>
-					<exclude>**/Intrinsics*</exclude>
-				</excludes>
-		  </configuration>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.18.1</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-report-plugin</artifactId>
-          <version>2.18.1</version>
-        </plugin>
-        
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-dependency-plugin</artifactId>
-          <version>2.10</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>findbugs-maven-plugin</artifactId>
-          <version>3.0.0</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>build-helper-maven-plugin</artifactId>
-          <version>1.9.1</version>
-        </plugin>
-
-        <plugin>
-          <groupId>com.carrotsearch.randomizedtesting</groupId>
-          <artifactId>junit4-maven-plugin</artifactId>
-          <version>2.1.11</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-antrun-plugin</artifactId>
-          <version>1.8</version>
-          <inherited>true</inherited>
-
-          <dependencies>
+    <dependencyManagement>
+        <dependencies>
             <dependency>
-              <groupId>org.apache.ant</groupId>
-              <artifactId>ant-nodeps</artifactId>
-              <version>1.8.1</version>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${version.junit}</version>
             </dependency>
+
             <dependency>
-              <groupId>org.apache.ant</groupId>
-              <artifactId>ant-trax</artifactId>
-              <version>1.8.0</version>
+                <groupId>org.apache.ant</groupId>
+                <artifactId>ant</artifactId>
+                <version>${version.ant}</version>
             </dependency>
-            <dependency>
-              <groupId>org.apache.ant</groupId>
-              <artifactId>ant-junit</artifactId>
-              <version>1.9.4</version>
-            </dependency>
-            <dependency>
-              <groupId>sun.jdk</groupId>
-              <artifactId>tools</artifactId>
-              <version>1.6.0</version>
-              <scope>system</scope>
-              <systemPath>${java.home}/../lib/tools.jar</systemPath>
-            </dependency>
-          </dependencies>
-        </plugin>
-      </plugins>
-    </pluginManagement>
+        </dependencies>
+    </dependencyManagement>
 
-    <plugins>
-      <plugin>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <configuration>
-          <skip>${skip.deployment}</skip>
-        </configuration>
-      </plugin>
-      
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>enforce-maven3</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <rules>
-                <requireMavenVersion>
-                  <version>[3.2.1,)</version>
-                  <message>Maven 3.2.1 or later is required.</message>
-                </requireMavenVersion>
-              </rules>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>      
-    </plugins>
-  </build>
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>${version.maven-assembly-plugin}</version>
+                </plugin>
 
-  <profiles>
-    <profile>
-      <id>eclipse</id>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>${version.maven-clean-plugin}</version>
+                </plugin>
 
-      <build>
-        <defaultGoal>eclipse:eclipse</defaultGoal>
-      </build>
-    </profile>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${version.maven-compiler-plugin}</version>
+                    <configuration>
+                        <source>${maven.compiler.source}</source>
+                        <target>${maven.compiler.target}</target>
+                    </configuration>
+                </plugin>
 
-    <profile>
-      <id>sign</id>
-      <build>
+                <plugin>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>${version.maven-deploy-plugin}</version>
+                    <configuration>
+                        <skip>${deployed}</skip>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-eclipse-plugin</artifactId>
+                    <version>${version.maven-eclipse-plugin}</version>
+                    <configuration>
+                        <downloadSources>true</downloadSources>
+                        <downloadJavadocs>true</downloadJavadocs>
+                        <buildOutputDirectory>${project.build.directory}/eclipse</buildOutputDirectory>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>${version.maven-install-plugin}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${version.maven-jar-plugin}</version>
+                    <configuration>
+                        <excludes>
+                            <exclude>**/KType*</exclude>
+                            <exclude>**/*KType*</exclude>
+                            <exclude>**/VType*</exclude>
+                            <exclude>**/*VType*</exclude>
+                            <exclude>**/Intrinsics*</exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>${version.maven-shade-plugin}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>${version.maven-javadoc-plugin}</version>
+                    <configuration>
+                        <detectJavaApiLink>true</detectJavaApiLink>
+                        <detectLinks>false</detectLinks>
+                        <detectOfflineLinks>false</detectOfflineLinks>
+                        <failOnError>false</failOnError>
+                    </configuration>
+                </plugin> 
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>${version.maven-resources-plugin}</version>
+                </plugin>
+
+                <plugin>
+                    <artifactId>maven-project-info-reports-plugin</artifactId>
+                    <version>${version.maven-project-info-reports-plugin}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>${version.maven-site-plugin}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>${version.maven-source-plugin}</version>
+                    <configuration>
+                        <excludes>
+                            <exclude>**/KType*</exclude>
+                            <exclude>**/*KType*</exclude>
+                            <exclude>**/VType*</exclude>
+                            <exclude>**/*VType*</exclude>
+                            <exclude>**/Intrinsics*</exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${version.maven-surefire-plugin}</version>
+                    <executions>
+                        <execution>
+                            <id>default-test</id>
+                            <phase>none</phase>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-report-plugin</artifactId>
+                    <version>${version.maven-surefire-report-plugin}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>${version.maven-dependency-plugin}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>findbugs-maven-plugin</artifactId>
+                    <version>${version.findbugs-maven-plugin}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>${version.build-helper-maven-plugin}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>com.carrotsearch.randomizedtesting</groupId>
+                    <artifactId>junit4-maven-plugin</artifactId>
+                    <version>${version.randomizedtesting}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>${version.maven-antrun-plugin}</version>
+                </plugin>   
+            </plugins>
+        </pluginManagement>
+
         <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <configuration>
-              <excludes>
-                <exclude>**/*.gz</exclude>
-                <exclude>**/*.zip</exclude>
-              </excludes>
-            </configuration>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>${skip.deployment}</skip>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${version.maven-enforcer-plugin}</version>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <id>enforce-environment</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireJavaVersion>
+                                    <version>1.6.0</version>
+                                </requireJavaVersion>
+                                <requireMavenVersion>
+                                    <version>3.2.3</version>
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin> 
         </plugins>
-      </build>
-    </profile>
-  </profiles>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>eclipse</id>
+            <build>
+                <defaultGoal>eclipse:eclipse</defaultGoal>
+            </build>
+        </profile>
+    </profiles>
 </project>
 
