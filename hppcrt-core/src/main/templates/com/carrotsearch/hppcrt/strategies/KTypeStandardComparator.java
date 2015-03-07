@@ -10,7 +10,6 @@ import com.carrotsearch.hppcrt.Intrinsics;
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeStandardComparator<KType> implements KTypeComparator<KType>
 {
-
     public KTypeStandardComparator() {
         // nothing
     }
@@ -35,6 +34,6 @@ public final class KTypeStandardComparator<KType> implements KTypeComparator<KTy
     @Override
     public int hashCode() {
 
-        return System.identityHashCode(KTypeStandardComparator.class);
+        return KTypeStandardComparator.class.hashCode();
     }
 }

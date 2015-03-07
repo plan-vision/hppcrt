@@ -1311,10 +1311,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         return newSet;
     }
 
-    /**
-     * Robin-Hood / template version
-     * (no need to inline)
-     */
+   
     private boolean is_allocated(final int slot, final KType[] keys) {
 
         return keys[slot] != Intrinsics.defaultKTypeValue();

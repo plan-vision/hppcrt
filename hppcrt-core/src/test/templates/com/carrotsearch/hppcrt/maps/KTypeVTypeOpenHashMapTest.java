@@ -456,7 +456,6 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         //but we know that since key7 throws an exception, key7 is still present in the set.
 
         Assert.assertTrue(this.map.containsKey(this.key7));
-        checkConsistency();
     }
 
     /* */
@@ -2413,10 +2412,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         return newMap;
     }
 
-    /**
-     * Robin-Hood / template version
-     * (No need to inline for tests)
-     */
+   
     private boolean is_allocated(final int slot, final KType[] keys) {
 
         return keys[slot] != Intrinsics.defaultKTypeValue();
