@@ -28,4 +28,5 @@ mvn source:jar
 # Try to resolve all dependencies to be able to work off the Net
 mvn dependency:go-offline
 
-
+# Package JAR files, no tests.
+mvn clean package source:jar -Pquick
