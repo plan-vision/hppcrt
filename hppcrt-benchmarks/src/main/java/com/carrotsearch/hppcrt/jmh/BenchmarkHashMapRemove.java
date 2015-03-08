@@ -33,11 +33,11 @@ public class BenchmarkHashMapRemove extends BenchmarkHashMapBase
         super();
     }
 
-    //We cannot Setup Only Once here, because we must re-fill the map
-    //at each iteration with a heavy benchPutAll(), so better exclude it from measurement.
-    @Setup(Level.Invocation)
-    public void setUp() throws Exception
+    // This Setup part is only done once
+    @Setup
+    public void initialSetUp() throws Exception
     {
+        System.out.println(">>>>>>>>>>> initialSetUp() CALLED");
         setUpCommon();
 
         //Generate a series of containsKeys // B) Process by get/contains
@@ -65,7 +65,14 @@ public class BenchmarkHashMapRemove extends BenchmarkHashMapBase
 
         //call setup of impl
         this.impl.setup(this.pushedKeys, this.hash_quality, this.removedKeys, this.removedKeys);
+    }
 
+    //Per-invocation setup here, because we must re-fill the map
+    //at each iteration with a heavy benchPutAll(), so better exclude it from measurement.
+    @Setup(Level.Invocation)
+    public void setUp() throws Exception
+    {
+        System.out.println(">>>>>>>>>>> setUp() Invocation CALLED");
         //Fill the map, using the putAll
         this.impl.benchPutAll();
     }
