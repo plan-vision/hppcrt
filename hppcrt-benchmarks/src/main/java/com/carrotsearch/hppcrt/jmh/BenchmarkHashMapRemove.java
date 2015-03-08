@@ -37,7 +37,6 @@ public class BenchmarkHashMapRemove extends BenchmarkHashMapBase
     @Setup
     public void initialSetUp() throws Exception
     {
-        System.out.println(">>>>>>>>>>> initialSetUp() CALLED");
         setUpCommon();
 
         //Generate a series of containsKeys // B) Process by get/contains
@@ -72,7 +71,7 @@ public class BenchmarkHashMapRemove extends BenchmarkHashMapBase
     @Setup(Level.Invocation)
     public void setUp() throws Exception
     {
-        System.out.println(">>>>>>>>>>> setUp() Invocation CALLED");
+        this.impl.clear();
         //Fill the map, using the putAll
         this.impl.benchPutAll();
     }

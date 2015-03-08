@@ -20,9 +20,8 @@ import com.carrotsearch.hppcrt.hash.*;
  * the capacity exceeds the given load factor, the buffer size is doubled.
  * </p>
  * 
-#if ($TemplateOptions.KTypeGeneric)
  * <p>This implementation supports <code>null</code> keys.</p>
-#end
+ * 
 #if ($TemplateOptions.VTypeGeneric)
  * <p>This implementation supports <code>null</code> values.</p>
 #end
@@ -35,9 +34,6 @@ import com.carrotsearch.hppcrt.hash.*;
 public final class KTypeVTypeOpenIdentityHashMap<KType, VType>
         extends KTypeVTypeOpenCustomHashMap<KType, VType>
 {
-    @SuppressWarnings("rawtypes")
-    private static final KTypeHashingStrategy IDENTITY_HASH_STRATEGY = new KTypeIdentityHash();
-
     /**
      * Creates a hash map with the default capacity of {@value #DEFAULT_CAPACITY},
      * load factor of {@value #DEFAULT_LOAD_FACTOR}.
@@ -72,10 +68,9 @@ public final class KTypeVTypeOpenIdentityHashMap<KType, VType>
      * 
      * 
      */
-    @SuppressWarnings("unchecked")
     public KTypeVTypeOpenIdentityHashMap(final int initialCapacity, final float loadFactor)
     {
-        super(initialCapacity, loadFactor, KTypeVTypeOpenIdentityHashMap.IDENTITY_HASH_STRATEGY);
+        super(initialCapacity, loadFactor, new KTypeIdentityHash<KType>());
     }
 
     /**

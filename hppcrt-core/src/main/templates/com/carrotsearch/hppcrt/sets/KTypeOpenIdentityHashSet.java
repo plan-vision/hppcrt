@@ -29,11 +29,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeOpenIdentityHashSet<KType>
-extends KTypeOpenCustomHashSet<KType>
+        extends KTypeOpenCustomHashSet<KType>
 {
-    @SuppressWarnings("rawtypes")
-    private static final KTypeHashingStrategy IDENTITY_HASH_STRATEGY = new KTypeIdentityHash();
-
     /**
      * Creates a hash set with the default capacity of {@value #DEFAULT_CAPACITY},
      * load factor of {@value #DEFAULT_LOAD_FACTOR}.
@@ -55,10 +52,9 @@ extends KTypeOpenCustomHashSet<KType>
     /**
      * Creates a hash set with the given capacity and load factor.
      */
-    @SuppressWarnings("unchecked")
     public KTypeOpenIdentityHashSet(final int initialCapacity, final float loadFactor)
     {
-        super(initialCapacity, loadFactor, KTypeOpenIdentityHashSet.IDENTITY_HASH_STRATEGY);
+        super(initialCapacity, loadFactor, new KTypeIdentityHash<KType>());
     }
 
     /**
