@@ -26,14 +26,6 @@ import com.carrotsearch.hppcrt.hash.*;
  * @author This code is inspired by the collaboration and implementation in the <a
  *         href="http://fastutil.dsi.unimi.it/">fastutil</a> project.
  * 
-#if ($RH)
- *   <p> Robin-Hood hashing algorithm is also used to minimize variance
- *  in insertion and search-related operations, for an all-around smother operation at the cost
- *  of smaller peak performance:</p>
- *  <p> - Pedro Celis (1986) for the original Robin-Hood hashing paper, </p>
- *  <p> - <a href="cliff@leaninto.it">MoonPolySoft/Cliff Moon</a> for the initial Robin-hood on HPPC implementation,</p>
- *  <p> - <a href="vsonnier@gmail.com" >Vincent Sonnier</a> for the present implementation using cached hashes.</p>
-#end
  *
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/

@@ -74,7 +74,6 @@
         <version.maven-project-info-reports-plugin>2.8</version.maven-project-info-reports-plugin>
         <version.maven-antrun-plugin>1.8</version.maven-antrun-plugin>
         <version.maven-enforcer-plugin>1.4</version.maven-enforcer-plugin>
-        <version.maven-javadoc-plugin>2.10.1</version.maven-javadoc-plugin>
         <version.maven-source-plugin>2.4</version.maven-source-plugin>
         <version.findbugs-maven-plugin>3.0.0</version.findbugs-maven-plugin> 
         <version.build-helper-maven-plugin>1.9.1</version.build-helper-maven-plugin>
@@ -175,18 +174,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
                     <version>${version.maven-shade-plugin}</version>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>${version.maven-javadoc-plugin}</version>
-                    <configuration>
-                        <detectJavaApiLink>true</detectJavaApiLink>
-                        <detectLinks>false</detectLinks>
-                        <detectOfflineLinks>false</detectOfflineLinks>
-                        <failOnError>false</failOnError>
-                    </configuration>
                 </plugin> 
 
                 <plugin>

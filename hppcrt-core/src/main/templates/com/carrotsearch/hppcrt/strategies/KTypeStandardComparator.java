@@ -35,6 +35,6 @@ public final class KTypeStandardComparator<KType> implements KTypeComparator<KTy
     @Override
     public int hashCode() {
 
-        return System.identityHashCode(KTypeStandardComparator.class);
+        return KTypeStandardComparator.class.hashCode();
     }
 }

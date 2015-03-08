@@ -2080,10 +2080,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     @Override
     public KTypeVTypeOpenCustomHashMap<KType, VType> clone()
     {
-        /* #if ($TemplateOptions.AnyGeneric) */
-        @SuppressWarnings("unchecked")
-        final/* #end */
-        KTypeVTypeOpenCustomHashMap<KType, VType> cloned =
+        final KTypeVTypeOpenCustomHashMap<KType, VType> cloned =
         new KTypeVTypeOpenCustomHashMap<KType, VType>(this.size(), this.loadFactor, this.hashStrategy);
 
         cloned.putAll(this);

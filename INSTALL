@@ -29,3 +29,5 @@ mvn source:jar
 mvn dependency:go-offline
 
 
+# Package JAR files, no tests.
+mvn clean package source:jar -Pquick

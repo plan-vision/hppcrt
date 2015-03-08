@@ -40,6 +40,6 @@ public final class KTypeIdentityHash<KType> implements KTypeHashingStrategy<KTyp
     @Override
     public int hashCode() {
 
-        return System.identityHashCode(KTypeIdentityHash.class);
+        return KTypeIdentityHash.class.hashCode();
     }
 }
