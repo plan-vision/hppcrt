@@ -57,7 +57,7 @@ public class BenchmarkHashCollisions
 
     //Each @Benchmark iteration execution, we recreate everything
     //to be able to see reallocations effects.
-    @Setup(Level.Iteration)
+    @Setup(Level.Invocation)
     public void setUp() throws Exception
     {
         //Instead of this.size, fill up
