@@ -32,7 +32,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeVTypeOpenIdentityHashMap<KType, VType>
-        extends KTypeVTypeOpenCustomHashMap<KType, VType>
+extends KTypeVTypeOpenCustomHashMap<KType, VType>
 {
     /**
      * Creates a hash map with the default capacity of {@value #DEFAULT_CAPACITY},
@@ -140,5 +140,42 @@ public final class KTypeVTypeOpenIdentityHashMap<KType, VType>
     public static <KType, VType> KTypeVTypeOpenIdentityHashMap<KType, VType> newInstance(final int initialCapacity, final float loadFactor)
     {
         return new KTypeVTypeOpenIdentityHashMap<KType, VType>(initialCapacity, loadFactor);
+    }
+
+    /**
+     * Inherited from KTypeVTypeOpenCustomHashMap, DO NOT USE, throws RuntimeException
+     * @throws RuntimeException
+     */
+    public static final <KType, VType> KTypeVTypeOpenIdentityHashMap<KType, VType> newInstance(final KTypeHashingStrategy<? super KType> hashStrategy)
+    {
+        throw new RuntimeException("Identity hash newInstance(strategy) usage logical error");
+    }
+
+    /**
+     * Inherited from KTypeVTypeOpenCustomHashMap, DO NOT USE, throws RuntimeException
+     * @throws RuntimeException
+     */
+    public static final <KType, VType> KTypeVTypeOpenIdentityHashMap<KType, VType> newInstance(final int initialCapacity, final float loadFactor, final KTypeHashingStrategy<? super KType> hashStrategy)
+    {
+        throw new RuntimeException("Identity hash newInstance(capacity, loadfactor, strategy) usage logical error");
+    }
+
+    /**
+     * Inherited from KTypeVTypeOpenCustomHashMap, DO NOT USE, throws RuntimeException
+     * @throws RuntimeException
+     */
+    public static final <KType, VType> KTypeVTypeOpenIdentityHashMap<KType, VType> from(final KType[] keys, final VType[] values, final KTypeHashingStrategy<? super KType> hashStrategy)
+    {
+        throw new RuntimeException("Identity hash from(keys,values,strategy) usage logical error");
+    }
+
+    /**
+     * Inherited from KTypeVTypeOpenCustomHashMap, DO NOT USE, throws RuntimeException
+     * @throws RuntimeException
+     */
+    public static final <KType, VType> KTypeVTypeOpenIdentityHashMap<KType, VType> from(final KTypeVTypeAssociativeContainer<KType, VType> container,
+            final KTypeHashingStrategy<? super KType> hashStrategy)
+    {
+        throw new RuntimeException("Identity hash from(KTypeVTypeAssociativeContainer, strategy) usage logical error");
     }
 }

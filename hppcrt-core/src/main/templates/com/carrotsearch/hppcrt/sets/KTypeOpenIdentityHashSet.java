@@ -114,4 +114,40 @@ public final class KTypeOpenIdentityHashSet<KType>
     {
         return new KTypeOpenIdentityHashSet<KType>(initialCapacity, loadFactor);
     }
+
+    /**
+     * Inherited from KTypeOpenCustomHashSet, DO NOT USE, throws RuntimeException
+     * @throws RuntimeException
+     */
+    public static <KType> KTypeOpenIdentityHashSet<KType> from(final KTypeHashingStrategy<? super KType> hashStrategy, final KType... elements)
+    {
+        throw new RuntimeException("Identity hash from(strategy, ...elements) usage logical error");
+    }
+
+    /**
+     * Inherited from KTypeOpenCustomHashSet, DO NOT USE, throws RuntimeException
+     * @throws RuntimeException
+     */
+    public static final <KType> KTypeOpenIdentityHashSet<KType> from(final KTypeContainer<KType> container, final KTypeHashingStrategy<? super KType> hashStrategy)
+    {
+        throw new RuntimeException("Identity hash from(KTypeContainer, strategy) usage logical error");
+    }
+
+    /**
+     * Inherited from KTypeOpenCustomHashSet, DO NOT USE, throws RuntimeException
+     * @throws RuntimeException
+     */
+    public static final <KType> KTypeOpenIdentityHashSet<KType> newInstance(final KTypeHashingStrategy<? super KType> hashStrategy)
+    {
+        throw new RuntimeException("Identity hash newInstance(strategy) usage logical error");
+    }
+
+    /**
+     * Inherited from KTypeOpenCustomHashSet, DO NOT USE, throws RuntimeException
+     * @throws RuntimeException
+     */
+    public static final <KType> KTypeOpenIdentityHashSet<KType> newInstanceWithCapacity(final int initialCapacity, final float loadFactor, final KTypeHashingStrategy<? super KType> hashStrategy)
+    {
+        throw new RuntimeException("Identity hash newInstanceWithCapacity(strategy) usage logical error");
+    }
 }
