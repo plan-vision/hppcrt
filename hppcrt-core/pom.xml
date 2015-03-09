@@ -55,7 +55,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-
                 <executions>
                     <execution>
                         <id>generate.sources</id>
@@ -81,15 +80,15 @@
                         <configuration>
                             <target>
                                 <taskdef name="retrotranslator"
-                  classname="net.sf.retrotranslator.transformer.RetrotranslatorTask"
-                  classpathref="maven.plugin.classpath" />
+                                          classname="net.sf.retrotranslator.transformer.RetrotranslatorTask"
+                                          classpathref="maven.plugin.classpath" />
 
                                 <retrotranslator verbose="true" verify="false"
-                  failonwarning="true" target="1.5" embed="com.carrotsearch.hppcrt.backport"
-                  destjar="${project.build.directory}/${project.build.finalName}-jdk15.jar">
+                                                  failonwarning="true" target="1.5" embed="com.carrotsearch.hppcrt.backport"
+                                                  destjar="${project.build.directory}/${project.build.finalName}-jdk15.jar">
 
                                     <jarfileset dir="${project.build.directory}"
-                    includes="${project.build.finalName}.jar" />
+                                                includes="${project.build.finalName}.jar" />
 
                                     <classpath>
                                         <pathelement location="${basedir}/src/main/retrotranslator" />
@@ -101,9 +100,8 @@
                                     </classpath>
                                 </retrotranslator>
 
-                                <attachartifact
-                  file="${project.build.directory}/${project.build.finalName}-jdk15.jar"
-                  classifier="jdk15" type="jar" />
+                                <attachartifact file="${project.build.directory}/${project.build.finalName}-jdk15.jar"
+                                                 classifier="jdk15" type="jar" />
                             </target>
                         </configuration>
                         <goals>
@@ -198,18 +196,16 @@
 
                             <!-- Attach a simple listener. -->
                             <listeners>
-                                <report-text
-                    showThrowable="false" 
-                    showStackTraces="false" 
-                    showOutput="onError"
+                                <report-text  showThrowable="false" 
+                                        showStackTraces="false" 
+                                        showOutput="onError"
 
-                    showStatusOk="false"
-                    showStatusError="false"
-                    showStatusFailure="false"
-                    showStatusIgnored="false"
+                                        showStatusOk="false"
+                                        showStatusError="false"
+                                        showStatusFailure="false"
+                                        showStatusIgnored="false"
 
-                    showSuiteSummary="true"
-                />
+                                        showSuiteSummary="true" />
 
                                 <report-json file="${project.build.directory}/surefire-reports/test-results.html" />
                                 <report-ant-xml dir="${project.build.directory}/surefire-reports/" mavenExtensions="true" />

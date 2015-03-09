@@ -9,7 +9,6 @@ import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.runner.RunnerException;
 
 import com.carrotsearch.hppcrt.BenchmarkSuiteRunner;
@@ -18,6 +17,7 @@ import com.carrotsearch.hppcrt.XorShiftRandom;
 import com.carrotsearch.hppcrt.maps.IntIntOpenHashMap;
 import com.carrotsearch.hppcrt.procedures.IntProcedure;
 import com.carrotsearch.hppcrt.sets.IntOpenHashSet;
+import com.carrotsearch.hppcrt.sets.ObjectOpenHashSet;
 
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Thread)
@@ -25,9 +25,11 @@ public class BenchmarkHashCollisions
 {
     /* Prepare some test data */
     public IntOpenHashSet testSet;
+    public ObjectOpenHashSet<Integer> testSetInteger;
     public IntIntOpenHashMap testMap;
 
     public IntOpenHashSet currentUnderTestSet;
+    public ObjectOpenHashSet<Integer> currentUnderTestSetInteger;
     public IntIntOpenHashMap currentUnderTestMap;
 
     public IntOpenHashSet currentUnderTestSet2;
@@ -55,16 +57,13 @@ public class BenchmarkHashCollisions
         // nothing
     }
 
-    //Each @Benchmark iteration execution, we recreate everything
-    //to be able to see reallocations effects.
-    @Setup(Level.Invocation)
-    public void setUp() throws Exception
+    //This part is only done once
+    @Setup
+    public void setUpCommon() throws Exception
     {
-        //Instead of this.size, fill up
-        //prepare testSet to be filled up to their specified load factor.
-
         this.testSet = new IntOpenHashSet(this.size);
         this.testMap = new IntIntOpenHashMap(this.size);
+        this.testSetInteger = new ObjectOpenHashSet<Integer>(this.size);
 
         final DistributionGenerator gene = new DistributionGenerator(-this.size, 3 * this.size, new XorShiftRandom(87955214455L));
 
@@ -92,24 +91,42 @@ public class BenchmarkHashCollisions
             }
 
             this.testSet.add(nextValue);
+            this.testSetInteger.add(new Integer(nextValue));
             this.testMap.put(nextValue, 0);
             count++;
         }
 
-        //Preallocate of not the tested hash containers
+        //In PREALLOCATED we only need to create once, and clear the containers under test before each test.
+        if (this.allocation == Allocation.PREALLOCATED) {
+
+            this.currentUnderTestSet = IntOpenHashSet.newInstanceWithCapacity(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
+            this.currentUnderTestSetInteger = ObjectOpenHashSet.<Integer> newInstanceWithCapacity(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
+            this.currentUnderTestSet2 = IntOpenHashSet.newInstanceWithCapacity(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
+            this.currentUnderTestMap = IntIntOpenHashMap.newInstance(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
+        }
+
+        System.out.println("Initialized to test size = " + this.size);
+    }
+
+    //Each @Benchmark iteration execution, we recreate everything
+    //to be able to see reallocations effects.
+    @Setup(Level.Invocation)
+    public void setUpIncocation() throws Exception
+    {
+        //In DEFAULT_SIZE we really have to recreate all containers under test
+        //each time, to be able to see reallocation effects.
+        
         if (this.allocation == Allocation.DEFAULT_SIZE) {
 
             this.currentUnderTestSet = IntOpenHashSet.newInstance();
+            this.currentUnderTestSetInteger = ObjectOpenHashSet.<Integer> newInstance();
             this.currentUnderTestSet2 = IntOpenHashSet.newInstance();
             this.currentUnderTestMap = IntIntOpenHashMap.newInstance();
 
         }
-        else if (this.allocation == Allocation.PREALLOCATED) {
-
-            this.currentUnderTestSet = IntOpenHashSet.newInstanceWithCapacity(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
-            this.currentUnderTestSet2 = IntOpenHashSet.newInstanceWithCapacity(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
-            this.currentUnderTestMap = IntIntOpenHashMap.newInstance(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
-        }
+       
+        // PREALLOCATED is created once and simply cleared. Since the clear
+        //operation is very fast, we do it in each @Benchmark.
     }
 
     //Tests
@@ -121,17 +138,19 @@ public class BenchmarkHashCollisions
     {
         int count = 0;
 
+        this.currentUnderTestSet.clear();
         count += this.currentUnderTestSet.addAll(this.testSet);
 
         return count;
     }
 
     @Benchmark
-    public int timeMap_PutAll()
+    public int timeSet_AddAllObject()
     {
         int count = 0;
 
-        count += this.currentUnderTestMap.putAll(this.testMap);
+        this.currentUnderTestSetInteger.clear();
+        count += this.currentUnderTestSetInteger.addAll(this.testSetInteger);
 
         return count;
     }
@@ -140,8 +159,20 @@ public class BenchmarkHashCollisions
     public int timeSet_AddAll_Successive()
     {
         int count = 0;
+        this.currentUnderTestSet.clear();
+        this.currentUnderTestSet2.clear();
         count += this.currentUnderTestSet.addAll(this.testSet);
         count += this.currentUnderTestSet2.addAll(this.currentUnderTestSet);
+
+        return count;
+    }
+
+    @Benchmark
+    public int timeMap_PutAll()
+    {
+        int count = 0;
+        this.currentUnderTestMap.clear();
+        count += this.currentUnderTestMap.putAll(this.testMap);
 
         return count;
     }
@@ -150,6 +181,7 @@ public class BenchmarkHashCollisions
     public int timeSet_Direct_iteration_add_all()
     {
         int count = 0;
+        this.currentUnderTestSet.clear();
 
         final int[] testSetKeys = this.testSet.keys;
 
@@ -170,6 +202,7 @@ public class BenchmarkHashCollisions
     public int timeSet_Direct_iteration_reversed_add_all()
     {
         int count = 0;
+        this.currentUnderTestSet.clear();
 
         final int[] testSetKeys = this.testSet.keys;
 
@@ -189,6 +222,8 @@ public class BenchmarkHashCollisions
     @Benchmark
     public int timeSet_ForEach_add_all()
     {
+        this.currentUnderTestSet.clear();
+
         final IntProcedure addAllProcedure = new IntProcedure() {
 
             @Override
