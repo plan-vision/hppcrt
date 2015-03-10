@@ -781,7 +781,6 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         int dist = 0;
         /*! #end !*/
 
-
         while (is_allocated(slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/)
         {
@@ -1052,15 +1051,26 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      * Clone this object.
      * #if ($TemplateOptions.KTypeGeneric)
      * The returned clone will use the same HashingStrategy strategy.
-     * It also realizes a trim-to- this.size() in the process.
      * #end
      */
     @Override
     public KTypeOpenCustomHashSet<KType> clone()
     {
-        final KTypeOpenCustomHashSet<KType> cloned = new KTypeOpenCustomHashSet<KType>(this.size(), this.loadFactor, this.hashStrategy);
+        //This is tricky: first create a skeleton small set
+        final KTypeOpenCustomHashSet<KType> cloned = new KTypeOpenCustomHashSet<KType>(KTypeOpenCustomHashSet.DEFAULT_CAPACITY, this.loadFactor, this.hashStrategy);
 
-        cloned.addAll(this);
+        //We must clone then all source buffers and override the destination, at the expense of some garbage
+        cloned.keys = this.keys.clone();
+
+        /*! #if ($RH) !*/
+        cloned.hash_cache = this.hash_cache.clone();
+        /*! #end !*/
+
+        cloned.resizeAt = this.resizeAt;
+        cloned.assigned = this.assigned;
+        cloned.lastSlot = -1;
+
+        cloned.setPerturbation(this.getPerturbation());
 
         cloned.allocatedDefaultKey = this.allocatedDefaultKey;
         cloned.defaultValue = this.defaultValue;
@@ -1183,6 +1193,24 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         return this.hashStrategy;
     }
 
+    /**
+     * Return the current perturbation value used to prevent collision avalanches
+     * @return
+     */
+    protected int getPerturbation() {
+
+        return this.perturbation;
+    }
+
+    /**
+     * Set the current perturbation value used to prevent collision avalanches
+     * @return
+     */
+    protected void setPerturbation(final int value) {
+
+        this.perturbation = value;
+    }
+
     //Test for existence in template
     /*! #if ($TemplateOptions.inlineKType("is_allocated",
     "(slot, keys)",
@@ -1221,6 +1249,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         return slot - rh;
     }
+
 /*! #end !*/
 
     /*! #if ($TemplateOptions.inlineKType("REHASH",

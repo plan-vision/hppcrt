@@ -29,7 +29,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeOpenIdentityHashSet<KType>
-        extends KTypeOpenCustomHashSet<KType>
+extends KTypeOpenCustomHashSet<KType>
 {
     /**
      * Creates a hash set with the default capacity of {@value #DEFAULT_CAPACITY},
@@ -69,9 +69,20 @@ public final class KTypeOpenIdentityHashSet<KType>
     @Override
     public KTypeOpenIdentityHashSet<KType> clone() {
 
-        final KTypeOpenIdentityHashSet<KType> cloned = new KTypeOpenIdentityHashSet<KType>(size(), this.loadFactor);
+        //This is tricky: first create a skeleton small set
+        final KTypeOpenIdentityHashSet<KType> cloned = new KTypeOpenIdentityHashSet<KType>(KTypeOpenCustomHashSet.DEFAULT_CAPACITY, this.loadFactor);
 
-        cloned.addAll(this);
+        //We must clone then all source buffers and override the destination, at the expense of some garbage
+        cloned.keys = this.keys.clone();
+
+        /*! #if ($RH) !*/
+        cloned.hash_cache = this.hash_cache.clone();
+        /*! #end !*/
+
+        cloned.resizeAt = this.resizeAt;
+        cloned.assigned = this.assigned;
+        cloned.lastSlot = -1;
+        cloned.setPerturbation(getPerturbation());
 
         cloned.allocatedDefaultKey = this.allocatedDefaultKey;
         cloned.defaultValue = this.defaultValue;

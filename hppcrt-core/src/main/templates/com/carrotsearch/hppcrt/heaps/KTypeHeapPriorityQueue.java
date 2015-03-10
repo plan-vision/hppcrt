@@ -612,9 +612,11 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
         //real constructor call
         final KTypeHeapPriorityQueue<KType> cloned = new KTypeHeapPriorityQueue<KType>(this.comparator, this.size(), this.resizer);
 
-        cloned.addAll(this);
+        //copy contents directly, 1-based index
+        System.arraycopy(this.buffer, 0, cloned.buffer, 0, this.size() + 1);
 
         cloned.defaultValue = this.defaultValue;
+        cloned.elementsCount = this.elementsCount;
 
         return cloned;
     }
@@ -735,8 +737,8 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
             /*! #else
-                                                                                            public KTypeComparator<? super KType>
-                                                                                            #end !*/
+                                                                                                    public KTypeComparator<? super KType>
+                                                                                                    #end !*/
             comparator() {
 
         return this.comparator;

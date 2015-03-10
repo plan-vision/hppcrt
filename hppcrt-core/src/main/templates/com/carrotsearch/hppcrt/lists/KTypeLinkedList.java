@@ -660,12 +660,13 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     @Override
     public KTypeLinkedList<KType> clone()
     {
-        /* #if ($TemplateOptions.KTypeGeneric) */
-        @SuppressWarnings("unchecked")
-        /* #end */
         final KTypeLinkedList<KType> cloned = new KTypeLinkedList<KType>(this.size(), this.resizer);
 
-        cloned.addAll(this);
+        //copy contents directly: buffer is compact, but the first 2 elements are place holders
+        System.arraycopy(this.buffer, 0, cloned.buffer, 0, this.size() + 2);
+        System.arraycopy(this.beforeAfterPointers, 0, cloned.beforeAfterPointers, 0, this.size() + 2);
+
+        cloned.elementsCount = this.elementsCount;
 
         cloned.defaultValue = this.defaultValue;
 

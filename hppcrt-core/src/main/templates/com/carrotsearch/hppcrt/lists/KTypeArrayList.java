@@ -574,14 +574,13 @@ public class KTypeArrayList<KType>
     @Override
     public KTypeArrayList<KType> clone()
     {
-        /* #if ($TemplateOptions.KTypeGeneric) */
-        @SuppressWarnings("unchecked")
-        /* #end */
         final KTypeArrayList<KType> cloned = new KTypeArrayList<KType>(this.size(), this.resizer);
 
+        //copy contents directly
+        System.arraycopy(this.buffer, 0, cloned.buffer, 0, this.size());
+
+        cloned.elementsCount = this.elementsCount;
         cloned.defaultValue = this.defaultValue;
-        //add all in order, by construction.
-        cloned.addAll(this);
 
         return cloned;
     }

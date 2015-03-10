@@ -485,10 +485,11 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
     {
         final KTypeStack<KType> cloned = new KTypeStack<KType>(size(), this.resizer);
 
-        cloned.defaultValue = this.defaultValue;
+        //copy contents directly
+        System.arraycopy(this.buffer, 0, cloned.buffer, 0, size());
 
-        //in order by construction
-        cloned.addAll(this);
+        cloned.elementsCount = this.elementsCount;
+        cloned.defaultValue = this.defaultValue;
 
         return cloned;
     }

@@ -1040,15 +1040,25 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      * Clone this object.
      * #if ($TemplateOptions.KTypeGeneric)
      * The returned clone will use the same HashingStrategy strategy.
-     * It also realizes a trim-to- this.size() in the process.
      * #end
      */
     @Override
     public KTypeOpenHashSet<KType> clone()
     {
-        final KTypeOpenHashSet<KType> cloned = new KTypeOpenHashSet<KType>(this.size(), this.loadFactor);
+        //This is tricky: first create a skeleton small set
+        final KTypeOpenHashSet<KType> cloned = new KTypeOpenHashSet<KType>(KTypeOpenHashSet.DEFAULT_CAPACITY, this.loadFactor);
 
-        cloned.addAll(this);
+        //We must clone then all source buffers and override the destination, at the expense of some garbage
+        cloned.keys = this.keys.clone();
+
+        /*! #if ($RH) !*/
+        cloned.hash_cache = this.hash_cache.clone();
+        /*! #end !*/
+
+        cloned.resizeAt = this.resizeAt;
+        cloned.assigned = this.assigned;
+        cloned.lastSlot = -1;
+        cloned.perturbation = this.perturbation;
 
         cloned.allocatedDefaultKey = this.allocatedDefaultKey;
         cloned.defaultValue = this.defaultValue;

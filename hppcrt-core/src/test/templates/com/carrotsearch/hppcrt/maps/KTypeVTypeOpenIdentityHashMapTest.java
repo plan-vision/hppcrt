@@ -122,6 +122,21 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
         }
     }
 
+    @Test
+    public void testClone()
+    {
+        this.map.put(this.key1, this.value1);
+        this.map.put(this.key0, this.value0);
+        this.map.put(this.key2, this.value2);
+        this.map.put(this.key3, this.value3);
+
+        final KTypeVTypeOpenIdentityHashMap<KType, VType> cloned = this.map.clone();
+        cloned.remove(this.key1);
+
+        TestUtils.assertSortedListEquals(this.map.keys().toArray(), this.key0, this.key1, this.key2, this.key3);
+        TestUtils.assertSortedListEquals(cloned.keys().toArray(), this.key0, this.key2, this.key3);
+    }
+
     /* */
     @Test
     public void testCloningConstructor()
@@ -181,19 +196,6 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
         Assert.assertEquals(values.size(), this.map.size());
     }
 
-
- 
-
-  
-  
-
-
-   
-   
-
-
-
-
     /* */
     @Test
     public void testMapKeySetIterator()
@@ -238,7 +240,6 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
         }
         Assert.assertEquals(counted, this.map.size());
     }
-
 
     /* */
     @Test
@@ -328,8 +329,6 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
         Assert.assertEquals(2 * capacity, this.map.keys.length);
     }
 
-  
-
     /*! #if ($TemplateOptions.VTypeGeneric) !*/
     @SuppressWarnings("unchecked")
     /*! #end !*/
@@ -384,7 +383,6 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
         Assert.assertFalse(l2.equals(l1));
     }
 
- 
     /*
      * 
      */
@@ -394,7 +392,7 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
         Assume.assumeTrue(Object[].class.isInstance(this.map.keys) &&
                 (!float[].class.isInstance(this.map.values) &&
                         !double[].class.isInstance(this.map.values) &&
-                        !char[].class.isInstance(this.map.values)));
+                !char[].class.isInstance(this.map.values)));
 
         this.map.put(this.key1, this.value1);
         this.map.put(this.key2, this.value2);
@@ -406,14 +404,13 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
         Assert.assertEquals("1122", new String(asCharArray));
     }
 
-
     private KTypeVTypeOpenIdentityHashMap<KType, VType> createMapWithRandomData(final int size, final long randomSeed)
     {
 
         final Random prng = new Random(randomSeed);
 
-        final KTypeVTypeOpenIdentityHashMap<KType, VType> newMap = KTypeVTypeOpenIdentityHashMap.newInstance(KTypeVTypeOpenIdentityHashMap.DEFAULT_CAPACITY,
-                KTypeVTypeOpenIdentityHashMap.DEFAULT_LOAD_FACTOR);
+        final KTypeVTypeOpenIdentityHashMap<KType, VType> newMap = KTypeVTypeOpenIdentityHashMap.newInstance(KTypeVTypeOpenCustomHashMap.DEFAULT_CAPACITY,
+                KTypeVTypeOpenCustomHashMap.DEFAULT_LOAD_FACTOR);
 
         for (int i = 0; i < size; i++) {
 
@@ -1059,8 +1056,8 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
 
     private KTypeVTypeOpenIdentityHashMap<KType, VType> createMapWithOrderedData(final int size)
     {
-        final KTypeVTypeOpenIdentityHashMap<KType, VType> newMap = KTypeVTypeOpenIdentityHashMap.newInstance(KTypeVTypeOpenIdentityHashMap.DEFAULT_CAPACITY,
-                KTypeVTypeOpenIdentityHashMap.DEFAULT_LOAD_FACTOR);
+        final KTypeVTypeOpenIdentityHashMap<KType, VType> newMap = KTypeVTypeOpenIdentityHashMap.newInstance(KTypeVTypeOpenCustomHashMap.DEFAULT_CAPACITY,
+                KTypeVTypeOpenCustomHashMap.DEFAULT_LOAD_FACTOR);
 
         for (int i = 0; i < size; i++)
         {

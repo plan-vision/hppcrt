@@ -53,7 +53,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenCustomHashMap<KType, VType>
-implements KTypeVTypeMap<KType, VType>, Cloneable
+        implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -1542,7 +1542,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      * A view of the keys inside this hash map.
      */
     public final class KeysContainer
-    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenCustomHashMap<KType, VType> owner =
                 KTypeVTypeOpenCustomHashMap.this;
@@ -2074,16 +2074,27 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      * Clone this object.
      * #if ($TemplateOptions.AnyGeneric)
      * The returned clone will use the same HashingStrategy strategy.
-     * It also realizes a trim-to- this.size() in the process.
      * #end
      */
     @Override
     public KTypeVTypeOpenCustomHashMap<KType, VType> clone()
     {
+        //This is tricky: first create a skeleton small map
         final KTypeVTypeOpenCustomHashMap<KType, VType> cloned =
-                new KTypeVTypeOpenCustomHashMap<KType, VType>(this.size(), this.loadFactor, this.hashStrategy);
+                new KTypeVTypeOpenCustomHashMap<KType, VType>(KTypeVTypeOpenCustomHashMap.DEFAULT_CAPACITY, this.loadFactor, this.hashStrategy);
 
-        cloned.putAll(this);
+        //We must clone then all source buffers and override the destination, at the expense of some garbage
+        cloned.keys = this.keys.clone();
+        cloned.values = this.values.clone();
+
+        /*! #if ($RH) !*/
+        cloned.hash_cache = this.hash_cache.clone();
+        /*! #end !*/
+
+        cloned.resizeAt = this.resizeAt;
+        cloned.assigned = this.assigned;
+        cloned.lastSlot = -1;
+        cloned.perturbation = this.perturbation;
 
         cloned.allocatedDefaultKeyValue = this.allocatedDefaultKeyValue;
         cloned.allocatedDefaultKey = this.allocatedDefaultKey;
@@ -2189,6 +2200,24 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     public void setDefaultValue(final VType defaultValue)
     {
         this.defaultValue = defaultValue;
+    }
+
+    /**
+     * Return the current perturbation value used to prevent collision avalanches
+     * @return
+     */
+    protected int getPerturbation() {
+
+        return this.perturbation;
+    }
+
+    /**
+     * Set the current perturbation value used to prevent collision avalanches
+     * @return
+     */
+    protected void setPerturbation(final int value) {
+
+        this.perturbation = value;
     }
 
     //Test for existence in template

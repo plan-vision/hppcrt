@@ -32,7 +32,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeVTypeOpenIdentityHashMap<KType, VType>
-extends KTypeVTypeOpenCustomHashMap<KType, VType>
+        extends KTypeVTypeOpenCustomHashMap<KType, VType>
 {
     /**
      * Creates a hash map with the default capacity of {@value #DEFAULT_CAPACITY},
@@ -85,10 +85,23 @@ extends KTypeVTypeOpenCustomHashMap<KType, VType>
     @Override
     public KTypeVTypeOpenIdentityHashMap<KType, VType> clone() {
 
+        //This is tricky: first create a skeleton small map
         final KTypeVTypeOpenIdentityHashMap<KType, VType> cloned =
-                new KTypeVTypeOpenIdentityHashMap<KType, VType>(size(), this.loadFactor);
+                new KTypeVTypeOpenIdentityHashMap<KType, VType>(KTypeVTypeOpenCustomHashMap.DEFAULT_CAPACITY, this.loadFactor);
 
-        cloned.putAll(this);
+        //We must clone then all source buffers and override the destination, at the expense of some garbage
+        cloned.keys = this.keys.clone();
+        cloned.values = this.values.clone();
+
+        /*! #if ($RH) !*/
+        cloned.hash_cache = this.hash_cache.clone();
+        /*! #end !*/
+
+        cloned.resizeAt = this.resizeAt;
+        cloned.assigned = this.assigned;
+        cloned.lastSlot = -1;
+
+        cloned.setPerturbation(getPerturbation());
 
         cloned.allocatedDefaultKeyValue = this.allocatedDefaultKeyValue;
         cloned.allocatedDefaultKey = this.allocatedDefaultKey;
@@ -175,7 +188,7 @@ extends KTypeVTypeOpenCustomHashMap<KType, VType>
      */
     public static final <KType, VType> KTypeVTypeOpenIdentityHashMap<KType, VType> from(final KTypeVTypeAssociativeContainer<KType, VType> container,
             final KTypeHashingStrategy<? super KType> hashStrategy)
-    {
+            {
         throw new RuntimeException("Identity hash from(KTypeVTypeAssociativeContainer, strategy) usage logical error");
-    }
+            }
 }
