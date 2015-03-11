@@ -1,6 +1,5 @@
 package com.carrotsearch.hppcrt.implementations;
 
-
 import java.util.Random;
 import java.util.function.ObjIntConsumer;
 
@@ -143,7 +142,7 @@ public class KolobokeIdentityIntMap extends MapImplementation<HashObjIntMap<MapI
         this.instance = HashObjIntMaps.<MapImplementation.ComparableInt> getDefaultFactory().withKeyEquivalence(Equivalence.identity()).
                 withHashConfig(HashConfig.fromLoads(this.loadFactor / 2, this.loadFactor, this.loadFactor)).newMutableMap(this.size);
 
-        final HashObjIntMap<MapImplementation.ComparableInt> sourceCopy = (HashObjIntMap<MapImplementation.ComparableInt>) toCloneFrom;
+        final HashObjIntMap<MapImplementation.ComparableInt> sourceCopy = (HashObjIntMap<MapImplementation.ComparableInt>) (toCloneFrom.instance);
 
         this.instance.entrySet().addAll(sourceCopy.entrySet());
     }

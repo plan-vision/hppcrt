@@ -1,6 +1,5 @@
 package com.carrotsearch.hppcrt.implementations;
 
-
 import java.util.Random;
 
 import org.openjdk.jmh.infra.Blackhole;
@@ -180,7 +179,7 @@ public class KolobokeObjectIntMap extends MapImplementation<HashObjIntMap<MapImp
                 }).
                 newMutableMap(this.size);
 
-        final HashObjIntMap<MapImplementation.ComparableInt> sourceCopy = (HashObjIntMap<MapImplementation.ComparableInt>) toCloneFrom;
+        final HashObjIntMap<MapImplementation.ComparableInt> sourceCopy = (HashObjIntMap<MapImplementation.ComparableInt>) (toCloneFrom.instance);
 
         this.instance.entrySet().addAll(sourceCopy.entrySet());
 

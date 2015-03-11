@@ -1,6 +1,5 @@
 package com.carrotsearch.hppcrt.implementations;
 
-
 import java.util.Arrays;
 import java.util.Random;
 
@@ -119,7 +118,7 @@ public class KolobokeIntIntMap extends MapImplementation<HashIntIntMap>
         this.instance = HashIntIntMaps.getDefaultFactory().
                 withHashConfig(HashConfig.fromLoads(this.loadFactor / 2, this.loadFactor, this.loadFactor)).newMutableMap(this.size);
 
-        final HashIntIntMap sourceCopy = (HashIntIntMap) toCloneFrom;
+        final HashIntIntMap sourceCopy = (HashIntIntMap) (toCloneFrom.instance);
 
         this.instance.entrySet().addAll(sourceCopy.entrySet());
 

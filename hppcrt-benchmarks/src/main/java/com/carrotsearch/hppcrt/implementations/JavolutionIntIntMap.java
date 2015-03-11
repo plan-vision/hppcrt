@@ -1,6 +1,5 @@
 package com.carrotsearch.hppcrt.implementations;
 
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -145,8 +144,29 @@ public class JavolutionIntIntMap extends MapImplementation<FastMap<Integer, Inte
     @Override
     public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
 
-        this.instance = new FastMap<Integer, Integer>();
+        this.instance = new FastMap<Integer, Integer>(new Equality<Integer>() {
 
-        this.instance.putAll((Map<Integer, Integer>) toCloneFrom);
+            @Override
+            public int hashCodeOf(final Integer object) {
+
+                return object.intValue() * -1640531527; // magic mix;
+            }
+
+            @Override
+            public boolean areEqual(final Integer left, final Integer right) {
+
+                return left.intValue() == right.intValue();
+            }
+
+            @Override
+            public int compare(final Integer left, final Integer right) {
+
+                return left.compareTo(right);
+            }
+        });
+
+        final FastMap<Integer, Integer> sourceCopy = (FastMap<Integer, Integer>) (toCloneFrom.instance);
+
+        this.instance.entrySet().addAll(sourceCopy.entrySet());
     }
 }
