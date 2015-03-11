@@ -9,6 +9,7 @@ import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.Timeout;
 import org.openjdk.jmh.runner.RunnerException;
 
 import com.carrotsearch.hppcrt.BenchmarkSuiteRunner;
@@ -34,6 +35,12 @@ public class BenchmarkHashCollisions
 
     public IntOpenHashSet currentUnderTestSet2;
 
+    /**
+     * Consider that @Benchmark executing in more than TIMEOUT_EXEC_IN_S s
+     * must be aborted. Convenient way to test hanging benchmarks.
+     */
+    public static final int TIMEOUT_EXEC_IN_S = 15;
+
     public enum Distribution
     {
         RANDOM, LINEAR_DECREASING, LINEAR, HIGHBITS;
@@ -50,7 +57,8 @@ public class BenchmarkHashCollisions
     @Param
     public Distribution distribution;
 
-    @Param("10000000")
+    //Close to full load factor = 0.71 < 0.75
+    @Param("6000000")
     public int size;
 
     public BenchmarkHashCollisions() {
@@ -115,7 +123,7 @@ public class BenchmarkHashCollisions
     {
         //In DEFAULT_SIZE we really have to recreate all containers under test
         //each time, to be able to see reallocation effects.
-        
+
         if (this.allocation == Allocation.DEFAULT_SIZE) {
 
             this.currentUnderTestSet = IntOpenHashSet.newInstance();
@@ -124,7 +132,7 @@ public class BenchmarkHashCollisions
             this.currentUnderTestMap = IntIntOpenHashMap.newInstance();
 
         }
-       
+
         // PREALLOCATED is created once and simply cleared. Since the clear
         //operation is very fast, we do it in each @Benchmark.
     }
@@ -133,6 +141,7 @@ public class BenchmarkHashCollisions
     /**
      * Time the 'addAll' operation.
      */
+    @Timeout(time = BenchmarkHashCollisions.TIMEOUT_EXEC_IN_S, timeUnit = TimeUnit.SECONDS)
     @Benchmark
     public int timeSet_AddAll()
     {
@@ -144,6 +153,7 @@ public class BenchmarkHashCollisions
         return count;
     }
 
+    @Timeout(time = BenchmarkHashCollisions.TIMEOUT_EXEC_IN_S, timeUnit = TimeUnit.SECONDS)
     @Benchmark
     public int timeSet_AddAllObject()
     {
@@ -155,6 +165,7 @@ public class BenchmarkHashCollisions
         return count;
     }
 
+    @Timeout(time = BenchmarkHashCollisions.TIMEOUT_EXEC_IN_S, timeUnit = TimeUnit.SECONDS)
     @Benchmark
     public int timeSet_AddAll_Successive()
     {
@@ -167,6 +178,7 @@ public class BenchmarkHashCollisions
         return count;
     }
 
+    @Timeout(time = BenchmarkHashCollisions.TIMEOUT_EXEC_IN_S, timeUnit = TimeUnit.SECONDS)
     @Benchmark
     public int timeMap_PutAll()
     {
@@ -177,6 +189,7 @@ public class BenchmarkHashCollisions
         return count;
     }
 
+    @Timeout(time = BenchmarkHashCollisions.TIMEOUT_EXEC_IN_S, timeUnit = TimeUnit.SECONDS)
     @Benchmark
     public int timeSet_Direct_iteration_add_all()
     {
@@ -198,6 +211,7 @@ public class BenchmarkHashCollisions
         return count;
     }
 
+    @Timeout(time = BenchmarkHashCollisions.TIMEOUT_EXEC_IN_S, timeUnit = TimeUnit.SECONDS)
     @Benchmark
     public int timeSet_Direct_iteration_reversed_add_all()
     {
@@ -219,6 +233,7 @@ public class BenchmarkHashCollisions
         return count;
     }
 
+    @Timeout(time = BenchmarkHashCollisions.TIMEOUT_EXEC_IN_S, timeUnit = TimeUnit.SECONDS)
     @Benchmark
     public int timeSet_ForEach_add_all()
     {
