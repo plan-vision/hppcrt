@@ -50,7 +50,7 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayList<KType>
-        extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, Cloneable
+extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, Cloneable
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -574,7 +574,7 @@ public class KTypeArrayList<KType>
     @Override
     public KTypeArrayList<KType> clone()
     {
-        final KTypeArrayList<KType> cloned = new KTypeArrayList<KType>(this.size(), this.resizer);
+        final KTypeArrayList<KType> cloned = new KTypeArrayList<KType>(this.capacity(), this.resizer);
 
         //copy contents directly
         System.arraycopy(this.buffer, 0, cloned.buffer, 0, this.size());
@@ -861,7 +861,7 @@ public class KTypeArrayList<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayList<KType> newInstance()
+    KTypeArrayList<KType> newInstance()
     {
         return new KTypeArrayList<KType>();
     }
@@ -871,7 +871,7 @@ public class KTypeArrayList<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayList<KType> newInstanceWithCapacity(final int initialCapacity)
+    KTypeArrayList<KType> newInstanceWithCapacity(final int initialCapacity)
     {
         return new KTypeArrayList<KType>(initialCapacity);
     }
@@ -881,7 +881,7 @@ public class KTypeArrayList<KType>
      * The elements are copied from the argument to the internal buffer.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayList<KType> from(final KType... elements)
+    KTypeArrayList<KType> from(final KType... elements)
     {
         final KTypeArrayList<KType> list = new KTypeArrayList<KType>(elements.length);
         list.add(elements);
@@ -892,7 +892,7 @@ public class KTypeArrayList<KType>
      * Create a list from elements of another container.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayList<KType> from(final KTypeContainer<KType> container)
+    KTypeArrayList<KType> from(final KTypeContainer<KType> container)
     {
         return new KTypeArrayList<KType>(container);
     }
