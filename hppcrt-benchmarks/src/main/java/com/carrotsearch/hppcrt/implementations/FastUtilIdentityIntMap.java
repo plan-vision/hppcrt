@@ -123,4 +123,12 @@ public class FastUtilIdentityIntMap extends MapImplementation<Reference2IntOpenH
 
         return true;
     }
+
+    @Override
+    public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
+
+        this.instance = ((Reference2IntOpenHashMap<MapImplementation.ComparableInt>) toCloneFrom.instance).clone();
+
+    }
+
 }

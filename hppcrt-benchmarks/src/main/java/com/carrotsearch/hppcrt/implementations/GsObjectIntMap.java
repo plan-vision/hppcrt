@@ -118,4 +118,11 @@ public class GsObjectIntMap extends MapImplementation<ObjectIntHashMap<MapImplem
 
         return instance.size();
     }
+
+    @Override
+    public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
+
+        //copy constructor
+        this.instance = new ObjectIntHashMap<MapImplementation.ComparableInt>((ObjectIntHashMap<MapImplementation.ComparableInt>) toCloneFrom.instance);
+    }
 }

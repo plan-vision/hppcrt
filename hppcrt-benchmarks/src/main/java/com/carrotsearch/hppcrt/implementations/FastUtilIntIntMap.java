@@ -105,4 +105,10 @@ public class FastUtilIntIntMap extends MapImplementation<Int2IntOpenHashMap>
         return count;
     }
 
+    @Override
+    public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
+
+        this.instance = ((Int2IntOpenHashMap) toCloneFrom.instance).clone();
+
+    }
 }

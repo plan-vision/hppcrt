@@ -1,6 +1,8 @@
 package com.carrotsearch.hppcrt.implementations;
 
+
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import javolution.util.FastMap;
@@ -138,5 +140,13 @@ public class JavolutionIntIntMap extends MapImplementation<FastMap<Integer, Inte
         }
 
         return count;
+    }
+
+    @Override
+    public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
+
+        this.instance = new FastMap<Integer, Integer>();
+
+        this.instance.putAll((Map<Integer, Integer>) toCloneFrom);
     }
 }

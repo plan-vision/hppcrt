@@ -37,12 +37,12 @@ public class BenchmarkHashMapBase
 
     @Param({
 
-            "6000000"
+        "6000000"
     })
     public int targetSize;
 
     @Param({
-        "0.75"
+            "0.75"
     })
     public float loadFactor;
 
@@ -56,6 +56,8 @@ public class BenchmarkHashMapBase
     public Implementations implementation;
 
     protected MapImplementation<?> impl;
+
+    protected MapImplementation<?> impl2;
 
     /**
      * List of ints values to push
@@ -98,6 +100,8 @@ public class BenchmarkHashMapBase
 
         // Our tested implementation, uses preallocation
         this.impl = this.implementation.getInstance(nbElementsToPush, this.loadFactor);
+
+        this.impl2 = this.implementation.getInstance(nbElementsToPush, this.loadFactor);
 
         DistributionGenerator gene;
 

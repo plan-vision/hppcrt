@@ -1,5 +1,6 @@
 package com.carrotsearch.hppcrt.implementations;
 
+
 import java.util.Arrays;
 import java.util.Random;
 
@@ -100,5 +101,12 @@ public class HppcIntIntMap extends MapImplementation<IntIntOpenHashMap>
         }
 
         return count;
+    }
+
+    @Override
+    public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
+
+        this.instance = ((IntIntOpenHashMap) toCloneFrom.instance).clone();
+
     }
 }

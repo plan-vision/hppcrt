@@ -118,4 +118,11 @@ public class FastUtilObjectIntMap extends MapImplementation<Object2IntOpenHashMa
 
         return count;
     }
+
+    @Override
+    public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
+
+        this.instance = ((Object2IntOpenHashMap<MapImplementation.ComparableInt>) toCloneFrom.instance).clone();
+
+    }
 }

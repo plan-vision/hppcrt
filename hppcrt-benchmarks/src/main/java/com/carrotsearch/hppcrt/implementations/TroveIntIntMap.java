@@ -104,4 +104,13 @@ public class TroveIntIntMap extends MapImplementation<TIntIntHashMap>
 
         return count;
     }
+
+    @Override
+    public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
+
+        final TIntIntHashMap sourceToCloneFrom = ((TIntIntHashMap) toCloneFrom.instance);
+
+        //copy constructor
+        this.instance = new TIntIntHashMap(sourceToCloneFrom);
+    }
 }

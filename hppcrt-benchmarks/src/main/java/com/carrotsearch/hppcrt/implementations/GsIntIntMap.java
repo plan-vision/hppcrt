@@ -1,5 +1,6 @@
 package com.carrotsearch.hppcrt.implementations;
 
+
 import java.util.Arrays;
 import java.util.Random;
 
@@ -104,6 +105,13 @@ public class GsIntIntMap extends MapImplementation<IntIntHashMap>
         }
 
         return instance.size();
+    }
+
+    @Override
+    public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
+
+        //no clone, but a copy constructor
+        this.instance = new IntIntHashMap(((IntIntHashMap) toCloneFrom.instance));
     }
 
 }

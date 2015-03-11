@@ -1,11 +1,13 @@
 package com.carrotsearch.hppcrt.implementations;
 
+
 import java.util.Arrays;
 import java.util.Random;
 
 import net.openhft.koloboke.collect.hash.HashConfig;
 import net.openhft.koloboke.collect.map.hash.HashIntIntMap;
 import net.openhft.koloboke.collect.map.hash.HashIntIntMaps;
+import net.openhft.koloboke.collect.map.hash.HashObjIntMap;
 
 import com.carrotsearch.hppcrt.XorShiftRandom;
 
@@ -16,10 +18,15 @@ public class KolobokeIntIntMap extends MapImplementation<HashIntIntMap>
     private int[] removedKeys;
     private int[] insertValues;
 
+    private final int size;
+    private final float loadFactor;
+
     public KolobokeIntIntMap(final int size, final float loadFactor)
     {
         super(HashIntIntMaps.getDefaultFactory().
                 withHashConfig(HashConfig.fromLoads(loadFactor / 2, loadFactor, loadFactor)).newMutableMap(size));
+        this.size = size;
+        this.loadFactor = loadFactor;
     }
 
     /**
@@ -106,4 +113,15 @@ public class KolobokeIntIntMap extends MapImplementation<HashIntIntMap>
         return count;
     }
 
+    @Override
+    public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
+
+        this.instance = HashIntIntMaps.getDefaultFactory().
+                withHashConfig(HashConfig.fromLoads(this.loadFactor / 2, this.loadFactor, this.loadFactor)).newMutableMap(this.size);
+
+        final HashIntIntMap sourceCopy = (HashIntIntMap) toCloneFrom;
+
+        this.instance.entrySet().addAll(sourceCopy.entrySet());
+
+    }
 }

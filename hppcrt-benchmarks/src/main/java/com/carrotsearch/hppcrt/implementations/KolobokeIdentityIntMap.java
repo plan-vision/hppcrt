@@ -1,6 +1,8 @@
 package com.carrotsearch.hppcrt.implementations;
 
+
 import java.util.Random;
+import java.util.function.ObjIntConsumer;
 
 import net.openhft.koloboke.collect.Equivalence;
 import net.openhft.koloboke.collect.hash.HashConfig;
@@ -17,10 +19,17 @@ public class KolobokeIdentityIntMap extends MapImplementation<HashObjIntMap<MapI
     private ComparableInt[] removedKeys;
     private int[] insertValues;
 
+    private final int size;
+    private final float loadFactor;
+
     protected KolobokeIdentityIntMap(final int size, final float loadFactor)
     {
         super(HashObjIntMaps.<MapImplementation.ComparableInt> getDefaultFactory().withKeyEquivalence(Equivalence.identity()).
                 withHashConfig(HashConfig.fromLoads(loadFactor / 2, loadFactor, loadFactor)).newMutableMap(size));
+
+        this.size = size;
+        this.loadFactor = loadFactor;
+
     }
 
     /**
@@ -126,5 +135,16 @@ public class KolobokeIdentityIntMap extends MapImplementation<HashObjIntMap<MapI
     public boolean isIdentityMap() {
 
         return true;
+    }
+
+    @Override
+    public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
+
+        this.instance = HashObjIntMaps.<MapImplementation.ComparableInt> getDefaultFactory().withKeyEquivalence(Equivalence.identity()).
+                withHashConfig(HashConfig.fromLoads(this.loadFactor / 2, this.loadFactor, this.loadFactor)).newMutableMap(this.size);
+
+        final HashObjIntMap<MapImplementation.ComparableInt> sourceCopy = (HashObjIntMap<MapImplementation.ComparableInt>) toCloneFrom;
+
+        this.instance.entrySet().addAll(sourceCopy.entrySet());
     }
 }

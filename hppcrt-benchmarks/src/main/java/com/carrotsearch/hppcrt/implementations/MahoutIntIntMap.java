@@ -1,5 +1,6 @@
 package com.carrotsearch.hppcrt.implementations;
 
+
 import java.util.Arrays;
 import java.util.Random;
 
@@ -105,5 +106,12 @@ public class MahoutIntIntMap extends MapImplementation<OpenIntIntHashMap>
         }
 
         return count;
+    }
+
+    @Override
+    public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
+
+        this.instance = (OpenIntIntHashMap) ((OpenIntIntHashMap) toCloneFrom.instance).clone();
+
     }
 }

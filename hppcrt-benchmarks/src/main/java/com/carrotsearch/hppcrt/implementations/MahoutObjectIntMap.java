@@ -2,6 +2,7 @@ package com.carrotsearch.hppcrt.implementations;
 
 import java.util.Random;
 
+import org.apache.mahout.math.map.OpenIntIntHashMap;
 import org.apache.mahout.math.map.OpenObjectIntHashMap;
 
 import com.carrotsearch.hppcrt.Util;
@@ -117,5 +118,12 @@ public class MahoutObjectIntMap extends MapImplementation<OpenObjectIntHashMap<M
         }
 
         return count;
+    }
+
+    @Override
+    public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
+
+        this.instance = (OpenObjectIntHashMap<MapImplementation.ComparableInt>) ((OpenObjectIntHashMap<MapImplementation.ComparableInt>) toCloneFrom.instance).clone();
+
     }
 }

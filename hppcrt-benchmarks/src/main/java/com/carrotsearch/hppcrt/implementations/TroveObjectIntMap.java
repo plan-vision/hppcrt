@@ -1,5 +1,6 @@
 package com.carrotsearch.hppcrt.implementations;
 
+import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
 import java.util.Random;
@@ -117,5 +118,15 @@ public class TroveObjectIntMap extends MapImplementation<TObjectIntHashMap<MapIm
         }
 
         return count;
+    }
+
+    @Override
+    public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
+
+        final TObjectIntHashMap<MapImplementation.ComparableInt> sourceToCloneFrom = ((TObjectIntHashMap<MapImplementation.ComparableInt>) toCloneFrom.instance);
+
+        //copy constructor
+        this.instance = new TObjectIntHashMap<MapImplementation.ComparableInt>(sourceToCloneFrom);
+
     }
 }
