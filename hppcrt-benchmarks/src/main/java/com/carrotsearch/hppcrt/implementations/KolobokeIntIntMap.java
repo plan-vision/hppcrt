@@ -115,12 +115,11 @@ public class KolobokeIntIntMap extends MapImplementation<HashIntIntMap>
     @Override
     public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
 
-        this.instance = HashIntIntMaps.getDefaultFactory().
-                withHashConfig(HashConfig.fromLoads(this.loadFactor / 2, this.loadFactor, this.loadFactor)).newMutableMap(this.size);
-
         final HashIntIntMap sourceCopy = (HashIntIntMap) (toCloneFrom.instance);
 
-        this.instance.entrySet().addAll(sourceCopy.entrySet());
+        //copy constructor
+        this.instance = HashIntIntMaps.getDefaultFactory().
+                withHashConfig(HashConfig.fromLoads(this.loadFactor / 2, this.loadFactor, this.loadFactor)).newMutableMap(sourceCopy);
 
     }
 }

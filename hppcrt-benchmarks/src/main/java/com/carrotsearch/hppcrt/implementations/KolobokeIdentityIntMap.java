@@ -139,11 +139,11 @@ public class KolobokeIdentityIntMap extends MapImplementation<HashObjIntMap<MapI
     @Override
     public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
 
-        this.instance = HashObjIntMaps.<MapImplementation.ComparableInt> getDefaultFactory().withKeyEquivalence(Equivalence.identity()).
-                withHashConfig(HashConfig.fromLoads(this.loadFactor / 2, this.loadFactor, this.loadFactor)).newMutableMap(this.size);
-
         final HashObjIntMap<MapImplementation.ComparableInt> sourceCopy = (HashObjIntMap<MapImplementation.ComparableInt>) (toCloneFrom.instance);
 
-        this.instance.entrySet().addAll(sourceCopy.entrySet());
+        //copy constructor
+        this.instance = HashObjIntMaps.<MapImplementation.ComparableInt> getDefaultFactory().withKeyEquivalence(Equivalence.identity()).
+                withHashConfig(HashConfig.fromLoads(this.loadFactor / 2, this.loadFactor, this.loadFactor)).newMutableMap(sourceCopy);
+
     }
 }

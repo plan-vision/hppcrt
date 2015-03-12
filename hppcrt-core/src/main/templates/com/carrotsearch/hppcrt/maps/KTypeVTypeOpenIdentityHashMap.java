@@ -8,6 +8,11 @@ import com.carrotsearch.hppcrt.strategies.*;
 import com.carrotsearch.hppcrt.hash.*;
 
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN", "BYTE", "CHAR", "SHORT", "INT", "LONG", "FLOAT", "DOUBLE")} !*/
+//Beware, BOTH KTypeVTypeOpenCustomHashMap and this MUST have the same Robin-hood setting !
+/*! #set( $ROBIN_HOOD_FOR_ALL = true) !*/
+/*! #set( $DEBUG = false) !*/
+//If RH is defined, RobinHood Hashing is in effect.
+/*! #set( $RH = $ROBIN_HOOD_FOR_ALL) !*/
 /**
  * An identity hash map of <code>KType</code> to <code>VType</code>, implemented using open
  * addressing with linear probing for collision resolution.

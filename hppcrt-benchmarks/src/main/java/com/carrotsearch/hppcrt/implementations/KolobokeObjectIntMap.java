@@ -155,6 +155,9 @@ public class KolobokeObjectIntMap extends MapImplementation<HashObjIntMap<MapImp
     @Override
     public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
 
+        final HashObjIntMap<MapImplementation.ComparableInt> sourceCopy = (HashObjIntMap<MapImplementation.ComparableInt>) (toCloneFrom.instance);
+
+        //copy constructor
         this.instance = HashObjIntMaps.<MapImplementation.ComparableInt> getDefaultFactory().
                 withHashConfig(HashConfig.fromLoads(this.loadFactor / 2, this.loadFactor, this.loadFactor)).
                 withKeyEquivalence(new StatelessEquivalence<MapImplementation.ComparableInt>() {
@@ -177,11 +180,7 @@ public class KolobokeObjectIntMap extends MapImplementation<HashObjIntMap<MapImp
                         return i.value * -1640531527; // magic mix
                     }
                 }).
-                newMutableMap(this.size);
-
-        final HashObjIntMap<MapImplementation.ComparableInt> sourceCopy = (HashObjIntMap<MapImplementation.ComparableInt>) (toCloneFrom.instance);
-
-        this.instance.entrySet().addAll(sourceCopy.entrySet());
+                newMutableMap(sourceCopy);
 
     }
 }

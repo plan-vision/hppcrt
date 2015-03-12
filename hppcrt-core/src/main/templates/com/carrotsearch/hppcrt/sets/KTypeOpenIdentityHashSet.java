@@ -8,6 +8,11 @@ import com.carrotsearch.hppcrt.strategies.*;
 import com.carrotsearch.hppcrt.hash.*;
 
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN", "BYTE", "CHAR", "SHORT", "INT", "LONG", "FLOAT", "DOUBLE")} !*/
+//Beware, BOTH KTypeOpenCustomHashSet and this MUST have the same Robin-hood setting !
+/*! #set( $ROBIN_HOOD_FOR_ALL = true) !*/
+/*! #set( $DEBUG = false) !*/
+//If RH is defined, RobinHood Hashing is in effect.
+/*! #set( $RH = $ROBIN_HOOD_FOR_ALL) !*/
 /**
  * An identity hash set of <code>KType</code> types, implemented using open
  * addressing with linear probing for collision resolution.
@@ -29,7 +34,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeOpenIdentityHashSet<KType>
-extends KTypeOpenCustomHashSet<KType>
+        extends KTypeOpenCustomHashSet<KType>
 {
     /**
      * Creates a hash set with the default capacity of {@value #DEFAULT_CAPACITY},

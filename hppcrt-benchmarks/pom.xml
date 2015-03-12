@@ -64,6 +64,19 @@
         </dependency>
 
         <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-core</artifactId>
+            <version>${jmh.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-generator-annprocess</artifactId>
+            <version>${jmh.version}</version>
+            <scope>provided</scope>
+        </dependency>  
+        
+        <dependency>
             <groupId>net.sf.trove4j</groupId>
             <artifactId>trove4j</artifactId>
             <version>${trove.version}</version>
@@ -100,22 +113,7 @@
         	<version>${gs.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.openjdk.jmh</groupId>
-            <artifactId>jmh-core-ct</artifactId>
-            <version>${jmh.version}</version>
-        </dependency>
-         <dependency>
-            <groupId>org.openjdk.jmh</groupId>
-            <artifactId>jmh-core-it</artifactId>
-            <version>${jmh.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjdk.jmh</groupId>
-            <artifactId>jmh-generator-annprocess</artifactId>
-            <version>${jmh.version}</version>
-            <scope>provided</scope>
-        </dependency>  
+     
 
         <dependency>
             <groupId>org.apache.mahout</groupId>
