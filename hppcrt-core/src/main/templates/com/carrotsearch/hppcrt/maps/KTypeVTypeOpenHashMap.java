@@ -79,7 +79,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -191,7 +191,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * Per-instance, per-allocation size perturbation
      * introduced in rehashing to create a unique key distribution.
      */
-    private int perturbation;
+    private final int perturbation;
 
     /**
      * Creates a hash map with the default capacity of {@value #DEFAULT_CAPACITY},
@@ -253,8 +253,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (internalCapacity * loadFactor)) - 2;
 
-        //TODO
-        this.perturbation = HashContainerUtils.computePerturbationValue(internalCapacity);
+        this.perturbation = HashContainerUtils.computeUniqueIdentifier(this);
     }
 
     /**
@@ -768,9 +767,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         //allocate so that there is at least one slot that remains allocated = false
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (capacity * this.loadFactor)) - 2;
-
-        //TODO
-        this.perturbation = HashContainerUtils.computePerturbationValue(capacity);
     }
 
     /**
@@ -1531,7 +1527,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * A view of the keys inside this hash map.
      */
     public final class KeysContainer
-            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenHashMap<KType, VType> owner =
                 KTypeVTypeOpenHashMap.this;
@@ -2062,29 +2058,17 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     }
 
     /**
-     * Clone this object.
-     * #if ($TemplateOptions.AnyGeneric)
-     * The returned clone will use the same HashingStrategy strategy.
-     * #end
+     * {@inheritDoc}
      */
     @Override
     public KTypeVTypeOpenHashMap<KType, VType> clone()
     {
-        //This is tricky: first create a skeleton small map
-        final KTypeVTypeOpenHashMap<KType, VType> cloned = new KTypeVTypeOpenHashMap<KType, VType>(KTypeVTypeOpenHashMap.DEFAULT_CAPACITY, this.loadFactor);
+        final KTypeVTypeOpenHashMap<KType, VType> cloned = new KTypeVTypeOpenHashMap<KType, VType>(this.capacity(), this.loadFactor);
 
-        //We must clone then all source buffers and override the destination, at the expense of some garbage
-        cloned.keys = this.keys.clone();
-        cloned.values = this.values.clone();
+        //do not clone because of independent perturbation seeds
+        cloned.putAll(this);
 
-        /*! #if ($RH) !*/
-        cloned.hash_cache = this.hash_cache.clone();
-        /*! #end !*/
-
-        cloned.resizeAt = this.resizeAt;
-        cloned.assigned = this.assigned;
         cloned.lastSlot = -1;
-        cloned.perturbation = this.perturbation;
 
         cloned.allocatedDefaultKeyValue = this.allocatedDefaultKeyValue;
         cloned.allocatedDefaultKey = this.allocatedDefaultKey;
@@ -2183,15 +2167,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         this.defaultValue = defaultValue;
     }
 
-    /**
-     * Return the current perturbation value used to prevent collision avalanches
-     * @return
-     */
-    protected int getPerturbation() {
-
-        return this.perturbation;
-    }
-
 //Test for existence in template
 /*! #if ($TemplateOptions.inlineKType("is_allocated",
     "(slot, keys)",
@@ -2235,11 +2210,11 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
     /*! #if ($TemplateOptions.inlineKTypeWithFullSpecialization("REHASH",
     "(value)",
-    "MurmurHash3.hash(value.hashCode() + this.perturbation)",
-    "PhiMix.hash(value + this.perturbation)",
-    "(int)PhiMix.hash(value + this.perturbation)",
-    "PhiMix.hash(Float.floatToIntBits(value) + this.perturbation)",
-    "(int)PhiMix.hash(Double.doubleToLongBits(value) + this.perturbation)",
+    "MurmurHash3.hash(value.hashCode() ^ this.perturbation)",
+    "PhiMix.hash(value ^ this.perturbation)",
+    "(int)PhiMix.hash(value ^ this.perturbation)",
+    "PhiMix.hash(Float.floatToIntBits(value) ^ this.perturbation)",
+    "(int)PhiMix.hash(Double.doubleToLongBits(value) ^ this.perturbation)",
     "")) !*/
     /**
      * REHASH method for rehashing the keys.
@@ -2248,7 +2223,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      */
     private int REHASH(final KType value) {
 
-        return MurmurHash3.hash(value.hashCode() + this.perturbation);
+        return MurmurHash3.hash(value.hashCode() ^ this.perturbation);
     }
     /*! #end !*/
 }

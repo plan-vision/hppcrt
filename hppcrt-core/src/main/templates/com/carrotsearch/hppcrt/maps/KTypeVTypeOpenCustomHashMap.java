@@ -53,7 +53,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenCustomHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -165,7 +165,7 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
      * Per-instance, per-allocation size perturbation
      * introduced in rehashing to create a unique key distribution.
      */
-    private int perturbation;
+    private final int perturbation;
 
     /**
      * Custom hashing strategy :
@@ -242,9 +242,7 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (internalCapacity * loadFactor)) - 2;
 
-        //TODO
-        this.perturbation = HashContainerUtils.computePerturbationValue(internalCapacity);
-
+        this.perturbation = HashContainerUtils.computeUniqueIdentifier(this);
     }
 
     /**
@@ -766,8 +764,6 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (capacity * this.loadFactor)) - 2;
 
-        //TODO
-        this.perturbation = HashContainerUtils.computePerturbationValue(capacity);
     }
 
     /**
@@ -1542,7 +1538,7 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
      * A view of the keys inside this hash map.
      */
     public final class KeysContainer
-            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenCustomHashMap<KType, VType> owner =
                 KTypeVTypeOpenCustomHashMap.this;
@@ -2079,22 +2075,13 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
     @Override
     public KTypeVTypeOpenCustomHashMap<KType, VType> clone()
     {
-        //This is tricky: first create a skeleton small map
         final KTypeVTypeOpenCustomHashMap<KType, VType> cloned =
-                new KTypeVTypeOpenCustomHashMap<KType, VType>(KTypeVTypeOpenCustomHashMap.DEFAULT_CAPACITY, this.loadFactor, this.hashStrategy);
+                new KTypeVTypeOpenCustomHashMap<KType, VType>(capacity(), this.loadFactor, this.hashStrategy);
 
-        //We must clone then all source buffers and override the destination, at the expense of some garbage
-        cloned.keys = this.keys.clone();
-        cloned.values = this.values.clone();
+        //We must NOT clone because of independent perturbations seeds
+        cloned.putAll(this);
 
-        /*! #if ($RH) !*/
-        cloned.hash_cache = this.hash_cache.clone();
-        /*! #end !*/
-
-        cloned.resizeAt = this.resizeAt;
-        cloned.assigned = this.assigned;
         cloned.lastSlot = -1;
-        cloned.perturbation = this.perturbation;
 
         cloned.allocatedDefaultKeyValue = this.allocatedDefaultKeyValue;
         cloned.allocatedDefaultKey = this.allocatedDefaultKey;
@@ -2202,24 +2189,6 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
         this.defaultValue = defaultValue;
     }
 
-    /**
-     * Return the current perturbation value used to prevent collision avalanches
-     * @return
-     */
-    protected int getPerturbation() {
-
-        return this.perturbation;
-    }
-
-    /**
-     * Set the current perturbation value used to prevent collision avalanches
-     * @return
-     */
-    protected void setPerturbation(final int value) {
-
-        this.perturbation = value;
-    }
-
     //Test for existence in template
     /*! #if ($TemplateOptions.inlineKType("is_allocated",
     "(slot, keys)",
@@ -2263,13 +2232,13 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
 
     /*! #if ($TemplateOptions.inlineKType("REHASH",
     "(strategy, value)",
-    "PhiMix.hash(strategy.computeHashCode(value) + this.perturbation )")) !*/
+    "PhiMix.hash(strategy.computeHashCode(value) ^ this.perturbation )")) !*/
     /**
      * (actual method is inlined in generated code)
      */
     private int REHASH(final KTypeHashingStrategy<? super KType> strategy, final KType value) {
 
-        return PhiMix.hash(strategy.computeHashCode(value) + this.perturbation);
+        return PhiMix.hash(strategy.computeHashCode(value) ^ this.perturbation);
     }
     /*! #end !*/
 }

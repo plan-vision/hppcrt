@@ -1,6 +1,5 @@
 package com.carrotsearch.hppcrt.implementations;
 
-
 import java.util.Random;
 
 import com.carrotsearch.hppcrt.Util;

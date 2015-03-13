@@ -3,6 +3,7 @@ package com.carrotsearch.hppcrt.jmh;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -19,7 +20,8 @@ import com.carrotsearch.hppcrt.implementations.MapImplementation;
 import com.carrotsearch.hppcrt.implementations.MapImplementation.ComparableInt;
 import com.carrotsearch.hppcrt.implementations.MapImplementation.HASH_QUALITY;
 import com.carrotsearch.hppcrt.lists.IntArrayList;
-import com.carrotsearch.hppcrt.maps.ObjectIntOpenIdentityHashMap;
+import com.carrotsearch.hppcrt.sets.IntOpenHashSet;
+import com.carrotsearch.hppcrt.sets.ObjectOpenIdentityHashSet;
 
 /**
  * Benchmark putting a given number of integers / Objects into a hashmap.
@@ -59,6 +61,8 @@ public class BenchmarkHashMapBase
 
     protected MapImplementation<?> impl2;
 
+    public static final float HPPC_LOAD_FACTOR_ABSOLUTE_ERROR = 0.05f;
+
     /**
      * List of ints values to push
      * to fill the map up to its fill factor
@@ -92,11 +96,12 @@ public class BenchmarkHashMapBase
 
         this.prng = new XorShiftRandom(0x11223344);
 
-        //suppose our target load factor is MapImplementation.DEFAULT_LOAD_FACTOR,
+        //suppose our target load factor is this.loadFactor
         //compute the final size to allocate to reach knowing that the table is indeed sized to a power of 2.
         final int finalArraySize = BitUtil.nextHighestPowerOfTwo((int) (this.targetSize / this.loadFactor));
 
-        final int nbElementsToPush = (int) ((finalArraySize * this.loadFactor) - 2);
+        //to be sure to NOT reallocate, and have the correct load factor, take a margin !
+        final int nbElementsToPush = (int) ((finalArraySize * this.loadFactor) - 32);
 
         // Our tested implementation, uses preallocation
         this.impl = this.implementation.getInstance(nbElementsToPush, this.loadFactor);
@@ -161,14 +166,46 @@ public class BenchmarkHashMapBase
 
         } //end while
 
+        //Check that HPPC would indeed reach the target load factor, test using a IntSet and Identity
+        double effectiveLoadFactor = 0.0;
+
+        if (this.impl.isIdentityMap()) {
+
+            final ObjectOpenIdentityHashSet<ComparableInt> testIdentityFactor = new ObjectOpenIdentityHashSet<ComparableInt>(nbElementsToPush);
+
+            for (final Entry<ComparableInt, Integer> curr : dryRunHashSet.entrySet()) {
+
+                testIdentityFactor.add(curr.getKey());
+            }
+
+            effectiveLoadFactor = testIdentityFactor.size() / (double) testIdentityFactor.keys.length;
+
+        }
+        else {
+            final IntOpenHashSet testSetFactor = new IntOpenHashSet(nbElementsToPush);
+
+            testSetFactor.addAll(keysListToPush);
+
+            effectiveLoadFactor = testSetFactor.size() / (double) testSetFactor.keys.length;
+        }
+
+        final double loadFactorError = Math.abs(this.loadFactor - effectiveLoadFactor);
+
         //At that point, this.keysListToPush is a sequence of values that will
         //be able to fill this.impl up to its targeted this.size and its DEFAULT_LOAD_FACTOR.
         this.pushedKeys = keysListToPush.toArray();
 
-        System.out.println(String.format("Target size = %d, Pushed keys = %d ==>  Expected final size = %d",
+        System.out.println(String.format("Target size = %d, Pushed keys = %d ==>  Expected final size = %d, HPPC effective load factor = %f",
                 this.targetSize,
                 this.pushedKeys.length,
-                dryRunHashSet.size()));
+                dryRunHashSet.size(),
+                effectiveLoadFactor));
+
+        //Check
+        if (loadFactorError > BenchmarkHashMapBase.HPPC_LOAD_FACTOR_ABSOLUTE_ERROR) {
+
+            throw new RuntimeException("Wrong target fill factor reached, != " + this.loadFactor);
+        }
     }
 
     /**

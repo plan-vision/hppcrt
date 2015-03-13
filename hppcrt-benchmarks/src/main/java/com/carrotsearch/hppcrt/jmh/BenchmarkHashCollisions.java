@@ -13,6 +13,7 @@ import org.openjdk.jmh.annotations.Timeout;
 import org.openjdk.jmh.runner.RunnerException;
 
 import com.carrotsearch.hppcrt.BenchmarkSuiteRunner;
+import com.carrotsearch.hppcrt.BitUtil;
 import com.carrotsearch.hppcrt.DistributionGenerator;
 import com.carrotsearch.hppcrt.XorShiftRandom;
 import com.carrotsearch.hppcrt.maps.IntIntOpenHashMap;
@@ -51,15 +52,21 @@ public class BenchmarkHashCollisions
         DEFAULT_SIZE, PREALLOCATED;
     }
 
+    public static final float HPPC_LOAD_FACTOR_ABSOLUTE_ERROR = 0.05f;
+
     @Param
     public Allocation allocation;
 
     @Param
     public Distribution distribution;
 
-    //Close to full load factor = 0.71 < 0.75
     @Param("6000000")
-    public int size;
+    public int targetSize;
+
+    @Param({
+            "0.75"
+    })
+    public float loadFactor;
 
     public BenchmarkHashCollisions() {
         // nothing
@@ -69,17 +76,25 @@ public class BenchmarkHashCollisions
     @Setup
     public void setUpCommon() throws Exception
     {
-        this.testSet = new IntOpenHashSet(this.size);
-        this.testMap = new IntIntOpenHashMap(this.size);
-        this.testSetInteger = new ObjectOpenHashSet<Integer>(this.size);
+        //For this test, this is especially important to push up to the target load factor.
+        //suppose our target load factor is this.loadFactor
+        //compute the final size to allocate to reach knowing that the table is indeed sized to a power of 2.
+        final int finalArraySize = BitUtil.nextHighestPowerOfTwo((int) (this.targetSize / this.loadFactor));
 
-        final DistributionGenerator gene = new DistributionGenerator(-this.size, 3 * this.size, new XorShiftRandom(87955214455L));
+        //to be sure to NOT reallocate, and have the correct load factor, take a margin !
+        final int nbElementsToPush = (int) ((finalArraySize * this.loadFactor) - 32);
+
+        this.testSet = new IntOpenHashSet(nbElementsToPush);
+        this.testMap = new IntIntOpenHashMap(nbElementsToPush);
+        this.testSetInteger = new ObjectOpenHashSet<Integer>(nbElementsToPush);
+
+        final DistributionGenerator gene = new DistributionGenerator(-nbElementsToPush, 3 * nbElementsToPush, new XorShiftRandom(87955214455L));
 
         int nextValue = -1;
 
         int count = 0;
 
-        while (this.testSet.size() < this.size) {
+        while (this.testSet.size() < nbElementsToPush) {
 
             if (this.distribution == Distribution.RANDOM) {
 
@@ -95,7 +110,7 @@ public class BenchmarkHashCollisions
             }
             else if (this.distribution == Distribution.LINEAR_DECREASING) {
 
-                nextValue = this.size - count;
+                nextValue = nbElementsToPush - count;
             }
 
             this.testSet.add(nextValue);
@@ -107,13 +122,13 @@ public class BenchmarkHashCollisions
         //In PREALLOCATED we only need to create once, and clear the containers under test before each test.
         if (this.allocation == Allocation.PREALLOCATED) {
 
-            this.currentUnderTestSet = IntOpenHashSet.newInstanceWithCapacity(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
-            this.currentUnderTestSetInteger = ObjectOpenHashSet.<Integer> newInstanceWithCapacity(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
-            this.currentUnderTestSet2 = IntOpenHashSet.newInstanceWithCapacity(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
-            this.currentUnderTestMap = IntIntOpenHashMap.newInstance(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
+            this.currentUnderTestSet = IntOpenHashSet.newInstanceWithCapacity(nbElementsToPush, this.loadFactor);
+            this.currentUnderTestSetInteger = ObjectOpenHashSet.<Integer> newInstanceWithCapacity(nbElementsToPush, this.loadFactor);
+            this.currentUnderTestSet2 = IntOpenHashSet.newInstanceWithCapacity(nbElementsToPush, this.loadFactor);
+            this.currentUnderTestMap = IntIntOpenHashMap.newInstance(nbElementsToPush, this.loadFactor);
         }
 
-        System.out.println("Initialized to test size = " + this.size);
+        System.out.println("Initialized to test size = " + nbElementsToPush);
     }
 
     //Each @Benchmark iteration execution, we recreate everything
@@ -130,7 +145,6 @@ public class BenchmarkHashCollisions
             this.currentUnderTestSetInteger = ObjectOpenHashSet.<Integer> newInstance();
             this.currentUnderTestSet2 = IntOpenHashSet.newInstance();
             this.currentUnderTestMap = IntIntOpenHashMap.newInstance();
-
         }
 
         // PREALLOCATED is created once and simply cleared. Since the clear
@@ -150,6 +164,8 @@ public class BenchmarkHashCollisions
         this.currentUnderTestSet.clear();
         count += this.currentUnderTestSet.addAll(this.testSet);
 
+        checkFinalLoadFactor(this.currentUnderTestSet);
+
         return count;
     }
 
@@ -161,6 +177,8 @@ public class BenchmarkHashCollisions
 
         this.currentUnderTestSetInteger.clear();
         count += this.currentUnderTestSetInteger.addAll(this.testSetInteger);
+
+        checkFinalLoadFactor(this.currentUnderTestSetInteger);
 
         return count;
     }
@@ -175,6 +193,9 @@ public class BenchmarkHashCollisions
         count += this.currentUnderTestSet.addAll(this.testSet);
         count += this.currentUnderTestSet2.addAll(this.currentUnderTestSet);
 
+        checkFinalLoadFactor(this.currentUnderTestSet);
+        checkFinalLoadFactor(this.currentUnderTestSet2);
+
         return count;
     }
 
@@ -185,6 +206,8 @@ public class BenchmarkHashCollisions
         int count = 0;
         this.currentUnderTestMap.clear();
         count += this.currentUnderTestMap.putAll(this.testMap);
+
+        checkFinalLoadFactor(this.currentUnderTestMap);
 
         return count;
     }
@@ -208,6 +231,8 @@ public class BenchmarkHashCollisions
 
         count += this.currentUnderTestSet.size();
 
+        checkFinalLoadFactor(this.currentUnderTestSet);
+
         return count;
     }
 
@@ -229,6 +254,8 @@ public class BenchmarkHashCollisions
         }
 
         count += this.currentUnderTestSet.size();
+
+        checkFinalLoadFactor(this.currentUnderTestSet);
 
         return count;
     }
@@ -254,7 +281,60 @@ public class BenchmarkHashCollisions
 
         count += this.currentUnderTestSet.size();
 
+        checkFinalLoadFactor(this.currentUnderTestSet);
+
         return count;
+    }
+
+    private void checkFinalLoadFactor(final IntOpenHashSet tested) {
+
+        if (this.allocation != Allocation.PREALLOCATED) {
+            return;
+        }
+
+        final double effectiveLoadFactor = tested.size() / (double) tested.keys.length;
+
+        final double loadFactorError = Math.abs(this.loadFactor - effectiveLoadFactor);
+
+        //Check
+        if (loadFactorError > BenchmarkHashCollisions.HPPC_LOAD_FACTOR_ABSOLUTE_ERROR) {
+
+            throw new RuntimeException("Wrong target fill factor reached = " + effectiveLoadFactor + " != " + this.loadFactor);
+        }
+    }
+
+    private void checkFinalLoadFactor(final ObjectOpenHashSet<Integer> tested) {
+
+        if (this.allocation != Allocation.PREALLOCATED) {
+            return;
+        }
+
+        final double effectiveLoadFactor = tested.size() / (double) ((Object[]) tested.keys).length;
+
+        final double loadFactorError = Math.abs(this.loadFactor - effectiveLoadFactor);
+
+        //Check
+        if (loadFactorError > BenchmarkHashCollisions.HPPC_LOAD_FACTOR_ABSOLUTE_ERROR) {
+
+            throw new RuntimeException("Wrong target fill factor reached = " + effectiveLoadFactor + " != " + this.loadFactor);
+        }
+    }
+
+    private void checkFinalLoadFactor(final IntIntOpenHashMap tested) {
+
+        if (this.allocation != Allocation.PREALLOCATED) {
+            return;
+        }
+
+        final double effectiveLoadFactor = tested.size() / (double) tested.keys.length;
+
+        final double loadFactorError = Math.abs(this.loadFactor - effectiveLoadFactor);
+
+        //Check
+        if (loadFactorError > BenchmarkHashCollisions.HPPC_LOAD_FACTOR_ABSOLUTE_ERROR) {
+
+            throw new RuntimeException("Wrong target fill factor reached = " + effectiveLoadFactor + " != " + this.loadFactor);
+        }
     }
 
     /**
