@@ -213,6 +213,12 @@ public class BenchmarkHashMapBase
      */
     protected void skipForbiddenCombinations() {
 
+        //FIXME: Only executing HPPC tests, don't forget to re-enable
+        if (!this.implementation.toString().contains("HPPC")) {
+
+            throw new DoNotExecuteBenchmarkException();
+        }
+        
         //1-1)skip senseless benchmark combinations : BAD hash is only valid for some types
         if (this.hash_quality == HASH_QUALITY.BAD &&
                 !this.implementation.isHashQualityApplicable()) {
