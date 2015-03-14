@@ -162,7 +162,7 @@ public class KTypeOpenHashSet<KType>
      * Per-instance, per-allocation size perturbation
      * introduced in rehashing to create a unique key distribution.
      */
-    private final int perturbation;
+    private final int perturbation = HashContainerUtils.computeUniqueIdentifier(this);
 
     /**
      * Creates a hash set with the default capacity of {@value #DEFAULT_CAPACITY},
@@ -208,7 +208,6 @@ public class KTypeOpenHashSet<KType>
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (internalCapacity * loadFactor)) - 2;
 
-        this.perturbation = HashContainerUtils.computeUniqueIdentifier(this);
     }
 
     /**

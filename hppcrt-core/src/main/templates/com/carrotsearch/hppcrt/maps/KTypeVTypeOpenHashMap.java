@@ -191,7 +191,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      * Per-instance, per-allocation size perturbation
      * introduced in rehashing to create a unique key distribution.
      */
-    private final int perturbation;
+    private final int perturbation = HashContainerUtils.computeUniqueIdentifier(this);
 
     /**
      * Creates a hash map with the default capacity of {@value #DEFAULT_CAPACITY},
@@ -252,8 +252,6 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         //allocate so that there is at least one slot that remains allocated = false
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (internalCapacity * loadFactor)) - 2;
-
-        this.perturbation = HashContainerUtils.computeUniqueIdentifier(this);
     }
 
     /**
