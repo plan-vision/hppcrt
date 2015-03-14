@@ -28,13 +28,9 @@ import com.carrotsearch.randomizedtesting.annotations.*;
  */
 // ${TemplateOptions.doNotGenerateKType("BOOLEAN")}
 //${TemplateOptions.doNotGenerateVType("BOOLEAN")}
-/*! #set( $ROBIN_HOOD_FOR_ALL = true) !*/
-// If RH is defined, RobinHood Hashing is in effect :
-/*! #set( $RH =  $ROBIN_HOOD_FOR_ALL ) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<KType, VType>
 {
-
     @BeforeClass
     public static void configure()
     {
@@ -65,8 +61,6 @@ public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKType
      */
     public KTypeVTypeOpenCustomHashMap<KType, VType> map = KTypeVTypeOpenCustomHashMap.newInstance(this.TEST_STRATEGY);
 
-    private int perturbation;
-
     @Before
     public void initialize() {
 
@@ -81,8 +75,6 @@ public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKType
     @After
     public void checkConsistency()
     {
-        this.perturbation = HashContainerUtils.computePerturbationValue(this.map.keys.length);
-
         if (this.map != null)
         {
             int occupied = 0;
@@ -104,11 +96,6 @@ public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKType
                 }
                 else
                 {
-                    /*! #if ($RH) !*/
-                    //check hash cache consistency
-                    Assert.assertEquals(REHASH(this.map.strategy(), this.map.keys[i]) & mask, this.map.hash_cache[i]);
-                    /*! #end !*/
-
                     //try to reach the key by contains()
                     Assert.assertTrue(this.map.containsKey(this.map.keys[i]));
 
@@ -2667,16 +2654,4 @@ public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKType
 
         return keys[slot] != Intrinsics.defaultKTypeValue();
     }
-
-    /*! #if ($TemplateOptions.inlineKType("REHASH",
-    "(strategy, value)",
-    "PhiMix.hash(strategy.computeHashCode(value) + this.perturbation )")) !*/
-    /**
-     * (actual method is inlined in generated code)
-     */
-    private int REHASH(final KTypeHashingStrategy<? super KType> strategy, final KType value) {
-
-        return PhiMix.hash(strategy.computeHashCode(value) + this.perturbation);
-    }
-    /*! #end !*/
 }

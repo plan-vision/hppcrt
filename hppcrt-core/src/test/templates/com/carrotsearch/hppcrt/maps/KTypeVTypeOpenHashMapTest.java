@@ -27,9 +27,6 @@ import com.carrotsearch.randomizedtesting.annotations.*;
  */
 // ${TemplateOptions.doNotGenerateKType("BOOLEAN")}
 //${TemplateOptions.doNotGenerateVType("BOOLEAN")}
-/*! #set( $ROBIN_HOOD_FOR_GENERICS = true) !*/
-// If RH is defined, RobinHood Hashing is in effect
-/*! #set( $RH = ($TemplateOptions.KTypeGeneric && $ROBIN_HOOD_FOR_GENERICS) ) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<KType, VType>
 {
@@ -59,8 +56,6 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
     @After
     public void checkConsistency()
     {
-        this.perturbation = HashContainerUtils.computePerturbationValue(this.map.keys.length);
-
         if (this.map != null)
         {
             int occupied = 0;
@@ -82,11 +77,6 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
                 }
                 else
                 {
-                    /*! #if ($RH) !*/
-                    //check hash cache consistency
-                    Assert.assertEquals(REHASH(this.map.keys[i]) & mask, this.map.hash_cache[i]);
-                    /*! #end !*/
-
                     //try to reach the key by contains()
                     Assert.assertTrue(this.map.containsKey(this.map.keys[i]));
 
@@ -2412,7 +2402,6 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         return newMap;
     }
 
-   
     private boolean is_allocated(final int slot, final KType[] keys) {
 
         return keys[slot] != Intrinsics.defaultKTypeValue();

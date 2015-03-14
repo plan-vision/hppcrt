@@ -8,11 +8,6 @@ import com.carrotsearch.hppcrt.strategies.*;
 import com.carrotsearch.hppcrt.hash.*;
 
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN", "BYTE", "CHAR", "SHORT", "INT", "LONG", "FLOAT", "DOUBLE")} !*/
-//Beware, BOTH KTypeVTypeOpenCustomHashMap and this MUST have the same Robin-hood setting !
-/*! #set( $ROBIN_HOOD_FOR_ALL = true) !*/
-/*! #set( $DEBUG = false) !*/
-//If RH is defined, RobinHood Hashing is in effect.
-/*! #set( $RH = $ROBIN_HOOD_FOR_ALL) !*/
 /**
  * An identity hash map of <code>KType</code> to <code>VType</code>, implemented using open
  * addressing with linear probing for collision resolution.
@@ -39,6 +34,8 @@ import com.carrotsearch.hppcrt.hash.*;
 public final class KTypeVTypeOpenIdentityHashMap<KType, VType>
 extends KTypeVTypeOpenCustomHashMap<KType, VType>
 {
+    private static final KTypeIdentityHash<Object> IDENTITY_EQUALITY = new KTypeIdentityHash<Object>();
+
     /**
      * Creates a hash map with the default capacity of {@value #DEFAULT_CAPACITY},
      * load factor of {@value #DEFAULT_LOAD_FACTOR}.
@@ -73,9 +70,10 @@ extends KTypeVTypeOpenCustomHashMap<KType, VType>
      * 
      * 
      */
+    @SuppressWarnings({ "cast", "unchecked" })
     public KTypeVTypeOpenIdentityHashMap(final int initialCapacity, final float loadFactor)
     {
-        super(initialCapacity, loadFactor, new KTypeIdentityHash<KType>());
+        super(initialCapacity, loadFactor, (KTypeIdentityHash<KType>) KTypeVTypeOpenIdentityHashMap.IDENTITY_EQUALITY);
     }
 
     /**

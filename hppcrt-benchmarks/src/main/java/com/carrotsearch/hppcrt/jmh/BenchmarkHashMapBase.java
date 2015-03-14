@@ -178,7 +178,7 @@ public class BenchmarkHashMapBase
                 testIdentityFactor.add(curr.getKey());
             }
 
-            effectiveLoadFactor = testIdentityFactor.size() / (double) testIdentityFactor.keys.length;
+            effectiveLoadFactor = testIdentityFactor.size() / (double) ((Object[])testIdentityFactor.keys).length;
 
         }
         else {
