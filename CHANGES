@@ -1,3 +1,17 @@
+[0.7.0]
+This release fix important bugs, and align on some refactorings or changes of HPPC v0.7.0, hence the version number.
+
+** API-breaking changes / New features
+HPPCRT-36: Simplify specific IdentityHash impl by deriving a specific CustomHash
+
+HPPCRT-37: Add features from HPPC v0.7.0 :
+
+- 
+
+** Bug fixes
+
+HPPCRT-35: Hash to hash batch copying hangs, regression from the working perturbation policy 
+
 [0.6.8]
 ** API-breaking changes
 
