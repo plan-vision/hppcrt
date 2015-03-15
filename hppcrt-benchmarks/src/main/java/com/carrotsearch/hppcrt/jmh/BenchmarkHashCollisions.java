@@ -9,15 +9,17 @@ import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.annotations.TearDown;
+import org.openjdk.jmh.annotations.Timeout;
 import org.openjdk.jmh.runner.RunnerException;
 
 import com.carrotsearch.hppcrt.BenchmarkSuiteRunner;
+import com.carrotsearch.hppcrt.BitUtil;
 import com.carrotsearch.hppcrt.DistributionGenerator;
 import com.carrotsearch.hppcrt.XorShiftRandom;
 import com.carrotsearch.hppcrt.maps.IntIntOpenHashMap;
 import com.carrotsearch.hppcrt.procedures.IntProcedure;
 import com.carrotsearch.hppcrt.sets.IntOpenHashSet;
+import com.carrotsearch.hppcrt.sets.ObjectOpenHashSet;
 
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Thread)
@@ -25,16 +27,39 @@ public class BenchmarkHashCollisions
 {
     /* Prepare some test data */
     public IntOpenHashSet testSet;
-    public IntIntOpenHashMap testMap;
 
     public IntOpenHashSet currentUnderTestSet;
-    public IntIntOpenHashMap currentUnderTestMap;
 
     public IntOpenHashSet currentUnderTestSet2;
+
+    /**
+     * Consider that @Benchmark executing in more than TIMEOUT_EXEC_IN_S s
+     * must be aborted. Convenient way to test hanging benchmarks.
+     */
+    public static final int TIMEOUT_EXEC_IN_S = 15;
 
     public enum Distribution
     {
         RANDOM, LINEAR_DECREASING, LINEAR, HIGHBITS;
+    }
+
+    /**
+     * Hash collision is very tedious, some cases work
+     * even without perturbations :)
+     * @author Vincent
+     *
+     */
+    public enum TestAllocationSizes
+    {
+        HANGING(6000000),
+        OK(6291424); //close to 0.75 load factor
+
+        public final int testSize;
+
+        private TestAllocationSizes(final int tSize) {
+
+            this.testSize = tSize;
+        }
     }
 
     public enum Allocation
@@ -48,31 +73,33 @@ public class BenchmarkHashCollisions
     @Param
     public Distribution distribution;
 
-    @Param("10000000")
-    public int size;
+    @Param({
+            "0.75"
+    })
+    public float loadFactor;
+
+    @Param
+    public TestAllocationSizes targetSize;
 
     public BenchmarkHashCollisions() {
         // nothing
     }
 
-    //Each @Benchmark iteration execution, we recreate everything
-    //to be able to see reallocations effects.
-    @Setup(Level.Invocation)
-    public void setUp() throws Exception
+    //This part is only done once
+    @Setup
+    public void setUpCommon() throws Exception
     {
-        //Instead of this.size, fill up
-        //prepare testSet to be filled up to their specified load factor.
+        final int nbElementsToPush = this.targetSize.testSize;
 
-        this.testSet = new IntOpenHashSet(this.size);
-        this.testMap = new IntIntOpenHashMap(this.size);
+        this.testSet = new IntOpenHashSet(nbElementsToPush);
 
-        final DistributionGenerator gene = new DistributionGenerator(-this.size, 3 * this.size, new XorShiftRandom(87955214455L));
+        final DistributionGenerator gene = new DistributionGenerator(-nbElementsToPush, 3 * nbElementsToPush, new XorShiftRandom(87955214455L));
 
         int nextValue = -1;
 
         int count = 0;
 
-        while (this.testSet.size() < this.size) {
+        while (this.testSet.size() < nbElementsToPush) {
 
             if (this.distribution == Distribution.RANDOM) {
 
@@ -88,68 +115,77 @@ public class BenchmarkHashCollisions
             }
             else if (this.distribution == Distribution.LINEAR_DECREASING) {
 
-                nextValue = this.size - count;
+                nextValue = nbElementsToPush - count;
             }
 
             this.testSet.add(nextValue);
-            this.testMap.put(nextValue, 0);
+
             count++;
         }
 
-        //Preallocate of not the tested hash containers
+        //In PREALLOCATED we only need to create once, and clear the containers under test before each test.
+        if (this.allocation == Allocation.PREALLOCATED) {
+
+            this.currentUnderTestSet = IntOpenHashSet.newInstanceWithCapacity(nbElementsToPush, this.loadFactor);
+            this.currentUnderTestSet2 = IntOpenHashSet.newInstanceWithCapacity(nbElementsToPush, this.loadFactor);
+        }
+
+        System.out.println("Initialized to test size = " + nbElementsToPush);
+    }
+
+    //Each @Benchmark iteration execution, we recreate everything
+    //to be able to see reallocations effects.
+    @Setup(Level.Invocation)
+    public void setUpIncocation() throws Exception
+    {
+        //In DEFAULT_SIZE we really have to recreate all containers under test
+        //each time, to be able to see reallocation effects.
+
         if (this.allocation == Allocation.DEFAULT_SIZE) {
 
             this.currentUnderTestSet = IntOpenHashSet.newInstance();
             this.currentUnderTestSet2 = IntOpenHashSet.newInstance();
-            this.currentUnderTestMap = IntIntOpenHashMap.newInstance();
-
         }
-        else if (this.allocation == Allocation.PREALLOCATED) {
 
-            this.currentUnderTestSet = IntOpenHashSet.newInstanceWithCapacity(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
-            this.currentUnderTestSet2 = IntOpenHashSet.newInstanceWithCapacity(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
-            this.currentUnderTestMap = IntIntOpenHashMap.newInstance(this.size, IntOpenHashSet.DEFAULT_LOAD_FACTOR);
-        }
+        // PREALLOCATED is created once and simply cleared. Since the clear
+        //operation is very fast, we do it in each @Benchmark.
     }
 
     //Tests
     /**
      * Time the 'addAll' operation.
      */
+    @Timeout(time = BenchmarkHashCollisions.TIMEOUT_EXEC_IN_S, timeUnit = TimeUnit.SECONDS)
     @Benchmark
     public int timeSet_AddAll()
     {
         int count = 0;
 
+        this.currentUnderTestSet.clear();
         count += this.currentUnderTestSet.addAll(this.testSet);
 
         return count;
     }
 
-    @Benchmark
-    public int timeMap_PutAll()
-    {
-        int count = 0;
-
-        count += this.currentUnderTestMap.putAll(this.testMap);
-
-        return count;
-    }
-
+    @Timeout(time = BenchmarkHashCollisions.TIMEOUT_EXEC_IN_S, timeUnit = TimeUnit.SECONDS)
     @Benchmark
     public int timeSet_AddAll_Successive()
     {
         int count = 0;
+        this.currentUnderTestSet.clear();
+        this.currentUnderTestSet2.clear();
         count += this.currentUnderTestSet.addAll(this.testSet);
         count += this.currentUnderTestSet2.addAll(this.currentUnderTestSet);
 
         return count;
     }
 
+    @Timeout(time = BenchmarkHashCollisions.TIMEOUT_EXEC_IN_S, timeUnit = TimeUnit.SECONDS)
     @Benchmark
     public int timeSet_Direct_iteration_add_all()
     {
         int count = 0;
+        this.currentUnderTestSet.clear();
 
         final int[] testSetKeys = this.testSet.keys;
 
@@ -166,10 +202,12 @@ public class BenchmarkHashCollisions
         return count;
     }
 
+    @Timeout(time = BenchmarkHashCollisions.TIMEOUT_EXEC_IN_S, timeUnit = TimeUnit.SECONDS)
     @Benchmark
     public int timeSet_Direct_iteration_reversed_add_all()
     {
         int count = 0;
+        this.currentUnderTestSet.clear();
 
         final int[] testSetKeys = this.testSet.keys;
 
@@ -186,9 +224,12 @@ public class BenchmarkHashCollisions
         return count;
     }
 
+    @Timeout(time = BenchmarkHashCollisions.TIMEOUT_EXEC_IN_S, timeUnit = TimeUnit.SECONDS)
     @Benchmark
     public int timeSet_ForEach_add_all()
     {
+        this.currentUnderTestSet.clear();
+
         final IntProcedure addAllProcedure = new IntProcedure() {
 
             @Override

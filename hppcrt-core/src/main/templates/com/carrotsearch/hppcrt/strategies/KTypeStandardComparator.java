@@ -10,7 +10,6 @@ import com.carrotsearch.hppcrt.Intrinsics;
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeStandardComparator<KType> implements KTypeComparator<KType>
 {
-
     public KTypeStandardComparator() {
         // nothing
     }

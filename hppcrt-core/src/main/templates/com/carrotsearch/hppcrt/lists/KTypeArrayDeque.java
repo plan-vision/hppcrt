@@ -723,21 +723,19 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
 
     /**
      * Clone this object. The returned clone will reuse the same array resizing strategy.
-     * It also realizes a trim-to- this.size() in the process.
      */
     @Override
     public KTypeArrayDeque<KType> clone()
     {
-        /* #if ($TemplateOptions.KTypeGeneric) */
-        @SuppressWarnings("unchecked")
-        /* #end */
-        //real constructor call
-        final KTypeArrayDeque<KType> cloned = new KTypeArrayDeque<KType>(this.size(), this.resizer);
+        final KTypeArrayDeque<KType> cloned = new KTypeArrayDeque<KType>(this.capacity(), this.resizer);
+
+        //copy the full buffer
+        System.arraycopy(this.buffer, 0, cloned.buffer, 0, this.buffer.length);
+
+        cloned.head = this.head;
+        cloned.tail = this.tail;
 
         cloned.defaultValue = this.defaultValue;
-
-        //copied in-order by construction.
-        cloned.addLast(this);
 
         return cloned;
 

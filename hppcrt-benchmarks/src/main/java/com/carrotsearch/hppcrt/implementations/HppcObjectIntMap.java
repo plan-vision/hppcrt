@@ -1,5 +1,6 @@
 package com.carrotsearch.hppcrt.implementations;
 
+
 import java.util.Random;
 
 import com.carrotsearch.hppcrt.Util;
@@ -116,5 +117,12 @@ public class HppcObjectIntMap extends MapImplementation<ObjectIntOpenHashMap<Map
         }
 
         return count;
+    }
+
+    @Override
+    public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
+
+        this.instance = ((ObjectIntOpenHashMap<MapImplementation.ComparableInt>) toCloneFrom.instance).clone();
+
     }
 }

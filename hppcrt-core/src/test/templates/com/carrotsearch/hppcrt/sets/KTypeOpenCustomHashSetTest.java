@@ -27,9 +27,6 @@ import com.carrotsearch.randomizedtesting.annotations.*;
  * Unit tests for {@link KTypeOpenCustomHashSetTest}.
  */
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
-/*! #set( $ROBIN_HOOD_FOR_ALL = true) !*/
-// If RH is defined, RobinHood Hashing is in effect :
-/*! #set( $RH = $ROBIN_HOOD_FOR_ALL) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
 {
@@ -65,8 +62,6 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
 
     };
 
-    private int perturbation;
-
     /* */
     @Before
     public void initialize()
@@ -82,8 +77,6 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
     @After
     public void checkConsistency()
     {
-        this.perturbation = HashContainerUtils.computePerturbationValue(this.set.keys.length);
-
         if (this.set != null)
         {
             int occupied = 0;
@@ -95,17 +88,12 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
                 if (!is_allocated(i, this.set.keys))
                 {
                     //if not allocated, generic version if patched to null for GC sake
-                    /*! #if (($TemplateOptions.KTypeGeneric)  || !$RH  ) !*/
+                    /*! #if ($TemplateOptions.KTypeGeneric) !*/
                     TestUtils.assertEquals2(this.key0, this.set.keys[i]);
                     /*! #end !*/
                 }
                 else
                 {
-                    /*! #if ($RH) !*/
-                    //check hash cache consistency
-                    Assert.assertEquals(REHASH(this.set.strategy(), this.set.keys[i]) & mask, this.set.hash_cache[i]);
-                    /*! #end !*/
-
                     //try to reach the key by contains()
                     Assert.assertTrue(this.set.contains(this.set.keys[i]));
 
@@ -1563,16 +1551,4 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
 
         return keys[slot] != Intrinsics.defaultKTypeValue();
     }
-
-    /*! #if ($TemplateOptions.inlineKType("REHASH",
-    "(strategy, value)",
-    "PhiMix.hash(strategy.computeHashCode(value) + this.perturbation )")) !*/
-    /**
-     * (actual method is inlined in generated code)
-     */
-    private int REHASH(final KTypeHashingStrategy<? super KType> strategy, final KType value) {
-
-        return PhiMix.hash(strategy.computeHashCode(value) + this.perturbation);
-    }
-    /*! #end !*/
 }

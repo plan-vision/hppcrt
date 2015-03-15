@@ -10,6 +10,7 @@ import org.openjdk.jmh.runner.RunnerException;
 
 import com.carrotsearch.hppcrt.BenchmarkSuiteRunner;
 import com.carrotsearch.hppcrt.Util;
+import com.carrotsearch.hppcrt.implementations.MapImplementation;
 
 /**
  * Benchmark putting a given number of integers / Objects into a hashmap.
@@ -17,6 +18,7 @@ import com.carrotsearch.hppcrt.Util;
  */
 public class BenchmarkHashMapRemove extends BenchmarkHashMapBase
 {
+
     public enum MAP_LOOKUP_TEST
     {
         TRUE,
@@ -62,18 +64,21 @@ public class BenchmarkHashMapRemove extends BenchmarkHashMapBase
             }
         }
 
-        //call setup of impl
+        //call setup of impl, this is the reference implementation, that will stay inchanged.
         this.impl.setup(this.pushedKeys, this.hash_quality, this.removedKeys, this.removedKeys);
+
+        this.impl2.setup(this.pushedKeys, this.hash_quality, this.removedKeys, this.removedKeys);
+
+        //Fill it using PutAll
+        this.impl.benchPutAll();
     }
 
     //Per-invocation setup here, because we must re-fill the map
-    //at each iteration with a heavy benchPutAll(), so better exclude it from measurement.
+    //at each iteration so better exclude it from measurement.
     @Setup(Level.Invocation)
     public void setUp() throws Exception
     {
-        this.impl.clear();
-        //Fill the map, using the putAll
-        this.impl.benchPutAll();
+        this.impl2.setCopyOfInstance(this.impl);
     }
 
     /**
@@ -82,7 +87,7 @@ public class BenchmarkHashMapRemove extends BenchmarkHashMapBase
     @Benchmark
     public int timeRemove()
     {
-        return this.impl.benchRemoveKeys();
+        return this.impl2.benchRemoveKeys();
     }
 
     public static void main(final String[] args) throws RunnerException

@@ -122,4 +122,11 @@ public class HppcIdentityIntMap extends MapImplementation<ObjectIntOpenIdentityH
 
         return true;
     }
+
+    @Override
+    public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
+
+        this.instance = ((ObjectIntOpenIdentityHashMap<ComparableInt>) toCloneFrom.instance).clone();
+
+    }
 }

@@ -139,7 +139,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      * Per-instance, per-allocation size perturbation
      * introduced in rehashing to create a unique key distribution.
      */
-    private int perturbation;
+    private final int perturbation = HashContainerUtils.computeUniqueIdentifier(this);
 
     /**
      * Custom hashing strategy :
@@ -202,8 +202,6 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (internalCapacity * loadFactor)) - 2;
 
-        //TODO
-        this.perturbation = HashContainerUtils.computePerturbationValue(internalCapacity);
     }
 
     /**
@@ -537,8 +535,6 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (capacity * this.loadFactor)) - 2;
 
-        //TODO
-        this.perturbation = HashContainerUtils.computePerturbationValue(capacity);
     }
 
     /**
@@ -780,7 +776,6 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         final int[] cached = this.hash_cache;
         int dist = 0;
         /*! #end !*/
-
 
         while (is_allocated(slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/)
@@ -1052,15 +1047,17 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      * Clone this object.
      * #if ($TemplateOptions.KTypeGeneric)
      * The returned clone will use the same HashingStrategy strategy.
-     * It also realizes a trim-to- this.size() in the process.
      * #end
      */
     @Override
     public KTypeOpenCustomHashSet<KType> clone()
     {
-        final KTypeOpenCustomHashSet<KType> cloned = new KTypeOpenCustomHashSet<KType>(this.size(), this.loadFactor, this.hashStrategy);
+        final KTypeOpenCustomHashSet<KType> cloned = new KTypeOpenCustomHashSet<KType>(capacity(), this.loadFactor, this.hashStrategy);
 
+        //We must NOT clone because of the independent perturbation seeds
         cloned.addAll(this);
+
+        cloned.lastSlot = -1;
 
         cloned.allocatedDefaultKey = this.allocatedDefaultKey;
         cloned.defaultValue = this.defaultValue;
@@ -1221,17 +1218,18 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         return slot - rh;
     }
+
 /*! #end !*/
 
     /*! #if ($TemplateOptions.inlineKType("REHASH",
     "(strategy, value)",
-    "PhiMix.hash(strategy.computeHashCode(value) + this.perturbation )")) !*/
+    "PhiMix.hash(strategy.computeHashCode(value) ^ this.perturbation )")) !*/
     /**
      * (actual method is inlined in generated code)
      */
     private int REHASH(final KTypeHashingStrategy<? super KType> strategy, final KType value) {
 
-        return PhiMix.hash(strategy.computeHashCode(value) + this.perturbation);
+        return PhiMix.hash(strategy.computeHashCode(value) ^ this.perturbation);
     }
     /*! #end !*/
 

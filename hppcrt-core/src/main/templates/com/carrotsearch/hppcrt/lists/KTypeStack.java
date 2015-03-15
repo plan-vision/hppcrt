@@ -483,12 +483,13 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
     @Override
     public KTypeStack<KType> clone()
     {
-        final KTypeStack<KType> cloned = new KTypeStack<KType>(size(), this.resizer);
+        final KTypeStack<KType> cloned = new KTypeStack<KType>(capacity(), this.resizer);
 
+        //copy contents directly
+        System.arraycopy(this.buffer, 0, cloned.buffer, 0, size());
+
+        cloned.elementsCount = this.elementsCount;
         cloned.defaultValue = this.defaultValue;
-
-        //in order by construction
-        cloned.addAll(this);
 
         return cloned;
     }

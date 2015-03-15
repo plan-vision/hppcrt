@@ -101,8 +101,7 @@
                   </classpath>
                 </retrotranslator>
 
-                <attachartifact
-                  file="${project.build.directory}/${project.build.finalName}-jdk15.jar"
+                  <attachartifact file="${project.build.directory}/${project.build.finalName}-jdk15.jar"
                   classifier="jdk15" type="jar" />
               </target>
             </configuration>
@@ -198,8 +197,7 @@
 
               <!-- Attach a simple listener. -->
               <listeners>
-                <report-text
-                    showThrowable="false" 
+                 <report-text  showThrowable="false" 
                     showStackTraces="false" 
                     showOutput="onError"
 
@@ -208,8 +206,7 @@
                     showStatusFailure="false"
                     showStatusIgnored="false"
 
-                    showSuiteSummary="true"
-                />
+                    showSuiteSummary="true" />
 
                 <report-json file="${project.build.directory}/surefire-reports/test-results.html" />
                 <report-ant-xml dir="${project.build.directory}/surefire-reports/" mavenExtensions="true" />

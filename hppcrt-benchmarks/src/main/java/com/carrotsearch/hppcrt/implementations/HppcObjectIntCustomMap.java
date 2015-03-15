@@ -142,4 +142,11 @@ public class HppcObjectIntCustomMap extends MapImplementation<ObjectIntOpenCusto
 
         return count;
     }
+
+    @Override
+    public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
+
+        this.instance = ((ObjectIntOpenCustomHashMap<MapImplementation.ComparableInt>) toCloneFrom.instance).clone();
+
+    }
 }

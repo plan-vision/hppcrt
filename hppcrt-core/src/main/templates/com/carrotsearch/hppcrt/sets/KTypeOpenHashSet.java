@@ -74,8 +74,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenHashSet<KType>
-extends AbstractKTypeCollection<KType>
-implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+        extends AbstractKTypeCollection<KType>
+        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -162,7 +162,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      * Per-instance, per-allocation size perturbation
      * introduced in rehashing to create a unique key distribution.
      */
-    private int perturbation;
+    private final int perturbation = HashContainerUtils.computeUniqueIdentifier(this);
 
     /**
      * Creates a hash set with the default capacity of {@value #DEFAULT_CAPACITY},
@@ -208,8 +208,6 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (internalCapacity * loadFactor)) - 2;
 
-        //TODO
-        this.perturbation = HashContainerUtils.computePerturbationValue(internalCapacity);
     }
 
     /**
@@ -538,9 +536,6 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         //allocate so that there is at least one slot that remains allocated = false
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (capacity * this.loadFactor)) - 2;
-
-        //TODO
-        this.perturbation = HashContainerUtils.computePerturbationValue(capacity);
     }
 
     /**
@@ -1037,18 +1032,17 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     }
 
     /**
-     * Clone this object.
-     * #if ($TemplateOptions.KTypeGeneric)
-     * The returned clone will use the same HashingStrategy strategy.
-     * It also realizes a trim-to- this.size() in the process.
-     * #end
+     * {@inheritDoc}
      */
     @Override
     public KTypeOpenHashSet<KType> clone()
     {
-        final KTypeOpenHashSet<KType> cloned = new KTypeOpenHashSet<KType>(this.size(), this.loadFactor);
+        final KTypeOpenHashSet<KType> cloned = new KTypeOpenHashSet<KType>(this.capacity(), this.loadFactor);
 
+        //We must NOT clone, because of the independent perturbation seeds
         cloned.addAll(this);
+
+        cloned.lastSlot = -1;
 
         cloned.allocatedDefaultKey = this.allocatedDefaultKey;
         cloned.defaultValue = this.defaultValue;
@@ -1204,11 +1198,11 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
     /*! #if ($TemplateOptions.inlineKTypeWithFullSpecialization("REHASH",
     "(value)",
-    "MurmurHash3.hash(value.hashCode() + this.perturbation)",
-    "PhiMix.hash(value + this.perturbation)",
-    "(int)PhiMix.hash(value + this.perturbation)",
-    "PhiMix.hash(Float.floatToIntBits(value) + this.perturbation)",
-    "(int)PhiMix.hash(Double.doubleToLongBits(value) + this.perturbation)",
+    "MurmurHash3.hash(value.hashCode() ^ this.perturbation)",
+    "PhiMix.hash(value ^ this.perturbation)",
+    "(int)PhiMix.hash(value ^ this.perturbation)",
+    "PhiMix.hash(Float.floatToIntBits(value) ^ this.perturbation)",
+    "(int)PhiMix.hash(Double.doubleToLongBits(value) ^ this.perturbation)",
     "")) !*/
     /**
      * REHASH method for rehashing the keys.
@@ -1217,7 +1211,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      */
     private int REHASH(final KType value) {
 
-        return MurmurHash3.hash(value.hashCode() + this.perturbation);
+        return MurmurHash3.hash(value.hashCode() ^ this.perturbation);
     }
     /*! #end !*/
 

@@ -165,7 +165,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      * Per-instance, per-allocation size perturbation
      * introduced in rehashing to create a unique key distribution.
      */
-    private int perturbation;
+    private final int perturbation = HashContainerUtils.computeUniqueIdentifier(this);
 
     /**
      * Custom hashing strategy :
@@ -241,10 +241,6 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         //allocate so that there is at least one slot that remains allocated = false
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (internalCapacity * loadFactor)) - 2;
-
-        //TODO
-        this.perturbation = HashContainerUtils.computePerturbationValue(internalCapacity);
-
     }
 
     /**
@@ -766,8 +762,6 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (capacity * this.loadFactor)) - 2;
 
-        //TODO
-        this.perturbation = HashContainerUtils.computePerturbationValue(capacity);
     }
 
     /**
@@ -2074,16 +2068,18 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      * Clone this object.
      * #if ($TemplateOptions.AnyGeneric)
      * The returned clone will use the same HashingStrategy strategy.
-     * It also realizes a trim-to- this.size() in the process.
      * #end
      */
     @Override
     public KTypeVTypeOpenCustomHashMap<KType, VType> clone()
     {
         final KTypeVTypeOpenCustomHashMap<KType, VType> cloned =
-        new KTypeVTypeOpenCustomHashMap<KType, VType>(this.size(), this.loadFactor, this.hashStrategy);
+                new KTypeVTypeOpenCustomHashMap<KType, VType>(capacity(), this.loadFactor, this.hashStrategy);
 
+        //We must NOT clone because of independent perturbations seeds
         cloned.putAll(this);
+
+        cloned.lastSlot = -1;
 
         cloned.allocatedDefaultKeyValue = this.allocatedDefaultKeyValue;
         cloned.allocatedDefaultKey = this.allocatedDefaultKey;
@@ -2229,17 +2225,18 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         return slot - rh;
     }
+
     /*! #end !*/
 
     /*! #if ($TemplateOptions.inlineKType("REHASH",
     "(strategy, value)",
-    "PhiMix.hash(strategy.computeHashCode(value) + this.perturbation )")) !*/
+    "PhiMix.hash(strategy.computeHashCode(value) ^ this.perturbation )")) !*/
     /**
      * (actual method is inlined in generated code)
      */
     private int REHASH(final KTypeHashingStrategy<? super KType> strategy, final KType value) {
 
-        return PhiMix.hash(strategy.computeHashCode(value) + this.perturbation);
+        return PhiMix.hash(strategy.computeHashCode(value) ^ this.perturbation);
     }
     /*! #end !*/
 }

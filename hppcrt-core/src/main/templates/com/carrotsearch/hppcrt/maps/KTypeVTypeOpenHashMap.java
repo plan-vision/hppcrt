@@ -191,7 +191,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      * Per-instance, per-allocation size perturbation
      * introduced in rehashing to create a unique key distribution.
      */
-    private int perturbation;
+    private final int perturbation = HashContainerUtils.computeUniqueIdentifier(this);
 
     /**
      * Creates a hash map with the default capacity of {@value #DEFAULT_CAPACITY},
@@ -252,9 +252,6 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         //allocate so that there is at least one slot that remains allocated = false
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (internalCapacity * loadFactor)) - 2;
-
-        //TODO
-        this.perturbation = HashContainerUtils.computePerturbationValue(internalCapacity);
     }
 
     /**
@@ -768,9 +765,6 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         //allocate so that there is at least one slot that remains allocated = false
         //this is compulsory to guarantee proper stop in searching loops
         this.resizeAt = Math.max(3, (int) (capacity * this.loadFactor)) - 2;
-
-        //TODO
-        this.perturbation = HashContainerUtils.computePerturbationValue(capacity);
     }
 
     /**
@@ -2062,18 +2056,17 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     }
 
     /**
-     * Clone this object.
-     * #if ($TemplateOptions.AnyGeneric)
-     * The returned clone will use the same HashingStrategy strategy.
-     * It also realizes a trim-to- this.size() in the process.
-     * #end
+     * {@inheritDoc}
      */
     @Override
     public KTypeVTypeOpenHashMap<KType, VType> clone()
     {
-        final KTypeVTypeOpenHashMap<KType, VType> cloned = new KTypeVTypeOpenHashMap<KType, VType>(this.size(), this.loadFactor);
+        final KTypeVTypeOpenHashMap<KType, VType> cloned = new KTypeVTypeOpenHashMap<KType, VType>(this.capacity(), this.loadFactor);
 
+        //do not clone because of independent perturbation seeds
         cloned.putAll(this);
+
+        cloned.lastSlot = -1;
 
         cloned.allocatedDefaultKeyValue = this.allocatedDefaultKeyValue;
         cloned.allocatedDefaultKey = this.allocatedDefaultKey;
@@ -2215,11 +2208,11 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
     /*! #if ($TemplateOptions.inlineKTypeWithFullSpecialization("REHASH",
     "(value)",
-    "MurmurHash3.hash(value.hashCode() + this.perturbation)",
-    "PhiMix.hash(value + this.perturbation)",
-    "(int)PhiMix.hash(value + this.perturbation)",
-    "PhiMix.hash(Float.floatToIntBits(value) + this.perturbation)",
-    "(int)PhiMix.hash(Double.doubleToLongBits(value) + this.perturbation)",
+    "MurmurHash3.hash(value.hashCode() ^ this.perturbation)",
+    "PhiMix.hash(value ^ this.perturbation)",
+    "(int)PhiMix.hash(value ^ this.perturbation)",
+    "PhiMix.hash(Float.floatToIntBits(value) ^ this.perturbation)",
+    "(int)PhiMix.hash(Double.doubleToLongBits(value) ^ this.perturbation)",
     "")) !*/
     /**
      * REHASH method for rehashing the keys.
@@ -2228,7 +2221,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      */
     private int REHASH(final KType value) {
 
-        return MurmurHash3.hash(value.hashCode() + this.perturbation);
+        return MurmurHash3.hash(value.hashCode() ^ this.perturbation);
     }
     /*! #end !*/
 }

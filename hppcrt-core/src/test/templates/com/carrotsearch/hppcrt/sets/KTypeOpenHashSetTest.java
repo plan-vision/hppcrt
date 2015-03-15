@@ -25,9 +25,6 @@ import com.carrotsearch.randomizedtesting.annotations.*;
  * Unit tests for {@link KTypeOpenHashSet}.
  */
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
-/*! #set( $ROBIN_HOOD_FOR_GENERICS = true) !*/
-// If RH is defined, RobinHood Hashing is in effect
-/*! #set( $RH = ($TemplateOptions.KTypeGeneric && $ROBIN_HOOD_FOR_GENERICS) ) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
 {
@@ -74,17 +71,12 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
                 if (!is_allocated(i, this.set.keys))
                 {
                     //if not allocated, generic version if patched to null for GC sake
-                    /*! #if (($TemplateOptions.KTypeGeneric)  || !$RH  ) !*/
+                    /*! #if ($TemplateOptions.KTypeGeneric) !*/
                     TestUtils.assertEquals2(this.key0, this.set.keys[i]);
                     /*! #end !*/
                 }
                 else
                 {
-                    /*! #if ($RH) !*/
-                    //check hash cache consistency
-                    Assert.assertEquals(REHASH(this.set.keys[i]) & mask, this.set.hash_cache[i]);
-                    /*! #end !*/
-
                     //try to reach the key by contains()
                     Assert.assertTrue(this.set.contains(this.set.keys[i]));
 
@@ -1311,29 +1303,8 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         return newSet;
     }
 
-   
     private boolean is_allocated(final int slot, final KType[] keys) {
 
         return keys[slot] != Intrinsics.defaultKTypeValue();
     }
-
-    /*! #if ($TemplateOptions.inlineKTypeWithFullSpecialization("REHASH",
-    "(value)",
-    "MurmurHash3.hash(value.hashCode() + this.perturbation)",
-    "PhiMix.hash(value + this.perturbation)",
-    "(int)PhiMix.hash(value + this.perturbation)",
-    "PhiMix.hash(Float.floatToIntBits(value) + this.perturbation)",
-    "(int)PhiMix.hash(Double.doubleToLongBits(value) + this.perturbation)",
-    "")) !*/
-    /**
-     * REHASH method for rehashing the keys.
-     * (inlined in generated code)
-     * Thanks to single array mode, no need to check for null/0 or booleans.
-     */
-    private int REHASH(final KType value) {
-
-        return MurmurHash3.hash(value.hashCode() + this.perturbation);
-    }
-    /*! #end !*/
-
 }

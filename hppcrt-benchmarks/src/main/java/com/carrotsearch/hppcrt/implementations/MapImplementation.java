@@ -81,7 +81,7 @@ public abstract class MapImplementation<IMPLEM>
         }
     }
 
-    public final IMPLEM instance;
+    protected IMPLEM instance;
 
     protected MapImplementation(final IMPLEM instance)
     {
@@ -121,6 +121,14 @@ public abstract class MapImplementation<IMPLEM>
     public abstract void clear();
 
     public abstract int size();
+
+    /**
+     * Sort-of clone() the whole implementation of toCloneFrom in its current state, (independent copy !)
+     * very convenient to quickly set a current state of an implem from a reference implem
+     * in tests.
+     * @return
+     */
+    public abstract void setCopyOfInstance(MapImplementation<?> toCloneFrom);
 
     /**
      * By default, not an IdentityMap, override if needed

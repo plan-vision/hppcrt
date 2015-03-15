@@ -9,7 +9,6 @@ package com.carrotsearch.hppcrt.strategies;
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeIdentityHash<KType> implements KTypeHashingStrategy<KType>
 {
-
     public KTypeIdentityHash() {
         // nothing
     }

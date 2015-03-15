@@ -19,6 +19,9 @@ public class KolobokeObjectIntMap extends MapImplementation<HashObjIntMap<MapImp
     private ComparableInt[] removedKeys;
     private int[] insertValues;
 
+    private final int size;
+    private final float loadFactor;
+
     protected KolobokeObjectIntMap(final int size, final float loadFactor)
     {
         //since Objects are not mixed in Koloboke, a strategy must be used.
@@ -45,6 +48,9 @@ public class KolobokeObjectIntMap extends MapImplementation<HashObjIntMap<MapImp
                     }
                 }).
                 newMutableMap(size));
+
+        this.size = size;
+        this.loadFactor = loadFactor;
     }
 
     /**
@@ -144,5 +150,37 @@ public class KolobokeObjectIntMap extends MapImplementation<HashObjIntMap<MapImp
         }
 
         return count;
+    }
+
+    @Override
+    public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
+
+        final HashObjIntMap<MapImplementation.ComparableInt> sourceCopy = (HashObjIntMap<MapImplementation.ComparableInt>) (toCloneFrom.instance);
+
+        //copy constructor
+        this.instance = HashObjIntMaps.<MapImplementation.ComparableInt> getDefaultFactory().
+                withHashConfig(HashConfig.fromLoads(this.loadFactor / 2, this.loadFactor, this.loadFactor)).
+                withKeyEquivalence(new StatelessEquivalence<MapImplementation.ComparableInt>() {
+
+                    @Override
+                    public boolean equivalent(final MapImplementation.ComparableInt i1, final MapImplementation.ComparableInt i2) {
+
+                        //eat some CPU to simulate method cost
+                        Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
+
+                        return i1.value == i2.value;
+                    }
+
+                    @Override
+                    public int hash(final MapImplementation.ComparableInt i) {
+
+                        //eat some CPU to simulate method cost
+                        Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
+
+                        return i.value * -1640531527; // magic mix
+                    }
+                }).
+                newMutableMap(sourceCopy);
+
     }
 }

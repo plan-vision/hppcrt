@@ -86,4 +86,13 @@ public final class HashContainerUtils
     {
         return HashContainerUtils.PERTURBATIONS[Integer.numberOfLeadingZeros(capacity)];
     }
+
+    /**
+     * <p>Compute a unique identifier associated with Object instance, valid in the same
+     * process.
+     */
+    public static int computeUniqueIdentifier(final Object instance)
+    {
+        return (int) (System.identityHashCode(instance) ^ System.nanoTime());
+    }
 }
