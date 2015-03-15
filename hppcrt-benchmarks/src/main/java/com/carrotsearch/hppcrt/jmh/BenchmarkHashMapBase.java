@@ -15,7 +15,7 @@ import org.openjdk.jmh.annotations.State;
 import com.carrotsearch.hppcrt.BitUtil;
 import com.carrotsearch.hppcrt.DistributionGenerator;
 import com.carrotsearch.hppcrt.XorShiftRandom;
-import com.carrotsearch.hppcrt.implementations.Implementations;
+import com.carrotsearch.hppcrt.implementations.HashMapImplementations;
 import com.carrotsearch.hppcrt.implementations.MapImplementation;
 import com.carrotsearch.hppcrt.implementations.MapImplementation.ComparableInt;
 import com.carrotsearch.hppcrt.implementations.MapImplementation.HASH_QUALITY;
@@ -39,12 +39,12 @@ public class BenchmarkHashMapBase
 
     @Param({
 
-        "6000000"
+            "6000000"
     })
     public int targetSize;
 
     @Param({
-            "0.75"
+        "0.75"
     })
     public float loadFactor;
 
@@ -55,7 +55,7 @@ public class BenchmarkHashMapBase
     public HASH_QUALITY hash_quality;
 
     @Param
-    public Implementations implementation;
+    public HashMapImplementations implementation;
 
     protected MapImplementation<?> impl;
 
@@ -178,7 +178,7 @@ public class BenchmarkHashMapBase
                 testIdentityFactor.add(curr.getKey());
             }
 
-            effectiveLoadFactor = testIdentityFactor.size() / (double) ((Object[])testIdentityFactor.keys).length;
+            effectiveLoadFactor = testIdentityFactor.size() / (double) ((Object[]) testIdentityFactor.keys).length;
 
         }
         else {

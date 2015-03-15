@@ -3,7 +3,7 @@ package com.carrotsearch.hppcrt.implementations;
 /**
  * 
  */
-public enum Implementations
+public enum HashMapImplementations
 {
     HPPC_INT_INT
     {
@@ -38,33 +38,6 @@ public enum Implementations
         public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
             return new GsIntIntMap(size, loadFactor);
-        }
-    },
-
-    MAHOUT_INT_INT
-    {
-        @Override
-        public MapImplementation<?> getInstance(final int size, final float loadFactor)
-        {
-            return new MahoutIntIntMap(size, loadFactor);
-        }
-    },
-
-    TROVE_INT_INT
-    {
-        @Override
-        public MapImplementation<?> getInstance(final int size, final float loadFactor)
-        {
-            return new TroveIntIntMap(size, loadFactor);
-        }
-    },
-
-    JAVOLUTION_INT_INT
-    {
-        @Override
-        public MapImplementation<?> getInstance(final int size, final float loadFactor)
-        {
-            return new JavolutionIntIntMap(size, loadFactor);
         }
     },
 
@@ -143,36 +116,6 @@ public enum Implementations
         public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
             return new GsObjectIntMap(size, loadFactor);
-        }
-
-        @Override
-        public boolean isHashQualityApplicable() {
-
-            return true;
-        }
-    },
-
-    MAHOUT_OBJ_INT
-    {
-        @Override
-        public MapImplementation<?> getInstance(final int size, final float loadFactor)
-        {
-            return new MahoutObjectIntMap(size, loadFactor);
-        }
-
-        @Override
-        public boolean isHashQualityApplicable() {
-
-            return true;
-        }
-    },
-
-    TROVE_OBJ_INT
-    {
-        @Override
-        public MapImplementation<?> getInstance(final int size, final float loadFactor)
-        {
-            return new TroveObjectIntMap(size, loadFactor);
         }
 
         @Override

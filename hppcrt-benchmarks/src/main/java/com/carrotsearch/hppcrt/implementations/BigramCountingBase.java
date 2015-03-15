@@ -1,6 +1,5 @@
 package com.carrotsearch.hppcrt.implementations;
 
-import gnu.trove.map.hash.TIntIntHashMap;
 import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 
@@ -46,39 +45,6 @@ public class BigramCountingBase
             count += map.putOrAdd(bigram, 1, 1);
         }
         // [[[end:bigram-counting]]]
-
-        return count;
-    }
-
-    public int trove()
-    {
-        final char[] CHARS = this.data;
-        final TIntIntHashMap map = new TIntIntHashMap();
-
-        int count = 0;
-
-        for (int i = 0; i < CHARS.length - 1; i++)
-        {
-            final int bigram = CHARS[i] << 16 | CHARS[i + 1];
-            count += map.adjustOrPutValue(bigram, 1, 1);
-        }
-
-        return count;
-    }
-
-    public int mahoutCollections()
-    {
-        final char[] CHARS = this.data;
-        final org.apache.mahout.math.map.OpenIntIntHashMap map =
-                new org.apache.mahout.math.map.OpenIntIntHashMap();
-
-        int count = 0;
-
-        for (int i = 0; i < CHARS.length - 1; i++)
-        {
-            final int bigram = CHARS[i] << 16 | CHARS[i + 1];
-            count += map.adjustOrPutValue(bigram, 1, 1);
-        }
 
         return count;
     }

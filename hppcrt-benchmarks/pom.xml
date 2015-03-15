@@ -30,12 +30,10 @@
         <javac.target>1.8</javac.target>
         <uberjar.name>benchmarks</uberjar.name>
         
-        <trove.version>3.0.3</trove.version>
         <fastutil.version>6.6.4</fastutil.version>
         <gs.version>6.0.0</gs.version>
         <koloboke.version>0.6.6</koloboke.version>
         <javolution.version>6.0.0</javolution.version>
-        <mahout.version>0.9</mahout.version>
     </properties>
 
     <!-- Dependencies. -->
@@ -75,12 +73,6 @@
             <version>${jmh.version}</version>
             <scope>provided</scope>
         </dependency>  
-        
-        <dependency>
-            <groupId>net.sf.trove4j</groupId>
-            <artifactId>trove4j</artifactId>
-            <version>${trove.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>it.unimi.dsi</groupId>
@@ -111,14 +103,6 @@
         	<groupId>com.goldmansachs</groupId>
         	<artifactId>gs-collections</artifactId>
         	<version>${gs.version}</version>
-        </dependency>
-
-     
-
-        <dependency>
-            <groupId>org.apache.mahout</groupId>
-            <artifactId>mahout-math</artifactId>
-            <version>${mahout.version}</version>
         </dependency>
         
         <dependency>

@@ -52,8 +52,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenCustomHashSet<KType>
-extends AbstractKTypeCollection<KType>
-implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+        extends AbstractKTypeCollection<KType>
+        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -1223,13 +1223,13 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
     /*! #if ($TemplateOptions.inlineKType("REHASH",
     "(strategy, value)",
-    "PhiMix.hash(strategy.computeHashCode(value) ^ this.perturbation )")) !*/
+    "MurmurHash3.hash(strategy.computeHashCode(value) ^ this.perturbation )")) !*/
     /**
      * (actual method is inlined in generated code)
      */
     private int REHASH(final KTypeHashingStrategy<? super KType> strategy, final KType value) {
 
-        return PhiMix.hash(strategy.computeHashCode(value) ^ this.perturbation);
+        return MurmurHash3.hash(strategy.computeHashCode(value) ^ this.perturbation);
     }
     /*! #end !*/
 

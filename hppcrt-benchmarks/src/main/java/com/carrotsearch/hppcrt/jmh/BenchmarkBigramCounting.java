@@ -25,10 +25,8 @@ public class BenchmarkBigramCounting
     public static enum Library
     {
         HPPC,
-        TROVE,
         FASTUTIL_OPEN,
         FASTUTIL_LINKED,
-        MAHOUT,
         JAVA_NAIVE,
         JAVA_SMART
     }
@@ -50,17 +48,11 @@ public class BenchmarkBigramCounting
             case HPPC:
                 count += this.bc.hppc();
                 break;
-            case TROVE:
-                count += this.bc.trove();
-                break;
             case FASTUTIL_LINKED:
                 this.bc.fastutilLinkedOpenHashMap();
                 break;
             case FASTUTIL_OPEN:
                 count += this.bc.fastutilOpenHashMap();
-                break;
-            case MAHOUT:
-                count += this.bc.mahoutCollections();
                 break;
             case JAVA_NAIVE:
                 count += this.bc.jcfNaive();

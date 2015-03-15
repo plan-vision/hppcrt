@@ -53,7 +53,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenCustomHashMap<KType, VType>
-implements KTypeVTypeMap<KType, VType>, Cloneable
+        implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -1536,7 +1536,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      * A view of the keys inside this hash map.
      */
     public final class KeysContainer
-    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenCustomHashMap<KType, VType> owner =
                 KTypeVTypeOpenCustomHashMap.this;
@@ -2230,13 +2230,13 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
     /*! #if ($TemplateOptions.inlineKType("REHASH",
     "(strategy, value)",
-    "PhiMix.hash(strategy.computeHashCode(value) ^ this.perturbation )")) !*/
+    "MurmurHash3.hash(strategy.computeHashCode(value) ^ this.perturbation )")) !*/
     /**
      * (actual method is inlined in generated code)
      */
     private int REHASH(final KTypeHashingStrategy<? super KType> strategy, final KType value) {
 
-        return PhiMix.hash(strategy.computeHashCode(value) ^ this.perturbation);
+        return MurmurHash3.hash(strategy.computeHashCode(value) ^ this.perturbation);
     }
     /*! #end !*/
 }
