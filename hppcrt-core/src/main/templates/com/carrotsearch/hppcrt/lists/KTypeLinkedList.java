@@ -1820,7 +1820,7 @@ public class KTypeLinkedList<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> newInstanceWithCapacity(final int initialCapacity)
+            KTypeLinkedList<KType> newInstance(final int initialCapacity)
     {
         return new KTypeLinkedList<KType>(initialCapacity);
     }

@@ -1089,7 +1089,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      * Returns a new object of this class with no need to declare generic type (shortcut
      * instead of using a constructor).
      */
-    public static <KType> KTypeOpenHashSet<KType> newInstanceWithCapacity(final int initialCapacity, final float loadFactor)
+    public static <KType> KTypeOpenHashSet<KType> newInstance(final int initialCapacity, final float loadFactor)
     {
         return new KTypeOpenHashSet<KType>(initialCapacity, loadFactor);
     }

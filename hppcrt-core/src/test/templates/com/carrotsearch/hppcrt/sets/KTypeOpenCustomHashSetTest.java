@@ -937,7 +937,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
             #end !*/
 
         //2) Preallocate to PREALLOCATED_SIZE :
-        final KTypeOpenCustomHashSet<KType> newSet = KTypeOpenCustomHashSet.newInstanceWithCapacity(PREALLOCATED_SIZE,
+        final KTypeOpenCustomHashSet<KType> newSet = KTypeOpenCustomHashSet.newInstance(PREALLOCATED_SIZE,
                 KTypeOpenCustomHashSet.DEFAULT_LOAD_FACTOR, this.TEST_STRATEGY);
 
         //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
@@ -1395,7 +1395,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         //those following 3  sets behave indeed the same in the test context:
         final KTypeOpenCustomHashSet<KType> refSet = KTypeOpenCustomHashSet.newInstance(new KTypeStandardHash<KType>());
 
-        final KTypeOpenCustomHashSet<KType> refSetIdenticalStrategy = KTypeOpenCustomHashSet.newInstanceWithCapacity(
+        final KTypeOpenCustomHashSet<KType> refSetIdenticalStrategy = KTypeOpenCustomHashSet.newInstance(
                 KTypeOpenCustomHashSet.DEFAULT_CAPACITY,
                 KTypeOpenCustomHashSet.DEFAULT_LOAD_FACTOR,
                 new KTypeHashingStrategy<KType>() {
@@ -1456,7 +1456,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
     {
         final Random prng = new Random(randomSeed);
 
-        final KTypeOpenCustomHashSet<KType> newSet = KTypeOpenCustomHashSet.newInstanceWithCapacity(KTypeOpenCustomHashSet.DEFAULT_CAPACITY,
+        final KTypeOpenCustomHashSet<KType> newSet = KTypeOpenCustomHashSet.newInstance(KTypeOpenCustomHashSet.DEFAULT_CAPACITY,
                 KTypeOpenCustomHashSet.DEFAULT_LOAD_FACTOR, strategy);
 
         for (int i = 0; i < size; i++)
@@ -1469,7 +1469,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
 
     private KTypeOpenCustomHashSet<KType> createSetWithOrderedData(final int size)
     {
-        final KTypeOpenCustomHashSet<KType> newSet = KTypeOpenCustomHashSet.newInstanceWithCapacity(KTypeOpenCustomHashSet.DEFAULT_CAPACITY,
+        final KTypeOpenCustomHashSet<KType> newSet = KTypeOpenCustomHashSet.newInstance(KTypeOpenCustomHashSet.DEFAULT_CAPACITY,
                 KTypeOpenCustomHashSet.DEFAULT_LOAD_FACTOR, this.TEST_STRATEGY);
 
         for (int i = 0; i < size; i++) {

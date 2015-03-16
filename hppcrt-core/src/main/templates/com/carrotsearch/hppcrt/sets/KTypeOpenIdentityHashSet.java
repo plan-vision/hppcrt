@@ -29,7 +29,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeOpenIdentityHashSet<KType>
-extends KTypeOpenCustomHashSet<KType>
+        extends KTypeOpenCustomHashSet<KType>
 {
     private static final KTypeIdentityHash<Object> IDENTITY_EQUALITY = new KTypeIdentityHash<Object>();
 
@@ -114,7 +114,7 @@ extends KTypeOpenCustomHashSet<KType>
      * Returns a new object of this class with no need to declare generic type (shortcut
      * instead of using a constructor).
      */
-    public static <KType> KTypeOpenIdentityHashSet<KType> newInstanceWithCapacity(final int initialCapacity, final float loadFactor)
+    public static <KType> KTypeOpenIdentityHashSet<KType> newInstance(final int initialCapacity, final float loadFactor)
     {
         return new KTypeOpenIdentityHashSet<KType>(initialCapacity, loadFactor);
     }
@@ -150,8 +150,8 @@ extends KTypeOpenCustomHashSet<KType>
      * Inherited from KTypeOpenCustomHashSet, DO NOT USE, throws RuntimeException
      * @throws RuntimeException
      */
-    public static final <KType> KTypeOpenIdentityHashSet<KType> newInstanceWithCapacity(final int initialCapacity, final float loadFactor, final KTypeHashingStrategy<? super KType> hashStrategy)
+    public static final <KType> KTypeOpenIdentityHashSet<KType> newInstance(final int initialCapacity, final float loadFactor, final KTypeHashingStrategy<? super KType> hashStrategy)
     {
-        throw new RuntimeException("Identity hash newInstanceWithCapacity(strategy) usage logical error");
+        throw new RuntimeException("Identity hash newInstance(strategy) usage logical error");
     }
 }

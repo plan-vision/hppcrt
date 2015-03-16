@@ -1396,7 +1396,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
             #end !*/
 
         //2) Preallocate to PREALLOCATED_SIZE :
-        final KTypeArrayDeque<KType> newDequeue = KTypeArrayDeque.newInstanceWithCapacity(PREALLOCATED_SIZE);
+        final KTypeArrayDeque<KType> newDequeue = KTypeArrayDeque.newInstance(PREALLOCATED_SIZE);
 
         //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
         //and internal buffer/allocated must not have changed of size
@@ -1415,7 +1415,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
 
     private KTypeArrayDeque<KType> createDequeWithOrderedData(final int size)
     {
-        final KTypeArrayDeque<KType> newArray = KTypeArrayDeque.newInstanceWithCapacity(KTypeArrayList.DEFAULT_CAPACITY);
+        final KTypeArrayDeque<KType> newArray = KTypeArrayDeque.newInstance(KTypeArrayList.DEFAULT_CAPACITY);
 
         for (int i = 0; i < size; i++)
         {
@@ -1429,7 +1429,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     {
         final Random prng = new Random(randomSeed);
 
-        final KTypeArrayDeque<KType> newDeque = KTypeArrayDeque.newInstanceWithCapacity(KTypeArrayList.DEFAULT_CAPACITY);
+        final KTypeArrayDeque<KType> newDeque = KTypeArrayDeque.newInstance(KTypeArrayList.DEFAULT_CAPACITY);
 
         while (newDeque.size() < size)
         {

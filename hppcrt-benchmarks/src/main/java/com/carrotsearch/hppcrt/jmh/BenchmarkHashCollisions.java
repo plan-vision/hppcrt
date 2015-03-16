@@ -74,7 +74,7 @@ public class BenchmarkHashCollisions
     public Distribution distribution;
 
     @Param({
-            "0.75"
+        "0.75"
     })
     public float loadFactor;
 
@@ -126,8 +126,8 @@ public class BenchmarkHashCollisions
         //In PREALLOCATED we only need to create once, and clear the containers under test before each test.
         if (this.allocation == Allocation.PREALLOCATED) {
 
-            this.currentUnderTestSet = IntOpenHashSet.newInstanceWithCapacity(nbElementsToPush, this.loadFactor);
-            this.currentUnderTestSet2 = IntOpenHashSet.newInstanceWithCapacity(nbElementsToPush, this.loadFactor);
+            this.currentUnderTestSet = IntOpenHashSet.newInstance(nbElementsToPush, this.loadFactor);
+            this.currentUnderTestSet2 = IntOpenHashSet.newInstance(nbElementsToPush, this.loadFactor);
         }
 
         System.out.println("Initialized to test size = " + nbElementsToPush);

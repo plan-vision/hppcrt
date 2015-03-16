@@ -248,7 +248,7 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
             #end !*/
 
         //2) Preallocate to PREALLOCATED_SIZE :
-        final KTypeStack<KType> newStack = KTypeStack.newInstanceWithCapacity(PREALLOCATED_SIZE);
+        final KTypeStack<KType> newStack = KTypeStack.newInstance(PREALLOCATED_SIZE);
 
         //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
         //and internal buffer/allocated must not have changed of size
@@ -479,7 +479,7 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
     {
         final Random prng = new Random(randomSeed);
 
-        final KTypeStack<KType> newArray = KTypeStack.newInstanceWithCapacity(KTypeArrayList.DEFAULT_CAPACITY);
+        final KTypeStack<KType> newArray = KTypeStack.newInstance(KTypeArrayList.DEFAULT_CAPACITY);
 
         for (int i = 0; i < size; i++)
         {

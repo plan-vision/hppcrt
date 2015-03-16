@@ -1157,7 +1157,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeArrayDeque<KType> newInstanceWithCapacity(final int initialCapacity)
+    KTypeArrayDeque<KType> newInstance(final int initialCapacity)
     {
         return new KTypeArrayDeque<KType>(initialCapacity);
     }

@@ -51,7 +51,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     public void initialize()
     {
         //create a vary small list to force reallocs.
-        this.list = KTypeLinkedList.newInstanceWithCapacity(2);
+        this.list = KTypeLinkedList.newInstance(2);
 
         this.sequence = KTypeArrayList.newInstance();
 
@@ -1163,7 +1163,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
 
     private KTypeLinkedList<KType> createArrayWithOrderedData(final int size)
     {
-        final KTypeLinkedList<KType> newArray = KTypeLinkedList.newInstanceWithCapacity(KTypeLinkedList.DEFAULT_CAPACITY);
+        final KTypeLinkedList<KType> newArray = KTypeLinkedList.newInstance(KTypeLinkedList.DEFAULT_CAPACITY);
 
         for (int i = 0; i < size; i++)
         {
@@ -1177,7 +1177,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     {
         final Random prng = new Random(randomSeed);
 
-        final KTypeLinkedList<KType> newArray = KTypeLinkedList.newInstanceWithCapacity(KTypeLinkedList.DEFAULT_CAPACITY);
+        final KTypeLinkedList<KType> newArray = KTypeLinkedList.newInstance(KTypeLinkedList.DEFAULT_CAPACITY);
 
         for (int i = 0; i < size; i++)
         {
@@ -2315,7 +2315,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
             #end !*/
 
         //2) Preallocate to PREALLOCATED_SIZE :
-        final KTypeLinkedList<KType> newList = KTypeLinkedList.newInstanceWithCapacity(PREALLOCATED_SIZE);
+        final KTypeLinkedList<KType> newList = KTypeLinkedList.newInstance(PREALLOCATED_SIZE);
 
         //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
         //and internal buffer/allocated must not have changed of size

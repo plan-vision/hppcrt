@@ -350,7 +350,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
      * Returns a new object of this list with no need to declare generic type (shortcut
      * instead of using a constructor).
      */
-    public static <KType> KTypeStack<KType> newInstanceWithCapacity(final int initialCapacity)
+    public static <KType> KTypeStack<KType> newInstance(final int initialCapacity)
     {
         return new KTypeStack<KType>(initialCapacity);
     }

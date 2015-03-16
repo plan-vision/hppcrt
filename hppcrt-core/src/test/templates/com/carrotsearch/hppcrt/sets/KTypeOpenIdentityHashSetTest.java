@@ -758,7 +758,7 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
 
     private KTypeOpenIdentityHashSet<KType> createSetWithOrderedData(final int size)
     {
-        final KTypeOpenIdentityHashSet<KType> newSet = KTypeOpenIdentityHashSet.newInstanceWithCapacity(KTypeOpenCustomHashSet.DEFAULT_CAPACITY,
+        final KTypeOpenIdentityHashSet<KType> newSet = KTypeOpenIdentityHashSet.newInstance(KTypeOpenCustomHashSet.DEFAULT_CAPACITY,
                 KTypeOpenCustomHashSet.DEFAULT_LOAD_FACTOR);
 
         for (int i = 0; i < size; i++) {

@@ -871,7 +871,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeArrayList<KType> newInstanceWithCapacity(final int initialCapacity)
+    KTypeArrayList<KType> newInstance(final int initialCapacity)
     {
         return new KTypeArrayList<KType>(initialCapacity);
     }

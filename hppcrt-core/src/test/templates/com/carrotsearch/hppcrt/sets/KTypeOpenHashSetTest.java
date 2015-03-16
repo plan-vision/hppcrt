@@ -928,7 +928,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
             #end !*/
 
         //2) Preallocate to PREALLOCATED_SIZE :
-        final KTypeOpenHashSet<KType> newSet = KTypeOpenHashSet.newInstanceWithCapacity(PREALLOCATED_SIZE,
+        final KTypeOpenHashSet<KType> newSet = KTypeOpenHashSet.newInstance(PREALLOCATED_SIZE,
                 KTypeOpenHashSet.DEFAULT_LOAD_FACTOR);
 
         //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
@@ -1230,7 +1230,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
 
     private KTypeOpenHashSet<KType> createSetWithOrderedData(final int size)
     {
-        final KTypeOpenHashSet<KType> newSet = KTypeOpenHashSet.newInstanceWithCapacity(KTypeOpenHashSet.DEFAULT_CAPACITY,
+        final KTypeOpenHashSet<KType> newSet = KTypeOpenHashSet.newInstance(KTypeOpenHashSet.DEFAULT_CAPACITY,
                 KTypeOpenHashSet.DEFAULT_LOAD_FACTOR);
 
         for (int i = 0; i < size; i++) {
