@@ -153,15 +153,6 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
     protected int resizeAt;
 
     /**
-     * The most recent slot accessed in {@link #containsKey} (required for
-     * {@link #lget}).
-     * 
-     * @see #containsKey
-     * @see #lget
-     */
-    protected int lastSlot;
-
-    /**
      * Per-instance, per-allocation size perturbation
      * introduced in rehashing to create a unique key distribution.
      */
@@ -634,7 +625,7 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
 
         // We have succeeded at allocating new data so insert the pending key/value at
         // the free slot in the old arrays before rehashing.
-        this.lastSlot = -1;
+
         this.assigned++;
 
         oldKeys[freeSlot] = pendingKey;
@@ -1056,126 +1047,12 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
     }
 
     /**
-     * Returns the last key stored in this has map for the corresponding
-     * most recent call to {@link #containsKey}.
-     * Precondition : {@link #containsKey} must have been called previously !
-     * <p>Use the following snippet of code to check for key existence
-     * first and then retrieve the key value if it exists.</p>
-     * <pre>
-     * if (map.containsKey(key))
-     *   value = map.lkey();
-     * </pre>
-     * 
-     * <p>This is equivalent to calling:</p>
-     * <pre>
-     * if (map.containsKey(key))
-     *   key = map.keys[map.lslot()];
-     * </pre>
-     */
-    public KType lkey()
-    {
-
-        if (this.lastSlot == -2) {
-
-            return Intrinsics.defaultKTypeValue();
-        }
-
-        assert this.lastSlot >= 0 : "Call containsKey() first.";
-
-        assert (this.keys[this.lastSlot] != Intrinsics.defaultKTypeValue()) : "Last call to exists did not have any associated value.";
-
-        return this.keys[this.lastSlot];
-    }
-
-    /**
-     * Returns the last value saved in a call to {@link #containsKey}.
-     * Precondition : {@link #containsKey} must have been called previously !
-     * @see #containsKey
-     */
-    public VType lget()
-    {
-        if (this.lastSlot == -2) {
-
-            return this.allocatedDefaultKeyValue;
-        }
-
-        assert this.lastSlot >= 0 : "Call containsKey() first.";
-
-        assert (this.keys[this.lastSlot] != Intrinsics.defaultKTypeValue()) : "Last call to exists did not have any associated value.";
-
-        return this.values[this.lastSlot];
-    }
-
-    /**
-     * Sets the value corresponding to the key saved in the last
-     * call to {@link #containsKey}, if and only if the key exists
-     * in the map already.
-     * Precondition : {@link #containsKey} must have been called previously !
-     * @see #containsKey
-     * @return Returns the previous value stored under the given key.
-     */
-    public VType lset(final VType value)
-    {
-        if (this.lastSlot == -2) {
-
-            final VType previous = this.allocatedDefaultKeyValue;
-            this.allocatedDefaultKeyValue = value;
-            return previous;
-        }
-
-        assert this.lastSlot >= 0 : "Call containsKey() first.";
-
-        assert (this.keys[this.lastSlot] != Intrinsics.defaultKTypeValue()) : "Last call to exists did not have any associated value.";
-
-        final VType previous = this.values[this.lastSlot];
-        this.values[this.lastSlot] = value;
-        return previous;
-    }
-
-    /**
-     * @return Returns the slot of the last key looked up in a call to {@link #containsKey} if
-     * it returned <code>true</code>
-     * or else -2 if {@link #containsKey} were successful on key = 0
-     * @see #containsKey
-     */
-    public int lslot()
-    {
-        assert this.lastSlot >= 0 || this.lastSlot == -2 : "Call containsKey() first.";
-        return this.lastSlot;
-    }
-
-    /**
      * {@inheritDoc}
-     * 
-     * <p>Saves the associated value for fast access using {@link #lget}
-     * or {@link #lset}.</p>
-     * <pre>
-     * if (map.containsKey(key))
-     *   value = map.lget();
-     * </pre>
-     * or, to modify the value at the given key without looking up
-     * its slot twice:
-     * <pre>
-     * if (map.containsKey(key))
-     *   map.lset(map.lget() + 1);
-     * </pre>
-     * #if ($TemplateOptions.KTypeGeneric) or, to retrieve the key-equivalent object from the map:
-     * <pre>
-     * if (map.containsKey(key))
-     *   map.lkey();
-     * </pre>#end
      */
     @Override
     public boolean containsKey(final KType key)
     {
         if (key == Intrinsics.defaultKTypeValue()) {
-
-            if (this.allocatedDefaultKey) {
-                this.lastSlot = -2;
-            }
-            else {
-                this.lastSlot = -1;
-            }
 
             return this.allocatedDefaultKey;
         }
@@ -1193,14 +1070,12 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
         //1.1 The rehashed slot is free, return false
         if ((curr = keys[slot = REHASH(strategy, key) & mask]) == Intrinsics.defaultKTypeValue()) {
 
-            this.lastSlot = -1;
             return false;
         }
 
         //1.2) The rehashed entry is occupied by the key, return true
         if (strategy.equals(curr, key)) {
 
-            this.lastSlot = slot;
             return true;
         }
 
@@ -1217,7 +1092,6 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
         {
             if (strategy.equals(key, keys[slot]))
             {
-                this.lastSlot = slot;
                 return true;
             }
             slot = (slot + 1) & mask;
@@ -1226,9 +1100,6 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
             dist++;
             /*! #end !*/
         } //end while true
-
-        //unsuccessful search
-        this.lastSlot = -1;
 
         return false;
     }
@@ -1242,7 +1113,6 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
     public void clear()
     {
         this.assigned = 0;
-        this.lastSlot = -1;
 
         // States are always cleared.
         this.allocatedDefaultKey = false;
@@ -2078,8 +1948,6 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
 
         //We must NOT clone because of independent perturbations seeds
         cloned.putAll(this);
-
-        cloned.lastSlot = -1;
 
         cloned.allocatedDefaultKeyValue = this.allocatedDefaultKeyValue;
         cloned.allocatedDefaultKey = this.allocatedDefaultKey;

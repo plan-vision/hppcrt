@@ -82,17 +82,8 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
                     //try to reach the key by contains()
                     Assert.assertTrue(this.map.containsKey(this.map.keys[i]));
 
-                    //check slot
-                    Assert.assertEquals(i, this.map.lslot());
-
                     //get() test
                     Assert.assertEquals(vcastType(this.map.values[i]), vcastType(this.map.get(this.map.keys[i])));
-
-                    //retreive again by lkey(), lget() :
-
-                    //test key by reference !
-                    Assert.assertSame(this.map.keys[i], this.map.lkey());
-                    Assert.assertEquals(vcastType(this.map.values[i]), vcastType(this.map.lget()));
 
                     occupied++;
                 }
@@ -103,17 +94,8 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
                 //try to reach the key by contains()
                 Assert.assertTrue(this.map.containsKey(Intrinsics.<KType> defaultKTypeValue()));
 
-                //check slot
-                Assert.assertEquals(-2, this.map.lslot());
-
                 //get() test
                 TestUtils.assertEquals2(vcastType(this.map.allocatedDefaultKeyValue), vcastType(this.map.get(Intrinsics.<KType> defaultKTypeValue())));
-
-                //Retrieve again by lkey(), lget() :
-
-                //test key by reference !
-                Assert.assertSame(Intrinsics.defaultKTypeValue(), this.map.lkey());
-                Assert.assertEquals(vcastType(this.map.allocatedDefaultKeyValue), vcastType(this.map.lget()));
 
                 occupied++;
             }
@@ -1044,10 +1026,6 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
 
             Assert.assertTrue(newMap.containsKey(newObject));
 
-            //lkey() really return the previously stored object
-            Assert.assertSame(newObject, newMap.lkey());
-
-            Assert.assertEquals(i, vcastType(newMap.lget()));
         } //end for
 
         //objects are all different, so size is really NB_ELEMENTS

@@ -79,12 +79,6 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
                     //try to reach the key by contains()
                     Assert.assertTrue(this.set.contains(this.set.keys[i]));
 
-                    //check slot
-                    Assert.assertEquals(i, this.set.lslot());
-
-                    //Retrieve again by lkey(), compare by reference !
-                    Assert.assertSame(this.set.keys[i], this.set.lkey());
-
                     occupied++;
                 }
             }
@@ -94,11 +88,6 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
                 //try to reach the key by contains()
                 Assert.assertTrue(this.set.contains(Intrinsics.<KType> defaultKTypeValue()));
 
-                //check slot
-                Assert.assertEquals(-2, this.set.lslot());
-
-                //Retrieve again by lkey() :
-                TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), this.set.lkey());
                 occupied++;
             }
 
@@ -223,13 +212,13 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
         this.set.add(asArrayObjects(this.k0, this.k1, this.k2));
 
         Assert.assertEquals(1, this.set.removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeOpenIdentityHashSetTest.this.key1;
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEqualsByReference(this.set.toArray(), this.k0, this.key2);
     }
@@ -241,13 +230,13 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
         this.set.add(asArrayObjects(this.key0, this.k1, this.k2, this.key4));
 
         Assert.assertEquals(2, this.set.removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return (v == KTypeOpenIdentityHashSetTest.this.k1) || (v == KTypeOpenIdentityHashSetTest.this.key0);
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEqualsByReference(this.set.toArray(), this.key2, this.key4);
     }
@@ -264,7 +253,7 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size + 1
             Assert.assertEquals(10, this.set.removeAll(new KTypePredicate<KType>()
-            {
+                    {
                 @Override
                 public boolean apply(final KType v)
                 {
@@ -273,7 +262,7 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
                     }
                     return v == KTypeOpenIdentityHashSetTest.this.key2 || v == KTypeOpenIdentityHashSetTest.this.key9 || v == KTypeOpenIdentityHashSetTest.this.key5;
                 };
-            }));
+                    }));
 
             Assert.fail();
         }
@@ -299,13 +288,13 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
         this.set.add(asArrayObjects(this.k0, this.k1, this.k2, this.k3, this.k4, this.k5));
 
         Assert.assertEquals(4, this.set.retainAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeOpenIdentityHashSetTest.this.key1 || v == KTypeOpenIdentityHashSetTest.this.key2;
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEqualsByReference(this.set.toArray(), this.key1, this.key2);
     }
@@ -317,13 +306,13 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
         this.set.add(asArrayObjects(this.key0, this.k1, this.k2, this.k3, this.k4, this.k5));
 
         Assert.assertEquals(4, this.set.retainAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeOpenIdentityHashSetTest.this.key0 || v == KTypeOpenIdentityHashSetTest.this.k3;
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEqualsByReference(this.set.toArray(), this.key0, this.k3);
     }
@@ -364,7 +353,6 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
             counted++;
             Assert.assertTrue(this.set.contains(cursor.value));
 
-            TestUtils.assertEquals2(cursor.value, this.set.lkey());
         }
         Assert.assertEquals(counted, this.set.size());
 
@@ -393,7 +381,6 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
             counted++;
             Assert.assertTrue(this.set.contains(cursor.value));
 
-            TestUtils.assertEquals2(cursor.value, this.set.lkey());
         }
         Assert.assertEquals(counted, this.set.size());
 
@@ -763,9 +750,6 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
 
             //Really the same object
             Assert.assertTrue(newSet.contains(newObject));
-
-            //lkey() really return the previously stored object
-            Assert.assertSame(newObject, newSet.lkey());
         } //end for
 
         //objects are all different, so size is really NB_ELEMENTS

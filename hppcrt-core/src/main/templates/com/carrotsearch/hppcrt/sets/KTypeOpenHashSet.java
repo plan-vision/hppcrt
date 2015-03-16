@@ -151,14 +151,6 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     protected int resizeAt;
 
     /**
-     * The most recent slot accessed in {@link #contains}.
-     * 
-     * @see #contains
-     * @see #lkey
-     */
-    protected int lastSlot;
-
-    /**
      * Per-instance, per-allocation size perturbation
      * introduced in rehashing to create a unique key distribution.
      */
@@ -423,7 +415,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         // We have succeeded at allocating new data so insert the pending key/value at
         // the free slot in the old arrays before rehashing.
-        this.lastSlot = -1;
+
         this.assigned++;
 
         oldKeys[freeSlot] = pendingKey;
@@ -686,56 +678,12 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     }
 
     /**
-     * Returns the last key saved in a call to {@link #contains} if it returned <code>true</code>.
-     * Precondition : {@link #contains} must have been called previously !
-     * @see #contains
-     */
-    public KType lkey()
-    {
-        if (this.lastSlot == -2) {
-
-            return Intrinsics.defaultKTypeValue();
-        }
-
-        assert this.lastSlot >= 0 : "Call containsKey() first.";
-        assert (this.keys[this.lastSlot] != Intrinsics.defaultKTypeValue()) : "Last call to exists did not have any associated value.";
-
-        return this.keys[this.lastSlot];
-    }
-
-    /**
-     * @return Returns the slot of the last key looked up in a call to {@link #contains} if
-     * it returned <code>true</code>.
-     * or else -2 if {@link #contains} were succesfull on key = 0/null
-     * @see #contains
-     */
-    public int lslot()
-    {
-        assert this.lastSlot >= 0 || this.lastSlot == -2 : "Call contains() first.";
-        return this.lastSlot;
-    }
-
-    /**
      * {@inheritDoc}
-     * 
-     * #if ($TemplateOptions.KTypeGeneric) <p>Saves the associated value for fast access using {@link #lkey()}.</p>
-     * <pre>
-     * if (map.contains(key))
-     *     value = map.lkey();
-     * 
-     * </pre> #end
      */
     @Override
     public boolean contains(final KType key)
     {
         if (key == Intrinsics.defaultKTypeValue()) {
-
-            if (this.allocatedDefaultKey) {
-                this.lastSlot = -2;
-            }
-            else {
-                this.lastSlot = -1;
-            }
 
             return this.allocatedDefaultKey;
         }
@@ -751,14 +699,12 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         //1.1 The rehashed slot is free, return false
         if ((curr = keys[slot = REHASH(key) & mask]) == Intrinsics.defaultKTypeValue()) {
 
-            this.lastSlot = -1;
             return false;
         }
 
         //1.2) The rehashed entry is occupied by the key, return true
         if (Intrinsics.equalsKTypeNotNull(curr, key)) {
 
-            this.lastSlot = slot;
             return true;
         }
 
@@ -775,7 +721,6 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         {
             if (Intrinsics.equalsKTypeNotNull(key, keys[slot]))
             {
-                this.lastSlot = slot;
                 return true;
             }
             slot = (slot + 1) & mask;
@@ -784,9 +729,6 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
             dist++;
             /*! #end !*/
         } //end while true
-
-        //unsuccessful search
-        this.lastSlot = -1;
 
         return false;
     }
@@ -800,7 +742,6 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     public void clear()
     {
         this.assigned = 0;
-        this.lastSlot = -1;
 
         // States are always cleared.
         this.allocatedDefaultKey = false;
@@ -1041,8 +982,6 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         //We must NOT clone, because of the independent perturbation seeds
         cloned.addAll(this);
-
-        cloned.lastSlot = -1;
 
         cloned.allocatedDefaultKey = this.allocatedDefaultKey;
         cloned.defaultValue = this.defaultValue;

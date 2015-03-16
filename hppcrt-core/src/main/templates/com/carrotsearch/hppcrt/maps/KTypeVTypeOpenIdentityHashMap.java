@@ -32,7 +32,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeVTypeOpenIdentityHashMap<KType, VType>
-extends KTypeVTypeOpenCustomHashMap<KType, VType>
+        extends KTypeVTypeOpenCustomHashMap<KType, VType>
 {
     private static final KTypeIdentityHash<Object> IDENTITY_EQUALITY = new KTypeIdentityHash<Object>();
 
@@ -93,8 +93,6 @@ extends KTypeVTypeOpenCustomHashMap<KType, VType>
 
         //We must NOT clone because of the independent perturbation seeds
         cloned.putAll(this);
-
-        cloned.lastSlot = -1;
 
         cloned.allocatedDefaultKeyValue = this.allocatedDefaultKeyValue;
         cloned.allocatedDefaultKey = this.allocatedDefaultKey;
@@ -181,7 +179,7 @@ extends KTypeVTypeOpenCustomHashMap<KType, VType>
      */
     public static final <KType, VType> KTypeVTypeOpenIdentityHashMap<KType, VType> from(final KTypeVTypeAssociativeContainer<KType, VType> container,
             final KTypeHashingStrategy<? super KType> hashStrategy)
-    {
+            {
         throw new RuntimeException("Identity hash from(KTypeVTypeAssociativeContainer, strategy) usage logical error");
-    }
+            }
 }

@@ -29,7 +29,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeOpenIdentityHashSet<KType>
-        extends KTypeOpenCustomHashSet<KType>
+extends KTypeOpenCustomHashSet<KType>
 {
     private static final KTypeIdentityHash<Object> IDENTITY_EQUALITY = new KTypeIdentityHash<Object>();
 
@@ -76,8 +76,6 @@ public final class KTypeOpenIdentityHashSet<KType>
 
         //We must NOT clone because of the independent perturbation values
         cloned.addAll(this);
-
-        cloned.lastSlot = -1;
 
         cloned.allocatedDefaultKey = this.allocatedDefaultKey;
         cloned.defaultValue = this.defaultValue;
