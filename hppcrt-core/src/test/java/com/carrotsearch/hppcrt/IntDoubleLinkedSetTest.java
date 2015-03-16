@@ -10,18 +10,18 @@ import org.junit.rules.MethodRule;
 
 import com.carrotsearch.hppcrt.cursors.IntCursor;
 import com.carrotsearch.hppcrt.predicates.IntPredicate;
-import com.carrotsearch.hppcrt.sets.IntDoubleLinkedSet;
+import com.carrotsearch.hppcrt.sets.DoubleLinkedIntSet;
 import com.carrotsearch.hppcrt.sets.IntOpenHashSet;
 
 /**
- * Unit tests for {@link IntDoubleLinkedSet}.
+ * Unit tests for {@link DoubleLinkedIntSet}.
  */
 public class IntDoubleLinkedSetTest<KType>
 {
     /**
      * Per-test fresh initialized instance.
      */
-    public IntDoubleLinkedSet set;
+    public DoubleLinkedIntSet set;
 
     int key1 = 1;
     int key2 = 2;
@@ -37,7 +37,7 @@ public class IntDoubleLinkedSetTest<KType>
     @Before
     public void initialize()
     {
-        set = new IntDoubleLinkedSet();
+        set = new DoubleLinkedIntSet();
     }
 
     /* */
@@ -82,7 +82,7 @@ public class IntDoubleLinkedSetTest<KType>
     @Test
     public void testAddAll()
     {
-        final IntDoubleLinkedSet set2 = new IntDoubleLinkedSet();
+        final DoubleLinkedIntSet set2 = new DoubleLinkedIntSet();
         set2.add(1, 2);
         set.add(0, 1);
 
@@ -111,7 +111,7 @@ public class IntDoubleLinkedSetTest<KType>
     {
         for (int i = 0; i < 256; i++)
         {
-            final IntDoubleLinkedSet set = new IntDoubleLinkedSet(i, i);
+            final DoubleLinkedIntSet set = new DoubleLinkedIntSet(i, i);
 
             for (int j = 0; j < i; j++)
             {
@@ -209,7 +209,7 @@ public class IntDoubleLinkedSetTest<KType>
         final IntOpenHashSet list2 = new IntOpenHashSet();
         list2.add(1, 3, 5);
 
-        set = new IntDoubleLinkedSet(list2);
+        set = new DoubleLinkedIntSet(list2);
         Assert.assertEquals(3, set.size());
         TestUtils.assertSortedListEquals(list2.toArray(), set.toArray());
     }
@@ -221,8 +221,8 @@ public class IntDoubleLinkedSetTest<KType>
         final IntOpenHashSet list2 = new IntOpenHashSet();
         list2.add(1, 3, 5);
 
-        final IntDoubleLinkedSet s1 = IntDoubleLinkedSet.from(1, 3, 5);
-        final IntDoubleLinkedSet s2 = IntDoubleLinkedSet.from(1, 3, 5);
+        final DoubleLinkedIntSet s1 = DoubleLinkedIntSet.from(1, 3, 5);
+        final DoubleLinkedIntSet s2 = DoubleLinkedIntSet.from(1, 3, 5);
 
         TestUtils.assertSortedListEquals(list2.toArray(), s1.toArray());
         TestUtils.assertSortedListEquals(list2.toArray(), s2.toArray());
@@ -232,7 +232,7 @@ public class IntDoubleLinkedSetTest<KType>
     @Test
     public void testToString()
     {
-        Assert.assertEquals("[1, 3, 5]", IntDoubleLinkedSet.from(1, 3, 5).toString());
+        Assert.assertEquals("[1, 3, 5]", DoubleLinkedIntSet.from(1, 3, 5).toString());
     }
 
     /* */
@@ -241,7 +241,7 @@ public class IntDoubleLinkedSetTest<KType>
     {
         set.add(1, 2, 3);
 
-        final IntDoubleLinkedSet cloned = set.clone();
+        final DoubleLinkedIntSet cloned = set.clone();
         cloned.remove(1);
 
         TestUtils.assertSortedListEquals(set.toArray(), 1, 2, 3);

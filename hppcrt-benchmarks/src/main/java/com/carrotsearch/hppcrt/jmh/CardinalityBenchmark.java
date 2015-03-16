@@ -12,7 +12,7 @@ import org.openjdk.jmh.runner.RunnerException;
 
 import com.carrotsearch.hppcrt.BenchmarkSuiteRunner;
 import com.carrotsearch.hppcrt.BitSet;
-import com.carrotsearch.hppcrt.sets.IntDoubleLinkedSet;
+import com.carrotsearch.hppcrt.sets.DoubleLinkedIntSet;
 import com.carrotsearch.hppcrt.sets.IntOpenHashSet;
 
 /**
@@ -26,7 +26,7 @@ public class CardinalityBenchmark
     private final int[] numbers = new int[50000];
 
     private final BitSet bitset = new BitSet();
-    private final IntDoubleLinkedSet dlinked = new IntDoubleLinkedSet();
+    private final DoubleLinkedIntSet dlinked = new DoubleLinkedIntSet();
     private final IntOpenHashSet hset = new IntOpenHashSet();
 
     /* */
