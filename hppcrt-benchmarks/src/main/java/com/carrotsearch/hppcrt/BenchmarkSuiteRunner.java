@@ -149,18 +149,18 @@ public class BenchmarkSuiteRunner
             final int nbWarmups, final int nbIterations,
             final int minHeapSizeMbytes, final int maxHeapSizeMbytes) throws RunnerException {
 
-        Util.printSystemInfo("Benchmarks for " + jmhClass.getSimpleName() + " starting...");
+        Util.printSystemInfo("Benchmarks for '" + jmhClass.getSimpleName() + "' starting...");
 
         final Options opt = new OptionsBuilder()
-                .include(jmhClass.getSimpleName())
-                .forks(1)
-                .mode(Mode.SingleShotTime)
-                .warmupIterations(nbWarmups)
-                .measurementIterations(nbIterations)
-                .verbosity(VerboseMode.NORMAL)
-                .jvmArgsAppend("-Xms" + minHeapSizeMbytes + "m")
-                .jvmArgsAppend("-Xmx" + maxHeapSizeMbytes + "m")
-                .build();
+        .include(jmhClass.getSimpleName())
+        .forks(1)
+        .mode(Mode.SingleShotTime)
+        .warmupIterations(nbWarmups)
+        .measurementIterations(nbIterations)
+        .verbosity(VerboseMode.NORMAL)
+        .jvmArgsAppend("-Xms" + minHeapSizeMbytes + "m")
+        .jvmArgsAppend("-Xmx" + maxHeapSizeMbytes + "m")
+        .build();
 
         //run
         new Runner(opt).run();

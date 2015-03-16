@@ -32,17 +32,11 @@ public class KolobokeObjectIntMap extends MapImplementation<HashObjIntMap<MapImp
                     @Override
                     public boolean equivalent(final MapImplementation.ComparableInt i1, final MapImplementation.ComparableInt i2) {
 
-                        //eat some CPU to simulate method cost
-                        Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
-
                         return i1.value == i2.value;
                     }
 
                     @Override
                     public int hash(final MapImplementation.ComparableInt i) {
-
-                        //eat some CPU to simulate method cost
-                        Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
 
                         return i.value * -1640531527; // magic mix
                     }
@@ -165,17 +159,11 @@ public class KolobokeObjectIntMap extends MapImplementation<HashObjIntMap<MapImp
                     @Override
                     public boolean equivalent(final MapImplementation.ComparableInt i1, final MapImplementation.ComparableInt i2) {
 
-                        //eat some CPU to simulate method cost
-                        Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
-
                         return i1.value == i2.value;
                     }
 
                     @Override
                     public int hash(final MapImplementation.ComparableInt i) {
-
-                        //eat some CPU to simulate method cost
-                        Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
 
                         return i.value * -1640531527; // magic mix
                     }
