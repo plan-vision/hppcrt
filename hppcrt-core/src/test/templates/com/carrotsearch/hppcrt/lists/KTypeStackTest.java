@@ -211,7 +211,7 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
         this.stack.push(this.key1, this.key2, this.key3);
 
         final KTypeStack<KType> cloned = this.stack.clone();
-        cloned.removeAllOccurrences(this.key1);
+        cloned.removeAll(this.key1);
 
         TestUtils.assertSortedListEquals(this.stack.toArray(), this.key1, this.key2, this.key3);
         TestUtils.assertSortedListEquals(cloned.toArray(), this.key2, this.key3);
@@ -359,28 +359,28 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
     {
         this.stack.add(asArray(0, 1, 2, 3, 4, 0, 1, 2, 3, 4));
 
-        Assert.assertEquals(-1, this.stack.removeFirstOccurrence(this.k5));
-        Assert.assertEquals(-1, this.stack.removeLastOccurrence(this.k5));
+        Assert.assertEquals(-1, this.stack.removeFirst(this.k5));
+        Assert.assertEquals(-1, this.stack.removeLast(this.k5));
         TestUtils.assertListEquals(this.stack.toArray(), 4, 3, 2, 1, 0, 4, 3, 2, 1, 0);
 
-        Assert.assertEquals(3, this.stack.removeFirstOccurrence(this.k1));
+        Assert.assertEquals(3, this.stack.removeFirst(this.k1));
         TestUtils.assertListEquals(this.stack.toArray(), 4, 3, 2, 0, 4, 3, 2, 1, 0);
-        Assert.assertEquals(8, this.stack.removeLastOccurrence(this.k0));
+        Assert.assertEquals(8, this.stack.removeLast(this.k0));
         TestUtils.assertListEquals(this.stack.toArray(), 4, 3, 2, 0, 4, 3, 2, 1);
-        Assert.assertEquals(6, this.stack.removeLastOccurrence(this.k2));
+        Assert.assertEquals(6, this.stack.removeLast(this.k2));
         TestUtils.assertListEquals(this.stack.toArray(), 4, 3, 2, 0, 4, 3, 1);
-        Assert.assertEquals(1, this.stack.removeFirstOccurrence(this.k3));
+        Assert.assertEquals(1, this.stack.removeFirst(this.k3));
         TestUtils.assertListEquals(this.stack.toArray(), 4, 2, 0, 4, 3, 1);
 
-        Assert.assertEquals(2, this.stack.removeLastOccurrence(this.k0));
-        Assert.assertEquals(-1, this.stack.removeLastOccurrence(this.k0));
+        Assert.assertEquals(2, this.stack.removeLast(this.k0));
+        Assert.assertEquals(-1, this.stack.removeLast(this.k0));
         TestUtils.assertListEquals(this.stack.toArray(), 4, 2, 4, 3, 1);
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         this.stack.clear();
         this.stack.add(newArray(this.k0, null, this.k2, null, this.k0));
-        Assert.assertEquals(1, this.stack.removeFirstOccurrence(null));
-        Assert.assertEquals(2, this.stack.removeLastOccurrence(null));
+        Assert.assertEquals(1, this.stack.removeFirst(null));
+        Assert.assertEquals(2, this.stack.removeLast(null));
         TestUtils.assertListEquals(this.stack.toArray(), 0, 2, 0);
         /*! #end !*/
     }

@@ -331,7 +331,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * {@inheritDoc}
      */
     @Override
-    public int removeFirstOccurrence(final KType e1)
+    public int removeFirst(final KType e1)
     {
         final int index = indexOf(e1);
         if (index >= 0) {
@@ -344,7 +344,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * {@inheritDoc}
      */
     @Override
-    public int removeLastOccurrence(final KType e1)
+    public int removeLast(final KType e1)
     {
         final int index = lastIndexOf(e1);
         if (index >= 0) {
@@ -357,7 +357,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * {@inheritDoc}
      */
     @Override
-    public int removeAllOccurrences(final KType e1)
+    public int removeAll(final KType e1)
     {
         int to = 0;
         final KType[] buffer = this.buffer;

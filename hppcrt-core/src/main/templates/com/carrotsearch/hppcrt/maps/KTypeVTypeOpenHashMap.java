@@ -1502,7 +1502,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         }
 
         @Override
-        public int removeAllOccurrences(final KType e)
+        public int removeAll(final KType e)
         {
             final boolean hasKey = this.owner.containsKey(e);
             int result = 0;
@@ -1742,7 +1742,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
          * (key ? ,  e) with the  same  e,  from  the map.
          */
         @Override
-        public int removeAllOccurrences(final VType e)
+        public int removeAll(final VType e)
         {
             final int before = this.owner.size();
 

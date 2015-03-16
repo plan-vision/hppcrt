@@ -321,7 +321,7 @@ public class DoubleLinkedIntSet extends AbstractIntCollection implements IntLook
      * 
      */
     @Override
-    public int removeAllOccurrences(final int value)
+    public int removeAll(final int value)
     {
         if (value >= 0 && value < this.sparse.length)
         {
@@ -341,11 +341,11 @@ public class DoubleLinkedIntSet extends AbstractIntCollection implements IntLook
     }
 
     /**
-     * An alias for the (preferred) {@link #removeAllOccurrences}.
+     * An alias for the (preferred) {@link #removeAll}.
      */
     public boolean remove(final int key)
     {
-        return removeAllOccurrences(key) == 1;
+        return removeAll(key) == 1;
     }
 
     @Override

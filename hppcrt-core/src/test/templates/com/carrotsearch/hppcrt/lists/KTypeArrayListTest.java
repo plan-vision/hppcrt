@@ -205,23 +205,23 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     {
         this.list.add(asArray(0, 1, 2, 1, 0));
 
-        Assert.assertEquals(-1, this.list.removeFirstOccurrence(this.k5));
-        Assert.assertEquals(-1, this.list.removeLastOccurrence(this.k5));
+        Assert.assertEquals(-1, this.list.removeFirst(this.k5));
+        Assert.assertEquals(-1, this.list.removeLast(this.k5));
         TestUtils.assertListEquals(this.list.toArray(), 0, 1, 2, 1, 0);
 
-        Assert.assertEquals(1, this.list.removeFirstOccurrence(this.k1));
+        Assert.assertEquals(1, this.list.removeFirst(this.k1));
         TestUtils.assertListEquals(this.list.toArray(), 0, 2, 1, 0);
-        Assert.assertEquals(3, this.list.removeLastOccurrence(this.k0));
+        Assert.assertEquals(3, this.list.removeLast(this.k0));
         TestUtils.assertListEquals(this.list.toArray(), 0, 2, 1);
-        Assert.assertEquals(0, this.list.removeLastOccurrence(this.k0));
+        Assert.assertEquals(0, this.list.removeLast(this.k0));
         TestUtils.assertListEquals(this.list.toArray(), 2, 1);
-        Assert.assertEquals(-1, this.list.removeLastOccurrence(this.k0));
+        Assert.assertEquals(-1, this.list.removeLast(this.k0));
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         this.list.clear();
         this.list.add(newArray(this.k0, null, this.k2, null, this.k0));
-        Assert.assertEquals(1, this.list.removeFirstOccurrence(null));
-        Assert.assertEquals(2, this.list.removeLastOccurrence(null));
+        Assert.assertEquals(1, this.list.removeFirst(null));
+        Assert.assertEquals(2, this.list.removeLast(null));
         TestUtils.assertListEquals(this.list.toArray(), 0, 2, 0);
         /*! #end !*/
     }
@@ -232,18 +232,18 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     {
         this.list.add(asArray(0, 1, 0, 1, 0));
 
-        Assert.assertEquals(0, this.list.removeAllOccurrences(this.k2));
-        Assert.assertEquals(3, this.list.removeAllOccurrences(this.k0));
+        Assert.assertEquals(0, this.list.removeAll(this.k2));
+        Assert.assertEquals(3, this.list.removeAll(this.k0));
         TestUtils.assertListEquals(this.list.toArray(), 1, 1);
 
-        Assert.assertEquals(2, this.list.removeAllOccurrences(this.k1));
+        Assert.assertEquals(2, this.list.removeAll(this.k1));
         Assert.assertTrue(this.list.isEmpty());
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         this.list.clear();
         this.list.add(newArray(this.k0, null, this.k2, null, this.k0));
-        Assert.assertEquals(2, this.list.removeAllOccurrences(null));
-        Assert.assertEquals(0, this.list.removeAllOccurrences(null));
+        Assert.assertEquals(2, this.list.removeAll((KType) null));
+        Assert.assertEquals(0, this.list.removeAll((KType) null));
         TestUtils.assertListEquals(this.list.toArray(), 0, 2, 0);
         /*! #end !*/
     }
@@ -270,13 +270,13 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         this.list.add(newArray(this.k0, this.k1, this.k2, this.k1, this.k4));
 
         Assert.assertEquals(3, this.list.removeAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeArrayListTest.this.key1 || v == KTypeArrayListTest.this.key2;
             };
-                }));
+        }));
 
         TestUtils.assertListEquals(this.list.toArray(), 0, 4);
     }
@@ -288,13 +288,13 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         this.list.add(newArray(this.k0, this.k1, this.k2, this.k1, this.k0));
 
         Assert.assertEquals(2, this.list.retainAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeArrayListTest.this.key1 || v == KTypeArrayListTest.this.key2;
             };
-                }));
+        }));
 
         TestUtils.assertListEquals(this.list.toArray(), 1, 2, 1);
     }
@@ -311,7 +311,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size
             Assert.assertEquals(5, this.list.removeAll(new KTypePredicate<KType>()
-                    {
+            {
                 @Override
                 public boolean apply(final KType v)
                 {
@@ -320,7 +320,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
                     }
                     return v == KTypeArrayListTest.this.key1;
                 };
-                    }));
+            }));
             Assert.fail();
         }
         catch (final RuntimeException e)
@@ -700,7 +700,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         this.list.add(this.k1, this.k2, this.k3);
 
         final KTypeArrayList<KType> cloned = this.list.clone();
-        cloned.removeAllOccurrences(this.key1);
+        cloned.removeAll(this.key1);
 
         TestUtils.assertSortedListEquals(this.list.toArray(), this.key1, this.key2, this.key3);
         TestUtils.assertSortedListEquals(cloned.toArray(), this.key2, this.key3);

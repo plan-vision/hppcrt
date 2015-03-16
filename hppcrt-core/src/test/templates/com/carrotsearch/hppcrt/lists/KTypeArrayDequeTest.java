@@ -407,18 +407,18 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
 
             //both ArrayList and ArrayDequeue returns the same index:
             Assert.assertEquals(" at i = " + i,
-                    this.sequence.removeFirstOccurrence(k),
-                    this.deque.removeFirstOccurrence(k));
+                    this.sequence.removeFirst(k),
+                    this.deque.removeFirst(k));
         }
 
         TestUtils.assertListEquals(this.deque.toArray(), this.sequence.toArray());
 
         //non-existent element
-        Assert.assertTrue(0 > this.deque.removeFirstOccurrence(cast(modulo + 1)));
+        Assert.assertTrue(0 > this.deque.removeFirst(cast(modulo + 1)));
 
         //now existing
         this.deque.addLast(cast(modulo + 1));
-        Assert.assertTrue(0 <= this.deque.removeFirstOccurrence(cast(modulo + 1)));
+        Assert.assertTrue(0 <= this.deque.removeFirst(cast(modulo + 1)));
     }
 
     /* */
@@ -511,18 +511,18 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
 
             //both ArrayList and ArrayDequeue returns the same index:
             Assert.assertEquals(" at i = " + i,
-                    this.sequence.removeLastOccurrence(k),
-                    this.deque.removeLastOccurrence(k));
+                    this.sequence.removeLast(k),
+                    this.deque.removeLast(k));
         }
 
         TestUtils.assertListEquals(this.deque.toArray(), this.sequence.toArray());
 
         //non existent element
-        Assert.assertTrue(0 > this.deque.removeLastOccurrence(cast(modulo + 1)));
+        Assert.assertTrue(0 > this.deque.removeLast(cast(modulo + 1)));
 
         //now existing
         this.deque.addFirst(cast(modulo + 1));
-        Assert.assertTrue(0 <= this.deque.removeLastOccurrence(cast(modulo + 1)));
+        Assert.assertTrue(0 <= this.deque.removeLast(cast(modulo + 1)));
     }
 
     /* */
@@ -531,14 +531,14 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     {
         this.deque.addLast(asArray(0, 1, 2, 1, 0, 3, 0));
 
-        Assert.assertEquals(0, this.deque.removeAllOccurrences(this.k4));
-        Assert.assertEquals(3, this.deque.removeAllOccurrences(this.k0));
+        Assert.assertEquals(0, this.deque.removeAll(this.k4));
+        Assert.assertEquals(3, this.deque.removeAll(this.k0));
         TestUtils.assertListEquals(this.deque.toArray(), 1, 2, 1, 3);
-        Assert.assertEquals(1, this.deque.removeAllOccurrences(this.k3));
+        Assert.assertEquals(1, this.deque.removeAll(this.k3));
         TestUtils.assertListEquals(this.deque.toArray(), 1, 2, 1);
-        Assert.assertEquals(2, this.deque.removeAllOccurrences(this.k1));
+        Assert.assertEquals(2, this.deque.removeAll(this.k1));
         TestUtils.assertListEquals(this.deque.toArray(), 2);
-        Assert.assertEquals(1, this.deque.removeAllOccurrences(this.k2));
+        Assert.assertEquals(1, this.deque.removeAll(this.k2));
         Assert.assertEquals(0, this.deque.size());
     }
 
@@ -902,13 +902,13 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
             {
                 Assert.assertEquals(
                         ad.removeFirstOccurrence(k),
-                        this.deque.removeFirstOccurrence(k) >= 0);
+                        this.deque.removeFirst(k) >= 0);
             }
             else if (op < 8)
             {
                 Assert.assertEquals(
                         ad.removeLastOccurrence(k),
-                        this.deque.removeLastOccurrence(k) >= 0);
+                        this.deque.removeLast(k) >= 0);
             }
             Assert.assertEquals(ad.size(), this.deque.size());
         }
@@ -1000,7 +1000,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
         this.deque.addLast(this.key1, this.key2, this.key3);
 
         final KTypeArrayDeque<KType> cloned = this.deque.clone();
-        cloned.removeAllOccurrences(this.key1);
+        cloned.removeAll(this.key1);
 
         TestUtils.assertSortedListEquals(this.deque.toArray(), this.key1, this.key2, this.key3);
         TestUtils.assertSortedListEquals(cloned.toArray(), this.key2, this.key3);

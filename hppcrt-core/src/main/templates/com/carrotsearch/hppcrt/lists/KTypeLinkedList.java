@@ -399,7 +399,7 @@ public class KTypeLinkedList<KType>
      * {@inheritDoc}
      */
     @Override
-    public int removeFirstOccurrence(final KType e1)
+    public int removeFirst(final KType e1)
     {
         final long[] pointers = this.beforeAfterPointers;
         final KType[] buffer = this.buffer;
@@ -427,7 +427,7 @@ public class KTypeLinkedList<KType>
      * {@inheritDoc}
      */
     @Override
-    public int removeLastOccurrence(final KType e1)
+    public int removeLast(final KType e1)
     {
         final long[] pointers = this.beforeAfterPointers;
         final KType[] buffer = this.buffer;
@@ -455,7 +455,7 @@ public class KTypeLinkedList<KType>
      * {@inheritDoc}
      */
     @Override
-    public int removeAllOccurrences(final KType e1)
+    public int removeAll(final KType e1)
     {
         final KType[] buffer = this.buffer;
 

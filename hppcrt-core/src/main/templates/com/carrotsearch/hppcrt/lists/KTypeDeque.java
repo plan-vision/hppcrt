@@ -20,13 +20,13 @@ public interface KTypeDeque<KType> extends KTypeCollection<KType>
      * Removes the first element that equals <code>e1</code>, returning its
      * deleted position or <code>-1</code> if the element was not found.
      */
-    public int removeFirstOccurrence(KType e1);
+    public int removeFirst(KType e1);
 
     /**
      * Removes the last element that equals <code>e1</code>, returning its
      * deleted position or <code>-1</code> if the element was not found.
      */
-    public int removeLastOccurrence(KType e1);
+    public int removeLast(KType e1);
 
     /**
      * Inserts the specified element at the front of this deque.

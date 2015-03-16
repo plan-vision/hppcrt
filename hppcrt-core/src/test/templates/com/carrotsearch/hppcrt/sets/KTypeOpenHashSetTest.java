@@ -619,7 +619,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         this.set.add(this.key1, this.key2, this.key3, this.key0);
 
         final KTypeOpenHashSet<KType> cloned = this.set.clone();
-        cloned.removeAllOccurrences(this.key1);
+        cloned.removeAll(this.key1);
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.key0, this.key1, this.key2, this.key3);
         TestUtils.assertSortedListEquals(cloned.toArray(), this.key0, this.key2, this.key3);

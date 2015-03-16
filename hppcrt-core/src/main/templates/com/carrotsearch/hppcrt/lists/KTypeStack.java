@@ -140,10 +140,10 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
      * The first occurrence is counted from the top of the stack, going to the bottom.
      */
     @Override
-    public int removeFirstOccurrence(final KType e1)
+    public int removeFirst(final KType e1)
     {
         //that works because indexOf() was overridden in the stack
-        return super.removeFirstOccurrence(e1);
+        return super.removeFirst(e1);
     }
 
     /**
@@ -151,10 +151,10 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
      * The last occurrence is counted from the bottom of the stack, going upwards to the top.
      */
     @Override
-    public int removeLastOccurrence(final KType e1)
+    public int removeLast(final KType e1)
     {
         //that works because indexOf() was overridden in the stack
-        return super.removeLastOccurrence(e1);
+        return super.removeLast(e1);
     }
 
     /**

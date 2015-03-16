@@ -547,7 +547,7 @@ public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKType
         this.map.put(this.key9, this.value2);
         this.map.put(this.key0, this.value0);
 
-        final int nbRemoved = this.map.values().removeAllOccurrences(this.value1);
+        final int nbRemoved = this.map.values().removeAll(this.value1);
 
         Assert.assertEquals(3, nbRemoved);
         Assert.assertEquals(7, this.map.size());
@@ -574,7 +574,7 @@ public class KTypeVTypeOpenCustomHashMapTest<KType, VType> extends AbstractKType
         this.map.put(this.key8, this.value8);
         this.map.put(this.key9, this.value2);
 
-        final int nbRemoved = this.map.values().removeAllOccurrences(this.value1);
+        final int nbRemoved = this.map.values().removeAll(this.value1);
 
         Assert.assertEquals(3, nbRemoved);
         Assert.assertEquals(6, this.map.size());

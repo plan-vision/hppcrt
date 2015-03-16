@@ -534,7 +534,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      * {@inheritDoc}
      */
     @Override
-    public int removeAllOccurrences(final KType key)
+    public int removeAll(final KType key)
     {
         return remove(key) ? 1 : 0;
     }

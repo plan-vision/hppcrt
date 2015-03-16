@@ -373,7 +373,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
      * i.e w.r.t the {@link KTypeIndexedContainer}, index 0 is the head of the queue, size() - 1 is the last element position.
      */
     @Override
-    public int removeFirstOccurrence(final KType e1)
+    public int removeFirst(final KType e1)
     {
         int pos = -1;
 
@@ -418,7 +418,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
      * i.e w.r.t the {@link KTypeIndexedContainer}, index 0 is the head of the queue, size() - 1 is the last element position.
      */
     @Override
-    public int removeLastOccurrence(final KType e1)
+    public int removeLast(final KType e1)
     {
         int pos = -1;
 
@@ -487,7 +487,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
      * {@inheritDoc}
      */
     @Override
-    public int removeAllOccurrences(final KType e1)
+    public int removeAll(final KType e1)
     {
         int removed = 0;
         final int last = this.tail;

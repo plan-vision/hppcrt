@@ -466,31 +466,31 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
     {
         insertElements(this.prioq, 1000, 0, 1001, 1, 1002, 0, 1003, 1, 1004, 0);
 
-        Assert.assertEquals(0, this.prioq.values().removeAllOccurrences(this.k2));
-        Assert.assertEquals(3, this.prioq.values().removeAllOccurrences(this.k0));
+        Assert.assertEquals(0, this.prioq.values().removeAll(this.k2));
+        Assert.assertEquals(3, this.prioq.values().removeAll(this.k0));
         assertPrioQueueEquals(this.prioq, 1001, 1, 1003, 1);
 
-        Assert.assertEquals(2, this.prioq.values().removeAllOccurrences(this.k1));
+        Assert.assertEquals(2, this.prioq.values().removeAll(this.k1));
         Assert.assertTrue(this.prioq.isEmpty());
 
         //
         insertElements(this.prioqNaturalComparator, 1000, 0, 1001, 1, 1002, 0, 1003, 1, 1004, 0);
 
-        Assert.assertEquals(0, this.prioqNaturalComparator.values().removeAllOccurrences(this.k2));
-        Assert.assertEquals(3, this.prioqNaturalComparator.values().removeAllOccurrences(this.k0));
+        Assert.assertEquals(0, this.prioqNaturalComparator.values().removeAll(this.k2));
+        Assert.assertEquals(3, this.prioqNaturalComparator.values().removeAll(this.k0));
         assertPrioQueueEquals(this.prioqNaturalComparator, 1001, 1, 1003, 1);
 
-        Assert.assertEquals(2, this.prioqNaturalComparator.values().removeAllOccurrences(this.k1));
+        Assert.assertEquals(2, this.prioqNaturalComparator.values().removeAll(this.k1));
         Assert.assertTrue(this.prioqNaturalComparator.isEmpty());
 
         //
         insertElements(this.prioqInverseComparator, 1000, 0, 1001, 1, 1002, 0, 1003, 1, 1004, 0);
 
-        Assert.assertEquals(0, this.prioqInverseComparator.values().removeAllOccurrences(this.k2));
-        Assert.assertEquals(3, this.prioqInverseComparator.values().removeAllOccurrences(this.k0));
+        Assert.assertEquals(0, this.prioqInverseComparator.values().removeAll(this.k2));
+        Assert.assertEquals(3, this.prioqInverseComparator.values().removeAll(this.k0));
         assertPrioQueueEquals(this.prioqInverseComparator, 1001, 1, 1003, 1);
 
-        Assert.assertEquals(2, this.prioqInverseComparator.values().removeAllOccurrences(this.k1));
+        Assert.assertEquals(2, this.prioqInverseComparator.values().removeAll(this.k1));
         Assert.assertTrue(this.prioqInverseComparator.isEmpty());
     }
 
@@ -500,11 +500,11 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
     {
         insertElements(this.prioq, 1000, 0, 1001, 1, 1002, 0, 1003, 1, 1004, 0);
 
-        Assert.assertEquals(0, this.prioq.keys().removeAllOccurrences(1111));
-        Assert.assertEquals(1, this.prioq.keys().removeAllOccurrences(1001));
+        Assert.assertEquals(0, this.prioq.keys().removeAll(1111));
+        Assert.assertEquals(1, this.prioq.keys().removeAll(1001));
         assertPrioQueueEquals(this.prioq, 1000, 0, 1002, 0, 1003, 1, 1004, 0);
 
-        Assert.assertEquals(1, this.prioq.keys().removeAllOccurrences(1004));
+        Assert.assertEquals(1, this.prioq.keys().removeAll(1004));
         assertPrioQueueEquals(this.prioq, 1000, 0, 1002, 0, 1003, 1);
     }
 
@@ -560,13 +560,13 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         insertElements(this.prioq, 0, 0, 1, 1, 2, 2, 11, 1, 44, 4);
 
         Assert.assertEquals(3, this.prioq.values().removeAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeIndexedHeapPriorityQueueTest.this.key1 || v == KTypeIndexedHeapPriorityQueueTest.this.key2;
             };
-                }));
+        }));
 
         assertPrioQueueEquals(this.prioq, 0, 0, 44, 4);
     }
@@ -600,7 +600,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size
             Assert.assertEquals(8, this.prioq.values().removeAll(new KTypePredicate<KType>()
-                    {
+            {
                 @Override
                 public boolean apply(final KType v)
                 {
@@ -609,7 +609,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
                     }
                     return v == KTypeIndexedHeapPriorityQueueTest.this.key1;
                 };
-                    }));
+            }));
             Assert.fail();
         }
         catch (final RuntimeException e)
@@ -703,13 +703,13 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         insertElements(this.prioq, 10, 0, 11, 1, 12, 2, 13, 1, 14, 0);
 
         Assert.assertEquals(2, this.prioq.values().retainAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeIndexedHeapPriorityQueueTest.this.key1 || v == KTypeIndexedHeapPriorityQueueTest.this.key2;
             };
-                }));
+        }));
 
         assertPrioQueueEquals(this.prioq, 11, 1, 13, 1, 12, 2);
     }
@@ -747,7 +747,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
         Assert.assertEquals(9, this.prioq.size());
 
-        final int nbRemoved = this.prioq.values().removeAllOccurrences(this.key1);
+        final int nbRemoved = this.prioq.values().removeAll(this.key1);
 
         Assert.assertEquals(3, nbRemoved);
         Assert.assertEquals(6, this.prioq.size());
@@ -775,7 +775,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
         Assert.assertEquals(9, this.prioqNaturalComparator.size());
 
-        final int nbRemoved = this.prioqNaturalComparator.values().removeAllOccurrences(this.key1);
+        final int nbRemoved = this.prioqNaturalComparator.values().removeAll(this.key1);
 
         Assert.assertEquals(3, nbRemoved);
         Assert.assertEquals(6, this.prioqNaturalComparator.size());
@@ -803,7 +803,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
         Assert.assertEquals(9, this.prioqInverseComparator.size());
 
-        final int nbRemoved = this.prioqInverseComparator.values().removeAllOccurrences(this.key1);
+        final int nbRemoved = this.prioqInverseComparator.values().removeAll(this.key1);
 
         Assert.assertEquals(3, nbRemoved);
         Assert.assertEquals(6, this.prioqInverseComparator.size());
@@ -1219,7 +1219,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         insertElements(this.prioq, 1, 1, 2, 2, 3, 3, 4, 3);
 
         final KTypeIndexedHeapPriorityQueue<KType> cloned = this.prioq.clone();
-        cloned.values().removeAllOccurrences(this.key3);
+        cloned.values().removeAll(this.key3);
 
         assertPrioQueueEquals(this.prioq, 1, 1, 2, 2, 3, 3, 4, 3);
         assertPrioQueueEquals(cloned, 1, 1, 2, 2);

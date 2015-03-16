@@ -213,7 +213,7 @@ implements KTypePriorityQueue<KType>, Cloneable
      * custom comparator is given, else it uses the {@link #comparator()} criteria.
      */
     @Override
-    public int removeAllOccurrences(final KType e1)
+    public int removeAll(final KType e1)
     {
         this.currentOccurenceToBeRemoved = e1;
         return removeAll(this.removeAllOccurencesPredicate);
