@@ -68,6 +68,31 @@ public final class Intrinsics
     }
 
     /**
+     * Returns <code>true</code> if the provided key is an "empty slot"
+     * marker. For generic types the empty slot is <code>null</code>,
+     * for any other type it is an equivalent of zero.
+     * 
+     * For floating-point types {@link Float#floatToIntBits(float)} and
+     * {@link Double#doubleToLongBits(double)} is invoked to normalize different
+     * representations of zero.
+     * 
+     * Testing for zeros should be compiled into fast machine code.
+     */
+    public static boolean isEmptyKey(final Object key) {
+
+        /*! ($TemplateOptions.inlineKTypeWithFullSpecialization("Intrinsics.isEmptyKey",
+        "(key)",
+        "key == null",
+        "key == ${TemplateOptions.getKType().getDefaultValue()}",
+        "key == ${TemplateOptions.getKType().getDefaultValue()}",
+        "Float.floatToIntBits(key) == 0",
+        "Double.doubleToLongBits(key) == 0L",
+        "!key")) !*/
+
+        return key == null;
+    }
+
+    /**
      * Returns the default value for values (<code>null</code> or <code>0</code>
      * for primitive types).
      * 
@@ -75,7 +100,6 @@ public final class Intrinsics
      */
     public static <T> T defaultVTypeValue()
     {
-
         /*! #if($TemplateOptions.VType)
                ($TemplateOptions.inlineVType("Intrinsics.defaultVTypeValue",
                 "()",
