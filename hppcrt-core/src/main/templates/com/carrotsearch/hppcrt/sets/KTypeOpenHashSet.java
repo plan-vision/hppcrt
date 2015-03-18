@@ -1140,8 +1140,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     "MurmurHash3.hash(value.hashCode() ^ this.perturbation)",
     "PhiMix.hash(value ^ this.perturbation)",
     "(int)PhiMix.hash(value ^ this.perturbation)",
-    "PhiMix.hash(Float.floatToRawIntBits(value) ^ this.perturbation)",
-    "(int)PhiMix.hash(Double.doubleToRawLongBits(value) ^ this.perturbation)",
+    "PhiMix.hash(Float.floatToIntBits(value) ^ this.perturbation)",
+    "(int)PhiMix.hash(Double.doubleToLongBits(value) ^ this.perturbation)",
     "")) !*/
     /**
      * REHASH method for rehashing the keys.

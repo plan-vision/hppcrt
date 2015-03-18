@@ -434,10 +434,10 @@ public class TemplateOptions
                             argumentIsFound = true;
                         }
 
-                        //append replacement
-                        sb.append('%');
+                        //append replacement : use parenthesis to safe containement of any form of valid expression given as argument
+                        sb.append("(%");
                         sb.append(argPosition);
-                        sb.append("$s");
+                        sb.append("$s)");
                     }
                     else
                     {
