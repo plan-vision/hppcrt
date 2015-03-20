@@ -56,8 +56,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenCustomHashSet<KType>
-extends AbstractKTypeCollection<KType>
-implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+        extends AbstractKTypeCollection<KType>
+        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -806,7 +806,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
                 return true;
             }
 
-            if (!(obj instanceof KTypeOpenCustomHashSet)) {
+            //must be of the same class, subclasses are not comparable
+            if (obj.getClass() != this.getClass()) {
 
                 return false;
             }

@@ -55,7 +55,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenCustomHashMap<KType, VType>
-implements KTypeVTypeMap<KType, VType>, Cloneable
+        implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -1190,7 +1190,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                 return true;
             }
 
-            if (!(obj instanceof KTypeVTypeOpenCustomHashMap))
+            //must be of the same class, subclasses are not comparable
+            if (obj.getClass() != this.getClass())
             {
                 return false;
             }
@@ -1394,7 +1395,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      * A view of the keys inside this hash map.
      */
     public final class KeysContainer
-    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenCustomHashMap<KType, VType> owner =
                 KTypeVTypeOpenCustomHashMap.this;

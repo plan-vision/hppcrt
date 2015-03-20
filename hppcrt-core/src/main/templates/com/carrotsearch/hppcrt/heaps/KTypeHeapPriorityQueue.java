@@ -30,7 +30,7 @@ import com.carrotsearch.hppcrt.strategies.*;
 /*! #set( $DEBUG = false) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType>
-implements KTypePriorityQueue<KType>, Cloneable
+        implements KTypePriorityQueue<KType>, Cloneable
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -164,7 +164,7 @@ implements KTypePriorityQueue<KType>, Cloneable
      * @see BoundedProportionalArraySizingStrategy
      */
     public KTypeHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp
-            /*! #else
+    /*! #else
     KTypeComparator<? super KType> comp
     #end !*/)
     {
@@ -640,53 +640,56 @@ implements KTypePriorityQueue<KType>, Cloneable
                 return true;
             }
 
-            //we can only compare both KTypeHeapPriorityQueue,
+            //we can only compare both KTypeHeapPriorityQueue and not subclasses between themselves
             //that has the same comparison function reference
-            if (obj instanceof KTypeHeapPriorityQueue<?>)
+            if (obj.getClass() != this.getClass())
             {
-                final KTypeHeapPriorityQueue<KType> other = (KTypeHeapPriorityQueue<KType>) obj;
+                return false;
+            }
 
-                if (other.size() != this.size()) {
+            final KTypeHeapPriorityQueue<KType> other = (KTypeHeapPriorityQueue<KType>) obj;
 
-                    return false;
-                }
+            if (other.size() != this.size()) {
 
-                final int size = this.elementsCount;
-                final KType[] buffer = this.buffer;
-                final KType[] otherbuffer = other.buffer;
+                return false;
+            }
 
-                //both heaps must have the same comparison criteria
-                if (this.comparator == null && other.comparator == null) {
+            final int size = this.elementsCount;
+            final KType[] buffer = this.buffer;
+            final KType[] otherbuffer = other.buffer;
 
-                    for (int i = 1; i <= size; i++)
+            //both heaps must have the same comparison criteria
+            if (this.comparator == null && other.comparator == null) {
+
+                for (int i = 1; i <= size; i++)
+                {
+                    if (!Intrinsics.isCompEqualKTypeUnchecked(buffer[i], otherbuffer[i]))
                     {
-                        if (!Intrinsics.isCompEqualKTypeUnchecked(buffer[i], otherbuffer[i]))
-                        {
-                            return false;
-                        }
+                        return false;
                     }
-
-                    return true;
                 }
-                else if (this.comparator != null && this.comparator.equals(other.comparator)) {
 
-                    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                    final Comparator<? super KType> comp = this.comparator;
-                    /*! #else
-                    KTypeComparator<? super KType> comp = this.comparator;
-                    #end !*/
+                return true;
+            }
+            else if (this.comparator != null && this.comparator.equals(other.comparator)) {
 
-                    for (int i = 1; i <= size; i++)
+                /*! #if ($TemplateOptions.KTypeGeneric) !*/
+                final Comparator<? super KType> comp = this.comparator;
+                /*! #else
+                KTypeComparator<? super KType> comp = this.comparator;
+                #end !*/
+
+                for (int i = 1; i <= size; i++)
+                {
+                    if (comp.compare(buffer[i], otherbuffer[i]) != 0)
                     {
-                        if (comp.compare(buffer[i], otherbuffer[i]) != 0)
-                        {
-                            return false;
-                        }
+                        return false;
                     }
-
-                    return true;
                 }
-            } //end if KTypeHeapPriorityQueue<?>
+
+                return true;
+            }
+
         }
 
         return false;
@@ -735,10 +738,10 @@ implements KTypePriorityQueue<KType>, Cloneable
      */
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
-    /*! #else
-                                                                                                    public KTypeComparator<? super KType>
-                                                                                                    #end !*/
-    comparator() {
+            /*! #else
+                                                                                                                    public KTypeComparator<? super KType>
+                                                                                                                    #end !*/
+            comparator() {
 
         return this.comparator;
     }
@@ -835,11 +838,11 @@ implements KTypePriorityQueue<KType>, Cloneable
             //swap k and its parent
             parent = k >> 1;
 
-        tmp = buffer[k];
-        buffer[k] = buffer[parent];
-        buffer[parent] = tmp;
+            tmp = buffer[k];
+            buffer[k] = buffer[parent];
+            buffer[parent] = tmp;
 
-        k = parent;
+            k = parent;
         }
     }
 
@@ -863,11 +866,11 @@ implements KTypePriorityQueue<KType>, Cloneable
         {
             //swap k and its parent
             parent = k >> 1;
-        tmp = buffer[k];
-        buffer[k] = buffer[parent];
-        buffer[parent] = tmp;
+            tmp = buffer[k];
+            buffer[k] = buffer[parent];
+            buffer[parent] = tmp;
 
-        k = parent;
+            k = parent;
         }
     }
 
