@@ -30,13 +30,13 @@
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/vsonnier/hppc/issues</url>
+        <url>https://github.com/vsonnier/hppcrt/issues</url>
     </issueManagement>
 
     <scm>
-        <url>git@github.com:vsonnier/hppc.git</url>
-        <connection>scm:git:git@github.com:vsonnier/hppc.git</connection>
-        <developerConnection>scm:git:git@github.com:vsonnier/hppc.git</developerConnection>
+        <url>git@github.com:vsonnier/hppcrt.git</url>
+        <connection>scm:git:git@github.com:vsonnier/hppcrt.git</connection>
+        <developerConnection>scm:git:git@github.com:vsonnier/hppcrt.git</developerConnection>
     </scm>
 
     <developers>
@@ -44,7 +44,7 @@
             <id>vincent.sonnier</id>
             <name>Vincent Sonnier</name>
             <email>vsonnier@gmail.com</email>
-            <url>https://github.com/vsonnier/hppc</url>
+            <url>https://github.com/vsonnier/hppcrt</url>
         </developer>
     </developers>
 
@@ -82,8 +82,8 @@
     </properties>
 
     <modules>
-        <module>hppcrt-templateprocessor</module>
-        <module>hppcrt-core</module>
+        <module>hppcrt-template-processor</module>
+        <module>hppcrt</module>
         <module>hppcrt-benchmarks</module>
     </modules>
 

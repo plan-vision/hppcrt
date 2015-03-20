@@ -11,7 +11,7 @@
 
   <!-- Project info. -->
   <groupId>com.github.vsonnier</groupId>
-  <artifactId>hppcrt-templateprocessor</artifactId>
+  <artifactId>hppcrt-template-processor</artifactId>
   <version>0.7.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 

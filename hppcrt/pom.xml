@@ -114,7 +114,7 @@
         <dependencies>
           <dependency>
             <groupId>com.github.vsonnier</groupId>
-            <artifactId>hppcrt-templateprocessor</artifactId>
+            <artifactId>hppcrt-template-processor</artifactId>
             <version>${project.version}</version>
           </dependency>
           
