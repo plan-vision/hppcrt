@@ -9,12 +9,12 @@ package com.carrotsearch.hppcrt.hash;
 public final class MurmurHash3
 {
     /**
-     * = hash(0)
+     * = hash((int)0)
      */
     public static final int HASH_0 = 0;
 
     /**
-     * = hash(1)
+     * = hash((int)1)
      */
     public static final int HASH_1 = 1364076727;
 

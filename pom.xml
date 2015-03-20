@@ -78,8 +78,6 @@
         <version.findbugs-maven-plugin>3.0.0</version.findbugs-maven-plugin> 
         <version.build-helper-maven-plugin>1.9.1</version.build-helper-maven-plugin>
 
-        <version.maven.api>3.0.3</version.maven.api>
-
         <skip.deployment>false</skip.deployment>
     </properties>
 

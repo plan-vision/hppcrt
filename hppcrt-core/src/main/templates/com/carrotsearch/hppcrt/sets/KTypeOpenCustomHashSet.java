@@ -17,16 +17,19 @@ import com.carrotsearch.hppcrt.hash.*;
 /**
  * A hash set of <code>KType</code>s, implemented using using open
  * addressing with linear probing for collision resolution.
- *
+ * 
+ * <p>
  * The difference with {@link KTypeOpenHashSet} is that it uses a
  * {@link KTypeHashingStrategy} to compare objects externally instead of using
  * the built-in hashCode() /  equals(). In particular, the management of <code>null</code>
  * keys is up to the {@link KTypeHashingStrategy} implementation.
+ * 
  * <p>
  * The internal buffers of this implementation ({@link #keys}, etc...)
  * are always allocated to the nearest size that is a power of two. When
  * the capacity exceeds the given load factor, the buffer size is doubled.
  * </p>
+ * 
  * <p><b>Important note.</b> The implementation uses power-of-two tables and linear
  * probing, which may cause poor performance (many collisions) if hash values are
  * not properly distributed. Therefore, it is up to the {@link KTypeHashingStrategy} to
@@ -37,8 +40,9 @@ import com.carrotsearch.hppcrt.hash.*;
  * <p>This implementation support <code>null</code> keys. In addition, objects passed to the {@link KTypeHashingStrategy} are guaranteed to be not-<code>null</code>. </p>
 #end
  *
- * @author This code is inspired by the collaboration and implementation in the <a
- *         href="http://fastutil.dsi.unimi.it/">fastutil</a> project.
+ * @author This code is inspired by the original <a
+ *         href="http://labs.carrotsearch.com/hppc.html">HPPC</a> and also by the <a
+ *         href="http://fastutil.di.unimi.it/">fastutil</a> project.
  * 
 #if ($RH)
  *   <p> Robin-Hood hashing algorithm is also used to minimize variance
@@ -52,8 +56,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenCustomHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -608,11 +612,9 @@ public class KTypeOpenCustomHashSet<KType>
     /**
      * Shift all the slot-conflicting keys allocated to (and including) <code>slot</code>.
      */
-    protected void shiftConflictingKeys(int slotCurr)
+    private void shiftConflictingKeys(int gapSlot)
     {
-        // Copied nearly verbatim from fastutil's impl.
         final int mask = this.keys.length - 1;
-        int slotPrev, slotOther;
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
@@ -622,63 +624,52 @@ public class KTypeOpenCustomHashSet<KType>
         final int[] cached = this.hash_cache;
         /*!  #end !*/
 
-        while (true)
-        {
-            slotCurr = ((slotPrev = slotCurr) + 1) & mask;
+        // Perform shifts of conflicting keys to fill in the gap.
+        int distance = 0;
+        while (true) {
 
-            while (is_allocated(slotCurr, keys))
-            {
-                /*! #if ($RH) !*/
-                //use the cached value, no need to recompute
-                slotOther = cached[slotCurr];
-                /*! #if($DEBUG) !*/
-                //Check invariants
-                assert slotOther == (REHASH(strategy, keys[slotCurr]) & mask);
-                /*! #end !*/
-                /*! #else
-                 slotOther = REHASH(strategy , keys[slotCurr]) & mask;
-                #end !*/
+            final int slot = (gapSlot + (++distance)) & mask;
 
-                if (slotPrev <= slotCurr)
-                {
-                    // We are on the right of the original slot.
-                    if (slotPrev >= slotOther || slotOther > slotCurr) {
-                        break;
-                    }
-                }
-                else
-                {
-                    // We have wrapped around.
-                    if (slotPrev >= slotOther && slotOther > slotCurr) {
-                        break;
-                    }
-                }
-                slotCurr = (slotCurr + 1) & mask;
-            }
+            final KType existing = keys[slot];
 
-            if (!is_allocated(slotCurr, keys))
-            {
+            if (Intrinsics.isEmptyKey(existing)) {
                 break;
             }
 
             /*! #if ($RH) !*/
+            //use the cached value, no need to recompute
+            final int idealSlotModMask = cached[slot];
             /*! #if($DEBUG) !*/
             //Check invariants
-            assert cached[slotCurr] == (REHASH(strategy, keys[slotCurr]) & mask);
-            assert cached[slotPrev] == (REHASH(strategy, keys[slotPrev]) & mask);
+            assert idealSlotModMask == (REHASH(strategy, existing) & mask);
             /*! #end !*/
-            /*! #end !*/
+            /*! #else
+            final int idealSlotModMask = REHASH(strategy, existing) & mask;
+            #end !*/
 
-            // Shift key/allocated pair.
-            keys[slotPrev] = keys[slotCurr];
+            //original HPPC code: shift = (slot - idealSlot) & mask;
+            //equivalent to shift = (slot & mask - idealSlot & mask) & mask;
+            //since slot and idealSlotModMask are already folded, we have :
+            final int shift = (slot - idealSlotModMask) & mask;
 
-            /*! #if ($RH) !*/
-            cached[slotPrev] = cached[slotCurr];
-            /*! #end !*/
-        }
+            if (shift >= distance) {
+                // Entry at this position was originally at or before the gap slot.
+                // Move the conflict-shifted entry to the gap's position and repeat the procedure
+                // for any entries to the right of the current position, treating it
+                // as the new gap.
+                keys[gapSlot] = existing;
 
-        //means not allocated
-        keys[slotPrev] = Intrinsics.<KType> defaultKTypeValue();
+                /*! #if ($RH) !*/
+                cached[gapSlot] = idealSlotModMask;
+                /*! #end !*/
+
+                gapSlot = slot;
+                distance = 0;
+            }
+        } //end while
+
+        // Mark the last found gap slot without a conflict as empty.
+        keys[gapSlot] = Intrinsics.<KType> defaultKTypeValue();
     }
 
     /**

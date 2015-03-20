@@ -23,13 +23,10 @@ import com.carrotsearch.hppcrt.hash.*;
  * 
  * <p>This implementation supports <code>null</code> keys.</p>
  *
- * @author This code is inspired by the collaboration and implementation in the <a
- *         href="http://fastutil.dsi.unimi.it/">fastutil</a> project.
- *
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeOpenIdentityHashSet<KType>
-        extends KTypeOpenCustomHashSet<KType>
+extends KTypeOpenCustomHashSet<KType>
 {
     private static final KTypeIdentityHash<Object> IDENTITY_EQUALITY = new KTypeIdentityHash<Object>();
 

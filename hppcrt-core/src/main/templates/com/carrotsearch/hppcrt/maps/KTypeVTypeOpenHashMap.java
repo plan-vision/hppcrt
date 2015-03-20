@@ -4,6 +4,7 @@ import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.cursors.*;
 import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
+import com.carrotsearch.hppcrt.strategies.KTypeHashingStrategy;
 import com.carrotsearch.hppcrt.hash.*;
 
 /*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
@@ -23,35 +24,6 @@ import com.carrotsearch.hppcrt.hash.*;
  * the capacity exceeds the given load factor, the buffer size is doubled.
  * </p>
  *
-#if ($TemplateOptions.AllGeneric)
- * <p>
- * A brief comparison of the API against the Java Collections framework:
- * </p>
- * <table class="nice" summary="Java Collections HashMap and HPPC ObjectObjectOpenHashMap, related methods.">
- * <caption>Java Collections HashMap and HPPC {@link ObjectObjectOpenHashMap}, related methods.</caption>
- * <thead>
- *     <tr class="odd">
- *         <th scope="col">{@linkplain HashMap java.util.HashMap}</th>
- *         <th scope="col">{@link ObjectObjectOpenHashMap}</th>
- *     </tr>
- * </thead>
- * <tbody>
- * <tr            ><td>V put(K)       </td><td>V put(K)      </td></tr>
- * <tr class="odd"><td>V get(K)       </td><td>V get(K)      </td></tr>
- * <tr            ><td>V remove(K)    </td><td>V remove(K)   </td></tr>
- * <tr class="odd"><td>size, clear,
- *                     isEmpty</td><td>size, clear, isEmpty</td></tr>
- * <tr            ><td>containsKey(K) </td><td>containsKey(K), lget()</td></tr>
- * <tr class="odd"><td>containsValue(K) </td><td>(no efficient equivalent)</td></tr>
- * <tr            ><td>keySet, entrySet </td><td>{@linkplain #iterator() iterator} over map entries,
- *                                               keySet, pseudo-closures</td></tr>
-#else
- * <p>See {@link ObjectObjectOpenHashMap} class for API similarities and differences against Java
- * Collections.
-#end
- * 
- * </tbody>
- * </table>
  * <p><b>Important note.</b> The implementation uses power-of-two tables and linear
  * probing, which may cause poor performance (many collisions) if hash values are
  * not properly distributed.
@@ -64,8 +36,9 @@ import com.carrotsearch.hppcrt.hash.*;
  * <p>This implementation supports <code>null</code> values.</p>
 #end
  *
- * @author This code is inspired by the collaboration and implementation in the <a
- *         href="http://fastutil.dsi.unimi.it/">fastutil</a> project.
+ * @author This code is inspired by the original <a
+ *         href="http://labs.carrotsearch.com/hppc.html">HPPC</a> and also by the <a
+ *         href="http://fastutil.di.unimi.it/">fastutil</a> project.
  * 
 #if ($RH)
  *   <p> Robin-Hood hashing algorithm is also used to minimize variance
@@ -841,11 +814,9 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     /**
      * Shift all the slot-conflicting keys allocated to (and including) <code>slot</code>.
      */
-    protected void shiftConflictingKeys(int slotCurr)
+    private void shiftConflictingKeys(int gapSlot)
     {
-        // Copied nearly verbatim from fastutil's impl.
         final int mask = this.keys.length - 1;
-        int slotPrev, slotOther;
 
         final KType[] keys = this.keys;
         final VType[] values = this.values;
@@ -854,69 +825,57 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         final int[] cached = this.hash_cache;
         /*!  #end !*/
 
-        while (true)
-        {
-            slotCurr = ((slotPrev = slotCurr) + 1) & mask;
+        // Perform shifts of conflicting keys to fill in the gap.
+        int distance = 0;
+        while (true) {
 
-            while (is_allocated(slotCurr, keys))
-            {
-                /*! #if ($RH) !*/
-                //use the cached value, no need to recompute
-                slotOther = cached[slotCurr];
-                /*! #if($DEBUG) !*/
-                //Check invariants
-                assert slotOther == (REHASH(keys[slotCurr]) & mask);
-                /*! #end !*/
-                /*! #else
-                     slotOther = REHASH(keys[slotCurr]) & mask;
-                    #end !*/
+            final int slot = (gapSlot + (++distance)) & mask;
 
-                if (slotPrev <= slotCurr)
-                {
-                    // we're on the right of the original slot.
-                    if (slotPrev >= slotOther || slotOther > slotCurr)
-                    {
-                        break;
-                    }
-                }
-                else
-                {
-                    // we've wrapped around.
-                    if (slotPrev >= slotOther && slotOther > slotCurr)
-                    {
-                        break;
-                    }
-                }
-                slotCurr = (slotCurr + 1) & mask;
-            }
+            final KType existing = keys[slot];
+            final VType existingValue = values[slot];
 
-            if (!is_allocated(slotCurr, keys))
-            {
+            if (Intrinsics.isEmptyKey(existing)) {
                 break;
             }
 
             /*! #if ($RH) !*/
+            //use the cached value, no need to recompute
+            final int idealSlotModMask = cached[slot];
             /*! #if($DEBUG) !*/
             //Check invariants
-            assert cached[slotCurr] == (REHASH(keys[slotCurr]) & mask);
-            assert cached[slotPrev] == (REHASH(keys[slotPrev]) & mask);
+            assert idealSlotModMask == (REHASH(existing) & mask);
             /*! #end !*/
-            /*! #end !*/
+            /*! #else
+            final int idealSlotModMask = REHASH(existing) & mask;
+            #end !*/
 
-            // Shift key/value/allocated triplet.
-            keys[slotPrev] = keys[slotCurr];
-            values[slotPrev] = values[slotCurr];
+            //original HPPC code: shift = (slot - idealSlot) & mask;
+            //equivalent to shift = (slot & mask - idealSlot & mask) & mask;
+            //since slot and idealSlotModMask are already folded, we have :
+            final int shift = (slot - idealSlotModMask) & mask;
 
-            /*! #if ($RH) !*/
-            cached[slotPrev] = cached[slotCurr];
-            /*! #end !*/
-        }
+            if (shift >= distance) {
+                // Entry at this position was originally at or before the gap slot.
+                // Move the conflict-shifted entry to the gap's position and repeat the procedure
+                // for any entries to the right of the current position, treating it
+                // as the new gap.
+                keys[gapSlot] = existing;
+                values[gapSlot] = existingValue;
 
-        //means not allocated
-        keys[slotPrev] = Intrinsics.<KType> defaultKTypeValue();
+                /*! #if ($RH) !*/
+                cached[gapSlot] = idealSlotModMask;
+                /*! #end !*/
+
+                gapSlot = slot;
+                distance = 0;
+            }
+        } //end while
+
+        // Mark the last found gap slot without a conflict as empty.
+        keys[gapSlot] = Intrinsics.<KType> defaultKTypeValue();
 
         /* #if ($TemplateOptions.VTypeGeneric) */
-        values[slotPrev] = Intrinsics.<VType> defaultVTypeValue();
+        values[gapSlot] = Intrinsics.<VType> defaultVTypeValue();
         /* #end */
     }
 

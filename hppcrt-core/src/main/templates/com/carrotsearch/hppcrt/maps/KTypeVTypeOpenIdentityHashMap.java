@@ -26,13 +26,11 @@ import com.carrotsearch.hppcrt.hash.*;
  * <p>This implementation supports <code>null</code> values.</p>
 #end
  * 
- * @author This code is inspired by the collaboration and implementation in the <a
- *         href="http://fastutil.dsi.unimi.it/">fastutil</a> project.
  * 
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeVTypeOpenIdentityHashMap<KType, VType>
-        extends KTypeVTypeOpenCustomHashMap<KType, VType>
+extends KTypeVTypeOpenCustomHashMap<KType, VType>
 {
     private static final KTypeIdentityHash<Object> IDENTITY_EQUALITY = new KTypeIdentityHash<Object>();
 
@@ -179,7 +177,7 @@ public final class KTypeVTypeOpenIdentityHashMap<KType, VType>
      */
     public static final <KType, VType> KTypeVTypeOpenIdentityHashMap<KType, VType> from(final KTypeVTypeAssociativeContainer<KType, VType> container,
             final KTypeHashingStrategy<? super KType> hashStrategy)
-            {
+    {
         throw new RuntimeException("Identity hash from(KTypeVTypeAssociativeContainer, strategy) usage logical error");
-            }
+    }
 }
