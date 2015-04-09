@@ -60,7 +60,7 @@
         <version.randomizedtesting>2.1.11</version.randomizedtesting>
         <version.maven-assembly-plugin>2.5.3</version.maven-assembly-plugin>
         <version.maven-clean-plugin>2.6.1</version.maven-clean-plugin>
-        <version.maven-compiler-plugin>3.2</version.maven-compiler-plugin>
+        <version.maven-compiler-plugin>3.3</version.maven-compiler-plugin>
         <version.maven-dependency-plugin>2.10</version.maven-dependency-plugin>
         <version.maven-eclipse-plugin>2.9</version.maven-eclipse-plugin>
         <version.maven-deploy-plugin>2.8.2</version.maven-deploy-plugin>

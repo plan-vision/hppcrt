@@ -2,7 +2,7 @@
  Introduction
  ------
  ------
- 2015-02-02
+ 2015-04-01
  ------
 
 
@@ -10,7 +10,7 @@ HPPC-RT, High Performance Primitive Collections Realtime, fork of CarrotSearch'H
 
  This is an automatically generated code style and coverage report (Maven2). See the 
  {{{http://labs.carrotsearch.com}Carrot Search Labs}} page for documentation about the original HPPC,
- and {{{https://github.com/vsonnier/hppc}HPPC-RT about the fork specifics.}}
+ and {{{https://github.com/vsonnier/hppcrt}HPPC-RT about the fork specifics.}}
 
 * Reports
 

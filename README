@@ -8,18 +8,18 @@ IMPORTANT: Developers - read INSTALL file for proper Eclipse setup!
 
 This fork intend to follow the original HPPC as close as possible while 
 adding, tweaking, and even modifiying some features, for the goal of improving HPPC realtime behaviour. 
-Most of the internal modifications intend to reach zero temporaries Objects creation at runtime.
-A way is also to add convenient methods/API that allow filling and reuse of pre-existing Objects. 
+Most of the internal modifications were done to effectively remove any temporary Objects creation at runtime, provided 
+the containers are correctly pre-sized initially. 
 
 ###List of changes:
-* Tweaked internal implementation to remove dynamic allocation of temporary Objects
+* Tweaked internal implementation to remove any allocation of temporary Objects at runtime.
 
-* Pooled Iterators: ability to use iterators the usual way, without creating Iterator instances
+* Ability to pre-allocate any container with a strong guarantee to neither reallocate, nor generating garbage as long as the container 
+have less than capacity() elements.
+
+* Pooled, recyclable iterators: ability to use iterators the usual way, without creating iterator instances
 dynamically at runtime. 
 That means in particular using the enhanced for loop without any dynamic allocation underneath.
-
-* Faster clear(), resize() and such, using a memcpy-like technique offering 2x speed gain in clear()-like operations
-especially noticable for big container sizes. 
 
 * toArray(existing array) for every container, good for array reuse in RealTime environnement
 
@@ -33,22 +33,22 @@ especially noticable for big container sizes.
 
 * Identity hash maps and sets, comparing Objects by reference and native hash codes.
 
-* Heaps : Priority queues, and Indexed (a.k.a indirect) priority queues
+* Heaps : Priority queues, and Indexed (a.k.a indirect) priority queues.
 
 * Double linked-lists, supporting all operations common to lists and dequeues, with rich bi-derectional iterating methods.
 
-* Custom default values for methods returning default values in some circonstances (see Javadoc)
+* Custom default values for methods returning default values in some circumstances. (see Javadoc)
 
 * Boolean versions of containers when it makes sense: lists, queues, stacks, values in Maps.
 
-and some small other performance and API tweaks....
+...and some general performance and API tweaks.
 
 All these new features are heavily Unit tested, so should work well.
 
 Binaries are provided in 2 flavors : one compatible with Java 1.5, the other with Java 1.6 and beyond.
 Both binaries have no external dependencies, and offer the same API.
 
-Stable version is published on Maven:
+Stable version is available on Maven:
 ````
 <dependency>
     <groupId>com.github.vsonnier</groupId>
