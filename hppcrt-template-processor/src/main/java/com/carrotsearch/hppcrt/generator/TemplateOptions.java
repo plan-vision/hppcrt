@@ -12,13 +12,14 @@ import java.util.regex.Pattern;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.exception.ParseErrorException;
 
+import com.carrotsearch.hppcrt.generator.TemplateProcessor.VerboseLevel;
+
 /**
  * Template options for velocity directives in templates.
  */
 public class TemplateOptions
 {
-    private static final Pattern JAVA_IDENTIFIER_PATTERN = Pattern.compile("\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*",
-            Pattern.MULTILINE | Pattern.DOTALL);
+    public static final String TEMPLATE_FILE_TOKEN = "__TEMPLATE_SOURCE__";
 
     final public Type ktype;
     final public Type vtype;
@@ -29,7 +30,10 @@ public class TemplateOptions
     public final HashMap<String, InlinedMethodDef> inlineKTypeDefinitions = new HashMap<String, InlinedMethodDef>();
     public final HashMap<String, InlinedMethodDef> inlineVTypeDefinitions = new HashMap<String, InlinedMethodDef>();
 
-    private boolean verbose = false;
+    /**
+     * Be default, print everything !
+     */
+    public VerboseLevel verbose = VerboseLevel.full;
 
     /**
      * Reference over the current Velocity context, so that
@@ -37,7 +41,7 @@ public class TemplateOptions
      */
     public VelocityContext context = null;
 
-    public File sourceFile;
+    public File templateFile;
 
     /**
      * Exception to throw when we don't want to generate a particular type
@@ -383,10 +387,10 @@ public class TemplateOptions
 
             final String[] argsArray = args.split(",");
 
-            inlineDefs.get(callName).setBody(TemplateOptions.reformatArguments(body, argsArray));
+            inlineDefs.get(callName).setBody(InlinedMethodDef.reformatArguments(body, argsArray));
         }
 
-        if (this.verbose) {
+        if (isVerboseEnabled(VerboseLevel.full)) {
 
             System.out.println("TemplateOptions : " + toString() + " captured the inlined function name '" +
                     callName + "' of type '" + t + "' as '" +
@@ -405,94 +409,18 @@ public class TemplateOptions
         return format.format(new Date());
     }
 
-    public String getSourceFile()
+    public String getTemplateFile()
     {
-        return this.sourceFile.getName();
+        return this.templateFile.getName();
     }
 
-    public String getGeneratedAnnotation()
-    {
-        return "@javax.annotation.Generated(date = \"" +
-                getTimeNow() + "\", value = \"HPPC-RT generated from: " +
-                this.sourceFile.getName() + "\")";
-    }
-
-    /**
-     * Converts the human readable arguments listed in argsArray[] as equivalent %1%s, %2%s...etc positional arguments in the method body methodBodyStr
-     * @param methodBodyStr
-     * @param argsArray
-     * @return
-     */
-    protected static String reformatArguments(final String methodBodyStr, final String[] argsArray)
-    {
-        int argPosition = 0;
-        boolean argumentIsFound = false;
-
-        final StringBuilder sb = new StringBuilder();
-
-        final StringBuilder currentBody = new StringBuilder(methodBodyStr);
-
-        //for each of the arguments
-        for (int i = 0; i < argsArray.length; i++)
-        {
-            argumentIsFound = false;
-
-            sb.setLength(0);
-
-            while (true)
-            {
-                final Matcher m = TemplateOptions.JAVA_IDENTIFIER_PATTERN.matcher(currentBody);
-
-                if (m.find())
-                {
-                    //copy from the start of the (remaining) method body to start of the current find :
-                    sb.append(currentBody, 0, m.start());
-
-                    //this java identifier is known, replace
-                    if (m.group().equals(argsArray[i].trim()))
-                    {
-                        if (!argumentIsFound)
-                        {
-                            argPosition++;
-                            //first time this argument is encountered, increment position count
-                            argumentIsFound = true;
-                        }
-
-                        //append replacement : use parenthesis to safe containement of any form of valid expression given as argument
-                        sb.append("(%");
-                        sb.append(argPosition);
-                        sb.append("$s)");
-                    }
-                    else
-                    {
-                        //else append verbatim
-                        sb.append(m.group());
-                    }
-
-                    //Truncate currentBody to only keep the remaining string, after the current find :
-                    currentBody.delete(0, m.end());
-
-                } //end if find
-                else
-                {
-                    //append verbatim
-                    sb.append(currentBody);
-                    break;
-                }
-            } //end while
-
-            //re-run for the next argument with the whole previous computation
-            currentBody.setLength(0);
-            currentBody.append(sb);
-
-            //if a particular argument do not exist in method body, we must skip its position anyway.
-            if (!argumentIsFound) {
-
-                argPosition++;
-            }
-        }  //end for each arguments
-
-        return currentBody.toString();
+    public String getGeneratedAnnotation() {
+        return String.format(Locale.ROOT,
+                "@javax.annotation.Generated(\n" +
+                        "    date = \"%s\",\n" +
+                        "    value = \"%s\")",
+                getTimeNow(),
+                TemplateOptions.TEMPLATE_FILE_TOKEN);
     }
 
     @Override
@@ -500,68 +428,16 @@ public class TemplateOptions
         return "{KType=" + this.ktype + ", VType=" + this.vtype + "}";
     }
 
-    public void setVerbose(final boolean verb) {
+    private boolean isVerboseEnabled(final VerboseLevel lvl) {
 
-        this.verbose = verb;
+        return lvl.ordinal() <= this.verbose.ordinal();
     }
 
     /**
-     * Main for test purposes
+     * Set the verbose level for TemplateOptions
      */
-    public static void main(final String[] args) {
-
-        final TemplateOptions testInstance = new TemplateOptions(Type.GENERIC, null);
-
-        testInstance.setVerbose(true);
-
-        Matcher matcher = Pattern.compile("(Intrinsics.\\s*)(<[^>]+>\\s*)?(newKTypeArray)(\\()",
-                Pattern.MULTILINE | Pattern.DOTALL).matcher("Intrinsics. <KType[]>newKTypeArray(toto)");
-
-        matcher.find();
-
-        System.out.println(matcher.toString());
-
-        matcher = Pattern.compile("(Intrinsics.\\s*)(<[^>]+>\\s*)?(newKTypeArray)(\\()",
-                Pattern.MULTILINE | Pattern.DOTALL).matcher("Intrinsics.<KType[]> newKTypeArray(size); \n");
-
-        matcher.find();
-
-        System.out.println(matcher.toString());
-
-        testInstance.inlineKType("is_allocated",
-                "(alloc, slot, keys)",
-                "alloc[slot] != -1");
-
-        System.out.println(testInstance.inlineKTypeDefinitions.toString());
-
-        testInstance.inlineKType("is_allocated",
-                "(alloc, slot, keys)",
-                "Intrinsics.equalsKTypeDefault(keys[slot])");
-
-        System.out.println(testInstance.inlineKTypeDefinitions.toString());
-
-        testInstance.inlineKType("is_allocated",
-                "(alloc, slot, keys)",
-                "Intrinsics.equalsKTypeDefault(keys[slot]= keys / slot + alloc)");
-
-        System.out.println(testInstance.inlineKTypeDefinitions.toString());
-
-        testInstance.inlineKType("is_allocated",
-                "(alloc, slot, keys)",
-                "alloc[slot]");
-
-        System.out.println(testInstance.inlineKTypeDefinitions.toString());
-
-        testInstance.inlineKType("is_allocated",
-                "(alloc, slot, keys)",
-                "slot[alloc]");
-
-        System.out.println(testInstance.inlineKTypeDefinitions.toString());
-
-        testInstance.inlineKType("is_allocated",
-                "(alloc, slot, keys)",
-                "slot[slot[keys[keys[alloc]]]]");
-
-        System.out.println(testInstance.inlineKTypeDefinitions.toString());
+    public void setVerbose(final VerboseLevel verbose)
+    {
+        this.verbose = verbose;
     }
 }
