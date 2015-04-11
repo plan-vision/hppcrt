@@ -8,9 +8,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
@@ -37,6 +35,7 @@ import org.apache.velocity.tools.generic.NumberTool;
 import org.apache.velocity.tools.generic.RenderTool;
 
 import com.carrotsearch.hppcrt.generator.TemplateOptions.DoNotGenerateTypeException;
+import com.carrotsearch.hppcrt.generator.parser.SignatureProcessor;
 
 /**
  * Template processor for HPPC-RT templates.
@@ -45,10 +44,6 @@ public final class TemplateProcessor
 {
     private static final Pattern COMMENTS_PATTERN = Pattern.compile("(/\\*!)|(!\\*/)", Pattern.MULTILINE | Pattern.DOTALL);
 
-    private static final Pattern SIGNATURE_PATTERN = Pattern.compile("<[^<>]*>", Pattern.MULTILINE | Pattern.DOTALL);
-
-    private static final Pattern SIGNATURE_START = Pattern.compile("<[\\?A-Z]");
-
     public enum VerboseLevel {
         off,
         min,
@@ -56,8 +51,11 @@ public final class TemplateProcessor
         full;
     }
 
-  //by default, generate everything, talk as much as possible
+    /**
+     * Be default, print everything !
+     */
     private VerboseLevel verbose = VerboseLevel.full;
+
   private boolean incremental = false;
 
     private File templatesDir;
@@ -201,9 +199,8 @@ public final class TemplateProcessor
     /**
      * 
      */
-  public void execute() {
-
-    System.out.println("[INFO] Incremental generation : " + this.incremental);
+    public void execute()
+    {
         System.out.println("[INFO] Verbose level : " + this.verbose);
 
         initVelocity();
@@ -294,7 +291,7 @@ public final class TemplateProcessor
                 {
                     final TemplateOptions options = new TemplateOptions(t, null);
 
-                    options.setVerbose(isVerboseEnabled(VerboseLevel.full));
+                    options.setVerbose(this.verbose);
 
                     generate(f, outputs, options);
                 
@@ -309,10 +306,10 @@ public final class TemplateProcessor
                     {
                         final TemplateOptions options = new TemplateOptions(ktype, vtype);
 
-                        options.setVerbose(isVerboseEnabled(VerboseLevel.full));
+                        options.setVerbose(this.verbose);
 
                         generate(f, outputs, options);
-                      
+                     
                     }
                 }
             }
@@ -330,54 +327,60 @@ public final class TemplateProcessor
     /**
      * Apply templates.
      */
-    private void generate(final TemplateFile f, final List<OutputFile> outputs,
+    private void generate(final TemplateFile input, final List<OutputFile> outputs,
             final TemplateOptions templateOptions)
     {
-        final String targetFileName = targetFileName(relativePath(f.file, this.templatesDir), templateOptions);
+        final String targetFileName = targetFileName(relativePath(input.file, this.templatesDir), templateOptions);
 
         final OutputFile output = findOrCreate(targetFileName, outputs);
 
         if (!this.incremental || !output.file.exists()
-                || output.file.lastModified() <= f.file.lastModified())
+                || output.file.lastModified() <= input.file.lastModified())
         {
-            String input = readFile(f.file);
+            String template = readFile(input.file);
+
             long t1, t0 = System.currentTimeMillis();
 
             try {
 
+                //0) set current file as source file.
+                templateOptions.templateFile = input.file;
+
                 //1) Apply velocity : if TemplateOptions.isDoNotGenerateKType() or TemplateOptions.isDoNotGenerateVType() throw a
                 //DoNotGenerateTypeException , do not generate the final file.
                 t0 = System.currentTimeMillis();
-                input = filterVelocity(f, input, templateOptions);
+                template = filterVelocity(input, template, templateOptions);
 
                 this.timeVelocity += (t1 = System.currentTimeMillis()) - t0;
-              
-
+               
                 //2) Apply generic inlining, (which inlines Intrinsics...)
                 t0 = System.currentTimeMillis();
-                input = filterInlines(f, input, templateOptions);
+                template = filterInlines(input, template, templateOptions);
                 this.timeInlines += (t1 = System.currentTimeMillis()) - t0;
-             
-
-                //3) convert signatures
-                t0 = System.currentTimeMillis();
-                input = filterTypeClassRefs(f, input, templateOptions);
-                this.timeTypeClassRefs += (t1 = System.currentTimeMillis()) - t0;
                
-
-                //4) Filter comments
+                //3) Filter comments
                 t0 = System.currentTimeMillis();
-                input = filterComments(f, input, templateOptions);
+                template = filterComments(template);
                 this.timeComments += (t1 = System.currentTimeMillis()) - t0;
+                displayProgressBar();
+
+                //4) convert signatures
+                t0 = System.currentTimeMillis();
+                template = filterTypeClassRefs(template, templateOptions);
+
               
+                //5) Filter static tokens
+                template = filterStaticTokens(template, templateOptions);
+                this.timeTypeClassRefs += (t1 = System.currentTimeMillis()) - t0;
+                displayProgressBar();
 
                 output.updated = true;
-                saveFile(output.file, input);
-               
+                saveFile(output.file, template);
+              
             }
             catch (final ParseErrorException e) {
 
-                System.out.println("[ERROR] : parsing template '" + f.fullPath +
+                System.out.println("[ERROR] : parsing template '" + input.fullPath +
                         "' with " + templateOptions + " with error: '" + e.getMessage() + "'");
 
                 //rethrow the beast to stop the thing dead.
@@ -385,7 +388,7 @@ public final class TemplateProcessor
             }
             catch (final ResourceNotFoundException e) {
 
-                System.out.println("[ERROR] : resource not found for template '" + f.fullPath +
+                System.out.println("[ERROR] : resource not found for template '" + input.fullPath +
                         "' with " + templateOptions + " with error: '" + e.getMessage() + "'");
 
                 //rethrow the beast to stop the thing dead.
@@ -402,14 +405,15 @@ public final class TemplateProcessor
 
                     if (isVerboseEnabled(VerboseLevel.medium)) {
 
-                        System.out.println("[INFO] : output from template '" + f.fullPath +
+                        System.out.println("[INFO] : output from template '" + input.fullPath +
                                 "' with KType = " + doNotGenException.currentKType + " and VType =  " +
                                 doNotGenException.currentVType + " was bypassed...");
                     }
+                   
                 }
                 else {
 
-                    System.out.println("[ERROR] : method invocation from template '" + f.fullPath +
+                    System.out.println("[ERROR] : method invocation from template '" + input.fullPath +
                             "' with " + templateOptions + " failed with error: '" + e.getMessage() + "'");
 
                     //rethrow the beast to stop the thing dead.
@@ -563,159 +567,37 @@ public final class TemplateProcessor
         return currentInput.toString();
     }
 
-    private String filterComments(final TemplateFile f, final String input, final TemplateOptions templateOptions)
+    private String filterComments(final String input)
     {
         return TemplateProcessor.COMMENTS_PATTERN.matcher(input).replaceAll("");
     }
 
-    private String filterTypeClassRefs(final TemplateFile f, String input, final TemplateOptions options)
-    {
-        input = unifyTypeWithSignature(f, input, options);
-        input = rewriteSignatures(f, input, options);
-        input = rewriteLiterals(f, input, options);
-        return input;
+    /**
+     * Full AST signature processor
+     * @param input
+     * @param options
+     * @return
+     */
+    private String filterTypeClassRefs(final String input, final TemplateOptions options) {
+        try {
+            final SignatureProcessor signatureProcessor = new SignatureProcessor(input);
+
+            return signatureProcessor.process(options);
+        }
+        catch (final Exception e) {
+
+            System.out.println(String.format("[ERROR] Signature processor failure for template '%s' with exception '%s' ...", options.getTemplateFile(), e.getMessage()));
+
+            //force printing on console of the stack trace
+            e.printStackTrace(System.out);
+
+            throw new RuntimeException(e);
+        }
     }
 
-    private String unifyTypeWithSignature(final TemplateFile f, final String input,
-            final TemplateOptions options)
-    {
-        // This is a hack. A better way would be a full source AST and
-        // rewrite at the actual typeDecl level.
-        // KTypePredicate<? super VType> => VTypePredicate<? super VType>
-        return input.replaceAll("(KType)(?!VType)([A-Za-z]+)(<(?:(\\? super ))?VType>)", "VType$2$3");
-    }
+    private String filterStaticTokens(final String template, final TemplateOptions templateOptions) {
 
-    private String rewriteSignatures(final TemplateFile f, final String input, final TemplateOptions options)
-    {
-        final Matcher m = TemplateProcessor.SIGNATURE_START.matcher(input);
-
-        final StringBuilder sb = new StringBuilder();
-        int fromIndex = 0;
-        while (m.find(fromIndex))
-        {
-            final int next = m.start();
-            int end = next + 1;
-            int bracketCount = 1;
-            while (bracketCount > 0 && end < input.length())
-            {
-                switch (input.charAt(end++)) {
-                    case '<':
-                        bracketCount++;
-                        break;
-                    case '>':
-                        bracketCount--;
-                        break;
-                }
-            }
-            sb.append(input.substring(fromIndex, next));
-            sb.append(rewriteSignature(input.substring(next, end), options));
-            fromIndex = end;
-        }
-        sb.append(input.substring(fromIndex, input.length()));
-        return sb.toString();
-    }
-
-    private String rewriteSignature(final String signature, final TemplateOptions options)
-    {
-        if (!signature.contains("KType") && !signature.contains("VType")) {
-            return signature;
-        }
-
-        final StringBuilder sb = new StringBuilder(signature);
-
-        Matcher m = TemplateProcessor.SIGNATURE_PATTERN.matcher(sb);
-
-        while (m.find())
-        {
-            String group = m.group();
-            group = group.substring(1, group.length() - 1);
-
-            final List<String> args = new ArrayList<String>(Arrays.asList(group.split(",")));
-
-            final StringBuilder b = new StringBuilder();
-
-            for (final Iterator<String> i = args.iterator(); i.hasNext();)
-            {
-                String arg = i.next().trim();
-
-                if (options.isKTypePrimitive())
-                {
-                    if (options.hasKType() && isGenericOnly(arg, "KType")) {
-
-                        arg = "";
-                    }
-                    else {
-                        arg = arg.replace("KType", options.getKType().getBoxedType());
-                    }
-                }
-
-                if (options.hasVType() && options.isVTypePrimitive())
-                {
-                    if (isGenericOnly(arg, "VType")) {
-                        arg = "";
-                    }
-                    else {
-                        arg = arg.replace("VType", options.getVType().getBoxedType());
-                    }
-                }
-
-                if (arg.length() > 0)
-                {
-                    if (b.length() > 0) {
-                        b.append(", ");
-                    }
-                    b.append(arg.trim());
-                }
-            }
-
-            if (b.length() > 0)
-            {
-                b.insert(0, '{');
-                b.append('}');
-            }
-
-            sb.replace(m.start(), m.end(), b.toString());
-
-            m = TemplateProcessor.SIGNATURE_PATTERN.matcher(sb);
-        }
-        return sb.toString().replace('{', '<').replace('}', '>');
-    }
-
-    private boolean isGenericOnly(final String arg, final String type)
-    {
-        return arg.equals(type) || arg.equals("? super " + type) || arg.equals("? extends " + type);
-    }
-
-    private String rewriteLiterals(final TemplateFile f, String input, final TemplateOptions options)
-    {
-        final Type k = options.getKType();
-
-        if (options.hasVType())
-        {
-            final Type v = options.getVType();
-
-            input = input.replaceAll("(KTypeVType)([A-Z][a-zA-Z]*)(<.+?>)?",
-                    (k.isGeneric() ? "Object" : k.getBoxedType()) +
-                            (v.isGeneric() ? "Object" : v.getBoxedType()) +
-                            "$2" +
-                            (options.isAnyGeneric() ? "$3" : ""));
-
-            input = input.replaceAll("(VType)([A-Z][a-zA-Z]*)",
-                    (v.isGeneric() ? "Object" : v.getBoxedType()) + "$2");
-
-            if (!v.isGeneric()) {
-                input = input.replaceAll("VType", v.getType());
-            }
-        }
-
-        input = input.replaceAll("(KType)([A-Z][a-zA-Z]*)(<.+?>)?",
-                k.isGeneric() ? "Object" + "$2$3" : k.getBoxedType() + "$2");
-
-        if (!k.isGeneric()) {
-            input = input.replaceAll("KType", k.getType());
-        }
-
-        return input;
+        return template.replace(TemplateOptions.TEMPLATE_FILE_TOKEN, templateOptions.getTemplateFile());
     }
 
     private void saveFile(final File file, final String input)
@@ -747,9 +629,6 @@ public final class TemplateProcessor
         initTemplateOptionsContext(options);
 
         final StringWriter sw = new StringWriter();
-
-        //set current file as source file.
-        options.sourceFile = f.file;
 
         this.velocity.evaluate(options.context, sw, f.file.getName(), template);
 
@@ -895,6 +774,7 @@ public final class TemplateProcessor
             throw new RuntimeException(e);
         }
     }
+
 
     private boolean isVerboseEnabled(final VerboseLevel lvl) {
 

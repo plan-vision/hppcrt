@@ -132,9 +132,7 @@ public class InlinedMethodDef
                         }
 
                         //append replacement : use parenthesis to safe containement of any form of valid expression given as argument
-                        sb.append("(%");
-                        sb.append(argPosition);
-                        sb.append("$s)");
+                        sb.append(TemplateProcessor.safeExpression("%" + argPosition + "$s"));
                     }
                     else
                     {

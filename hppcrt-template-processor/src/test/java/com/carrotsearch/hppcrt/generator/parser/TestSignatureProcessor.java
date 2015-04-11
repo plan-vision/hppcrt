@@ -232,7 +232,7 @@ public class TestSignatureProcessor
     @Test
     public void testFullClassPartialTemplateSpecializationLong() throws IOException {
 
-        final Path path = Paths.get("src/test/java/com/carrotsearch/hppcrt/generator/parser/KTypePartialSpecializationClass.java.test");
+        final Path path = Paths.get("src/test/java/com/carrotsearch/hppcrt/generator/parser/KTypePartialSpecializationClass.test");
 
         Assume.assumeTrue(Files.isRegularFile(path));
 
@@ -246,7 +246,21 @@ public class TestSignatureProcessor
     @Test
     public void testFullClassPartialTemplateSpecializationGeneric() throws IOException {
 
-        final Path path = Paths.get("src/test/java/com/carrotsearch/hppcrt/generator/parser/KTypePartialSpecializationClass.java.test");
+        final Path path = Paths.get("src/test/java/com/carrotsearch/hppcrt/generator/parser/KTypePartialSpecializationClass.test");
+
+        Assume.assumeTrue(Files.isRegularFile(path));
+
+        final SignatureProcessor sp = new SignatureProcessor(new String(Files.readAllBytes(path), StandardCharsets.UTF_8));
+
+        final String output = sp.process(new TemplateOptions(Type.GENERIC, null));
+
+        System.out.println(output);
+    }
+
+    @Test
+    public void testFullClassArraysGeneric() throws IOException {
+
+        final Path path = Paths.get("src/test/java/com/carrotsearch/hppcrt/generator/parser/KTypeArraysClass.test");
 
         Assume.assumeTrue(Files.isRegularFile(path));
 

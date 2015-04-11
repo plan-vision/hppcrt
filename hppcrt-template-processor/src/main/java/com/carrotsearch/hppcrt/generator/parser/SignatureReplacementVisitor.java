@@ -1,8 +1,5 @@
 package com.carrotsearch.hppcrt.generator.parser;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayDeque;
@@ -551,12 +548,12 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
             switch (identifier) {
                 case "KType":
                     identifier = this.templateOptions.isKTypePrimitive()
-                            ? this.templateOptions.getKType().getType()
+                    ? this.templateOptions.getKType().getType()
                             : "KType";
                     break;
                 case "VType":
                     identifier = this.templateOptions.isVTypePrimitive()
-                            ? this.templateOptions.getVType().getType()
+                    ? this.templateOptions.getVType().getType()
                             : "VType";
                     break;
                 default:
