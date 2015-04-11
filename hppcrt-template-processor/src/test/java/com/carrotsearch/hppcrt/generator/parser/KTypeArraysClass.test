@@ -60,7 +60,7 @@ public final class KTypeArrays
      * @param from the start range to consider
      * @param to the array end range, exclusive
      */
-    public static<KType> void reverse(final KType[] table, final int from, final int to) {
+    public static <KType> void reverse(final KType[] table, final int from, final int to) {
 
         final int halfSize = (to - from) >>> 1;
         KType tmpValue;
@@ -79,7 +79,7 @@ public final class KTypeArrays
      * @param from the start range to consider
      * @param to the array end range, exclusive
      */
-    public static<KType> void reverse(final KTypeIndexedContainer<KType> table, final int from, final int to) {
+    public static <KType> void reverse(final KTypeIndexedContainer<KType> table, final int from, final int to) {
 
         final int halfSize = (to - from) >>> 1;
         KType tmpValue;

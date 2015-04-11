@@ -68,7 +68,7 @@ public class TestSignatureProcessor
         final SignatureProcessor sp = new SignatureProcessor(
                 "public class KTypeVTypeClass<KType, VType> " +
                         " extends     KTypeVTypeSuperClass<KType, VType>" +
-                        " implements  KTypeVTypeInterface<KType, VType> {}");
+                " implements  KTypeVTypeInterface<KType, VType> {}");
 
         check(Type.INT, Type.LONG, sp, "public class IntLongClass extends IntLongSuperClass implements IntLongInterface {}");
         check(Type.INT, Type.GENERIC, sp, "public class IntObjectClass<VType> extends IntObjectSuperClass<VType> implements IntObjectInterface<VType> {}");
@@ -80,7 +80,7 @@ public class TestSignatureProcessor
     public void testInterfaceKV() throws IOException {
         final SignatureProcessor sp = new SignatureProcessor(
                 "public interface KTypeVTypeInterface<KType, VType> " +
-                        "         extends KTypeVTypeSuper<KType, VType> {}");
+                "         extends KTypeVTypeSuper<KType, VType> {}");
 
         check(Type.INT, Type.LONG, sp, "public interface IntLongInterface extends IntLongSuper {}");
         check(Type.INT, Type.GENERIC, sp, "public interface IntObjectInterface<VType> extends IntObjectSuper<VType> {}");
@@ -230,7 +230,7 @@ public class TestSignatureProcessor
     }
 
     @Test
-    public void testFullClassPartialTemplateSpecializationLong() throws IOException {
+    public void testFullClassPartialTemplateSpecialization() throws IOException {
 
         final Path path = Paths.get("src/test/java/com/carrotsearch/hppcrt/generator/parser/KTypePartialSpecializationClass.test");
 
@@ -238,27 +238,12 @@ public class TestSignatureProcessor
 
         final SignatureProcessor sp = new SignatureProcessor(new String(Files.readAllBytes(path), StandardCharsets.UTF_8));
 
-        final String output = sp.process(new TemplateOptions(Type.LONG, null));
-
-        System.out.println(output);
+        System.out.println("\n\n" + sp.process(new TemplateOptions(Type.GENERIC, null)) + "\n\n");
+        System.out.println("\n\n" + sp.process(new TemplateOptions(Type.LONG, null)) + "\n\n");
     }
 
     @Test
-    public void testFullClassPartialTemplateSpecializationGeneric() throws IOException {
-
-        final Path path = Paths.get("src/test/java/com/carrotsearch/hppcrt/generator/parser/KTypePartialSpecializationClass.test");
-
-        Assume.assumeTrue(Files.isRegularFile(path));
-
-        final SignatureProcessor sp = new SignatureProcessor(new String(Files.readAllBytes(path), StandardCharsets.UTF_8));
-
-        final String output = sp.process(new TemplateOptions(Type.GENERIC, null));
-
-        System.out.println(output);
-    }
-
-    @Test
-    public void testFullClassArraysGeneric() throws IOException {
+    public void testFullClassArrays() throws IOException {
 
         final Path path = Paths.get("src/test/java/com/carrotsearch/hppcrt/generator/parser/KTypeArraysClass.test");
 
@@ -266,9 +251,37 @@ public class TestSignatureProcessor
 
         final SignatureProcessor sp = new SignatureProcessor(new String(Files.readAllBytes(path), StandardCharsets.UTF_8));
 
-        final String output = sp.process(new TemplateOptions(Type.GENERIC, null));
+        System.out.println("\n\n" + sp.process(new TemplateOptions(Type.GENERIC, null)) + "\n\n");
+        System.out.println("\n\n" + sp.process(new TemplateOptions(Type.LONG, null)) + "\n\n");
+    }
 
-        System.out.println(output);
+    /**
+     * Just like java.util.Arrays
+     * @throws IOException
+     */
+    @Test
+    public void testUtilityClassStaticGenericMethods() throws IOException {
+        final SignatureProcessor sp = new SignatureProcessor(
+                "public final class KTypeArraysClass {  "
+                        + "public static <KType> void utilityMethod(final KType[] objectArray, final int startIndex, final int endIndex) {"
+                        + "} "
+                        + "}");
+
+        System.out.println("\n" + sp.process(new TemplateOptions(Type.GENERIC, null)) + "\n");
+        System.out.println("\n" + sp.process(new TemplateOptions(Type.INT, null)) + "\n");
+    }
+
+    @Test
+    public void testIteratorPoolAlloc() throws IOException {
+        final Path path = Paths.get("src/test/java/com/carrotsearch/hppcrt/generator/parser/IteratorPoolAlloc.test");
+
+        Assume.assumeTrue(Files.isRegularFile(path));
+
+        final SignatureProcessor sp = new SignatureProcessor(new String(Files.readAllBytes(path), StandardCharsets.UTF_8));
+
+        System.out.println("\n\n" + sp.process(new TemplateOptions(Type.GENERIC, null)) + "\n\n");
+        System.out.println("\n\n" + sp.process(new TemplateOptions(Type.LONG, null)) + "\n\n");
+
     }
 
     private void check(final Type ktype, final SignatureProcessor processor, final String expected) throws IOException {

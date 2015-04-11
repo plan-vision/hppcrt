@@ -36,6 +36,7 @@ import org.apache.velocity.tools.generic.RenderTool;
 
 import com.carrotsearch.hppcrt.generator.TemplateOptions.DoNotGenerateTypeException;
 import com.carrotsearch.hppcrt.generator.parser.SignatureProcessor;
+import com.google.common.base.CharMatcher;
 
 /**
  * Template processor for HPPC-RT templates.
@@ -294,7 +295,7 @@ public final class TemplateProcessor
                     options.setVerbose(this.verbose);
 
                     generate(f, outputs, options);
-                
+
                 }
             }
             //B) (KType * VType) specializations
@@ -309,7 +310,7 @@ public final class TemplateProcessor
                         options.setVerbose(this.verbose);
 
                         generate(f, outputs, options);
-                     
+
                     }
                 }
             }
@@ -352,12 +353,14 @@ public final class TemplateProcessor
                 template = filterVelocity(input, template, templateOptions);
 
                 this.timeVelocity += (t1 = System.currentTimeMillis()) - t0;
-               
+
+
                 //2) Apply generic inlining, (which inlines Intrinsics...)
                 t0 = System.currentTimeMillis();
                 template = filterInlines(input, template, templateOptions);
                 this.timeInlines += (t1 = System.currentTimeMillis()) - t0;
-               
+
+
                 //3) Filter comments
                 t0 = System.currentTimeMillis();
                 template = filterComments(template);
@@ -368,7 +371,6 @@ public final class TemplateProcessor
                 t0 = System.currentTimeMillis();
                 template = filterTypeClassRefs(template, templateOptions);
 
-              
                 //5) Filter static tokens
                 template = filterStaticTokens(template, templateOptions);
                 this.timeTypeClassRefs += (t1 = System.currentTimeMillis()) - t0;
@@ -376,7 +378,6 @@ public final class TemplateProcessor
 
                 output.updated = true;
                 saveFile(output.file, template);
-              
             }
             catch (final ParseErrorException e) {
 
@@ -409,7 +410,6 @@ public final class TemplateProcessor
                                 "' with KType = " + doNotGenException.currentKType + " and VType =  " +
                                 doNotGenException.currentVType + " was bypassed...");
                     }
-                   
                 }
                 else {
 
@@ -524,7 +524,7 @@ public final class TemplateProcessor
                             try {
                                 if (params.size() > 0) {
 
-                                    sb.append(String.format("(" + bodyPattern + ")", params.toArray()));
+                                    sb.append(String.format(TemplateProcessor.safeExpression(bodyPattern), params.toArray()));
 
                                     if (isVerboseEnabled(VerboseLevel.full)) {
                                         System.out.println("[INFO] filterInlines(): Applying inlined body '" +
@@ -533,9 +533,7 @@ public final class TemplateProcessor
                                 }
                                 else {
                                     //the method has no arguments, simply pass the bodyPattern with no transform
-                                    sb.append("(");
-                                    sb.append(bodyPattern);
-                                    sb.append(")");
+                                    sb.append(TemplateProcessor.safeExpression(bodyPattern));
 
                                     if (isVerboseEnabled(VerboseLevel.full)) {
                                         System.out.println("[INFO] filterInlines(): Applying inlined body '" +

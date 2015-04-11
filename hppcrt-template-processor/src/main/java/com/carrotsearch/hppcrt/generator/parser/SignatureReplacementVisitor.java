@@ -163,19 +163,22 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
 
                 result.add(new Replacement(ctx.typeParameters(), toString(typeBounds)));
 
-                logVisitor(VerboseLevel.full, "visitClassDeclaration", "ctx.typeParameters() != null result = " + result.get(result.size() - 1));
+                logVisitor(VerboseLevel.full, "visitClassDeclaration", "type parameters replacements = " + result.get(result.size() - 1));
             }
 
-            int typeBoundIndex = 0;
-            if (className.contains("KType")) {
-                className = className.replace("KType", typeBounds.get(typeBoundIndex++).templateBound().getBoxedType());
+            //create replacements of the class identifier name: those a simple replace with matching TemplateOptions
+
+            if (className.contains("KType") && this.templateOptions.hasKType()) {
+                className = className.replace("KType", this.templateOptions.ktype.getBoxedType());
             }
-            if (className.contains("VType")) {
-                className = className.replace("VType", typeBounds.get(typeBoundIndex++).templateBound().getBoxedType());
+
+            if (className.contains("VType") && this.templateOptions.hasVType()) {
+                className = className.replace("VType", this.templateOptions.vtype.getBoxedType());
             }
+
             result.add(new Replacement(ctx.Identifier(), className));
 
-            logVisitor(VerboseLevel.full, "visitClassDeclaration", " result KType VType = " + result.get(result.size() - 1));
+            logVisitor(VerboseLevel.full, "visitClassDeclaration", " result className replacement = " + result.get(result.size() - 1));
         }
 
         return result;
