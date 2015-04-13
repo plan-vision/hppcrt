@@ -274,16 +274,20 @@ public class TestSignatureProcessor
 
 
     @Test
-    public void testFullClassIteratorPoolAlloc() throws IOException {
-        final String path = "src/test/java/com/carrotsearch/hppcrt/generator/parser/IteratorPoolAlloc.test";
+    public void testIteratorPoolAlloc() throws IOException {
 
-        final SignatureProcessor sp = new SignatureProcessor(loadFile(path));
+        final String testedPath = "src/test/java/com/carrotsearch/hppcrt/generator/parser/IteratorPoolAlloc.test";
 
-        System.out.println("\n\n" + sp.process(new TemplateOptions(Type.GENERIC, null)) + "\n\n");
-        System.out.println("\n\n" + sp.process(new TemplateOptions(Type.LONG, null)) + "\n\n");
+        final String expectedPathLong = "src/test/java/com/carrotsearch/hppcrt/generator/parser/IteratorPoolAllocLong.ok";
+        final String expectedPathObject = "src/test/java/com/carrotsearch/hppcrt/generator/parser/IteratorPoolAllocGeneric.ok";
+
+        System.out.println(">>>> Converted to Object: \n\n");
+        compareWithReferenceFile(new TemplateOptions(Type.GENERIC, null), testedPath, expectedPathObject);
+
+        System.out.println("\n\n>>>> Converted to long : \n\n");
+        compareWithReferenceFile(new TemplateOptions(Type.LONG, null), testedPath, expectedPathLong);
 
     }
-
 
     private void check(final Type ktype, final SignatureProcessor processor, final String expected) throws IOException {
         check(new TemplateOptions(ktype, null), processor, expected);
