@@ -10,7 +10,24 @@ HPPCRT-37: Add features from HPPC v0.7.0 :
 - HPPC-117: Static factory methods newInstanceXXX() renamed into newInstance() everywhere with proper overrides.
 - HPPC-121: Rename remove{All|First|Last}Occurrence(s) to remove{All|First|Last}(key) 
 - HPPC-120: Rework entry shifting routine to be less hairy
-- HPPC-125: equals should not compare with subclasses of itself. 
+- HPPC-125: equals should not compare with subclasses of itself.
+- HPPC-130: removeAll(KTypeLookupContainer) had an incorrect 
+          generic signature of:
+            public int removeAll(final KTypeLookupContainer<? extends KType> c)
+          now corrected to:
+            public int removeAll(final KTypeLookupContainer<? super KType> c)
+          (for primitive types this does not apply).
+
+- HPPC-131: retainAll(KTypeLookupContainer) had an incorrect 
+          generic signature of:
+            public int retainAll(final KTypeLookupContainer<? extends KType> c)
+          now corrected to:
+            public int retainAll(final KTypeLookupContainer<? super KType> c)
+          (for primitive types this does not apply).
+          
+- HPPC-133: KTypeContainer.toArray(Class<T>) now accepts any array
+          component type; runtime checks will throw ArrayStoreException if not
+          compatible. 
 
 ** Bug fixes
 

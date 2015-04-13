@@ -53,7 +53,7 @@ public interface KTypeContainer<KType> extends Iterable<KTypeCursor<KType>>
     int size();
 
     /**
-     * Return the maximum number of elements this container is guaranteed to hold without reallocating. 
+     * Return the maximum number of elements this container is guaranteed to hold without reallocating.
      * The time for calculating the container's capacity may take <code>O(n)</code> time.
      */
     int capacity();
@@ -63,18 +63,6 @@ public interface KTypeContainer<KType> extends Iterable<KTypeCursor<KType>>
      * equivalent to <code>size() == 0</code>
      */
     boolean isEmpty();
-
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    /**
-     * Copies all elements from this container to an array of this container's component
-     * type.
-     * <p>The returned array is sized to match exactly
-     * the number of elements of the container.</p>
-     * The returned array is always a copy, regardless of the storage used by the container.
-     */
-    KType[] toArray(Class<? super KType> clazz);
-
-    /*! #end !*/
 
     /**
      * Copies all elements from this container to an array.
@@ -88,6 +76,20 @@ public interface KTypeContainer<KType> extends Iterable<KTypeCursor<KType>>
     public KType [] toArray();
     #else !*/
     Object[] toArray();
+
+    /*! #end !*/
+
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    /**
+     * Copies all elements of this container to a dynamically created array of the given
+     * component type. An {@link ArrayStoreException} may be thrown if this container's elements
+     * are not assignable to the array's component type.
+     *
+     * The returned array is always a copy, regardless of the storage used by the container.
+     * 
+     * @throws ArrayStoreException
+     */
+    <T> T[] toArray(Class<T> componentClass);
 
     /*! #end !*/
 

@@ -18,14 +18,59 @@ public class APIExpectationsTest extends RandomizedTest
     public volatile int[] t1;
 
     @Test
+    public void testRemoveAllWithLookupContainer()
+    {
+        final ObjectArrayList<Integer> list = new ObjectArrayList<Integer>();
+        list.add(1);
+        list.add(2);
+        list.add(3);
+
+        // Same type.
+        final ObjectOpenHashSet<Integer> other1 = new ObjectOpenHashSet<Integer>();
+        other1.add(1);
+        list.removeAll(other1);
+
+        // Supertype.
+        final ObjectOpenHashSet<Number> other2 = new ObjectOpenHashSet<Number>();
+        other2.add(1);
+        list.removeAll(other2);
+
+        // Object
+        final ObjectOpenHashSet<Object> other3 = new ObjectOpenHashSet<Object>();
+        other3.add(1);
+        list.removeAll(other3);
+    }
+
+    @Test
+    public void testToArrayWithClass()
+    {
+        final ObjectArrayDeque<Integer> l1 = ObjectArrayDeque.from(1, 2, 3);
+        final Integer[] result1 = l1.toArray(Integer.class);
+        Assert.assertArrayEquals(new Integer[] { 1, 2, 3 }, result1);
+
+        final Number[] result2 = l1.toArray(Number.class);
+        Assert.assertEquals(Number[].class, result2.getClass());
+        Assert.assertArrayEquals(new Number[] { 1, 2, 3 }, result2);
+
+        //To test if overriden toArray() from Stack works too:
+        final ObjectStack<Integer> l2 = ObjectStack.from(1, 2, 3, 4);
+        final Integer[] result3 = l2.toArray(Integer.class);
+        Assert.assertArrayEquals(new Integer[] { 4, 3, 2, 1 }, result3);
+
+        final Number[] result4 = l2.toArray(Number.class);
+        Assert.assertEquals(Number[].class, result4.getClass());
+        Assert.assertArrayEquals(new Number[] { 4, 3, 2, 1 }, result4);
+    }
+
+    @Test
     public void testPrimitiveToArray()
     {
-        t1 = IntArrayList.from(1, 2, 3).toArray();
-        t1 = IntStack.from(1, 2, 3).toArray();
-        t1 = IntArrayDeque.from(1, 2, 3).toArray();
-        t1 = IntOpenHashSet.from(1, 2, 3).toArray();
+        this.t1 = IntArrayList.from(1, 2, 3).toArray();
+        this.t1 = IntStack.from(1, 2, 3).toArray();
+        this.t1 = IntArrayDeque.from(1, 2, 3).toArray();
+        this.t1 = IntOpenHashSet.from(1, 2, 3).toArray();
 
-        t1 = IntObjectOpenHashMap.from(
+        this.t1 = IntObjectOpenHashMap.from(
                 new int[] { 1, 2 }, new Long[] { 1L, 2L }).keys().toArray();
     }
 
@@ -39,13 +84,13 @@ public class APIExpectationsTest extends RandomizedTest
             @Override
             public int round(final int capacity)
             {
-                return delegate.round(capacity);
+                return this.delegate.round(capacity);
             }
 
             @Override
             public int grow(final int currentBufferLength, final int elementsCount, final int expectedAdditions)
             {
-                final int grow = delegate.grow(currentBufferLength, elementsCount, expectedAdditions);
+                final int grow = this.delegate.grow(currentBufferLength, elementsCount, expectedAdditions);
                 // System.out.println("Resizing to: " + Integer.toHexString(grow) + " " + grow);
                 return grow;
             }
@@ -71,13 +116,13 @@ public class APIExpectationsTest extends RandomizedTest
             @Override
             public int round(final int capacity)
             {
-                return delegate.round(capacity);
+                return this.delegate.round(capacity);
             }
 
             @Override
             public int grow(final int currentBufferLength, final int elementsCount, final int expectedAdditions)
             {
-                final int grow = delegate.grow(currentBufferLength, elementsCount, expectedAdditions);
+                final int grow = this.delegate.grow(currentBufferLength, elementsCount, expectedAdditions);
                 // System.out.println("Resizing to: " + Integer.toHexString(grow) + " " + grow);
                 return grow;
             }

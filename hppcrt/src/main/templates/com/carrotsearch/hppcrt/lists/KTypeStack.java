@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.cursors.*;
+import com.carrotsearch.hppcrt.lists.KTypeArrayList.ValueIterator;
 import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
 import com.carrotsearch.hppcrt.sorting.*;
@@ -207,6 +208,24 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
         return target;
     }
 
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T> T[] toArray(final Class<T> componentClass) {
+
+        //in order for the method to be consistent with the other toArray(), the result
+        //must be reversed because the base method use iterator that goes from bottom to top
+        final T[] reversedTable = super.toArray(componentClass);
+
+        KTypeArrays.reverse(reversedTable, 0, reversedTable.length);
+
+        return reversedTable;
+    }
+
+    /*! #end !*/
+
     /**
      * Adds one KType to the stack.
      */
@@ -335,6 +354,41 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
         assert this.elementsCount > 0;
 
         return this.buffer[this.elementsCount - 1];
+    }
+
+    /**
+     * Applies <code>procedure</code> to a slice of the list,
+     * <code>fromIndex</code>, inclusive, to <code>toIndex</code>,
+     * exclusive.
+     */
+    @Override
+    public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure,
+            final int fromIndex, final int toIndex)
+    {
+        final int size = size();
+
+        final int startRange = size - toIndex;
+        final int endRange = size - fromIndex;
+
+        return super.forEach(procedure, startRange, endRange);
+
+    }
+
+    /**
+     * Applies <code>predicate</code> to a slice of the list,
+     * <code>fromIndex</code>, inclusive, to <code>toIndex</code>,
+     * exclusive, or until predicate returns <code>false</code>.
+     */
+    @Override
+    public <T extends KTypePredicate<? super KType>> T forEach(final T predicate,
+            final int fromIndex, final int toIndex)
+    {
+        final int size = size();
+
+        final int startRange = size - toIndex;
+        final int endRange = size - fromIndex;
+
+        return super.forEach(predicate, startRange, endRange);
     }
 
     /**

@@ -12,7 +12,7 @@ import com.carrotsearch.hppcrt.predicates.KTypePredicate;
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public abstract class AbstractKTypeCollection<KType> implements KTypeCollection<KType>
 {
-    protected KTypeContainer<KType> testContainer;
+    protected KTypeContainer<? super KType> testContainer;
     protected KTypePredicate<? super KType> testPredicate;
 
     protected KType defaultValue = Intrinsics.<KType> defaultKTypeValue();
@@ -51,7 +51,7 @@ public abstract class AbstractKTypeCollection<KType> implements KTypeCollection<
     @SuppressWarnings("unchecked")
     /* #end */
     @Override
-    public int removeAll(final KTypeLookupContainer<? extends KType> c)
+    public int removeAll(final KTypeLookupContainer<? super KType> c)
     {
         // We know c holds sub-types of KType and we're not modifying c, so go unchecked.
         this.testContainer = (KTypeContainer<KType>) c;
@@ -65,7 +65,7 @@ public abstract class AbstractKTypeCollection<KType> implements KTypeCollection<
     @SuppressWarnings("unchecked")
     /* #end */
     @Override
-    public int retainAll(final KTypeLookupContainer<? extends KType> c)
+    public int retainAll(final KTypeLookupContainer<? super KType> c)
     {
         // We know c holds sub-types of KType and we're not modifying c, so go unchecked.
         this.testContainer = (KTypeContainer<KType>) c;
@@ -89,13 +89,19 @@ public abstract class AbstractKTypeCollection<KType> implements KTypeCollection<
      */
     @Override
     @SuppressWarnings("unchecked")
-    public KType[] toArray(final Class<? super KType> clazz)
+    public <T> T[] toArray(final Class<T> componentClass)
     {
         final int size = size();
 
-        final KType[] array = (KType[]) java.lang.reflect.Array.newInstance(clazz, size);
+        final T[] array = (T[]) java.lang.reflect.Array.newInstance(componentClass, size);
 
-        return toArray(array);
+        int i = 0;
+        for (final KTypeCursor<KType> c : this)
+        {
+            array[i++] = (T) c.value;
+        }
+
+        return array;
     }
 
     /*! #end !*/

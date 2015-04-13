@@ -24,7 +24,7 @@ public interface KTypeCollection<KType> extends KTypeContainer<KType>
      * 
      * @return Returns the number of removed elements.
      */
-    int removeAll(KTypeLookupContainer<? extends KType> c);
+    int removeAll(KTypeLookupContainer<? super KType> c);
 
     /**
      * Removes all elements in this collection for which the
@@ -41,7 +41,7 @@ public interface KTypeCollection<KType> extends KTypeContainer<KType>
      * 
      * @return Returns the number of removed elements.
      */
-    int retainAll(KTypeLookupContainer<? extends KType> c);
+    int retainAll(KTypeLookupContainer<? super KType> c);
 
     /**
      * Keeps all elements in this collection for which the
