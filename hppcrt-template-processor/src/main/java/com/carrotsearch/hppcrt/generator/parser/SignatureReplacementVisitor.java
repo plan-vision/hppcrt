@@ -166,8 +166,18 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
                 logVisitor(VerboseLevel.full, "visitClassDeclaration", "type parameters replacements = " + result.get(result.size() - 1));
             }
 
-            //create replacements of the class identifier name: those a simple replace with matching TemplateOptions
+            //1) Existing generic identifiers
+            if (className.contains("KType") && typeBounds.size() >= 1) {
+                className = className.replace("KType", typeBounds.get(0).templateBound().getBoxedType());
+            }
 
+            if (className.contains("VType") && typeBounds.size() >= 2) {
+                className = className.replace("VType", typeBounds.get(1).templateBound().getBoxedType());
+            }
+
+            //2) At that point, if className still contains KType/VType, that
+            // means that we had empty generic identifiers, so do a simple replace of className with matching TemplateOptions
+            //This allow managing of KTypeArrays-like classes behaving like java.util.Arrays.
             if (className.contains("KType") && this.templateOptions.hasKType()) {
                 className = className.replace("KType", this.templateOptions.ktype.getBoxedType());
             }
@@ -513,11 +523,13 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
     @Override
     protected List<Replacement> aggregateResult(final List<Replacement> first, final List<Replacement> second) {
 
-        if (second.size() == 0)
+        if (second.size() == 0) {
             return first;
+        }
 
-        if (first.size() == 0)
+        if (first.size() == 0) {
             return second;
+        }
 
         // Treat partial results as immutable.
         final List<Replacement> result = new ArrayList<Replacement>();
