@@ -217,44 +217,6 @@ public class TestSignatureProcessor
         check(Type.GENERIC, Type.GENERIC, sp, "/** ObjectFoo Objects ObjectObjectFoo Objects */");
     }
 
-    @Test
-    public void testFullClass() throws IOException {
-        final Path path = Paths.get("src/test/java/com/carrotsearch/hppcrt/generator/parser/KTypeVTypeClass.java");
-
-        Assume.assumeTrue(Files.isRegularFile(path));
-        final SignatureProcessor sp = new SignatureProcessor(new String(Files.readAllBytes(path), StandardCharsets.UTF_8));
-
-        final String output = sp.process(new TemplateOptions(Type.LONG, Type.GENERIC));
-
-        System.out.println(output);
-    }
-
-    @Test
-    public void testFullClassPartialTemplateSpecialization() throws IOException {
-
-        final Path path = Paths.get("src/test/java/com/carrotsearch/hppcrt/generator/parser/KTypePartialSpecializationClass.test");
-
-        Assume.assumeTrue(Files.isRegularFile(path));
-
-        final SignatureProcessor sp = new SignatureProcessor(new String(Files.readAllBytes(path), StandardCharsets.UTF_8));
-
-        System.out.println("\n\n" + sp.process(new TemplateOptions(Type.GENERIC, null)) + "\n\n");
-        System.out.println("\n\n" + sp.process(new TemplateOptions(Type.LONG, null)) + "\n\n");
-    }
-
-    @Test
-    public void testFullClassArrays() throws IOException {
-
-        final Path path = Paths.get("src/test/java/com/carrotsearch/hppcrt/generator/parser/KTypeArraysClass.test");
-
-        Assume.assumeTrue(Files.isRegularFile(path));
-
-        final SignatureProcessor sp = new SignatureProcessor(new String(Files.readAllBytes(path), StandardCharsets.UTF_8));
-
-        System.out.println("\n\n" + sp.process(new TemplateOptions(Type.GENERIC, null)) + "\n\n");
-        System.out.println("\n\n" + sp.process(new TemplateOptions(Type.LONG, null)) + "\n\n");
-    }
-
     /**
      * Just like java.util.Arrays
      * @throws IOException
@@ -272,17 +234,56 @@ public class TestSignatureProcessor
     }
 
     @Test
-    public void testIteratorPoolAlloc() throws IOException {
-        final Path path = Paths.get("src/test/java/com/carrotsearch/hppcrt/generator/parser/IteratorPoolAlloc.test");
+    public void testFullClass() throws IOException {
 
-        Assume.assumeTrue(Files.isRegularFile(path));
+        final String testedPath = "src/test/java/com/carrotsearch/hppcrt/generator/parser/KTypeVTypeClass.java";
+        final String expectedLongObjectTest = "src/test/java/com/carrotsearch/hppcrt/generator/parser/LongObjectClass.ok";
 
-        final SignatureProcessor sp = new SignatureProcessor(new String(Files.readAllBytes(path), StandardCharsets.UTF_8));
+        compareWithReferenceFile(new TemplateOptions(Type.LONG, Type.GENERIC), testedPath, expectedLongObjectTest);
+    }
+
+    @Test
+    public void testFullClassArrays() throws IOException {
+
+        final String testedPath = "src/test/java/com/carrotsearch/hppcrt/generator/parser/KTypeArraysClass.test";
+
+        final String expectedPathLong = "src/test/java/com/carrotsearch/hppcrt/generator/parser/LongArraysClass.ok";
+        final String expectedPathObject = "src/test/java/com/carrotsearch/hppcrt/generator/parser/ObjectArraysClass.ok";
+
+        System.out.println(">>>> Converted to Object: \n\n");
+        compareWithReferenceFile(new TemplateOptions(Type.GENERIC, null), testedPath, expectedPathObject);
+
+        System.out.println("\n\n>>>> Converted to long : \n\n");
+        compareWithReferenceFile(new TemplateOptions(Type.LONG, null), testedPath, expectedPathLong);
+    }
+
+    @Test
+    public void testFullClassPartialTemplateSpecialization() throws IOException {
+
+        final String testedPath = "src/test/java/com/carrotsearch/hppcrt/generator/parser/KTypePartialSpecializationClass.test";
+
+        final String expectedPathLong = "src/test/java/com/carrotsearch/hppcrt/generator/parser/LongPartialSpecializationClass.ok";
+        final String expectedPathObject = "src/test/java/com/carrotsearch/hppcrt/generator/parser/ObjectPartialSpecializationClass.ok";
+
+        System.out.println(">>>> Converted to Object: \n\n");
+        compareWithReferenceFile(new TemplateOptions(Type.GENERIC, null), testedPath, expectedPathObject);
+
+        System.out.println("\n\n>>>> Converted to long : \n\n");
+        compareWithReferenceFile(new TemplateOptions(Type.LONG, null), testedPath, expectedPathLong);
+    }
+
+
+    @Test
+    public void testFullClassIteratorPoolAlloc() throws IOException {
+        final String path = "src/test/java/com/carrotsearch/hppcrt/generator/parser/IteratorPoolAlloc.test";
+
+        final SignatureProcessor sp = new SignatureProcessor(loadFile(path));
 
         System.out.println("\n\n" + sp.process(new TemplateOptions(Type.GENERIC, null)) + "\n\n");
         System.out.println("\n\n" + sp.process(new TemplateOptions(Type.LONG, null)) + "\n\n");
 
     }
+
 
     private void check(final Type ktype, final SignatureProcessor processor, final String expected) throws IOException {
         check(new TemplateOptions(ktype, null), processor, expected);
@@ -292,18 +293,68 @@ public class TestSignatureProcessor
         check(new TemplateOptions(ktype, vtype), processor, expected);
     }
 
-    private void check(final TemplateOptions templateOptions, final SignatureProcessor processor, String expected) throws IOException {
-        String output = processor.process(templateOptions);
+    private void check(final TemplateOptions templateOptions, final SignatureProcessor processor, final String expected) throws IOException {
+        final String output = processor.process(templateOptions);
 
-        expected = expected.replaceAll("\\s+", " ");
-        output = output.replaceAll("\\s+", " ");
+        final String expectedNormalized = expected.trim().replaceAll("\\s+", " ");
+        final String outputNormalized = output.trim().replaceAll("\\s+", " ");
 
-        if (!output.equals(expected)) {
+        if (!outputNormalized.equals(expectedNormalized)) {
             System.out.println(String.format(Locale.ROOT,
-                    "Output  : %s\n" +
-                            "Expected: %s\n", output, expected));
+                    "Output:\n'%s'\n" +
+                            "Expected:\n'%s'\n", output, expected));
+
+            //this is always false, so trigger the comparison with the original outputs
+            //so that is easier to diff them because formatting is kept.
+            Assert.assertEquals(expected, output);
         }
 
-        Assert.assertEquals(expected, output);
+        Assert.assertTrue(true);
+    }
+
+    private void compareWithReferenceFile(final TemplateOptions templateOptions,
+            final String testFileName,
+            final String expectedFileName) throws IOException {
+
+        final SignatureProcessor processor = new SignatureProcessor(loadFile(testFileName));
+
+        //Compute :
+        final String output = processor.process(templateOptions);
+
+        //whitespace is not significant, normalize it
+        final String outputNormalized = output.trim().replaceAll("\\s+", " ");
+
+        final String expected = loadFile(expectedFileName);
+
+        //whitespace is not significant, normalize it
+        final String expectedNormalized = expected.trim().replaceAll("\\s+", " ");
+
+
+        //Dump on sysout if not identical
+        if (!outputNormalized.equals(expectedNormalized)) {
+            System.out.println(String.format(Locale.ROOT,
+                    "Wrong output:\n'%s'\n\n", output));
+
+            //this is always false, so trigger the comparison with the original outputs
+            //so that is easier to diff them because formatting is kept.
+            Assert.assertEquals(expected, output);
+        }
+
+        Assert.assertTrue(true);
+    }
+
+    /**
+     * Load a file fileName as UTF-8 and return its String contents
+     * @param fileName
+     * @return
+     * @throws IOException
+     */
+    private String loadFile(final String fileName) throws IOException {
+
+        final Path path = Paths.get(fileName);
+
+        Assert.assertTrue("Not a regular file, or file do not exist : " + path.toString(), Files.isRegularFile(path));
+
+        return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
     }
 }

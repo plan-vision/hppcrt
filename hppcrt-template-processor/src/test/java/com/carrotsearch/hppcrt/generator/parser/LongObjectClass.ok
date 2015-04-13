@@ -1,0 +1,39 @@
+package com.carrotsearch.hppcrt.generator.parser;
+
+import com.carrotsearch.hppcrt.generator.parser.subpackage.LongObjectInterfaceImported;
+
+/**
+ * A list of longs.
+ */
+public class LongObjectClass<VType>
+        extends LongObjectSuper<VType>
+        implements LongObjectInterface<VType>,
+        LongObjectInterfaceImported<VType>,
+        Cloneable
+{
+    long[] keys;
+
+    public LongObjectClass() {
+    }
+
+    public LongObjectClass(final long[] foo, final VType boo) {
+    }
+
+    public LongObjectClass(final LongObjectSuper<VType> foo) {
+    }
+
+    public VType foo(final long key, final VType value) {
+        throw new RuntimeException();
+    }
+
+    public void foo(final LongObjectSuper<? extends VType> foo) {
+    }
+}
+
+class LongObjectSuper<VType>
+{
+}
+
+interface LongObjectInterface<VType>
+{
+}

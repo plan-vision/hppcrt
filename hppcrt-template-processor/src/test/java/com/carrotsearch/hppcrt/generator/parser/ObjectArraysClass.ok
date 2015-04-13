@@ -1,0 +1,122 @@
+package com.carrotsearch.hppcrt;
+
+import java.util.Arrays;
+
+public final class ObjectArrays
+{
+    final private static int BLANK_ARRAY_SIZE_IN_BIT_SHIFT = 10;
+
+    /**
+     * Batch blanking array size
+     */
+    final private static int BLANK_ARRAY_SIZE = 1 << ObjectArrays.BLANK_ARRAY_SIZE_IN_BIT_SHIFT;
+
+    /**
+     * Batch blanking array with Object nulls
+     */
+   
+    final private static Object[] BLANKING_OBJECT_ARRAY = new Object[ObjectArrays.BLANK_ARRAY_SIZE];
+
+    private ObjectArrays() {
+
+        //nothing
+    }
+
+    /**
+     * Rotate utility :
+     * Transforms the range [[slice_1:  from; mid - 1][slice_2: mid, to - 1]] of table, into
+     * [[slice_2][slice_1]]in place, i.e swap the two slices while keeping their own internal order.
+     * @param table
+     * @param from the start range to consider
+     * @param mid start index of the second slice
+     * @param to the array end range, exclusive
+     */
+    public static <KType> void rotate(final KType[] table, final int from, final int mid, final int to) {
+
+        ObjectArrays.reverse(table, from, mid);
+        ObjectArrays.reverse(table, mid, to);
+        ObjectArrays.reverse(table, from, to);
+    }
+
+    /**
+     * Rotate utility :
+     * Transforms the range [[slice_1:  from; mid - 1][slice_2: mid, to - 1]] of ObjectIndexedContainer, into
+     * [[slice_2][slice_1]] in place, i.e swap the two slices while keeping their own internal order.
+     * @param table
+     * @param from the start range to consider
+     * @param mid start index of the second slice
+     * @param to the array end range, exclusive
+     */
+    public static <KType> void rotate(final ObjectIndexedContainer<KType> table, final int from, final int mid, final int to) {
+
+        ObjectArrays.reverse(table, from, mid);
+        ObjectArrays.reverse(table, mid, to);
+        ObjectArrays.reverse(table, from, to);
+    }
+
+    /**
+     * Reverse the elements positions of the specified range of array table :
+     * @param table
+     * @param from the start range to consider
+     * @param to the array end range, exclusive
+     */
+    public static <KType> void reverse(final KType[] table, final int from, final int to) {
+
+        final int halfSize = (to - from) >>> 1;
+        KType tmpValue;
+
+        for (int i = 0; i < halfSize; i++)
+        {
+            tmpValue = table[i + from];
+            table[i + from] = table[to - i - 1];
+            table[to - i - 1] = tmpValue;
+        }
+    }
+
+    /**
+     * Reverse the elements positions of the specified range of ObjectIndexedContainer table :
+     * @param table
+     * @param from the start range to consider
+     * @param to the array end range, exclusive
+     */
+    public static <KType> void reverse(final ObjectIndexedContainer<KType> table, final int from, final int to) {
+
+        final int halfSize = (to - from) >>> 1;
+        KType tmpValue;
+
+        for (int i = 0; i < halfSize; i++)
+        {
+            tmpValue = table.get(i + from);
+            table.set(i + from, table.get(to - i - 1));
+            table.set(to - i - 1, tmpValue);
+        }
+    }
+
+    /**
+     * Method to blank any Object[] array elements to its default value
+     * from [startIndex; endIndex[, equivalent to {@link Arrays}.fill(objectArray, startIndex, endIndex, 0 or null)
+     */
+    public static <KType> void blankArray(final KType[] objectArray, final int startIndex, final int endIndex) {
+
+        assert startIndex <= endIndex;
+
+        final int size = endIndex - startIndex;
+        final int nbChunks = size >> ObjectArrays.BLANK_ARRAY_SIZE_IN_BIT_SHIFT;
+        //compute remainder
+        final int rem = size & (ObjectArrays.BLANK_ARRAY_SIZE - 1);
+
+        for (int i = 0; i < nbChunks; i++) {
+
+            System.arraycopy(ObjectArrays.BLANKING_OBJECT_ARRAY, 0,
+                    objectArray, startIndex + (i << ObjectArrays.BLANK_ARRAY_SIZE_IN_BIT_SHIFT),
+                    ObjectArrays.BLANK_ARRAY_SIZE);
+        } //end for
+
+        //fill the reminder
+        if (rem > 0) {
+            Arrays.fill(objectArray, startIndex + (nbChunks << ObjectArrays.BLANK_ARRAY_SIZE_IN_BIT_SHIFT),
+                    startIndex + (nbChunks << ObjectArrays.BLANK_ARRAY_SIZE_IN_BIT_SHIFT) + rem, Intrinsics.defaultKTypeValue());
+        }
+    }
+
+}

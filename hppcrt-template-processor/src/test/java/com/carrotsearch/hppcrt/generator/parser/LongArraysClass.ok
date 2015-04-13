@@ -1,0 +1,122 @@
+package com.carrotsearch.hppcrt;
+
+import java.util.Arrays;
+
+public final class LongArrays
+{
+    final private static int BLANK_ARRAY_SIZE_IN_BIT_SHIFT = 10;
+
+    /**
+     * Batch blanking array size
+     */
+    final private static int BLANK_ARRAY_SIZE = 1 << LongArrays.BLANK_ARRAY_SIZE_IN_BIT_SHIFT;
+
+    /**
+     * Batch blanking array with long nulls
+     */
+   
+    final private static Object[] BLANKING_OBJECT_ARRAY = new Object[LongArrays.BLANK_ARRAY_SIZE];
+
+    private LongArrays() {
+
+        //nothing
+    }
+
+    /**
+     * Rotate utility :
+     * Transforms the range [[slice_1:  from; mid - 1][slice_2: mid, to - 1]] of table, into
+     * [[slice_2][slice_1]]in place, i.e swap the two slices while keeping their own internal order.
+     * @param table
+     * @param from the start range to consider
+     * @param mid start index of the second slice
+     * @param to the array end range, exclusive
+     */
+    public static  void rotate(final long[] table, final int from, final int mid, final int to) {
+
+        LongArrays.reverse(table, from, mid);
+        LongArrays.reverse(table, mid, to);
+        LongArrays.reverse(table, from, to);
+    }
+
+    /**
+     * Rotate utility :
+     * Transforms the range [[slice_1:  from; mid - 1][slice_2: mid, to - 1]] of LongIndexedContainer, into
+     * [[slice_2][slice_1]] in place, i.e swap the two slices while keeping their own internal order.
+     * @param table
+     * @param from the start range to consider
+     * @param mid start index of the second slice
+     * @param to the array end range, exclusive
+     */
+    public static  void rotate(final LongIndexedContainer table, final int from, final int mid, final int to) {
+
+        LongArrays.reverse(table, from, mid);
+        LongArrays.reverse(table, mid, to);
+        LongArrays.reverse(table, from, to);
+    }
+
+    /**
+     * Reverse the elements positions of the specified range of array table :
+     * @param table
+     * @param from the start range to consider
+     * @param to the array end range, exclusive
+     */
+    public static  void reverse(final long[] table, final int from, final int to) {
+
+        final int halfSize = (to - from) >>> 1;
+        long tmpValue;
+
+        for (int i = 0; i < halfSize; i++)
+        {
+            tmpValue = table[i + from];
+            table[i + from] = table[to - i - 1];
+            table[to - i - 1] = tmpValue;
+        }
+    }
+
+    /**
+     * Reverse the elements positions of the specified range of LongIndexedContainer table :
+     * @param table
+     * @param from the start range to consider
+     * @param to the array end range, exclusive
+     */
+    public static  void reverse(final LongIndexedContainer table, final int from, final int to) {
+
+        final int halfSize = (to - from) >>> 1;
+        long tmpValue;
+
+        for (int i = 0; i < halfSize; i++)
+        {
+            tmpValue = table.get(i + from);
+            table.set(i + from, table.get(to - i - 1));
+            table.set(to - i - 1, tmpValue);
+        }
+    }
+
+    /**
+     * Method to blank any long[] array elements to its default value
+     * from [startIndex; endIndex[, equivalent to {@link Arrays}.fill(objectArray, startIndex, endIndex, 0 or null)
+     */
+    public static  void blankArray(final long[] objectArray, final int startIndex, final int endIndex) {
+
+        assert startIndex <= endIndex;
+
+        final int size = endIndex - startIndex;
+        final int nbChunks = size >> LongArrays.BLANK_ARRAY_SIZE_IN_BIT_SHIFT;
+        //compute remainder
+        final int rem = size & (LongArrays.BLANK_ARRAY_SIZE - 1);
+
+        for (int i = 0; i < nbChunks; i++) {
+
+            System.arraycopy(LongArrays.BLANKING_OBJECT_ARRAY, 0,
+                    objectArray, startIndex + (i << LongArrays.BLANK_ARRAY_SIZE_IN_BIT_SHIFT),
+                    LongArrays.BLANK_ARRAY_SIZE);
+        } //end for
+
+        //fill the reminder
+        if (rem > 0) {
+            Arrays.fill(objectArray, startIndex + (nbChunks << LongArrays.BLANK_ARRAY_SIZE_IN_BIT_SHIFT),
+                    startIndex + (nbChunks << LongArrays.BLANK_ARRAY_SIZE_IN_BIT_SHIFT) + rem, Intrinsics.defaultKTypeValue());
+        }
+    }
+
+}

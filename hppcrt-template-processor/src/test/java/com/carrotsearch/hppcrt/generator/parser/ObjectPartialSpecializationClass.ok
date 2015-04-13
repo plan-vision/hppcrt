@@ -3,16 +3,16 @@ package com.carrotsearch.hppcrt.generator.parser;
 import java.util.Comparator;
 
 /**
- * Test for partial template specialization, i.e KTypeIndexedHeapPriorityQueue
+ * Test for partial template specialization, i.e ObjectIndexedHeapPriorityQueue
  * @author Vincent
  *
- * @param <KType>
+ * @param <Object>
  */
-public class KTypePartialSpecializationClass<KType> implements IntKTypeMap<KType>, Cloneable
+public class ObjectPartialSpecializationClass<KType> implements IntObjectMap<KType>, Cloneable
 {	
-	protected final IteratorPool<IntKTypeCursor<KType>, EntryIterator> entryIteratorPool;
+	protected final IteratorPool<IntObjectCursor<KType>, EntryIterator> entryIteratorPool;
 
-    public KTypePartialSpecializationClass() {
+    public ObjectPartialSpecializationClass() {
 		
         this.entryIteratorPool = new IteratorPool<IntKTypeCursor<KType>, EntryIterator>(
                 new ObjectFactory<EntryIterator>() {
@@ -27,9 +27,9 @@ public class KTypePartialSpecializationClass<KType> implements IntKTypeMap<KType
                     public void initialize(final EntryIterator obj)
                     {
                         obj.cursor.index = 0;
-                        obj.buffer = KTypeIndexedHeapPriorityQueue.this.buffer;
-                        obj.size = KTypeIndexedHeapPriorityQueue.this.elementsCount;
-                        obj.qp = KTypeIndexedHeapPriorityQueue.this.qp;
+                        obj.buffer = ObjectIndexedHeapPriorityQueue.this.buffer;
+                        obj.size = ObjectIndexedHeapPriorityQueue.this.elementsCount;
+                        obj.qp = ObjectIndexedHeapPriorityQueue.this.qp;
                     }
 
                     @Override
@@ -42,9 +42,9 @@ public class KTypePartialSpecializationClass<KType> implements IntKTypeMap<KType
                 });
     }
 
-	 public final class EntryIterator extends AbstractIterator<IntKTypeCursor<KType>>
+	 public final class EntryIterator extends AbstractIterator<IntObjectCursor<KType>>
     {
-        public final IntKTypeCursor<KType> cursor;
+        public final IntObjectCursor<KType> cursor;
 
         private KType[] buffer;
         private int size;
@@ -56,20 +56,20 @@ public class KTypePartialSpecializationClass<KType> implements IntKTypeMap<KType
         }
 
         @Override
-        protected IntKTypeCursor<KType> fetch()
+        protected IntObjectCursor<KType> fetch()
         {
             
         }
     }
 	
     @Override
-    public <T extends IntKTypeProcedure<? super KType>> T forEach(final T procedure)
+    public <T extends IntObjectProcedure<? super KType>> T forEach(final T procedure)
     {
 
     }
 
     @Override
-    public <T extends IntKTypePredicate<? super KType>> T forEach(final T predicate)
+    public <T extends IntObjectPredicate<? super KType>> T forEach(final T predicate)
     {
 
     }
@@ -89,16 +89,16 @@ public class KTypePartialSpecializationClass<KType> implements IntKTypeMap<KType
 
     }
 
-	@Override
+    @Override
     public boolean putIfAbsent(final int key, final KType value)
     {
    
     }
 	
 	 @Override
-    public int putAll(final IntKTypeAssociativeContainer<? extends KType> container)
+    public int putAll(final IntObjectAssociativeContainer<? extends KType> container)
     {
-        return putAll((Iterable<? extends IntKTypeCursor<? extends KType>>) container);
+        return putAll((Iterable<? extends IntObjectCursor<? extends KType>>) container);
     }
 
     /**
@@ -106,8 +106,8 @@ public class KTypePartialSpecializationClass<KType> implements IntKTypeMap<KType
      */
     public final class KeysContainer extends AbstractIntCollection implements IntLookupContainer
     {
-        private final KTypeIndexedHeapPriorityQueue<KType> owner =
-                KTypeIndexedHeapPriorityQueue.this;
+        private final ObjectIndexedHeapPriorityQueue<KType> owner =
+                ObjectIndexedHeapPriorityQueue.this;
 
         @Override
         public boolean contains(final int e)
@@ -196,14 +196,14 @@ public class KTypePartialSpecializationClass<KType> implements IntKTypeMap<KType
     /**
      * A view over the set of values of this map.
      */
-    public final class ValuesContainer extends AbstractKTypeCollection<KType>
+    public final class ValuesContainer extends AbstractObjectCollection<KType>
     {
-        private final KTypeIndexedHeapPriorityQueue<KType> owner =
-                KTypeIndexedHeapPriorityQueue.this;
+        private final ObjectIndexedHeapPriorityQueue<KType> owner =
+                ObjectIndexedHeapPriorityQueue.this;
 
         private KType currentOccurenceToBeRemoved;
 
-        private final KTypePredicate<? super KType> removeAllOccurencesPredicate = new KTypePredicate<KType>() {
+        private final ObjectPredicate<? super KType> removeAllOccurencesPredicate = new ObjectPredicate<KType>() {
 
             @Override
             public final boolean apply(final KType value) {
@@ -220,13 +220,13 @@ public class KTypePartialSpecializationClass<KType> implements IntKTypeMap<KType
         }
 
         @Override
-        public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure)
+        public <T extends ObjectProcedure<? super KType>> T forEach(final T procedure)
         {
            
         }
 
         @Override
-        public <T extends KTypePredicate<? super KType>> T forEach(final T predicate)
+        public <T extends ObjectPredicate<? super KType>> T forEach(final T predicate)
         {
            
         }
@@ -245,7 +245,7 @@ public class KTypePartialSpecializationClass<KType> implements IntKTypeMap<KType
          * the predicate for the values, from  the map.
          */
         @Override
-        public int removeAll(final KTypePredicate<? super KType> predicate)
+        public int removeAll(final ObjectPredicate<? super KType> predicate)
         {
            
         }
@@ -261,7 +261,7 @@ public class KTypePartialSpecializationClass<KType> implements IntKTypeMap<KType
         /**
          * internal pool of ValuesIterator
          */
-        protected final IteratorPool<KTypeCursor<KType>, ValuesIterator> valuesIteratorPool = new IteratorPool<KTypeCursor<KType>, ValuesIterator>(
+        protected final IteratorPool<ObjectCursor<KType>, ValuesIterator> valuesIteratorPool = new IteratorPool<ObjectCursor<KType>, ValuesIterator>(
                 new ObjectFactory<ValuesIterator>() {
 
                     @Override
@@ -286,9 +286,9 @@ public class KTypePartialSpecializationClass<KType> implements IntKTypeMap<KType
     }
 
  
-    public final class ValuesIterator extends AbstractIterator<KTypeCursor<KType>>
+    public final class ValuesIterator extends AbstractIterator<ObjectCursor<KType>>
     {
-        public final KTypeCursor<KType> cursor;
+        public final ObjectCursor<KType> cursor;
 
         private KType[] buffer;
         private int size;
@@ -299,7 +299,7 @@ public class KTypePartialSpecializationClass<KType> implements IntKTypeMap<KType
         }
 
         @Override
-        protected KTypeCursor<KType> fetch()
+        protected ObjectCursor<KType> fetch()
         {
           
         }
