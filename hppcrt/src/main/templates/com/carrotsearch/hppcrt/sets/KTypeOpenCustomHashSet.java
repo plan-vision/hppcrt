@@ -90,10 +90,6 @@ public class KTypeOpenCustomHashSet<KType>
      * Direct set iteration: iterate  {keys[i]} for i in [0; keys.length[ where keys[i] != 0/null, then also
      * {0/null} is in the set if {@link #allocatedDefaultKey} = true.
      * </p>
-     * 
-     * <p><b>Direct iteration warning: </b>
-     * If the iteration goal is to fill another hash container, please iterate {@link #keys} in reverse to prevent performance losses.
-     * @see #keys
      */
     public KType[] keys;
 
@@ -543,7 +539,8 @@ public class KTypeOpenCustomHashSet<KType>
     }
 
     /**
-     * An alias for the (preferred) {@link #removeAllOccurrences}.
+     * An alias for {@link #removeAll}, i.e returns true
+     * if key was present in the set and has been successfully removed.
      */
     public boolean remove(final KType key)
     {
@@ -930,7 +927,6 @@ public class KTypeOpenCustomHashSet<KType>
     @Override
     public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure)
     {
-
         if (this.allocatedDefaultKey) {
 
             procedure.apply(Intrinsics.<KType> defaultKTypeValue());
@@ -1031,8 +1027,6 @@ public class KTypeOpenCustomHashSet<KType>
 
     /**
      * {@inheritDoc}
-     * <p><strong>Important!</strong>
-     * If the predicate actually injects the removed keys in another hash container, you may experience performance losses.
      */
     @Override
     public int removeAll(final KTypePredicate<? super KType> predicate)
@@ -1051,17 +1045,15 @@ public class KTypeOpenCustomHashSet<KType>
 
         for (int i = 0; i < keys.length;)
         {
-            if (is_allocated(i, keys))
+            if (is_allocated(i, keys) && predicate.apply(keys[i]))
             {
-                if (predicate.apply(keys[i]))
-                {
-                    this.assigned--;
-                    shiftConflictingKeys(i);
-                    // Repeat the check for the same i.
-                    continue;
-                }
+                this.assigned--;
+                shiftConflictingKeys(i);
+                // Shift, do not increment slot.
             }
-            i++;
+            else {
+                i++;
+            }
         }
 
         return before - this.size();

@@ -49,8 +49,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Minimum capacity for the map.
@@ -84,9 +84,6 @@ public class KTypeOpenHashSet<KType>
      * {0/null} is in the set if {@link #allocatedDefaultKey} = true.
      * </p>
      * 
-     * <p><b>Direct iteration warning: </b>
-     * If the iteration goal is to fill another hash container, please iterate {@link #keys} in reverse to prevent performance losses.
-     * @see #keys
      */
     public KType[] keys;
 
@@ -515,7 +512,8 @@ public class KTypeOpenHashSet<KType>
     }
 
     /**
-     * An alias for the (preferred) {@link #removeAllOccurrences}.
+     * An alias for {@link #removeAll}, i.e returns true
+     * if key was present in the set and has been successfully removed.
      */
     public boolean remove(final KType key)
     {
@@ -986,8 +984,6 @@ public class KTypeOpenHashSet<KType>
 
     /**
      * {@inheritDoc}
-     * <p><strong>Important!</strong>
-     * If the predicate actually injects the removed keys in another hash container, you may experience performance losses.
      */
     @Override
     public int removeAll(final KTypePredicate<? super KType> predicate)
@@ -1006,17 +1002,15 @@ public class KTypeOpenHashSet<KType>
 
         for (int i = 0; i < keys.length;)
         {
-            if (is_allocated(i, keys))
+            if (is_allocated(i, keys) && predicate.apply(keys[i]))
             {
-                if (predicate.apply(keys[i]))
-                {
-                    this.assigned--;
-                    shiftConflictingKeys(i);
-                    // Repeat the check for the same i.
-                    continue;
-                }
+                this.assigned--;
+                shiftConflictingKeys(i);
+                // Shift, do not increment slot.
             }
-            i++;
+            else {
+                i++;
+            }
         }
 
         return before - this.size();

@@ -90,10 +90,6 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
      * Direct map iteration: iterate  {keys[i], values[i]} for i in [0; keys.length[ where keys[i] != 0/null, then also
      * {0/null, {@link #allocatedDefaultKeyValue} } is in the map if {@link #allocatedDefaultKey} = true.
      * </p>
-     * 
-     * <p><b>Direct iteration warning: </b>
-     * If the iteration goal is to fill another hash container, please iterate {@link #keys} in reverse to prevent performance losses.
-     * @see #values
      */
     public KType[] keys;
 
@@ -111,7 +107,6 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
      * </pre>
     #end
      * 
-     * @see #keys
      */
     public VType[] values;
 
@@ -914,13 +909,36 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
      * {@inheritDoc}
      */
     @Override
-    public int removeAll(final KTypeContainer<? extends KType> container)
+    public int removeAll(final KTypeContainer<? super KType> container)
     {
         final int before = this.size();
 
-        for (final KTypeCursor<? extends KType> cursor : container)
+        if (this.allocatedDefaultKey) {
+
+            if (container.contains(Intrinsics.<KType> defaultKTypeValue()))
+            {
+                this.allocatedDefaultKey = false;
+
+                /*! #if ($TemplateOptions.VTypeGeneric) !*/
+                //help the GC
+                this.allocatedDefaultKeyValue = Intrinsics.defaultVTypeValue();
+                /*! #end !*/
+            }
+        }
+
+        final KType[] keys = this.keys;
+
+        for (int i = 0; i < keys.length;)
         {
-            remove(cursor.value);
+            if (is_allocated(i, keys) && container.contains(keys[i]))
+            {
+                this.assigned--;
+                shiftConflictingKeys(i);
+                // Shift, do not increment slot.
+            }
+            else {
+                i++;
+            }
         }
 
         return before - this.size();
@@ -928,8 +946,6 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
 
     /**
      * {@inheritDoc}
-     * <p><strong>Important!</strong>
-     * If the predicate actually injects the removed keys in another hash container, you may experience performance losses.
      */
     @Override
     public int removeAll(final KTypePredicate<? super KType> predicate)
@@ -941,6 +957,11 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
             if (predicate.apply(Intrinsics.<KType> defaultKTypeValue()))
             {
                 this.allocatedDefaultKey = false;
+
+                /*! #if ($TemplateOptions.VTypeGeneric) !*/
+                //help the GC
+                this.allocatedDefaultKeyValue = Intrinsics.defaultVTypeValue();
+                /*! #end !*/
             }
         }
 
@@ -948,18 +969,17 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
 
         for (int i = 0; i < keys.length;)
         {
-            if (is_allocated(i, keys))
+            if (is_allocated(i, keys) && predicate.apply(keys[i]))
             {
-                if (predicate.apply(keys[i]))
-                {
-                    this.assigned--;
-                    shiftConflictingKeys(i);
-                    // Repeat the check for the same i.
-                    continue;
-                }
+                this.assigned--;
+                shiftConflictingKeys(i);
+                // Shift, do not increment slot.
             }
-            i++;
+            else {
+                i++;
+            }
         }
+
         return before - this.size();
     }
 
@@ -1745,6 +1765,11 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
                 if (Intrinsics.equalsVType(e, this.owner.allocatedDefaultKeyValue)) {
 
                     this.owner.allocatedDefaultKey = false;
+
+                    /*! #if ($TemplateOptions.VTypeGeneric) !*/
+                    //help the GC
+                    this.owner.allocatedDefaultKeyValue = Intrinsics.defaultVTypeValue();
+                    /*! #end !*/
                 }
             }
 
@@ -1753,17 +1778,15 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
 
             for (int slot = 0; slot < keys.length;)
             {
-                if (is_allocated(slot, keys))
+                if (is_allocated(slot, keys) && Intrinsics.equalsVType(e, values[slot]))
                 {
-                    if (Intrinsics.equalsVType(e, values[slot]))
-                    {
-                        this.owner.assigned--;
-                        shiftConflictingKeys(slot);
-                        // Repeat the check for the same i.
-                        continue;
-                    }
+                    this.owner.assigned--;
+                    shiftConflictingKeys(slot);
+                    // Shift, do not increment slot.
                 }
-                slot++;
+                else {
+                    slot++;
+                }
             }
             return before - this.owner.size();
         }
@@ -1783,6 +1806,11 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
                 if (predicate.apply(this.owner.allocatedDefaultKeyValue)) {
 
                     this.owner.allocatedDefaultKey = false;
+
+                    /*! #if ($TemplateOptions.VTypeGeneric) !*/
+                    //help the GC
+                    this.owner.allocatedDefaultKeyValue = Intrinsics.defaultVTypeValue();
+                    /*! #end !*/
                 }
             }
 
@@ -1791,18 +1819,17 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
 
             for (int slot = 0; slot < keys.length;)
             {
-                if (is_allocated(slot, keys))
+                if (is_allocated(slot, keys) && predicate.apply(values[slot]))
                 {
-                    if (predicate.apply(values[slot]))
-                    {
-                        this.owner.assigned--;
-                        shiftConflictingKeys(slot);
-                        // Repeat the check for the same i.
-                        continue;
-                    }
+                    this.owner.assigned--;
+                    shiftConflictingKeys(slot);
+                    // Shift, do not increment slot.
                 }
-                slot++;
+                else {
+                    slot++;
+                }
             }
+
             return before - this.owner.size();
         }
 

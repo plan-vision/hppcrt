@@ -28,6 +28,12 @@ HPPCRT-37: Add features from HPPC v0.7.0 :
 - HPPC-133: KTypeContainer.toArray(Class<T>) now accepts any array
           component type; runtime checks will throw ArrayStoreException if not
           compatible. 
+          
+- HPPC-135: KTypeVTypeAssociativeContainer#removeAll had an incorrect 
+          generic signature of:
+            public int removeAll(KTypeContainer<? extends KType> container)
+          now corrected to:
+            public int removeAll(KTypeContainer<? super KType> container)
 
 ** Bug fixes
 
