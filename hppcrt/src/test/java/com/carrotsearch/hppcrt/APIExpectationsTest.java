@@ -31,7 +31,7 @@ public class APIExpectationsTest extends RandomizedTest
         list.removeAll(other1);
 
         // Supertype.
-        final ObjectArrayList<Integer> other2 = new ObjectArrayList<Integer>();
+        final ObjectArrayList<Number> other2 = new ObjectArrayList<Number>();
         other2.add(1);
         list.removeAll(other2);
 
@@ -96,56 +96,6 @@ public class APIExpectationsTest extends RandomizedTest
 
         this.t1 = IntObjectOpenHashMap.from(
                 new int[] { 1, 2 }, new Long[] { 1L, 2L }).keys().toArray();
-    }
-
-    @Test
-    public void testSizeLimitByteArrayList() {
-        final ByteArrayList list = new ByteArrayList(0, new ArraySizingStrategy()
-        {
-            final BoundedProportionalArraySizingStrategy delegate = new BoundedProportionalArraySizingStrategy();
-
-            @Override
-            public int grow(final int currentBufferLength, final int elementsCount, final int expectedAdditions)
-            {
-                final int grow = this.delegate.grow(currentBufferLength, elementsCount, expectedAdditions);
-                // System.out.println("Resizing to: " + Integer.toHexString(grow) + " " + grow);
-                return grow;
-            }
-        });
-
-        try {
-            while (true) {
-                list.add((byte) 0);
-            }
-        }
-        catch (final AssertionError e) {
-            Assert.assertEquals(0x7fffffff, list.size());
-        }
-    }
-
-    @Test
-    public void testSizeLimitByteQueue() {
-        final ByteArrayDeque queue = new ByteArrayDeque(1, new ArraySizingStrategy()
-        {
-            final BoundedProportionalArraySizingStrategy delegate = new BoundedProportionalArraySizingStrategy();
-
-            @Override
-            public int grow(final int currentBufferLength, final int elementsCount, final int expectedAdditions)
-            {
-                final int grow = this.delegate.grow(currentBufferLength, elementsCount, expectedAdditions);
-                // System.out.println("Resizing to: " + Integer.toHexString(grow) + " " + grow);
-                return grow;
-            }
-        });
-
-        try {
-            while (true) {
-                queue.addLast((byte) 0);
-            }
-        }
-        catch (final AssertionError e) {
-            Assert.assertEquals(0x7fffffff /* Account for an empty slot. */- 1, queue.size());
-        }
     }
 
     @Test

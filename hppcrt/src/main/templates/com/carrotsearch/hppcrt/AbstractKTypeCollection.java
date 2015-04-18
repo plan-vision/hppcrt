@@ -15,7 +15,7 @@ import com.carrotsearch.hppcrt.predicates.KTypePredicate;
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public abstract class AbstractKTypeCollection<KType> implements KTypeCollection<KType>
 {
-    protected KTypeContainer<? super KType> testContainer;
+    protected KTypeLookupContainer<? super KType> testContainer;
     protected KTypePredicate<? super KType> testPredicate;
 
     protected KType defaultValue = Intrinsics.<KType> defaultKTypeValue();
@@ -54,7 +54,7 @@ public abstract class AbstractKTypeCollection<KType> implements KTypeCollection<
     public int removeAll(final KTypeLookupContainer<? super KType> c)
     {
         // We know c holds sub-types of KType and we're not modifying c, so go unchecked.
-        this.testContainer = (KTypeContainer<KType>) c;
+        this.testContainer = c;
         return this.removeAll(this.containsTestPredicate);
     }
 
@@ -65,7 +65,7 @@ public abstract class AbstractKTypeCollection<KType> implements KTypeCollection<
     public int retainAll(final KTypeLookupContainer<? super KType> c)
     {
         // We know c holds sub-types of KType and we're not modifying c, so go unchecked.
-        this.testContainer = (KTypeContainer<KType>) c;
+        this.testContainer = c;
         return this.removeAll(this.containsNegateTestPredicate);
     }
 

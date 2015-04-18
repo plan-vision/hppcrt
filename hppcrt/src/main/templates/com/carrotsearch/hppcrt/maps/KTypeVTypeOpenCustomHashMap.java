@@ -882,37 +882,17 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("unchecked")
     @Override
     public int removeAll(final KTypeContainer<? super KType> container)
     {
         final int before = this.size();
 
-        if (this.allocatedDefaultKey) {
+        //Do not use contains() from container, which may lead to O(n**2) execution times,
+        //so it iterate linearly and call remove() from map which is O(1).
+        for (final KTypeCursor<? super KType> c : container) {
 
-            if (container.contains(Intrinsics.<KType> defaultKTypeValue()))
-            {
-                this.allocatedDefaultKey = false;
-
-                /*! #if ($TemplateOptions.VTypeGeneric) !*/
-                //help the GC
-                this.allocatedDefaultKeyValue = Intrinsics.defaultVTypeValue();
-                /*! #end !*/
-            }
-        }
-
-        final KType[] keys = this.keys;
-
-        for (int i = 0; i < keys.length;)
-        {
-            if (is_allocated(i, keys) && container.contains(keys[i]))
-            {
-                this.assigned--;
-                shiftConflictingKeys(i);
-                // Shift, do not increment slot.
-            }
-            else {
-                i++;
-            }
+            remove((KType) c.value);
         }
 
         return before - this.size();
