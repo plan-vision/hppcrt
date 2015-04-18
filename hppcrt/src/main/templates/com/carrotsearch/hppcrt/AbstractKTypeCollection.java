@@ -9,6 +9,9 @@ import com.carrotsearch.hppcrt.predicates.KTypePredicate;
 /**
  * Common superclass for collections.
  */
+/*! #if ($TemplateOptions.KTypeGeneric) !*/
+@SuppressWarnings("unchecked")
+/*! #end !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public abstract class AbstractKTypeCollection<KType> implements KTypeCollection<KType>
 {
@@ -47,9 +50,6 @@ public abstract class AbstractKTypeCollection<KType> implements KTypeCollection<
     /**
      * Default implementation uses a predicate for removal.
      */
-    /* #if ($TemplateOptions.KTypeGeneric) */
-    @SuppressWarnings("unchecked")
-    /* #end */
     @Override
     public int removeAll(final KTypeLookupContainer<? super KType> c)
     {
@@ -61,9 +61,6 @@ public abstract class AbstractKTypeCollection<KType> implements KTypeCollection<
     /**
      * {@inheritDoc}
      */
-    /* #if ($TemplateOptions.KTypeGeneric) */
-    @SuppressWarnings("unchecked")
-    /* #end */
     @Override
     public int retainAll(final KTypeLookupContainer<? super KType> c)
     {
@@ -135,7 +132,17 @@ public abstract class AbstractKTypeCollection<KType> implements KTypeCollection<
     public Object[] toArray()
     /*! #end !*/
     {
-        return toArray(Intrinsics.<KType[]> newKTypeArray(size()));
+        try {
+
+            return toArray(Intrinsics.<KType[]> newKTypeArray(size()));
+        }
+        catch (final OutOfMemoryError e) {
+
+            throw new BufferAllocationException(
+                    "Not enough memory to allocate toArray() buffer for  %d elements",
+                    e,
+                    size());
+        }
     }
 
     /**

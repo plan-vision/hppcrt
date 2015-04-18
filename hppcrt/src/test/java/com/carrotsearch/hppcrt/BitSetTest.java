@@ -1,7 +1,5 @@
 package com.carrotsearch.hppcrt;
 
-import static org.junit.Assert.*;
-
 import java.util.*;
 
 import org.junit.Assert;
@@ -12,24 +10,22 @@ import com.carrotsearch.hppcrt.cursors.IntCursor;
 import com.carrotsearch.hppcrt.cursors.LongCursor;
 import com.carrotsearch.hppcrt.predicates.IntPredicate;
 import com.carrotsearch.hppcrt.predicates.LongPredicate;
+import com.carrotsearch.randomizedtesting.RandomizedTest;
 
 /**
  * Regression tests against <code>java.util.BitSet</code>.
  */
-public class BitSetTest
+public class BitSetTest extends RandomizedTest
 {
     private BitSet hppc;
     private java.util.BitSet jre;
-
-    /** Pseudo-random with initial seed (repeatability). */
-    private final Random rnd = new Random(0x11223344);
 
     /* */
     @Before
     public void before()
     {
-        hppc = new BitSet();
-        jre = new java.util.BitSet();
+        this.hppc = new BitSet();
+        this.jre = new java.util.BitSet();
     }
 
     /**
@@ -38,13 +34,13 @@ public class BitSetTest
     @Test
     public void testToString()
     {
-        Assert.assertEquals(jre.toString(), hppc.toString());
+        Assert.assertEquals(this.jre.toString(), this.hppc.toString());
 
         for (final int i : new int[] { 1, 10, 20, 5000 }) {
-            hppc.set(i);
-            jre.set(i);
+            this.hppc.set(i);
+            this.jre.set(i);
         }
-        Assert.assertEquals(jre.toString(), hppc.toString());
+        Assert.assertEquals(this.jre.toString(), this.hppc.toString());
     }
 
     /**
@@ -61,16 +57,16 @@ public class BitSetTest
         {
             for (int bit = 0; bit < bits; bit++)
             {
-                final int index = rnd.nextInt(bitSpace);
-                jre.set(index);
-                hppc.set(index);
+                final int index = RandomizedTest.randomInt(bitSpace);
+                this.jre.set(index);
+                this.hppc.set(index);
 
-                Assert.assertEquals(jre.length(), hppc.length());
+                Assert.assertEquals(this.jre.length(), this.hppc.length());
             }
 
-            assertSame(jre, hppc);
-            assertIntLookupContainer(jre, hppc.asIntLookupContainer());
-            assertLongLookupContainer(jre, hppc.asLongLookupContainer());
+            assertSame(this.jre, this.hppc);
+            assertIntLookupContainer(this.jre, this.hppc.asIntLookupContainer());
+            assertLongLookupContainer(this.jre, this.hppc.asLongLookupContainer());
         }
     }
 
@@ -160,10 +156,11 @@ public class BitSetTest
         {
             int i = jre.nextSetBit(0);
 
+            @Override
             public boolean apply(final int setBit)
             {
-                Assert.assertEquals(i, setBit);
-                i = jre.nextSetBit(i + 1);
+                Assert.assertEquals(this.i, setBit);
+                this.i = jre.nextSetBit(this.i + 1);
                 return true;
             }
         });
@@ -171,7 +168,7 @@ public class BitSetTest
         // Test contains.
         for (i = 0; i < jre.size() + 65; i++)
         {
-            Assert.assertEquals(hppc.get(i), ilc.contains(i));
+            Assert.assertEquals(this.hppc.get(i), ilc.contains(i));
         }
 
         // IntLookupContainer must not throw exceptions on negative arguments.
@@ -222,10 +219,11 @@ public class BitSetTest
         {
             int i = jre.nextSetBit(0);
 
+            @Override
             public boolean apply(final long setBit)
             {
-                Assert.assertEquals(i, setBit);
-                i = jre.nextSetBit(i + 1);
+                Assert.assertEquals(this.i, setBit);
+                this.i = jre.nextSetBit(this.i + 1);
                 return true;
             }
         });
@@ -233,7 +231,7 @@ public class BitSetTest
         // Test contains.
         for (i = 0; i < jre.size() + 65; i++)
         {
-            Assert.assertEquals(hppc.get(i), llc.contains(i));
+            Assert.assertEquals(this.hppc.get(i), llc.contains(i));
         }
 
         // IntLookupContainer must not throw exceptions on negative arguments.

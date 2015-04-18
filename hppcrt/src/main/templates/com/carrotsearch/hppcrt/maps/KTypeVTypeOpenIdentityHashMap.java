@@ -42,7 +42,7 @@ extends KTypeVTypeOpenCustomHashMap<KType, VType>
      */
     public KTypeVTypeOpenIdentityHashMap()
     {
-        this(KTypeVTypeOpenCustomHashMap.DEFAULT_CAPACITY, KTypeVTypeOpenCustomHashMap.DEFAULT_LOAD_FACTOR);
+        this(Containers.DEFAULT_EXPECTED_ELEMENTS, HashContainers.DEFAULT_LOAD_FACTOR);
     }
 
     /**
@@ -54,7 +54,7 @@ extends KTypeVTypeOpenCustomHashMap<KType, VType>
      */
     public KTypeVTypeOpenIdentityHashMap(final int initialCapacity)
     {
-        this(initialCapacity, KTypeVTypeOpenCustomHashMap.DEFAULT_LOAD_FACTOR);
+        this(initialCapacity, HashContainers.DEFAULT_LOAD_FACTOR);
     }
 
     /**
@@ -69,7 +69,7 @@ extends KTypeVTypeOpenCustomHashMap<KType, VType>
      * 
      */
     @SuppressWarnings({ "cast", "unchecked" })
-    public KTypeVTypeOpenIdentityHashMap(final int initialCapacity, final float loadFactor)
+    public KTypeVTypeOpenIdentityHashMap(final int initialCapacity, final double loadFactor)
     {
         super(initialCapacity, loadFactor, (KTypeIdentityHash<KType>) KTypeVTypeOpenIdentityHashMap.IDENTITY_EQUALITY);
     }

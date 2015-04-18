@@ -38,11 +38,6 @@ import com.carrotsearch.hppcrt.strategies.*;
 public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>, Cloneable
 {
     /**
-     * Default capacity if no other capacity is given in the constructor.
-     */
-    public final static int DEFAULT_CAPACITY = 16;
-
-    /**
      * Internal array for storing the priority queue
       #if ($TemplateOptions.KTypeGeneric)
      * <p><strong>Important!</strong>
@@ -111,10 +106,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     {
         this.comparator = comp;
 
-        assert initialCapacity >= 0 : "initialCapacity must be >= 0: " + initialCapacity;
-
         //1-based index buffer, assure allocation
-        ensureBufferSpace(initialCapacity + 1);
+        ensureBufferSpace(Math.max(Containers.DEFAULT_EXPECTED_ELEMENTS, initialCapacity));
 
         this.entryIteratorPool = new IteratorPool<IntKTypeCursor<KType>, EntryIterator>(
                 new ObjectFactory<EntryIterator>() {
@@ -155,7 +148,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     KTypeComparator<? super KType> comp
     #end !*/)
     {
-        this(comp, KTypeIndexedHeapPriorityQueue.DEFAULT_CAPACITY);
+        this(comp, Containers.DEFAULT_EXPECTED_ELEMENTS);
     }
 
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
@@ -344,6 +337,35 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         for (int key = 0; key < size; key++)
         {
             if (pq[key] > 0 && predicate.apply(key))
+            {
+                remove(key);
+            }
+        } //end for
+
+        /*! #if($DEBUG) !*/
+        assert isMinHeap();
+        assert isConsistent();
+        /*! #end !*/
+
+        return initialSize - this.elementsCount;
+    }
+
+    @Override
+    public int removeAll(final IntKTypePredicate<? super KType> predicate) {
+
+        final KType[] buffer = this.buffer;
+        final int[] pq = this.pq;
+        final int size = this.elementsCount;
+
+        final int initialSize = this.elementsCount;
+
+        //iterate keys, for all valid keys is OK because only the current pq[key] slot
+        //is affected by the current remove() but the next ones are not.
+        for (int key = 0; key < size; key++)
+        {
+            final int pos = pq[key];
+
+            if (pos > 0 && predicate.apply(key, buffer[pos]))
             {
                 remove(key);
             }
@@ -1504,8 +1526,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
     /*! #else
-                                                                                                                    public KTypeComparator<? super KType>
-                                                                                                                    #end !*/
+                                                                                                                                                                                            public KTypeComparator<? super KType>
+                                                                                                                                                                                            #end !*/
     comparator() {
 
         return this.comparator;
@@ -1518,26 +1540,38 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     protected void ensureBufferSpace(final int index)
     {
         final int pqLen = this.pq == null ? 0 : this.pq.length;
+
         if (index > pqLen - 1)
         {
             //resize to accomodate this index: use a 50% grow to mitigate when the user
             //has not presized properly the container.
-            final int newPQSize = Math.max(index + KTypeIndexedHeapPriorityQueue.DEFAULT_CAPACITY, (int) (index * 1.5));
+            final int newPQSize = Math.max(index + Containers.DEFAULT_EXPECTED_ELEMENTS, (int) (index * 1.5));
 
-            final int[] newPQIndex = new int[newPQSize];
-            final KType[] newBuffer = Intrinsics.newKTypeArray(newPQSize + 1);
-            final int[] newQPIndex = new int[newPQSize + 1];
+            try {
+                final int[] newPQIndex = new int[newPQSize];
+                final KType[] newBuffer = Intrinsics.newKTypeArray(newPQSize + 1);
+                final int[] newQPIndex = new int[newPQSize + 1];
 
-            if (pqLen > 0)
-            {
-                System.arraycopy(this.buffer, 0, newBuffer, 0, this.buffer.length);
-                System.arraycopy(this.pq, 0, newPQIndex, 0, this.pq.length);
-                System.arraycopy(this.qp, 0, newQPIndex, 0, this.qp.length);
+                if (pqLen > 0)
+                {
+                    System.arraycopy(this.buffer, 0, newBuffer, 0, this.buffer.length);
+                    System.arraycopy(this.pq, 0, newPQIndex, 0, this.pq.length);
+                    System.arraycopy(this.qp, 0, newQPIndex, 0, this.qp.length);
+                }
+                this.buffer = newBuffer;
+                this.pq = newPQIndex;
+                this.qp = newQPIndex;
+
             }
-            this.buffer = newBuffer;
-            this.pq = newPQIndex;
-            this.qp = newQPIndex;
-        }
+            catch (final OutOfMemoryError e) {
+
+                throw new BufferAllocationException(
+                        "Not enough memory to allocate buffers to grow  %d -> %d",
+                        e,
+                        this.buffer.length,
+                        newPQSize);
+            }
+        } //end if
     }
 
     /**
@@ -1607,8 +1641,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         final Comparator<? super KType> comp = this.comparator;
         /*! #else
-            KTypeComparator<? super KType> comp = this.comparator;
-            #end !*/
+        KTypeComparator<? super KType> comp = this.comparator;
+        #end !*/
 
         while (k << 1 <= N)
         {
@@ -1663,22 +1697,22 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
             //swap k and its parent
             parent = k >> 1;
 
-        //swap k and parent
-        tmp = buffer[k];
-        buffer[k] = buffer[parent];
-        buffer[parent] = tmp;
+            //swap k and parent
+            tmp = buffer[k];
+            buffer[k] = buffer[parent];
+            buffer[parent] = tmp;
 
-        //swap references
-        indexK = qp[k];
-        indexParent = qp[parent];
+            //swap references
+            indexK = qp[k];
+            indexParent = qp[parent];
 
-        pq[indexK] = parent;
-        pq[indexParent] = k;
+            pq[indexK] = parent;
+            pq[indexParent] = k;
 
-        qp[k] = indexParent;
-        qp[parent] = indexK;
+            qp[k] = indexParent;
+            qp[parent] = indexK;
 
-        k = parent;
+            k = parent;
         }
     }
 
@@ -1699,30 +1733,30 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         final Comparator<? super KType> comp = this.comparator;
         /*! #else
-            KTypeComparator<? super KType> comp = this.comparator;
-            #end !*/
+        KTypeComparator<? super KType> comp = this.comparator;
+        #end !*/
 
         while (k > 1 && comp.compare(buffer[k >> 1], buffer[k]) > 0)
         {
             //swap k and its parent
             parent = k >> 1;
 
-        //swap k and parent
-        tmp = buffer[k];
-        buffer[k] = buffer[parent];
-        buffer[parent] = tmp;
+            //swap k and parent
+            tmp = buffer[k];
+            buffer[k] = buffer[parent];
+            buffer[parent] = tmp;
 
-        //swap references
-        indexK = qp[k];
-        indexParent = qp[parent];
+            //swap references
+            indexK = qp[k];
+            indexParent = qp[parent];
 
-        pq[indexK] = parent;
-        pq[indexParent] = k;
+            pq[indexK] = parent;
+            pq[indexParent] = k;
 
-        qp[k] = indexParent;
-        qp[parent] = indexK;
+            qp[k] = indexParent;
+            qp[parent] = indexK;
 
-        k = parent;
+            k = parent;
         }
     }
 
@@ -1918,8 +1952,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         final Comparator<? super KType> comp = this.comparator;
         /*! #else
-            KTypeComparator<? super KType> comp = this.comparator;
-            #end !*/
+        KTypeComparator<? super KType> comp = this.comparator;
+        #end !*/
 
         if (k > N)
         {

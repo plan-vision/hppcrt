@@ -33,9 +33,7 @@ public class BigramCountingBase
         // We'll use a int -> int map for counting. A bigram can be encoded
         // as an int by shifting one of the bigram's characters by 16 bits
         // and then ORing the other character to form a 32-bit int.
-        final IntIntOpenHashMap map = new IntIntOpenHashMap(
-                IntIntOpenHashMap.DEFAULT_CAPACITY,
-                IntIntOpenHashMap.DEFAULT_LOAD_FACTOR);
+        final IntIntOpenHashMap map = new IntIntOpenHashMap();
 
         int count = 0;
 

@@ -10,6 +10,15 @@ import java.util.Arrays;
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeArrays
 {
+    /**
+     * public  static instance of an empty array of <code>KType</code>s.
+     */
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    public final static Object[] EMPTY = new Object[0];
+    /*! #else
+    public final static KType[] EMPTY =  Intrinsics.<KType[]>newKTypeArray(0);
+    #end  !*/
+
     final private static int BLANK_ARRAY_SIZE_IN_BIT_SHIFT = 10;
 
     /**

@@ -99,17 +99,10 @@ public class APIExpectationsTest extends RandomizedTest
     }
 
     @Test
-    @RequiresLargeMemory
     public void testSizeLimitByteArrayList() {
         final ByteArrayList list = new ByteArrayList(0, new ArraySizingStrategy()
         {
             final BoundedProportionalArraySizingStrategy delegate = new BoundedProportionalArraySizingStrategy();
-
-            @Override
-            public int round(final int capacity)
-            {
-                return this.delegate.round(capacity);
-            }
 
             @Override
             public int grow(final int currentBufferLength, final int elementsCount, final int expectedAdditions)
@@ -131,17 +124,10 @@ public class APIExpectationsTest extends RandomizedTest
     }
 
     @Test
-    @RequiresLargeMemory
     public void testSizeLimitByteQueue() {
         final ByteArrayDeque queue = new ByteArrayDeque(1, new ArraySizingStrategy()
         {
             final BoundedProportionalArraySizingStrategy delegate = new BoundedProportionalArraySizingStrategy();
-
-            @Override
-            public int round(final int capacity)
-            {
-                return this.delegate.round(capacity);
-            }
 
             @Override
             public int grow(final int currentBufferLength, final int elementsCount, final int expectedAdditions)

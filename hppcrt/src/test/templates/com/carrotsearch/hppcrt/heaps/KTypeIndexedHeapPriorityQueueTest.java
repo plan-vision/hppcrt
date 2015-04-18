@@ -560,13 +560,13 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         insertElements(this.prioq, 0, 0, 1, 1, 2, 2, 11, 1, 44, 4);
 
         Assert.assertEquals(3, this.prioq.values().removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeIndexedHeapPriorityQueueTest.this.key1 || v == KTypeIndexedHeapPriorityQueueTest.this.key2;
             };
-        }));
+                }));
 
         assertPrioQueueEquals(this.prioq, 0, 0, 44, 4);
     }
@@ -600,7 +600,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size
             Assert.assertEquals(8, this.prioq.values().removeAll(new KTypePredicate<KType>()
-            {
+                    {
                 @Override
                 public boolean apply(final KType v)
                 {
@@ -609,7 +609,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
                     }
                     return v == KTypeIndexedHeapPriorityQueueTest.this.key1;
                 };
-            }));
+                    }));
             Assert.fail();
         }
         catch (final RuntimeException e)
@@ -703,13 +703,13 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         insertElements(this.prioq, 10, 0, 11, 1, 12, 2, 13, 1, 14, 0);
 
         Assert.assertEquals(2, this.prioq.values().retainAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeIndexedHeapPriorityQueueTest.this.key1 || v == KTypeIndexedHeapPriorityQueueTest.this.key2;
             };
-        }));
+                }));
 
         assertPrioQueueEquals(this.prioq, 11, 1, 13, 1, 12, 2);
     }
@@ -2414,19 +2414,32 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         //2) Preallocate to PREALLOCATED_SIZE :
         final KTypeIndexedHeapPriorityQueue<KType> newHeap = new KTypeIndexedHeapPriorityQueue<KType>(PREALLOCATED_SIZE);
 
-        //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
+        //computed real capacity
+        final int realCapacity = newHeap.capacity();
+
+        //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == realCapacity,
         //and internal buffer/allocated must not have changed of size
         final int contructorBufferSize = newHeap.buffer.length;
 
-        for (int i = 0; i < PREALLOCATED_SIZE; i++)
-        {
+        Assert.assertEquals(contructorBufferSize, newHeap.buffer.length);
+
+        for (int i = 0; i < 1.5 * realCapacity; i++) {
+
             newHeap.put(i, cast(randomVK.nextInt()));
 
-            //internal size has not changed.
-            Assert.assertEquals(contructorBufferSize, newHeap.buffer.length);
-        }
+            //internal size has not changed until realCapacity
+            if (newHeap.size() <= realCapacity) {
 
-        Assert.assertEquals(PREALLOCATED_SIZE, newHeap.size());
+                Assert.assertEquals(contructorBufferSize, newHeap.buffer.length);
+            }
+
+            if (contructorBufferSize < newHeap.buffer.length) {
+                //The container as just reallocated, its actual size must be not too far from the previous capacity:
+                Assert.assertTrue("Container as reallocated at size = " + newHeap.size() + " with previous capacity = " + realCapacity,
+                        (newHeap.size() - realCapacity) <= 2);
+                break;
+            }
+        }
     }
 
     @Test

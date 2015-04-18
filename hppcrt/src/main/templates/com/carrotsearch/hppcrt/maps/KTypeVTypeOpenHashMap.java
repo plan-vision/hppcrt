@@ -54,21 +54,6 @@ import com.carrotsearch.hppcrt.hash.*;
 public class KTypeVTypeOpenHashMap<KType, VType>
         implements KTypeVTypeMap<KType, VType>, Cloneable
 {
-    /**
-     * Minimum capacity for the map.
-     */
-    public final static int MIN_CAPACITY = HashContainerUtils.MIN_CAPACITY;
-
-    /**
-     * Default capacity.
-     */
-    public final static int DEFAULT_CAPACITY = HashContainerUtils.DEFAULT_CAPACITY;
-
-    /**
-     * Default load factor.
-     */
-    public final static float DEFAULT_LOAD_FACTOR = HashContainerUtils.DEFAULT_LOAD_FACTOR;
-
     protected VType defaultValue = Intrinsics.<VType> defaultVTypeValue();
 
     /**
@@ -109,7 +94,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     /*! #if ($RH) !*/
     /**
      * #if ($RH)
-     * Caches the hash value = HASH(keys[i]) & mask, if keys[i] != 0/null,
+     * Caches the hash value = hash(keys[i]) & mask, if keys[i] != 0/null,
      * for every index i.
      * #end
      * @see #assigned
@@ -138,7 +123,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * The load factor for this map (fraction of allocated slots
      * before the buffers must be rehashed or reallocated).
      */
-    protected final float loadFactor;
+    protected final double loadFactor;
 
     /**
      * Resize buffers when {@link #keys} hits this value.
@@ -149,7 +134,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * Per-instance, per-allocation size perturbation
      * introduced in rehashing to create a unique key distribution.
      */
-    private final int perturbation = HashContainerUtils.computeUniqueIdentifier(this);
+    private final int perturbation = HashContainers.computeUniqueIdentifier(this);
 
     /**
      * Creates a hash map with the default capacity of {@value #DEFAULT_CAPACITY},
@@ -159,7 +144,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      */
     public KTypeVTypeOpenHashMap()
     {
-        this(KTypeVTypeOpenHashMap.DEFAULT_CAPACITY);
+        this(Containers.DEFAULT_EXPECTED_ELEMENTS);
     }
 
     /**
@@ -173,7 +158,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      */
     public KTypeVTypeOpenHashMap(final int initialCapacity)
     {
-        this(initialCapacity, KTypeVTypeOpenHashMap.DEFAULT_LOAD_FACTOR);
+        this(initialCapacity, HashContainers.DEFAULT_LOAD_FACTOR);
     }
 
     /**
@@ -187,29 +172,12 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      *
      * @param loadFactor The load factor (greater than zero and smaller than 1).
      */
-    public KTypeVTypeOpenHashMap(final int initialCapacity, final float loadFactor)
+    public KTypeVTypeOpenHashMap(final int initialCapacity, final double loadFactor)
     {
-        assert loadFactor > 0 && loadFactor <= 1 : "Load factor must be between (0, 1].";
+        //take into account of the load factor to guarantee no reallocations before reaching  initialCapacity.
+        allocateBuffers(HashContainers.minBufferSize(Math.max(Containers.DEFAULT_EXPECTED_ELEMENTS, initialCapacity), loadFactor));
 
         this.loadFactor = loadFactor;
-
-        //take into account of the load factor to garantee no reallocations before reaching  initialCapacity.
-        int internalCapacity = (int) (initialCapacity / loadFactor) + KTypeVTypeOpenHashMap.MIN_CAPACITY;
-
-        //align on next power of two
-        internalCapacity = HashContainerUtils.roundCapacity(internalCapacity);
-
-        this.keys = Intrinsics.newKTypeArray(internalCapacity);
-        this.values = Intrinsics.newVTypeArray(internalCapacity);
-
-        /*! #if ($RH) !*/
-        this.hash_cache = new int[internalCapacity];
-        /*! #end !*/
-
-        //Take advantage of the rounding so that the resize occur a bit later than expected.
-        //allocate so that there is at least one slot that remains allocated = false
-        //this is compulsory to guarantee proper stop in searching loops
-        this.resizeAt = Math.max(3, (int) (internalCapacity * loadFactor)) - 2;
     }
 
     /**
@@ -594,7 +562,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         final KType[] oldKeys = this.keys;
         final VType[] oldValues = this.values;
 
-        allocateBuffers(HashContainerUtils.nextCapacity(this.keys.length));
+        allocateBuffers(HashContainers.nextBufferSize(this.keys.length, this.assigned, this.loadFactor));
 
         // We have succeeded at allocating new data so insert the pending key/value at
         // the free slot in the old arrays before rehashing.
@@ -705,23 +673,34 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      */
     private void allocateBuffers(final int capacity)
     {
-        final KType[] keys = Intrinsics.newKTypeArray(capacity);
-        final VType[] values = Intrinsics.newVTypeArray(capacity);
+        try {
 
-        /*! #if ($RH) !*/
-        final int[] cached = new int[capacity];
-        /*!  #end !*/
+            final KType[] keys = Intrinsics.newKTypeArray(capacity);
+            final VType[] values = Intrinsics.newVTypeArray(capacity);
 
-        this.keys = keys;
-        this.values = values;
+            /*! #if ($RH) !*/
+            final int[] cached = new int[capacity];
+            /*!  #end !*/
 
-        /*! #if ($RH) !*/
-        this.hash_cache = cached;
-        /*! #end !*/
+            this.keys = keys;
+            this.values = values;
 
-        //allocate so that there is at least one slot that remains allocated = false
-        //this is compulsory to guarantee proper stop in searching loops
-        this.resizeAt = Math.max(3, (int) (capacity * this.loadFactor)) - 2;
+            /*! #if ($RH) !*/
+            this.hash_cache = cached;
+            /*! #end !*/
+
+            //allocate so that there is at least one slot that remains allocated = false
+            //this is compulsory to guarantee proper stop in searching loops
+            this.resizeAt = Math.max(3, (int) (capacity * this.loadFactor)) - 2;
+        }
+        catch (final OutOfMemoryError e) {
+
+            throw new BufferAllocationException(
+                    "Not enough memory to allocate buffers to grow  %d -> %d",
+                    e,
+                    this.keys.length,
+                    capacity);
+        }
     }
 
     /**
@@ -938,6 +917,46 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         for (int i = 0; i < keys.length;)
         {
             if (is_allocated(i, keys) && predicate.apply(keys[i]))
+            {
+                this.assigned--;
+                shiftConflictingKeys(i);
+                // Shift, do not increment slot.
+            }
+            else {
+                i++;
+            }
+        }
+
+        return before - this.size();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int removeAll(final KTypeVTypePredicate<? super KType, ? super VType> predicate) {
+
+        final int before = this.size();
+
+        if (this.allocatedDefaultKey) {
+
+            if (predicate.apply(Intrinsics.<KType> defaultKTypeValue(), this.allocatedDefaultKeyValue))
+            {
+                this.allocatedDefaultKey = false;
+
+                /*! #if ($TemplateOptions.VTypeGeneric) !*/
+                //help the GC
+                this.allocatedDefaultKeyValue = Intrinsics.defaultVTypeValue();
+                /*! #end !*/
+            }
+        }
+
+        final KType[] keys = this.keys;
+        final VType[] values = this.values;
+
+        for (int i = 0; i < keys.length;)
+        {
+            if (is_allocated(i, keys) && predicate.apply(keys[i], values[i]))
             {
                 this.assigned--;
                 shiftConflictingKeys(i);

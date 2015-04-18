@@ -100,9 +100,9 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
     @Test
     public void testAddVarArgs()
     {
-        this.set.add(asArrayObjects(this.key0, this.key1, this.key2, this.key1, this.key0));
+        this.set.add(asArrayObjects(this.keyE, this.key1, this.key2, this.key1, this.keyE));
         Assert.assertEquals(3, this.set.size());
-        TestUtils.assertSortedListEqualsByReference(this.set.toArray(), this.key0, this.key1, this.key2);
+        TestUtils.assertSortedListEqualsByReference(this.set.toArray(), this.keyE, this.key1, this.key2);
     }
 
     /* */
@@ -130,65 +130,6 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
         Assert.assertFalse(this.set.remove(this.k2));
         Assert.assertEquals(4, this.set.size());
         TestUtils.assertSortedListEqualsByReference(this.set.toArray(), this.k0, this.k1, this.k3, this.k4);
-    }
-
-    /* */
-    @Test
-    public void testFullLoadFactor()
-    {
-        this.set = new KTypeOpenIdentityHashSet<KType>(1, 1f);
-
-        // Fit in the byte key range.
-        final int capacity = 0x80;
-        final int max = capacity - 2;
-        for (int i = 2; i <= max; i++)
-        {
-            this.set.add(cast(i));
-        }
-
-        this.set.add(this.key1);
-
-        // Still not expanded.
-        Assert.assertEquals(max, this.set.size());
-        Assert.assertEquals(capacity, this.set.keys.length);
-        // Won't expand (existing key).
-        this.set.add(this.key1);
-        Assert.assertEquals(capacity, this.set.keys.length);
-        // Expanded.
-        this.set.add(cast(0xff));
-        Assert.assertEquals(2 * capacity, this.set.keys.length);
-    }
-
-    /* */
-    @Test
-    public void testBug_HPPC73_FullCapacityGet()
-    {
-        this.set = new KTypeOpenIdentityHashSet<KType>(1, 1f);
-        final int capacity = 0x80;
-        final int max = capacity - 2;
-        for (int i = 1; i < max; i++)
-        {
-            this.set.add(cast(i));
-        }
-
-        this.set.add(this.key0);
-
-        Assert.assertEquals(max, this.set.size());
-        Assert.assertEquals(capacity, this.set.keys.length);
-
-        // Non-existent key.
-        this.set.remove(cast(max + 1));
-        Assert.assertFalse(this.set.contains(cast(max + 1)));
-
-        // Should not expand because we're replacing an existing element.
-        Assert.assertFalse(this.set.add(this.key0));
-        Assert.assertEquals(max, this.set.size());
-        Assert.assertEquals(capacity, this.set.keys.length);
-
-        // Remove from a full set.
-        this.set.remove(this.key0);
-        Assert.assertEquals(max - 1, this.set.size());
-        Assert.assertEquals(capacity, this.set.keys.length);
     }
 
     /* */
@@ -227,14 +168,14 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
     @Test
     public void testRemoveAllWithPredicate2()
     {
-        this.set.add(asArrayObjects(this.key0, this.k1, this.k2, this.key4));
+        this.set.add(asArrayObjects(this.keyE, this.k1, this.k2, this.key4));
 
         Assert.assertEquals(2, this.set.removeAll(new KTypePredicate<KType>()
         {
             @Override
             public boolean apply(final KType v)
             {
-                return (v == KTypeOpenIdentityHashSetTest.this.k1) || (v == KTypeOpenIdentityHashSetTest.this.key0);
+                return (v == KTypeOpenIdentityHashSetTest.this.k1) || (v == KTypeOpenIdentityHashSetTest.this.keyE);
             };
         }));
 
@@ -303,18 +244,18 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
     @Test
     public void testRetainAllWithPredicate2()
     {
-        this.set.add(asArrayObjects(this.key0, this.k1, this.k2, this.k3, this.k4, this.k5));
+        this.set.add(asArrayObjects(this.keyE, this.k1, this.k2, this.k3, this.k4, this.k5));
 
         Assert.assertEquals(4, this.set.retainAll(new KTypePredicate<KType>()
         {
             @Override
             public boolean apply(final KType v)
             {
-                return v == KTypeOpenIdentityHashSetTest.this.key0 || v == KTypeOpenIdentityHashSetTest.this.k3;
+                return v == KTypeOpenIdentityHashSetTest.this.keyE || v == KTypeOpenIdentityHashSetTest.this.k3;
             };
         }));
 
-        TestUtils.assertSortedListEqualsByReference(this.set.toArray(), this.key0, this.k3);
+        TestUtils.assertSortedListEqualsByReference(this.set.toArray(), this.keyE, this.k3);
     }
 
     /* */
@@ -364,7 +305,7 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
     @Test
     public void testIterable2()
     {
-        this.set.add(asArrayObjects(this.key0, this.k2, this.k2, this.k3, this.k4));
+        this.set.add(asArrayObjects(this.keyE, this.k2, this.k2, this.k3, this.k4));
         this.set.remove(this.k2);
         Assert.assertEquals(3, this.set.size());
 
@@ -394,13 +335,13 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
     @Test
     public void testClone()
     {
-        this.set.add(this.key1, this.key2, this.key3, this.key0);
+        this.set.add(this.key1, this.key2, this.key3, this.keyE);
 
         final KTypeOpenIdentityHashSet<KType> cloned = this.set.clone();
         cloned.removeAll(this.key1);
 
-        TestUtils.assertSortedListEqualsByReference(this.set.toArray(), this.key0, this.key1, this.key2, this.key3);
-        TestUtils.assertSortedListEqualsByReference(cloned.toArray(), this.key0, this.key2, this.key3);
+        TestUtils.assertSortedListEqualsByReference(this.set.toArray(), this.keyE, this.key1, this.key2, this.key3);
+        TestUtils.assertSortedListEqualsByReference(cloned.toArray(), this.keyE, this.key2, this.key3);
     }
 
     /*
@@ -441,7 +382,7 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
 
         //add a randomized number of key
 
-        newSet.add(this.key0);
+        newSet.add(this.keyE);
 
         for (int i = 0; i < NB_ELEMENTS; i++) {
 
@@ -558,7 +499,7 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
         //add a randomized number of key
         //use the same value for keys and values to ease later analysis
 
-        newSet.add(this.key0);
+        newSet.add(this.keyE);
 
         for (int i = 0; i < NB_ELEMENTS; i++) {
 
@@ -632,7 +573,7 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
         //add a randomized number of key
         //use the same value for keys and values to ease later analysis
 
-        newSet.add(this.key0);
+        newSet.add(this.keyE);
 
         for (int i = 0; i < NB_ELEMENTS; i++) {
 
@@ -758,8 +699,8 @@ public class KTypeOpenIdentityHashSetTest<KType> extends AbstractKTypeTest<KType
 
     private KTypeOpenIdentityHashSet<KType> createSetWithOrderedData(final int size)
     {
-        final KTypeOpenIdentityHashSet<KType> newSet = KTypeOpenIdentityHashSet.newInstance(KTypeOpenCustomHashSet.DEFAULT_CAPACITY,
-                KTypeOpenCustomHashSet.DEFAULT_LOAD_FACTOR);
+        final KTypeOpenIdentityHashSet<KType> newSet = KTypeOpenIdentityHashSet.newInstance(Containers.DEFAULT_EXPECTED_ELEMENTS,
+                HashContainers.DEFAULT_LOAD_FACTOR);
 
         for (int i = 0; i < size; i++) {
 

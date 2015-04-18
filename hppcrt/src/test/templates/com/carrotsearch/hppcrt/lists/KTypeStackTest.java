@@ -479,7 +479,7 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
     {
         final Random prng = new Random(randomSeed);
 
-        final KTypeStack<KType> newArray = KTypeStack.newInstance(KTypeArrayList.DEFAULT_CAPACITY);
+        final KTypeStack<KType> newArray = KTypeStack.newInstance();
 
         for (int i = 0; i < size; i++)
         {

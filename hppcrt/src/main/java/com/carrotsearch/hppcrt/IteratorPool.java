@@ -29,45 +29,39 @@ public final class IteratorPool<OBJECT_TYPE, ITERATOR_TYPE extends AbstractItera
         try
         {
             //read a configurable poperty to limit the number of preallocated iterators per pool.
-            INITIAL_SIZE = Integer.parseInt(System.getProperty(POOL_INITIAL_SIZE_PROPERTY));
+            IteratorPool.INITIAL_SIZE = Integer.parseInt(System.getProperty(IteratorPool.POOL_INITIAL_SIZE_PROPERTY));
 
-            if (INITIAL_SIZE < 1)
+            if (IteratorPool.INITIAL_SIZE < 1)
             {
-                INITIAL_SIZE = 1;
+                IteratorPool.INITIAL_SIZE = 1;
             }
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
-            INITIAL_SIZE = Internals.NB_OF_PROCESSORS;
+            IteratorPool.INITIAL_SIZE = Internals.NB_OF_PROCESSORS;
         }
     } //end static initializer
 
-    private static int LINEAR_GROWTH_SIZE = INITIAL_SIZE;
-    private static int MAX_SIZE = MAX_SIZE_GROWTH_FACTOR * LINEAR_GROWTH_SIZE;
-    private static int DISCARDING_SIZE = LINEAR_GROWTH_SIZE;
+    private static int LINEAR_GROWTH_SIZE = IteratorPool.INITIAL_SIZE;
+    private static int MAX_SIZE = IteratorPool.MAX_SIZE_GROWTH_FACTOR * IteratorPool.LINEAR_GROWTH_SIZE;
+    private static int DISCARDING_SIZE = IteratorPool.LINEAR_GROWTH_SIZE;
 
-    public IteratorPool(ObjectFactory<ITERATOR_TYPE> objFactory) {
-        super(objFactory, INITIAL_SIZE, new ArraySizingStrategy() {
-
-            @Override
-            public int round(int capacity) {
-                // not used
-                return capacity;
-            }
+    public IteratorPool(final ObjectFactory<ITERATOR_TYPE> objFactory) {
+        super(objFactory, IteratorPool.INITIAL_SIZE, new ArraySizingStrategy() {
 
             @Override
-            public int grow(int currentBufferLength, int elementsCount, int expectedAdditions) {
+            public int grow(final int currentBufferLength, final int elementsCount, final int expectedAdditions) {
 
                 // Add at most Internals.NB_OF_PROCESSORS + expected new iterator instances
-                int newSize = Math.max(elementsCount, currentBufferLength) + LINEAR_GROWTH_SIZE + expectedAdditions;
+                int newSize = Math.max(elementsCount, currentBufferLength) + IteratorPool.LINEAR_GROWTH_SIZE + expectedAdditions;
 
-                if (newSize > MAX_SIZE)
+                if (newSize > IteratorPool.MAX_SIZE)
                 {
                     //discard NB_OF_PROCESSORS objects
-                    newSize = -1 * DISCARDING_SIZE;
+                    newSize = -1 * IteratorPool.DISCARDING_SIZE;
                 }
 
-                return newSize ;
+                return newSize;
             }
         });
     }
@@ -82,7 +76,7 @@ public final class IteratorPool<OBJECT_TYPE, ITERATOR_TYPE extends AbstractItera
     public ITERATOR_TYPE borrow() {
 
         //extract an initialized object, never null by construction
-        ITERATOR_TYPE newObject =  super.borrow();
+        final ITERATOR_TYPE newObject = super.borrow();
 
         //attach instance to pool
         newObject.setPool((IteratorPool) this);
@@ -103,12 +97,12 @@ public final class IteratorPool<OBJECT_TYPE, ITERATOR_TYPE extends AbstractItera
      * a smooth capacity adaptation.
      * @param initialSize
      */
-    public static final void configureInitialPoolSize(int initialSize)
+    public static final void configureInitialPoolSize(final int initialSize)
     {
-        INITIAL_SIZE = initialSize;
-        LINEAR_GROWTH_SIZE = INITIAL_SIZE;
-        DISCARDING_SIZE = INITIAL_SIZE;
-        MAX_SIZE = MAX_SIZE_GROWTH_FACTOR * LINEAR_GROWTH_SIZE;
+        IteratorPool.INITIAL_SIZE = initialSize;
+        IteratorPool.LINEAR_GROWTH_SIZE = IteratorPool.INITIAL_SIZE;
+        IteratorPool.DISCARDING_SIZE = IteratorPool.INITIAL_SIZE;
+        IteratorPool.MAX_SIZE = IteratorPool.MAX_SIZE_GROWTH_FACTOR * IteratorPool.LINEAR_GROWTH_SIZE;
     }
 
     /**
@@ -117,6 +111,6 @@ public final class IteratorPool<OBJECT_TYPE, ITERATOR_TYPE extends AbstractItera
      */
     public static final int getMaxPoolSize()
     {
-        return MAX_SIZE;
+        return IteratorPool.MAX_SIZE;
     }
 }

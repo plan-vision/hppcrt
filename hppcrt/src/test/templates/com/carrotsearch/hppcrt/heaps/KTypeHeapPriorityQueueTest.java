@@ -1631,19 +1631,32 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         //2) Preallocate to PREALLOCATED_SIZE :
         final KTypeHeapPriorityQueue<KType> newHeap = new KTypeHeapPriorityQueue<KType>(PREALLOCATED_SIZE);
 
-        //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
+        //computed real capacity
+        final int realCapacity = newHeap.capacity();
+
+        //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == realCapacity,
         //and internal buffer/allocated must not have changed of size
         final int contructorBufferSize = newHeap.buffer.length;
 
-        for (int i = 0; i < PREALLOCATED_SIZE; i++)
-        {
-            newHeap.add(cast(randomVK.nextInt()));
+        Assert.assertEquals(contructorBufferSize, newHeap.buffer.length);
 
-            //internal size has not changed.
-            Assert.assertEquals(contructorBufferSize, newHeap.buffer.length);
+        for (int i = 0; i < 1.5 * realCapacity; i++) {
+
+            newHeap.add(cast(i));
+
+            //internal size has not changed until realCapacity
+            if (newHeap.size() <= realCapacity) {
+
+                Assert.assertEquals(contructorBufferSize, newHeap.buffer.length);
+            }
+
+            if (contructorBufferSize < newHeap.buffer.length) {
+                //The container as just reallocated, its actual size must be not too far from the previous capacity:
+                Assert.assertTrue("Container as reallocated at size = " + newHeap.size() + " with previous capacity = " + realCapacity,
+                        (newHeap.size() - realCapacity) <= 2);
+                break;
+            }
         }
-
-        Assert.assertEquals(PREALLOCATED_SIZE, newHeap.size());
     }
 
     @Test

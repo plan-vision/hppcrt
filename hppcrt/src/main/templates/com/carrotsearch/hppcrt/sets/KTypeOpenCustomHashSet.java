@@ -37,7 +37,7 @@ import com.carrotsearch.hppcrt.hash.*;
  * 
  *
 #if ($TemplateOptions.KTypeGeneric)
- * <p>This implementation support <code>null</code> keys. In addition, objects passed to the {@link KTypeHashingStrategy} are guaranteed to be not-<code>null</code>. </p>
+ * <p>This implementation supports <code>null</code> keys. In addition, objects passed to the {@link KTypeHashingStrategy} are guaranteed to be not-<code>null</code>. </p>
 #end
  *
  * @author This code is inspired by the original <a
@@ -60,21 +60,6 @@ public class KTypeOpenCustomHashSet<KType>
         implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
-     * Minimum capacity for the map.
-     */
-    public final static int MIN_CAPACITY = HashContainerUtils.MIN_CAPACITY;
-
-    /**
-     * Default capacity.
-     */
-    public final static int DEFAULT_CAPACITY = HashContainerUtils.DEFAULT_CAPACITY;
-
-    /**
-     * Default load factor.
-     */
-    public final static float DEFAULT_LOAD_FACTOR = HashContainerUtils.DEFAULT_LOAD_FACTOR;
-
-    /**
      * Hash-indexed array holding all set entries.
     #if ($TemplateOptions.KTypeGeneric)
      * <p><strong>Important!</strong>
@@ -96,7 +81,7 @@ public class KTypeOpenCustomHashSet<KType>
     /*! #if ($RH) !*/
     /**
      * #if ($RH)
-     * Caches the hash value = HASH(keys[i]) & mask, if keys[i] != 0/null,
+     * Caches the hash value = hash(keys[i]) & mask, if keys[i] != 0/null,
      * for every index i.
      * #end
      * @see #assigned
@@ -120,7 +105,7 @@ public class KTypeOpenCustomHashSet<KType>
      * The load factor for this map (fraction of allocated slots
      * before the buffers must be rehashed or reallocated).
      */
-    protected float loadFactor;
+    protected final double loadFactor;
 
     /**
      * Resize buffers when {@link #keys} hits this value.
@@ -131,7 +116,7 @@ public class KTypeOpenCustomHashSet<KType>
      * Per-instance, per-allocation size perturbation
      * introduced in rehashing to create a unique key distribution.
      */
-    private final int perturbation = HashContainerUtils.computeUniqueIdentifier(this);
+    private final int perturbation = HashContainers.computeUniqueIdentifier(this);
 
     /**
      * Custom hashing strategy :
@@ -146,7 +131,7 @@ public class KTypeOpenCustomHashSet<KType>
      */
     public KTypeOpenCustomHashSet(final KTypeHashingStrategy<? super KType> hashStrategy)
     {
-        this(KTypeOpenCustomHashSet.DEFAULT_CAPACITY, KTypeOpenCustomHashSet.DEFAULT_LOAD_FACTOR, hashStrategy);
+        this(Containers.DEFAULT_EXPECTED_ELEMENTS, HashContainers.DEFAULT_LOAD_FACTOR, hashStrategy);
     }
 
     /**
@@ -155,13 +140,13 @@ public class KTypeOpenCustomHashSet<KType>
      */
     public KTypeOpenCustomHashSet(final int initialCapacity, final KTypeHashingStrategy<? super KType> hashStrategy)
     {
-        this(initialCapacity, KTypeOpenCustomHashSet.DEFAULT_LOAD_FACTOR, hashStrategy);
+        this(initialCapacity, HashContainers.DEFAULT_LOAD_FACTOR, hashStrategy);
     }
 
     /**
      * Creates a hash set with the given capacity and load factor, using the hashStrategy as {@link KTypeHashingStrategy}
      */
-    public KTypeOpenCustomHashSet(final int initialCapacity, final float loadFactor, final KTypeHashingStrategy<? super KType> hashStrategy)
+    public KTypeOpenCustomHashSet(final int initialCapacity, final double loadFactor, final KTypeHashingStrategy<? super KType> hashStrategy)
     {
         //only accept not-null strategies.
         if (hashStrategy != null)
@@ -173,27 +158,9 @@ public class KTypeOpenCustomHashSet<KType>
             throw new IllegalArgumentException("KTypeOpenCustomHashSet() cannot have a null hashStrategy !");
         }
 
-        assert loadFactor > 0 && loadFactor <= 1 : "Load factor must be between (0, 1].";
-
         this.loadFactor = loadFactor;
-
-        //take into account of the load factor to garantee no reallocations before reaching  initialCapacity.
-        int internalCapacity = (int) (initialCapacity / loadFactor) + KTypeOpenCustomHashSet.MIN_CAPACITY;
-
-        //align on next power of two
-        internalCapacity = HashContainerUtils.roundCapacity(internalCapacity);
-
-        this.keys = Intrinsics.newKTypeArray(internalCapacity);
-
-        /*! #if ($RH) !*/
-        this.hash_cache = new int[internalCapacity];
-        /*!  #end !*/
-
-        //Take advantage of the rounding so that the resize occur a bit later than expected.
-        //allocate so that there is at least one slot that remains allocated = false
-        //this is compulsory to guarantee proper stop in searching loops
-        this.resizeAt = Math.max(3, (int) (internalCapacity * loadFactor)) - 2;
-
+        //take into account of the load factor to guarantee no reallocations before reaching  initialCapacity.
+        allocateBuffers(HashContainers.minBufferSize(Math.max(Containers.DEFAULT_EXPECTED_ELEMENTS, initialCapacity), loadFactor));
     }
 
     /**
@@ -407,7 +374,7 @@ public class KTypeOpenCustomHashSet<KType>
         // leaving the data structure in an inconsistent state.
         final KType[] oldKeys = this.keys;
 
-        allocateBuffers(HashContainerUtils.nextCapacity(this.keys.length));
+        allocateBuffers(HashContainers.nextBufferSize(this.keys.length, this.assigned, this.loadFactor));
 
         // We have succeeded at allocating new data so insert the pending key/value at
         // the free slot in the old arrays before rehashing.
@@ -511,22 +478,32 @@ public class KTypeOpenCustomHashSet<KType>
      */
     private void allocateBuffers(final int capacity)
     {
-        final KType[] keys = Intrinsics.newKTypeArray(capacity);
+        try {
 
-        /*! #if ($RH) !*/
-        final int[] allocated = new int[capacity];
-        /*! #end !*/
+            final KType[] keys = Intrinsics.newKTypeArray(capacity);
 
-        this.keys = keys;
+            /*! #if ($RH) !*/
+            final int[] allocated = new int[capacity];
+            /*! #end !*/
 
-        /*! #if ($RH) !*/
-        this.hash_cache = allocated;
-        /*! #end !*/
+            this.keys = keys;
 
-        //allocate so that there is at least one slot that remains allocated = false
-        //this is compulsory to guarantee proper stop in searching loops
-        this.resizeAt = Math.max(3, (int) (capacity * this.loadFactor)) - 2;
+            /*! #if ($RH) !*/
+            this.hash_cache = allocated;
+            /*! #end !*/
 
+            //allocate so that there is at least one slot that remains allocated = false
+            //this is compulsory to guarantee proper stop in searching loops
+            this.resizeAt = Math.max(3, (int) (capacity * this.loadFactor)) - 2;
+        }
+        catch (final OutOfMemoryError e) {
+
+            throw new BufferAllocationException(
+                    "Not enough memory to allocate buffers to grow  %d -> %d",
+                    e,
+                    this.keys.length,
+                    capacity);
+        }
     }
 
     /**

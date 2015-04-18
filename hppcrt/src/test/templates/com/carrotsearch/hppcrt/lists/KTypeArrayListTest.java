@@ -1151,24 +1151,37 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         //2) Preallocate to PREALLOCATED_SIZE :
         final KTypeArrayList<KType> newList = KTypeArrayList.newInstance(PREALLOCATED_SIZE);
 
-        //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
+        //computed real capacity
+        final int realCapacity = newList.capacity();
+
+        //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == realCapacity,
         //and internal buffer/allocated must not have changed of size
         final int contructorBufferSize = newList.buffer.length;
 
-        for (int i = 0; i < PREALLOCATED_SIZE; i++)
-        {
+        Assert.assertEquals(contructorBufferSize, newList.buffer.length);
+
+        for (int i = 0; i < 1.5 * realCapacity; i++) {
+
             newList.add(cast(randomVK.nextInt()));
 
-            //internal size has not changed.
-            Assert.assertEquals(contructorBufferSize, newList.buffer.length);
-        }
+            //internal size has not changed until realCapacity
+            if (newList.size() <= realCapacity) {
 
-        Assert.assertEquals(PREALLOCATED_SIZE, newList.size());
+                Assert.assertEquals(contructorBufferSize, newList.buffer.length);
+            }
+
+            if (contructorBufferSize < newList.buffer.length) {
+                //The container as just reallocated, its actual size must be not too far from the previous capacity:
+                Assert.assertTrue("Container as reallocated at size = " + newList.size() + " with previous capacity = " + realCapacity,
+                        (newList.size() - realCapacity) <= 2);
+                break;
+            }
+        }
     }
 
     private KTypeArrayList<KType> createArrayListWithOrderedData(final int size)
     {
-        final KTypeArrayList<KType> newArray = KTypeArrayList.newInstance(KTypeArrayList.DEFAULT_CAPACITY);
+        final KTypeArrayList<KType> newArray = KTypeArrayList.newInstance();
 
         for (int i = 0; i < size; i++)
         {
@@ -1182,7 +1195,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     {
         final Random prng = new Random(currentSeed);
 
-        final KTypeArrayList<KType> newArray = KTypeArrayList.newInstance(KTypeArrayList.DEFAULT_CAPACITY);
+        final KTypeArrayList<KType> newArray = KTypeArrayList.newInstance();
 
         for (int i = 0; i < size; i++)
         {

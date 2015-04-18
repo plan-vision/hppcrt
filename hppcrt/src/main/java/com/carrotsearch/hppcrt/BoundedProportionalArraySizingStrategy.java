@@ -12,26 +12,23 @@ import java.util.ArrayList;
  * </pre>
  */
 public final class BoundedProportionalArraySizingStrategy
-implements ArraySizingStrategy
+        implements ArraySizingStrategy
 {
-    /**
-     * Used by {@link ArrayList} internally to account for reference sizes.
-     */
-    public static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE;
+    public static final int MAX_ARRAY_LENGTH = Integer.MAX_VALUE - /* aligned array header + slack */32;
 
     /** Minimum grow count. */
     public final static int DEFAULT_MIN_GROW_COUNT = 10;
 
     /** Maximum grow count (unbounded). */
-    public final static int DEFAULT_MAX_GROW_COUNT = MAX_ARRAY_SIZE;
+    public final static int DEFAULT_MAX_GROW_COUNT = BoundedProportionalArraySizingStrategy.MAX_ARRAY_LENGTH;
 
     /** Default resize is by half the current buffer's size. */
     public final static float DEFAULT_GROW_RATIO = 1.5f;
 
-    /** Minimum number of elements to grow, if capacity exceeded. */
+    /** Minimum number of elements to grow, if limit exceeded. */
     public final int minGrowCount;
 
-    /** Maximum number of elements to grow, if capacity exceeded. */
+    /** Maximum number of elements to grow, if limit exceeded. */
     public final int maxGrowCount;
 
     /**
@@ -46,13 +43,13 @@ implements ArraySizingStrategy
      */
     public BoundedProportionalArraySizingStrategy()
     {
-        this(DEFAULT_MIN_GROW_COUNT, DEFAULT_MAX_GROW_COUNT, DEFAULT_GROW_RATIO);
+        this(BoundedProportionalArraySizingStrategy.DEFAULT_MIN_GROW_COUNT, BoundedProportionalArraySizingStrategy.DEFAULT_MAX_GROW_COUNT, BoundedProportionalArraySizingStrategy.DEFAULT_GROW_RATIO);
     }
 
     /**
      * Create the sizing strategy with custom policies.
      */
-    public BoundedProportionalArraySizingStrategy(int minGrow, int maxGrow, float ratio)
+    public BoundedProportionalArraySizingStrategy(final int minGrow, final int maxGrow, final float ratio)
     {
         assert minGrow >= 1 : "Min grow must be >= 1.";
         assert maxGrow >= minGrow : "Max grow must be >= min grow.";
@@ -66,30 +63,26 @@ implements ArraySizingStrategy
     /**
      * Grow according to {@link #growRatio}, {@link #minGrowCount} and {@link #maxGrowCount}.
      */
-    public int grow(int currentBufferLength, int elementsCount, int expectedAdditions)
+    @Override
+    public int grow(final int currentBufferLength, final int elementsCount, final int expectedAdditions)
     {
-        long growBy = (long) (currentBufferLength * growRatio);
-        growBy = Math.max(growBy, minGrowCount);
-        growBy = Math.min(growBy, maxGrowCount);
-        long growTo = Math.min(MAX_ARRAY_SIZE, growBy + currentBufferLength);
+        long growBy = (long) (currentBufferLength * this.growRatio);
 
-        long newSize = Math.max((long) elementsCount + expectedAdditions, growTo);
+        growBy = Math.max(growBy, this.minGrowCount);
+        growBy = Math.min(growBy, this.maxGrowCount);
+        final long growTo = Math.min(BoundedProportionalArraySizingStrategy.MAX_ARRAY_LENGTH, growBy + currentBufferLength);
 
-        if (newSize > MAX_ARRAY_SIZE) {
-            throw new AssertionError(
-                    "Cannot resize beyond " + MAX_ARRAY_SIZE +
-                    " (" + (elementsCount + expectedAdditions) + ")");
+        final long newSize = Math.max((long) elementsCount + expectedAdditions, growTo);
+
+        if (newSize > BoundedProportionalArraySizingStrategy.MAX_ARRAY_LENGTH) {
+
+            throw new BufferAllocationException(
+                    "Java array size exceeded (current length: %d, elements: %d, expected additions: %d)",
+                    currentBufferLength,
+                    elementsCount,
+                    expectedAdditions);
         }
 
         return (int) newSize;
-    }
-
-    /**
-     * No specific requirements in case of this strategy - the argument is returned.
-     */
-    public int round(int capacity)
-    {
-        assert capacity >= 0 : "Capacity must be a positive number.";
-        return capacity;
     }
 }

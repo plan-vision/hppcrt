@@ -8,7 +8,6 @@ import java.util.Random;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.carrotsearch.hppcrt.CloverSupport;
 import com.carrotsearch.hppcrt.XorShiftRandom;
 import com.carrotsearch.hppcrt.strategies.*;
 
@@ -17,11 +16,7 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 public class IndirectSortTest
 {
-    /**
-     * Limit data length if running with Clover.
-     */
-    static final int DATA_LENGTH =
-            CloverSupport.isClover() ? 10000 : 1000000;
+    static final int DATA_LENGTH = 1000000;
 
     /**
      * Implies the same order as the order of indices.
@@ -88,9 +83,9 @@ public class IndirectSortTest
     private static void sortCertification(final Algorithm algorithm)
     {
         final int[] n_values =
-        {
+            {
                 100, 1023, 1024, 1025, 1024 * 32
-        };
+            };
 
         for (final int n : n_values)
         {

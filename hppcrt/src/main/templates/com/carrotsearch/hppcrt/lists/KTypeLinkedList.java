@@ -31,7 +31,7 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeLinkedList<KType>
-        extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, KTypeDeque<KType>, Cloneable
+extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, KTypeDeque<KType>, Cloneable
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -134,16 +134,12 @@ public class KTypeLinkedList<KType>
      */
     public KTypeLinkedList(final int initialCapacity, final ArraySizingStrategy resizer)
     {
-        assert initialCapacity >= 0 : "initialCapacity must be >= 0: " + initialCapacity;
         assert resizer != null;
 
         this.resizer = resizer;
 
-        final int internalSize = resizer.round(initialCapacity);
-
         //allocate internal buffer
-        this.buffer = Intrinsics.newKTypeArray(internalSize + 2);
-        this.beforeAfterPointers = new long[internalSize + 2];
+        ensureBufferSpace(Math.max(Containers.DEFAULT_EXPECTED_ELEMENTS, initialCapacity));
 
         //initialize
         this.elementsCount = 2;
@@ -568,24 +564,31 @@ public class KTypeLinkedList<KType>
         if (this.elementsCount > bufferLen - expectedAdditions)
         {
             final int newSize = this.resizer.grow(bufferLen, this.elementsCount, expectedAdditions);
-            assert newSize >= this.elementsCount + expectedAdditions : "Resizer failed to" +
-                    " return sensible new size: " + newSize + " <= "
-                    + (this.elementsCount + expectedAdditions);
 
-            //the first 2 slots are head/tail placeholders
-            final KType[] newBuffer = Intrinsics.newKTypeArray(newSize + 2);
-            final long[] newPointers = new long[newSize + 2];
+            try {
 
-            if (bufferLen > 0)
-            {
-                System.arraycopy(this.buffer, 0, newBuffer, 0, this.buffer.length);
-                System.arraycopy(this.beforeAfterPointers, 0, newPointers, 0, this.beforeAfterPointers.length);
+                //the first 2 slots are head/tail placeholders
+                final KType[] newBuffer = Intrinsics.newKTypeArray(newSize + 2);
+                final long[] newPointers = new long[newSize + 2];
+
+                if (bufferLen > 0)
+                {
+                    System.arraycopy(this.buffer, 0, newBuffer, 0, this.buffer.length);
+                    System.arraycopy(this.beforeAfterPointers, 0, newPointers, 0, this.beforeAfterPointers.length);
+                }
+                this.buffer = newBuffer;
+                this.beforeAfterPointers = newPointers;
+
             }
-            this.buffer = newBuffer;
-            this.beforeAfterPointers = newPointers;
+            catch (final OutOfMemoryError e) {
+                throw new BufferAllocationException(
+                        "Not enough memory to allocate new buffers: %d -> %d",
+                        e,
+                        bufferLen,
+                        newSize);
+            }
 
             return true;
-
         }
 
         return false;
@@ -1810,7 +1813,7 @@ public class KTypeLinkedList<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> newInstance()
+    KTypeLinkedList<KType> newInstance()
     {
         return new KTypeLinkedList<KType>();
     }
@@ -1820,7 +1823,7 @@ public class KTypeLinkedList<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> newInstance(final int initialCapacity)
+    KTypeLinkedList<KType> newInstance(final int initialCapacity)
     {
         return new KTypeLinkedList<KType>(initialCapacity);
     }
@@ -1830,7 +1833,7 @@ public class KTypeLinkedList<KType>
      * The elements are copied from the argument to the internal buffer.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> from(final KType... elements)
+    KTypeLinkedList<KType> from(final KType... elements)
     {
         final KTypeLinkedList<KType> list = new KTypeLinkedList<KType>(elements.length);
         list.add(elements);
@@ -1841,7 +1844,7 @@ public class KTypeLinkedList<KType>
      * Create a list from elements of another container.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> from(final KTypeContainer<KType> container)
+    KTypeLinkedList<KType> from(final KTypeContainer<KType> container)
     {
         return new KTypeLinkedList<KType>(container);
     }

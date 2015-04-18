@@ -64,27 +64,25 @@ extends Iterable<KTypeVTypeCursor<KType, VType>>
     boolean isEmpty();
 
     /**
-     * Removes all keys (and associated values) present in a given container. An alias to:
-     * <pre>
-     * keys().removeAll(container)
-     * </pre>
-     * but with no additional overhead.
+     * Removes all keys (and associated values) present in a given container.
      * 
      * @return Returns the number of elements actually removed as a result of this call.
      */
     int removeAll(KTypeContainer<? super KType> container);
 
     /**
-     * Removes all keys (and associated values) for which the predicate returns <code>true</code>.
-     * An alias to:
-     * <pre>
-     * keys().removeAll(container)
-     * </pre>
-     * but with no additional overhead.
+     * Removes all keys (and associated values) for which the predicate on keys returns <code>true</code>.
      * 
      * @return Returns the number of elements actually removed as a result of this call.
      */
     int removeAll(KTypePredicate<? super KType> predicate);
+
+    /**
+     * Removes all keys (and associated values) for which the predicate on (key, value) pairs returns <code>true</code>.
+     * 
+     * @return Returns the number of elements actually removed as a result of this call.
+     */
+    public int removeAll(KTypeVTypePredicate<? super KType, ? super VType> predicate);
 
     /**
      * Applies a given procedure to all keys-value pairs in this container. Returns the argument (any
@@ -101,13 +99,10 @@ extends Iterable<KTypeVTypeCursor<KType, VType>>
      * subclass of {@link KTypeVTypePredicate}. This lets the caller to call methods of the argument
      * by chaining the call (even if the argument is an anonymous type) to retrieve computed values,
      * for example.
+     * 
+     * The iteration is continued as long as the predicate returns <code>true</code>.
      */
     <T extends KTypeVTypePredicate<? super KType, ? super VType>> T forEach(T predicate);
-
-    /**
-     * Clear all keys and values in the container.
-     */
-    void clear();
 
     /**
      * Returns a collection of keys of this container. The returned collection is a view

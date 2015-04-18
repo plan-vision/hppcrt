@@ -29,14 +29,14 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
     /* Ready to use key values. */
 
     /**
-     * Key0 is special: its value is == null for generics, and == 0 for primitives.
+     * KeyE is special: its value is == null for generics, and == 0 for primitives.
      */
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    protected KType key0 = null;
+    protected KType keyE = null;
     protected KType k0 = cast(0);
     /*! #else
-    protected KType key0 = cast(0);
-    protected KType k0 = this.key0;
+    protected KType keyE = cast(0);
+    protected KType k0 = this.keyE;
      #end !*/
 
     protected KType key1 = cast(1), k1 = this.key1;

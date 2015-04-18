@@ -7,7 +7,8 @@ import com.carrotsearch.hppcrt.AbstractIntCollection;
 import com.carrotsearch.hppcrt.ArraySizingStrategy;
 import com.carrotsearch.hppcrt.BitSet;
 import com.carrotsearch.hppcrt.BoundedProportionalArraySizingStrategy;
-import com.carrotsearch.hppcrt.EmptyArrays;
+import com.carrotsearch.hppcrt.Containers;
+import com.carrotsearch.hppcrt.IntArrays;
 import com.carrotsearch.hppcrt.IntContainer;
 import com.carrotsearch.hppcrt.IntLookupContainer;
 import com.carrotsearch.hppcrt.IntSet;
@@ -30,19 +31,14 @@ import com.carrotsearch.hppcrt.procedures.IntProcedure;
 public class DoubleLinkedIntSet extends AbstractIntCollection implements IntLookupContainer, IntSet, Cloneable
 {
     /**
-     * Default capacity if no other capacity is given in the constructor.
-     */
-    public final static int DEFAULT_CAPACITY = 5;
-
-    /**
      * Dense array of set elements.
      */
-    public int[] dense = EmptyArrays.EMPTY_INT_ARRAY;
+    public int[] dense = IntArrays.EMPTY;
 
     /**
      * Sparse, element value-indexed array pointing back at {@link #dense}.
      */
-    public int[] sparse = EmptyArrays.EMPTY_INT_ARRAY;
+    public int[] sparse = IntArrays.EMPTY;
 
     /**
      * Current number of elements stored in the set ({@link #dense}).
@@ -63,19 +59,19 @@ public class DoubleLinkedIntSet extends AbstractIntCollection implements IntLook
     protected final IteratorPool<IntCursor, IntArrayList.ValueIterator> valueIteratorPool;
 
     /**
-     * Create with default sizing strategy and initial dense capacity of
-     * {@value #DEFAULT_CAPACITY} elements and initial sparse capacity of zero (first insert
-     * will cause reallocation).
-     * 
-     * @see BoundedProportionalArraySizingStrategy
+     * Create with defaults.
      */
     public DoubleLinkedIntSet()
     {
-        this(DoubleLinkedIntSet.DEFAULT_CAPACITY, 0);
+        this(Containers.DEFAULT_EXPECTED_ELEMENTS, 0);
     }
 
     /**
-     * Create with default sizing strategy and the given initial capacity.
+     * Create with default sizing strategy and the given initial expected number
+     * of elements for dense and sparse container. The dense container's expected
+     * number of elements should be equal to the actual number of elements added to
+     * the container. The sparse container's expected size should be at least one more
+     * than the maximum value stored in the set.
      * 
      * @see BoundedProportionalArraySizingStrategy
      */
@@ -87,20 +83,17 @@ public class DoubleLinkedIntSet extends AbstractIntCollection implements IntLook
     /**
      * Create with a custom dense array resizing strategy.
      */
-    public DoubleLinkedIntSet(final int denseCapacity, final int sparseCapacity, final ArraySizingStrategy resizer)
+    public DoubleLinkedIntSet(final int expectedElements, final int maxElementValue, final ArraySizingStrategy resizer)
     {
-        assert denseCapacity >= 0 : "denseCapacity must be >= 0: " + denseCapacity;
-        assert sparseCapacity >= 0 : "sparseCapacity must be >= 0: " + sparseCapacity;
+        assert expectedElements >= 0 : "Expected elements must be >= 0: " + expectedElements;
+        assert maxElementValue >= 0 : "Max element value must be >= 0: " + maxElementValue;
         assert resizer != null;
 
         this.resizer = resizer;
-
+        ensureCapacity(expectedElements, maxElementValue);
         //this is not really used, it is just there to provide a
         //IntArrayList iterator-like interface to IntDoubleLinkedSet
-        this.arrayListWrapper = new IntArrayList(DoubleLinkedIntSet.DEFAULT_CAPACITY);
-
-        ensureDenseCapacity(resizer.round(denseCapacity));
-        ensureSparseCapacity(sparseCapacity);
+        this.arrayListWrapper = new IntArrayList(Containers.DEFAULT_EXPECTED_ELEMENTS);
 
         this.valueIteratorPool = new IteratorPool<IntCursor, IntArrayList.ValueIterator>(
                 new ObjectFactory<IntArrayList.ValueIterator>() {
@@ -139,12 +132,27 @@ public class DoubleLinkedIntSet extends AbstractIntCollection implements IntLook
     }
 
     /**
+     * Ensure this container can hold at least the
+     * given number of elements without resizing its buffers.
+     * 
+     * The maximum expected element's value is required to size
+     * sparse array accordingly. If unknown, leave at a good guess or zero.
+     * 
+     * @param expectedElements The total number of elements, inclusive.
+     * @param maxElementValue  Maximum value of any element added to the set, inclusive.
+     */
+    public void ensureCapacity(final int expectedElements, final int maxElementValue) {
+        ensureDenseBufferSpace(expectedElements - size());
+        ensureSparseBufferSpace(maxElementValue);
+    }
+
+    /**
      * Ensures the internal dense buffer has enough free slots to store
      * <code>expectedAdditions</code>.
      */
-    protected void ensureDenseCapacity(final int expectedAdditions)
+    protected void ensureDenseBufferSpace(final int expectedAdditions)
     {
-        final int bufferLen = (this.dense == null ? 0 : this.dense.length);
+        final int bufferLen = this.dense.length;
         final int elementsCount = size();
         if (elementsCount > bufferLen - expectedAdditions)
         {
@@ -166,13 +174,13 @@ public class DoubleLinkedIntSet extends AbstractIntCollection implements IntLook
      * Ensures the internal sparse buffer has enough free slots to store
      * index of <code>value</code>.
      */
-    protected void ensureSparseCapacity(final int value)
+    protected void ensureSparseBufferSpace(final int maxElementValue)
     {
-        assert value >= 0 : "value must be >= 0: " + value;
+        assert maxElementValue >= 0 : "Maximum element value must be >= 0: " + maxElementValue;
 
-        if (value >= this.sparse.length)
+        if (maxElementValue >= this.sparse.length)
         {
-            final int[] newBuffer = new int[value + 1];
+            final int[] newBuffer = new int[maxElementValue + 1];
             if (this.sparse.length > 0)
             {
                 System.arraycopy(this.sparse, 0, newBuffer, 0, this.sparse.length);
@@ -224,9 +232,8 @@ public class DoubleLinkedIntSet extends AbstractIntCollection implements IntLook
         final boolean containsAlready = contains(value);
         if (!containsAlready)
         {
-            // TODO: check if a fixed-size set is (much) faster without these checks?
-            ensureDenseCapacity(1);
-            ensureSparseCapacity(value);
+            ensureDenseBufferSpace(1);
+            ensureSparseBufferSpace(value);
 
             this.sparse[value] = this.elementsCount;
             this.dense[this.elementsCount++] = value;

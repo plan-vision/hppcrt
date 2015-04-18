@@ -8,7 +8,7 @@ import com.carrotsearch.hppcrt.cursors.KTypeVTypeCursor;
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public interface KTypeVTypeMap<KType, VType>
-extends KTypeVTypeAssociativeContainer<KType, VType>
+        extends KTypeVTypeAssociativeContainer<KType, VType>
 {
     /**
      * Place a given key and value in the container.
@@ -107,4 +107,28 @@ extends KTypeVTypeAssociativeContainer<KType, VType>
      * if the value does not exist in the map.
      */
     VType remove(KType key);
+
+    /**
+     * Compares the specified object with this set for equality. Returns
+     * <tt>true</tt> if and only if the specified object is also a
+     * {@link KTypeVTypeMap} and both objects contains exactly the same key-value
+     * pairs.
+     */
+    @Override
+    public boolean equals(Object obj);
+
+    /**
+     * @return A hash code of elements stored in the map. The hash code is defined
+     *         as a sum of hash codes of keys and values stored within the set).
+     *         Because sum is commutative, this ensures that different order of
+     *         elements in a set does not affect the hash code.
+     */
+    @Override
+    public int hashCode();
+
+    /**
+     * Clear all keys and values in the container.
+     */
+    void clear();
+
 }

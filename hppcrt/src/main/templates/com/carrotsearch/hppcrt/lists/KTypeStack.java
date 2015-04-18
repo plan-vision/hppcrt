@@ -46,7 +46,7 @@ import com.carrotsearch.hppcrt.strategies.*;
 public class KTypeStack<KType> extends KTypeArrayList<KType>
 {
     /**
-     * Create with default sizing strategy and initial capacity.
+     * Create with defaults.
      * 
      * @see BoundedProportionalArraySizingStrategy
      */
@@ -70,7 +70,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
      */
     public KTypeStack(final int initialCapacity, final ArraySizingStrategy resizer)
     {
-        super(initialCapacity, resizer);
+        super(Math.max(Containers.DEFAULT_EXPECTED_ELEMENTS, initialCapacity), resizer);
     }
 
     /**

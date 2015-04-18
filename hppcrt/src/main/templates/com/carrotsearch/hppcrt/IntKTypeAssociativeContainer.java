@@ -18,7 +18,7 @@ import com.carrotsearch.hppcrt.procedures.*;
 /*! ($TemplateOptions.doNotGenerate()) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public interface IntKTypeAssociativeContainer<U>
-        extends Iterable<IntKTypeCursor<U>>
+extends Iterable<IntKTypeCursor<U>>
 {
     /**
      * Returns a cursor over the entries (key-value pairs) in this map. The iterator is
@@ -85,6 +85,13 @@ public interface IntKTypeAssociativeContainer<U>
      * @return Returns the number of elements actually removed as a result of this call.
      */
     int removeAll(IntPredicate predicate);
+
+    /**
+     * Removes all keys (and associated values) for which the predicate on (key, value) pairs returns <code>true</code>.
+     * 
+     * @return Returns the number of elements actually removed as a result of this call.
+     */
+    public int removeAll(IntKTypePredicate<? super U> predicate);
 
     /**
      * Applies a given procedure to all keys-value pairs in this container. Returns the argument (any

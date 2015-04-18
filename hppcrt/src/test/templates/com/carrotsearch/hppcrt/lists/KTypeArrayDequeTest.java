@@ -564,13 +564,13 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
         this.deque.addLast(newArray(this.k0, this.k1, this.k2, this.k1, this.k4));
 
         Assert.assertEquals(3, this.deque.removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeArrayDequeTest.this.key1 || v == KTypeArrayDequeTest.this.key2;
             };
-        }));
+                }));
 
         TestUtils.assertListEquals(this.deque.toArray(), 0, 4);
     }
@@ -588,7 +588,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size
             Assert.assertEquals(5, this.deque.removeAll(new KTypePredicate<KType>()
-            {
+                    {
                 @Override
                 public boolean apply(final KType v)
                 {
@@ -597,7 +597,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
                     }
                     return v == KTypeArrayDequeTest.this.key1;
                 };
-            }));
+                    }));
             Assert.fail();
         }
         catch (final RuntimeException e)
@@ -1398,24 +1398,37 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
         //2) Preallocate to PREALLOCATED_SIZE :
         final KTypeArrayDeque<KType> newDequeue = KTypeArrayDeque.newInstance(PREALLOCATED_SIZE);
 
-        //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
+        //computed real capacity
+        final int realCapacity = newDequeue.capacity();
+
+        //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == realCapacity,
         //and internal buffer/allocated must not have changed of size
         final int contructorBufferSize = newDequeue.buffer.length;
 
-        for (int i = 0; i < PREALLOCATED_SIZE; i++)
-        {
+        Assert.assertEquals(contructorBufferSize, newDequeue.buffer.length);
+
+        for (int i = 0; i < 1.5 * realCapacity; i++) {
+
             newDequeue.addLast(cast(randomVK.nextInt()));
 
-            //internal size has not changed.
-            Assert.assertEquals(contructorBufferSize, newDequeue.buffer.length);
-        }
+            //internal size has not changed until realCapacity
+            if (newDequeue.size() <= realCapacity) {
 
-        Assert.assertEquals(PREALLOCATED_SIZE, newDequeue.size());
+                Assert.assertEquals(contructorBufferSize, newDequeue.buffer.length);
+            }
+
+            if (contructorBufferSize < newDequeue.buffer.length) {
+                //The container as just reallocated, its actual size must be not too far from the previous capacity:
+                Assert.assertTrue("Container as reallocated at size = " + newDequeue.size() + " with previous capacity = " + realCapacity,
+                        (newDequeue.size() - realCapacity) <= 2);
+                break;
+            }
+        }
     }
 
     private KTypeArrayDeque<KType> createDequeWithOrderedData(final int size)
     {
-        final KTypeArrayDeque<KType> newArray = KTypeArrayDeque.newInstance(KTypeArrayList.DEFAULT_CAPACITY);
+        final KTypeArrayDeque<KType> newArray = KTypeArrayDeque.newInstance();
 
         for (int i = 0; i < size; i++)
         {
@@ -1429,7 +1442,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     {
         final Random prng = new Random(randomSeed);
 
-        final KTypeArrayDeque<KType> newDeque = KTypeArrayDeque.newInstance(KTypeArrayList.DEFAULT_CAPACITY);
+        final KTypeArrayDeque<KType> newDeque = KTypeArrayDeque.newInstance();
 
         while (newDeque.size() < size)
         {

@@ -52,10 +52,6 @@ import com.carrotsearch.hppcrt.strategies.*;
 public class KTypeArrayDeque<KType>
 extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexedContainer<KType>, Cloneable
 {
-    /**
-     * Default capacity if no other capacity is given in the constructor.
-     */
-    public final static int DEFAULT_CAPACITY = 5;
 
     /**
      * Internal array for storing elements.
@@ -104,14 +100,11 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
     protected final IteratorPool<KTypeCursor<KType>, ValueIterator> valueIteratorPool;
 
     /**
-     * Create with default sizing strategy and initial capacity for storing
-     * {@value #DEFAULT_CAPACITY} elements.
-     * 
-     * @see BoundedProportionalArraySizingStrategy
+     * Create with defaults.
      */
     public KTypeArrayDeque()
     {
-        this(KTypeArrayDeque.DEFAULT_CAPACITY);
+        this(Containers.DEFAULT_EXPECTED_ELEMENTS);
     }
 
     /**
@@ -127,17 +120,14 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
     /**
      * Create with a custom buffer resizing strategy.
      */
-    public KTypeArrayDeque(int initialCapacity, final ArraySizingStrategy resizer)
+    public KTypeArrayDeque(final int initialCapacity, final ArraySizingStrategy resizer)
     {
-        assert initialCapacity >= 0 : "initialCapacity must be >= 0: " + initialCapacity;
         assert resizer != null;
 
         this.resizer = resizer;
 
         // +1 because there is always one empty slot in a deque. (seen ensure buffer space)
-        initialCapacity = resizer.round(initialCapacity + 1);
-
-        this.buffer = Intrinsics.newKTypeArray(initialCapacity);
+        ensureBufferSpace(Math.max(Containers.DEFAULT_EXPECTED_ELEMENTS, initialCapacity));
 
         this.valueIteratorPool = new IteratorPool<KTypeCursor<KType>, ValueIterator>(
                 new ObjectFactory<ValueIterator>() {
@@ -184,6 +174,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
                         // nothing
                     }
                 });
+
     }
 
     /**
@@ -278,7 +269,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
      */
     public void addLast(final KType... elements)
     {
-        ensureBufferSpace(1);
+        ensureBufferSpace(elements.length);
 
         // For now, naive loop.
         for (int i = 0; i < elements.length; i++) {
@@ -601,7 +592,8 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
     @Override
     public int capacity() {
 
-        return this.buffer.length;
+        //because there is always an empty slot in the buffer
+        return this.buffer.length - 1;
     }
 
     /**
@@ -661,7 +653,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
     public void release()
     {
         this.head = this.tail = 0;
-        this.buffer = Intrinsics.newKTypeArray(this.resizer.round(KTypeArrayDeque.DEFAULT_CAPACITY));
+        this.buffer = Intrinsics.newKTypeArray(Containers.DEFAULT_EXPECTED_ELEMENTS);
     }
 
     /**
@@ -671,23 +663,33 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
     protected void ensureBufferSpace(final int expectedAdditions)
     {
         final int bufferLen = (this.buffer == null ? 0 : this.buffer.length);
-        final int elementsCount = size();
-        // +1 because there is always one empty slot in a deque.
-        if (elementsCount >= bufferLen - expectedAdditions - 1)
-        {
-            final int newSize = this.resizer.grow(bufferLen, elementsCount, expectedAdditions + 1);
-            assert newSize >= (elementsCount + expectedAdditions + 1) : "Resizer failed to" +
-                    " return sensible new size: " + newSize + " <= "
-                    + (elementsCount + expectedAdditions);
 
-            final KType[] newBuffer = Intrinsics.<KType[]> newKTypeArray(newSize);
-            if (bufferLen > 0)
-            {
-                toArray(newBuffer);
-                this.tail = elementsCount;
-                this.head = 0;
+        final int elementsCount = (this.buffer == null ? 0 : size());
+
+        // +1 because there is always one empty slot in a deque.
+        if (elementsCount + 1 >= bufferLen - expectedAdditions)
+        {
+            final int newSize = this.resizer.grow(bufferLen, elementsCount, expectedAdditions);
+
+            try {
+
+                final KType[] newBuffer = Intrinsics.<KType[]> newKTypeArray(newSize);
+                if (bufferLen > 0)
+                {
+                    toArray(newBuffer);
+                    this.tail = elementsCount;
+                    this.head = 0;
+                }
+                this.buffer = newBuffer;
+
             }
-            this.buffer = newBuffer;
+            catch (final OutOfMemoryError e) {
+                throw new BufferAllocationException(
+                        "Not enough memory to allocate new buffers: %d -> %d",
+                        e,
+                        bufferLen,
+                        newSize);
+            }
         }
     }
 
@@ -1054,9 +1056,9 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
      * {@inheritDoc}
      */
     @Override
-    /* #if ($TemplateOptions.KTypeGeneric) */
+/* #if ($TemplateOptions.KTypeGeneric) */
     @SuppressWarnings("unchecked")
-    /* #end */
+/* #end */
     public boolean equals(final Object obj)
     {
         if (obj != null)
@@ -1082,14 +1084,14 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 final Iterator<KTypeCursor<Object>> it = other.iterator();
                 /*! #else
-                final Iterator<KTypeCursor> it = other.iterator();
-                #end !*/
+                    final Iterator<KTypeCursor> it = other.iterator();
+                    #end !*/
 
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 KTypeCursor<Object> c;
                 /*! #else
-                KTypeCursor c;
-                #end !*/
+                    KTypeCursor c;
+                    #end !*/
 
                 while (it.hasNext())
                 {
@@ -1182,15 +1184,15 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
         return new KTypeArrayDeque<KType>(container);
     }
 
-    ////////////////////////////
+////////////////////////////
     /**
      * In-place sort the dequeue from [beginIndex, endIndex[
      * by natural ordering (smaller first)
      * @param beginIndex the start index to be sorted
      * @param endIndex the end index to be sorted (excluded)
-     #if ($TemplateOptions.KTypeGeneric)
+         #if ($TemplateOptions.KTypeGeneric)
      * @throws ClassCastException if the deque contains elements that are not mutually Comparable.
-     #end
+         #end
      */
     public void sort(final int beginIndex, final int endIndex)
     {
@@ -1229,8 +1231,8 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
             /*! #else
-            KTypeComparator<? super KType>
-            #end !*/
+                KTypeComparator<? super KType>
+                #end !*/
             comp)
     {
         assert endIndex <= size();
@@ -1261,9 +1263,9 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
      * </b></p>
      * @param beginIndex
      * @param endIndex
-      #if ($TemplateOptions.KTypeGeneric)
+          #if ($TemplateOptions.KTypeGeneric)
      * @throws ClassCastException if the deque contains elements that are not mutually Comparable.
-     #end
+         #end
      */
     public void sort()
     {
@@ -1274,7 +1276,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
         }
     }
 
-    ////////////////////////////
+////////////////////////////
 
     /**
      * In-place sort the whole dequeue
@@ -1287,8 +1289,8 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
             /*! #else
-            KTypeComparator<? super KType>
-            #end !*/
+                KTypeComparator<? super KType>
+                #end !*/
             comp)
     {
         if (size() > 1)
@@ -1402,7 +1404,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
         return pos;
     }
 
-    /*! #if ($TemplateOptions.inlineKType("indexToBufferPosition",
+/*! #if ($TemplateOptions.inlineKType("indexToBufferPosition",
     "(index)", "(index + this.head < this.buffer.length) ? index + this.head : index + this.head - this.buffer.length")) !*/
     /**
      * Convert the {@link #KTypeIndexedContainer}
@@ -1427,9 +1429,9 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
         return bufferPos;
     }
 
-    /*! #end !*/
+/*! #end !*/
 
-    /*! #if ($TemplateOptions.inlineKType("KTypeArrayDeque.oneLeft",
+/*! #if ($TemplateOptions.inlineKType("KTypeArrayDeque.oneLeft",
      "(index, modulus)", "(index >= 1) ? index - 1 : modulus - 1")) !*/
     /**
      * Move one index to the left, wrapping around buffer of size modulus.
@@ -1440,9 +1442,9 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
         return (index >= 1) ? index - 1 : modulus - 1;
     }
 
-    /*! #end !*/
+/*! #end !*/
 
-    /*! #if ($TemplateOptions.inlineKType("KTypeArrayDeque.oneRight","(index, modulus)",
+/*! #if ($TemplateOptions.inlineKType("KTypeArrayDeque.oneRight","(index, modulus)",
        "(index + 1 == modulus) ? 0 : index + 1")) !*/
     /**
      * Move one index to the right, wrapping around buffer of size modulus
@@ -1452,6 +1454,6 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
     {
         return (index + 1 == modulus) ? 0 : index + 1;
     }
-    /*! #end !*/
+/*! #end !*/
 
 }

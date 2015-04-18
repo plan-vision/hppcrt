@@ -26,7 +26,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeOpenIdentityHashSet<KType>
-extends KTypeOpenCustomHashSet<KType>
+        extends KTypeOpenCustomHashSet<KType>
 {
     private static final KTypeIdentityHash<Object> IDENTITY_EQUALITY = new KTypeIdentityHash<Object>();
 
@@ -36,7 +36,7 @@ extends KTypeOpenCustomHashSet<KType>
      */
     public KTypeOpenIdentityHashSet()
     {
-        this(KTypeOpenCustomHashSet.DEFAULT_CAPACITY, KTypeOpenCustomHashSet.DEFAULT_LOAD_FACTOR);
+        this(Containers.DEFAULT_EXPECTED_ELEMENTS, HashContainers.DEFAULT_LOAD_FACTOR);
     }
 
     /**
@@ -45,14 +45,14 @@ extends KTypeOpenCustomHashSet<KType>
      */
     public KTypeOpenIdentityHashSet(final int initialCapacity)
     {
-        this(initialCapacity, KTypeOpenCustomHashSet.DEFAULT_LOAD_FACTOR);
+        this(initialCapacity, HashContainers.DEFAULT_LOAD_FACTOR);
     }
 
     /**
      * Creates a hash set with the given capacity and load factor.
      */
     @SuppressWarnings({ "cast", "unchecked" })
-    public KTypeOpenIdentityHashSet(final int initialCapacity, final float loadFactor)
+    public KTypeOpenIdentityHashSet(final int initialCapacity, final double loadFactor)
     {
         super(initialCapacity, loadFactor, (KTypeIdentityHash<KType>) KTypeOpenIdentityHashSet.IDENTITY_EQUALITY);
     }

@@ -122,14 +122,12 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
     {
         this.comparator = comp;
 
-        assert initialCapacity >= 0 : "initialCapacity must be >= 0: " + initialCapacity;
         assert resizer != null;
 
         this.resizer = resizer;
 
         //1-based index buffer, assure allocation
-        final int internalSize = resizer.round(initialCapacity);
-        this.buffer = Intrinsics.newKTypeArray(internalSize + 1);
+        ensureBufferSpace(Math.max(Containers.DEFAULT_EXPECTED_ELEMENTS, initialCapacity));
 
         this.valueIteratorPool = new IteratorPool<KTypeCursor<KType>, ValueIterator>(
                 new ObjectFactory<ValueIterator>() {
@@ -701,20 +699,31 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
      */
     protected void ensureBufferSpace(final int expectedAdditions)
     {
-        final int bufferLen = (this.buffer == null ? 0 : this.buffer.length - 1);
-        if (this.elementsCount > bufferLen - expectedAdditions)
-        {
-            final int newSize = this.resizer.grow(bufferLen, this.elementsCount, expectedAdditions + 1);
-            assert newSize >= this.elementsCount + expectedAdditions : "Resizer failed to" +
-                    " return sensible new size: " + newSize + " <= "
-                    + (this.elementsCount + expectedAdditions);
+        final int bufferLen = this.buffer == null ? 0 : this.buffer.length;
 
-            final KType[] newBuffer = Intrinsics.newKTypeArray(newSize);
-            if (bufferLen > 0)
-            {
-                System.arraycopy(this.buffer, 0, newBuffer, 0, this.buffer.length);
+        //element of index 0 is not used
+        if (this.elementsCount + 1 > bufferLen - expectedAdditions)
+        {
+            final int newSize = this.resizer.grow(bufferLen, this.elementsCount, expectedAdditions);
+
+            try {
+                final KType[] newBuffer = Intrinsics.newKTypeArray(newSize);
+
+                if (bufferLen > 0)
+                {
+                    System.arraycopy(this.buffer, 0, newBuffer, 0, this.buffer.length);
+                }
+
+                this.buffer = newBuffer;
             }
-            this.buffer = newBuffer;
+            catch (final OutOfMemoryError e) {
+
+                throw new BufferAllocationException(
+                        "Not enough memory to allocate buffers to grow  %d -> %d",
+                        e,
+                        this.buffer.length,
+                        newSize);
+            }
         }
     }
 
@@ -736,11 +745,11 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
      * #if($TemplateOptions.KTypeGeneric) , which means objects in this case must be {@link Comparable}.
      * #end
      */
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+/*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
             /*! #else
-                                                                                                                    public KTypeComparator<? super KType>
-                                                                                                                    #end !*/
+                                                                                                                                                            public KTypeComparator<? super KType>
+                                                                                                                                                            #end !*/
             comparator() {
 
         return this.comparator;
@@ -796,8 +805,8 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         final Comparator<? super KType> comp = this.comparator;
         /*! #else
-        KTypeComparator<? super KType> comp = this.comparator;
-        #end !*/
+            KTypeComparator<? super KType> comp = this.comparator;
+            #end !*/
 
         while ((k << 1) <= N)
         {
@@ -859,8 +868,8 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         final Comparator<? super KType> comp = this.comparator;
         /*! #else
-        KTypeComparator<? super KType> comp = this.comparator;
-        #end !*/
+            KTypeComparator<? super KType> comp = this.comparator;
+            #end !*/
 
         while (k > 1 && comp.compare(buffer[k >> 1], buffer[k]) > 0)
         {
@@ -898,7 +907,7 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
         }
     }
 
-    /*! #if($DEBUG) !*/
+/*! #if($DEBUG) !*/
     /**
      * methods to test invariant in assert, not present in final generated code
      */
@@ -943,8 +952,8 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         final Comparator<? super KType> comp = this.comparator;
         /*! #else
-        KTypeComparator<? super KType> comp = this.comparator;
-        #end !*/
+            KTypeComparator<? super KType> comp = this.comparator;
+            #end !*/
 
         if (k > N) {
             return true;
@@ -961,6 +970,6 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
         return isMinHeapComparator(left) && isMinHeapComparator(right);
     }
 
-    //end of ifdef debug
+//end of ifdef debug
 /*! #end !*/
 }

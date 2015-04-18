@@ -31,8 +31,8 @@ import com.carrotsearch.hppcrt.strategies.*;
  * <tr            ><td>get            </td><td>get            </td></tr>
  * <tr class="odd"><td>removeRange,
  *                     removeElementAt</td><td>removeRange, remove</td></tr>
- * <tr            ><td>remove(Object) </td><td>removeFirstOccurrence, removeLastOccurrence,
- *                                             removeAllOccurrences</td></tr>
+ * <tr            ><td>remove(Object) </td><td>removeFirst, removeLast,
+ *                                             removeAll</td></tr>
  * <tr class="odd"><td>clear          </td><td>clear, release </td></tr>
  * <tr            ><td>size           </td><td>size           </td></tr>
  * <tr class="odd"><td>ensureCapacity </td><td>ensureCapacity, resize</td></tr>
@@ -52,21 +52,6 @@ import com.carrotsearch.hppcrt.strategies.*;
 public class KTypeArrayList<KType>
 extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, Cloneable
 {
-    /**
-     * Default capacity if no other capacity is given in the constructor.
-     */
-    public final static int DEFAULT_CAPACITY = 5;
-
-    /**
-     * Internal static instance of an empty buffer.
-     */
-    private final static Object EMPTY = /*!
-                                        #if ($TemplateOptions.KTypePrimitive)
-                                        new KType [0];
-                                        #else !*/
-            new Object[0];
-    /*! #end !*/
-
     /**
      * Internal array for storing the list. The array may be larger than the current size
      * ({@link #size()}).
@@ -119,7 +104,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      */
     public KTypeArrayList()
     {
-        this(KTypeArrayList.DEFAULT_CAPACITY);
+        this(Containers.DEFAULT_EXPECTED_ELEMENTS);
     }
 
     /**
@@ -137,15 +122,12 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      */
     public KTypeArrayList(final int initialCapacity, final ArraySizingStrategy resizer)
     {
-        assert initialCapacity >= 0 : "initialCapacity must be >= 0: " + initialCapacity;
         assert resizer != null;
 
         this.resizer = resizer;
 
-        final int internalSize = resizer.round(initialCapacity);
-
         //allocate internal buffer
-        this.buffer = Intrinsics.newKTypeArray(internalSize);
+        ensureBufferSpace(Math.max(Containers.DEFAULT_EXPECTED_ELEMENTS, initialCapacity));
 
         this.valueIteratorPool = new IteratorPool<KTypeCursor<KType>, ValueIterator>(
                 new ObjectFactory<ValueIterator>() {
@@ -453,16 +435,23 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
         if (this.elementsCount > bufferLen - expectedAdditions)
         {
             final int newSize = this.resizer.grow(bufferLen, this.elementsCount, expectedAdditions);
-            assert newSize >= this.elementsCount + expectedAdditions : "Resizer failed to" +
-                    " return sensible new size: " + newSize + " <= "
-                    + (this.elementsCount + expectedAdditions);
 
-            final KType[] newBuffer = Intrinsics.newKTypeArray(newSize);
-            if (bufferLen > 0)
-            {
-                System.arraycopy(this.buffer, 0, newBuffer, 0, this.buffer.length);
+            try {
+                final KType[] newBuffer = Intrinsics.newKTypeArray(newSize);
+                if (bufferLen > 0)
+                {
+                    System.arraycopy(this.buffer, 0, newBuffer, 0, this.buffer.length);
+                }
+                this.buffer = newBuffer;
+
             }
-            this.buffer = newBuffer;
+            catch (final OutOfMemoryError e) {
+                throw new BufferAllocationException(
+                        "Not enough memory to allocate new buffers: %d -> %d",
+                        e,
+                        bufferLen,
+                        newSize);
+            }
         }
     }
 
@@ -553,7 +542,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     /* #end */
     public void release()
     {
-        this.buffer = (KType[]) KTypeArrayList.EMPTY;
+        this.buffer = (KType[]) KTypeArrays.EMPTY;
         this.elementsCount = 0;
     }
 
