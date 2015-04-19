@@ -30,7 +30,7 @@ import com.carrotsearch.hppcrt.strategies.*;
 /*! #set( $DEBUG = false) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType>
-        implements KTypePriorityQueue<KType>, Cloneable
+implements KTypePriorityQueue<KType>, Cloneable
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -162,7 +162,7 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
      * @see BoundedProportionalArraySizingStrategy
      */
     public KTypeHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp
-    /*! #else
+            /*! #else
     KTypeComparator<? super KType> comp
     #end !*/)
     {
@@ -719,9 +719,9 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
             catch (final OutOfMemoryError e) {
 
                 throw new BufferAllocationException(
-                        "Not enough memory to allocate buffers to grow  %d -> %d",
+                        "Not enough memory to allocate buffers to grow from %d -> %d elements",
                         e,
-                        this.buffer.length,
+                        bufferLen,
                         newSize);
             }
         }
@@ -747,10 +747,10 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
      */
 /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
-            /*! #else
+    /*! #else
                                                                                                                                                             public KTypeComparator<? super KType>
                                                                                                                                                             #end !*/
-            comparator() {
+    comparator() {
 
         return this.comparator;
     }
@@ -847,11 +847,11 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
             //swap k and its parent
             parent = k >> 1;
 
-            tmp = buffer[k];
-            buffer[k] = buffer[parent];
-            buffer[parent] = tmp;
+        tmp = buffer[k];
+        buffer[k] = buffer[parent];
+        buffer[parent] = tmp;
 
-            k = parent;
+        k = parent;
         }
     }
 
@@ -875,11 +875,11 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
         {
             //swap k and its parent
             parent = k >> 1;
-            tmp = buffer[k];
-            buffer[k] = buffer[parent];
-            buffer[parent] = tmp;
+        tmp = buffer[k];
+        buffer[k] = buffer[parent];
+        buffer[parent] = tmp;
 
-            k = parent;
+        k = parent;
         }
     }
 

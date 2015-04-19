@@ -49,8 +49,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Hash-indexed array holding all set entries.
@@ -473,7 +473,7 @@ public class KTypeOpenHashSet<KType>
         catch (final OutOfMemoryError e) {
 
             throw new BufferAllocationException(
-                    "Not enough memory to allocate buffers to grow  %d -> %d",
+                    "Not enough memory to allocate buffers to grow from %d -> %d elements",
                     e,
                     this.keys.length,
                     capacity);

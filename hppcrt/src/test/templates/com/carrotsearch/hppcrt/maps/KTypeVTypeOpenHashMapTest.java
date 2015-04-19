@@ -1230,8 +1230,8 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         final long TEST_ROUNDS = 5000;
 
         final KTypeVTypeOpenHashMap<KType, VType> testContainer = createMapWithOrderedData(TEST_SIZE);
-        final KTypeVTypeOpenHashMap<KType, VType>.KeysContainer keyset = testContainer.keys();
-        final KTypeVTypeOpenHashMap<KType, VType>.ValuesContainer valueset = testContainer.values();
+        final KTypeVTypeOpenHashMap<KType, VType>.KeysCollection keyset = testContainer.keys();
+        final KTypeVTypeOpenHashMap<KType, VType>.ValuesCollection valueset = testContainer.values();
 
         final long checksum = testContainer.forEach(new KTypeVTypeProcedure<KType, VType>() {
 
@@ -1317,8 +1317,8 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         final long TEST_ROUNDS = 5000;
 
         final KTypeVTypeOpenHashMap<KType, VType> testContainer = createMapWithOrderedData(TEST_SIZE);
-        final KTypeVTypeOpenHashMap<KType, VType>.KeysContainer keyset = testContainer.keys();
-        final KTypeVTypeOpenHashMap<KType, VType>.ValuesContainer valueset = testContainer.values();
+        final KTypeVTypeOpenHashMap<KType, VType>.KeysCollection keyset = testContainer.keys();
+        final KTypeVTypeOpenHashMap<KType, VType>.ValuesCollection valueset = testContainer.values();
 
         int count = 0;
         for (int round = 0; round < TEST_ROUNDS; round++)
@@ -1414,8 +1414,8 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         final long TEST_ROUNDS = 5000;
 
         final KTypeVTypeOpenHashMap<KType, VType> testContainer = createMapWithOrderedData(TEST_SIZE);
-        final KTypeVTypeOpenHashMap<KType, VType>.KeysContainer keyset = testContainer.keys();
-        final KTypeVTypeOpenHashMap<KType, VType>.ValuesContainer valueset = testContainer.values();
+        final KTypeVTypeOpenHashMap<KType, VType>.KeysCollection keyset = testContainer.keys();
+        final KTypeVTypeOpenHashMap<KType, VType>.ValuesCollection valueset = testContainer.values();
 
         final long checksum = testContainer.forEach(new KTypeVTypeProcedure<KType, VType>() {
 
@@ -1509,8 +1509,8 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         final long TEST_ROUNDS = 5000;
 
         final KTypeVTypeOpenHashMap<KType, VType> testContainer = createMapWithOrderedData(TEST_SIZE);
-        final KTypeVTypeOpenHashMap<KType, VType>.KeysContainer keyset = testContainer.keys();
-        final KTypeVTypeOpenHashMap<KType, VType>.ValuesContainer valueset = testContainer.values();
+        final KTypeVTypeOpenHashMap<KType, VType>.KeysCollection keyset = testContainer.keys();
+        final KTypeVTypeOpenHashMap<KType, VType>.ValuesCollection valueset = testContainer.values();
 
         final int startingPoolSize = testContainer.entryIteratorPool.size();
 

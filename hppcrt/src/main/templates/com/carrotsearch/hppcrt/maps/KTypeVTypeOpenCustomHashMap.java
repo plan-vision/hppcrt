@@ -55,7 +55,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenCustomHashMap<KType, VType>
-implements KTypeVTypeMap<KType, VType>, Cloneable
+        implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     protected VType defaultValue = Intrinsics.<VType> defaultVTypeValue();
 
@@ -719,7 +719,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         catch (final OutOfMemoryError e) {
 
             throw new BufferAllocationException(
-                    "Not enough memory to allocate buffers to grow  %d -> %d",
+                    "Not enough memory to allocate buffers to grow from %d -> %d elements",
                     e,
                     this.keys.length,
                     capacity);
@@ -1396,20 +1396,20 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     }
 
     /**
-     *  @return a new KeysContainer view of the keys of this associated container.
+     *  @return a new KeysCollection view of the keys of this associated container.
      * This view then reflects all changes from the map.
      */
     @Override
-    public KeysContainer keys()
+    public KeysCollection keys()
     {
-        return new KeysContainer();
+        return new KeysCollection();
     }
 
     /**
      * A view of the keys inside this hash map.
      */
-    public final class KeysContainer
-    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+    public final class KeysCollection
+            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenCustomHashMap<KType, VType> owner =
                 KTypeVTypeOpenCustomHashMap.this;
@@ -1629,19 +1629,19 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     }
 
     /**
-     *  @return a new ValuesContainer, view of the values of this map.
+     *  @return a new ValuesCollection, view of the values of this map.
      * This view then reflects all changes from the map.
      */
     @Override
-    public ValuesContainer values()
+    public ValuesCollection values()
     {
-        return new ValuesContainer();
+        return new ValuesCollection();
     }
 
     /**
      * A view over the set of values of this map.
      */
-    public final class ValuesContainer extends AbstractKTypeCollection<VType>
+    public final class ValuesCollection extends AbstractKTypeCollection<VType>
     {
         private final KTypeVTypeOpenCustomHashMap<KType, VType> owner =
                 KTypeVTypeOpenCustomHashMap.this;

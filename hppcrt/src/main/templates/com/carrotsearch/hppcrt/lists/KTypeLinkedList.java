@@ -31,7 +31,7 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeLinkedList<KType>
-extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, KTypeDeque<KType>, Cloneable
+        extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, KTypeDeque<KType>, Cloneable
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -582,7 +582,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
             }
             catch (final OutOfMemoryError e) {
                 throw new BufferAllocationException(
-                        "Not enough memory to allocate new buffers: %d -> %d",
+                        "Not enough memory to allocate buffers to grow from %d -> %d elements",
                         e,
                         bufferLen,
                         newSize);
@@ -1813,7 +1813,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeLinkedList<KType> newInstance()
+            KTypeLinkedList<KType> newInstance()
     {
         return new KTypeLinkedList<KType>();
     }
@@ -1823,7 +1823,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeLinkedList<KType> newInstance(final int initialCapacity)
+            KTypeLinkedList<KType> newInstance(final int initialCapacity)
     {
         return new KTypeLinkedList<KType>(initialCapacity);
     }
@@ -1833,7 +1833,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * The elements are copied from the argument to the internal buffer.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeLinkedList<KType> from(final KType... elements)
+            KTypeLinkedList<KType> from(final KType... elements)
     {
         final KTypeLinkedList<KType> list = new KTypeLinkedList<KType>(elements.length);
         list.add(elements);
@@ -1844,7 +1844,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * Create a list from elements of another container.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeLinkedList<KType> from(final KTypeContainer<KType> container)
+            KTypeLinkedList<KType> from(final KTypeContainer<KType> container)
     {
         return new KTypeLinkedList<KType>(container);
     }

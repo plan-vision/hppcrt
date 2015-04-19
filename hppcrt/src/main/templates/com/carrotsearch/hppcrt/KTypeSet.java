@@ -15,5 +15,5 @@ public interface KTypeSet<KType> extends KTypeCollection<KType>
      * @return Returns <code>true</code> if this element was not part of the set before. Returns
      * <code>false</code> if an equal element is already part of the set, <b>and leaves the set unchanged. </b>.
      */
-    public boolean add(KType k);
+     boolean add(KType k);
 }

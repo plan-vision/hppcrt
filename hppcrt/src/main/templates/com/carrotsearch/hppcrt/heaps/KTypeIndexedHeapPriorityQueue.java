@@ -994,19 +994,19 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     }
 
     /**
-     *  @return a new KeysContainer view of the keys of this associated container.
-     * This view then reflects all changes from the map.
+     *  @return a new KeysCollection view of the keys of this associated container.
+     * This view then reflects all changes from the heap.
      */
     @Override
-    public KeysContainer keys()
+    public KeysCollection keys()
     {
-        return new KeysContainer();
+        return new KeysCollection();
     }
 
     /**
-     * A view of the keys inside this hash map.
+     * A view of the keys inside this Indexed heap.
      */
-    public final class KeysContainer extends AbstractIntCollection implements IntLookupContainer
+    public final class KeysCollection extends AbstractIntCollection implements IntLookupContainer
     {
         private final KTypeIndexedHeapPriorityQueue<KType> owner =
                 KTypeIndexedHeapPriorityQueue.this;
@@ -1200,19 +1200,19 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     }
 
     /**
-     *  @return a new ValuesContainer, view of the values of this map.
-     * This view then reflects all changes from the map.
+     *  @return a new ValuesCollection, view of the values of this indexed heap.
+     * This view then reflects all changes from the heap.
      */
     @Override
-    public ValuesContainer values()
+    public ValuesCollection values()
     {
-        return new ValuesContainer();
+        return new ValuesCollection();
     }
 
     /**
      * A view over the set of values of this map.
      */
-    public final class ValuesContainer extends AbstractKTypeCollection<KType>
+    public final class ValuesCollection extends AbstractKTypeCollection<KType>
     {
         private final KTypeIndexedHeapPriorityQueue<KType> owner =
                 KTypeIndexedHeapPriorityQueue.this;
@@ -1224,9 +1224,9 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
             @Override
             public final boolean apply(final KType value) {
 
-                if (ValuesContainer.this.owner.comparator == null) {
+                if (ValuesCollection.this.owner.comparator == null) {
 
-                    if (Intrinsics.isCompEqualKTypeUnchecked(value, ValuesContainer.this.currentOccurenceToBeRemoved)) {
+                    if (Intrinsics.isCompEqualKTypeUnchecked(value, ValuesCollection.this.currentOccurenceToBeRemoved)) {
 
                         return true;
                     }
@@ -1234,7 +1234,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
                 }
                 else {
 
-                    if (ValuesContainer.this.owner.comparator.compare(value, ValuesContainer.this.currentOccurenceToBeRemoved) == 0) {
+                    if (ValuesCollection.this.owner.comparator.compare(value, ValuesCollection.this.currentOccurenceToBeRemoved) == 0) {
 
                         return true;
                     }
@@ -1526,8 +1526,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
     /*! #else
-                                                                                                                                                                                            public KTypeComparator<? super KType>
-                                                                                                                                                                                            #end !*/
+                                                                                                                                                                                                            public KTypeComparator<? super KType>
+                                                                                                                                                                                                            #end !*/
     comparator() {
 
         return this.comparator;
@@ -1566,9 +1566,9 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
             catch (final OutOfMemoryError e) {
 
                 throw new BufferAllocationException(
-                        "Not enough memory to allocate buffers to grow  %d -> %d",
+                        "Not enough memory to allocate buffers to grow from %d -> %d elements",
                         e,
-                        this.buffer.length,
+                        pqLen,
                         newPQSize);
             }
         } //end if

@@ -14,30 +14,30 @@ public interface KTypeIndexedContainer<KType> extends KTypeCollection<KType>, Ra
      * Removes the first element that equals <code>e1</code>, returning its
      * deleted position or <code>-1</code> if the element was not found.
      */
-    public int removeFirst(KType e1);
+     int removeFirst(KType e1);
 
     /**
      * Removes the last element that equals <code>e1</code>, returning its
      * deleted position or <code>-1</code> if the element was not found.
      */
-    public int removeLast(KType e1);
+     int removeLast(KType e1);
 
     /**
      * Returns the index of the first occurrence of the specified element in this list,
      * or -1 if this list does not contain the element.
      */
-    public int indexOf(KType e1);
+     int indexOf(KType e1);
 
     /**
      * Returns the index of the last occurrence of the specified element in this list,
      * or -1 if this list does not contain the element.
      */
-    public int lastIndexOf(KType e1);
+     int lastIndexOf(KType e1);
 
     /**
      * Adds an element to the end of this container (the last index is incremented by one).
      */
-    public void add(KType e1);
+     void add(KType e1);
 
     /**
      * Inserts the specified element at the specified position in this list.
@@ -46,7 +46,7 @@ public interface KTypeIndexedContainer<KType> extends KTypeCollection<KType>, Ra
      * any existing and subsequent elements to the right.
      * Precondition : index must be valid !
      */
-    public void insert(int index, KType e1);
+     void insert(int index, KType e1);
 
     /**
      * Replaces the element at the specified position in this list
@@ -54,7 +54,7 @@ public interface KTypeIndexedContainer<KType> extends KTypeCollection<KType>, Ra
      * Precondition : index must be valid !
      * @return Returns the previous value in the list.
      */
-    public KType set(int index, KType e1);
+     KType set(int index, KType e1);
 
     /**
      * @return Returns the element at index <code>index</code> from the list.
@@ -70,12 +70,12 @@ public interface KTypeIndexedContainer<KType> extends KTypeCollection<KType>, Ra
      * {@link #removeFirst} or {@link #removeLast} depending
      * on the actual need.</p>
      */
-    public KType remove(int index);
+     KType remove(int index);
 
     /**
      * Removes from this list all of the elements whose index is between
      * <code>fromIndex</code>, inclusive, and <code>toIndex</code>, exclusive.
      * Precondition : both indices must be valid !
      */
-    public void removeRange(int fromIndex, int toIndex);
+     void removeRange(int fromIndex, int toIndex);
 }

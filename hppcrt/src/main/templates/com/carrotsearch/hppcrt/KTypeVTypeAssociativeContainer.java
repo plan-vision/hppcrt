@@ -18,7 +18,7 @@ import com.carrotsearch.hppcrt.procedures.*;
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public interface KTypeVTypeAssociativeContainer<KType, VType>
-extends Iterable<KTypeVTypeCursor<KType, VType>>
+        extends Iterable<KTypeVTypeCursor<KType, VType>>
 {
     /**
      * Returns a cursor over the entries (key-value pairs) in this map. The iterator is
@@ -82,7 +82,7 @@ extends Iterable<KTypeVTypeCursor<KType, VType>>
      * 
      * @return Returns the number of elements actually removed as a result of this call.
      */
-    public int removeAll(KTypeVTypePredicate<? super KType, ? super VType> predicate);
+    int removeAll(KTypeVTypePredicate<? super KType, ? super VType> predicate);
 
     /**
      * Applies a given procedure to all keys-value pairs in this container. Returns the argument (any

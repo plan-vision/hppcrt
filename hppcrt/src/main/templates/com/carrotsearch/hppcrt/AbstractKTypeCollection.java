@@ -139,8 +139,9 @@ public abstract class AbstractKTypeCollection<KType> implements KTypeCollection<
         catch (final OutOfMemoryError e) {
 
             throw new BufferAllocationException(
-                    "Not enough memory to allocate toArray() buffer for  %d elements",
+                    "Not enough memory to allocate a '%s'.toArray() of  %d elements",
                     e,
+                    this.getClass().toString(),
                     size());
         }
     }
