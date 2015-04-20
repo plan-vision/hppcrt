@@ -884,15 +884,51 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
      */
     @SuppressWarnings("unchecked")
     @Override
-    public int removeAll(final KTypeContainer<? super KType> container)
+    public int removeAll(final KTypeContainer<? super KType> other)
     {
         final int before = this.size();
 
-        //Do not use contains() from container, which may lead to O(n**2) execution times,
-        //so it iterate linearly and call remove() from map which is O(1).
-        for (final KTypeCursor<? super KType> c : container) {
+        //1) other is a KTypeLookupContainer, so with fast lookup guarantees
+        //and is bigger than this, so take advantage of both and iterate over this
+        //and test other elements by their contains().
+        if (other.size() >= before &&
+                other instanceof KTypeLookupContainer<?>) {
 
-            remove((KType) c.value);
+            if (this.allocatedDefaultKey) {
+
+                if (other.contains(Intrinsics.<KType> defaultKTypeValue()))
+                {
+                    this.allocatedDefaultKey = false;
+
+                    /*! #if ($TemplateOptions.VTypeGeneric) !*/
+                    //help the GC
+                    this.allocatedDefaultKeyValue = Intrinsics.defaultVTypeValue();
+                    /*! #end !*/
+                }
+            }
+
+            final KType[] keys = this.keys;
+
+            for (int i = 0; i < keys.length;)
+            {
+                if (is_allocated(i, keys) && other.contains(keys[i]))
+                {
+                    this.assigned--;
+                    shiftConflictingKeys(i);
+                    // Shift, do not increment slot.
+                }
+                else {
+                    i++;
+                }
+            }
+        }
+        else {
+            //2) Do not use contains() from container, which may lead to O(n**2) execution times,
+            //so it iterate linearly and call remove() from map which is O(1).
+            for (final KTypeCursor<? super KType> c : other) {
+
+                remove((KType) c.value);
+            }
         }
 
         return before - this.size();
