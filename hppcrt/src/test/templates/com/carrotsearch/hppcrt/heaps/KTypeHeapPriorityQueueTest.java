@@ -11,7 +11,6 @@ import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.lists.*;
 import com.carrotsearch.hppcrt.TestUtils;
 import com.carrotsearch.hppcrt.cursors.*;
-import com.carrotsearch.hppcrt.mutables.*;
 import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
 import com.carrotsearch.hppcrt.sets.*;
@@ -570,7 +569,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
             checksum += castType(cast(i));
         }
 
-        final LongHolder holder = new LongHolder();
+        final IntHolder holder = new IntHolder();
         holder.value = 0;
 
         this.prioq.forEach(new KTypeProcedure<KType>() {

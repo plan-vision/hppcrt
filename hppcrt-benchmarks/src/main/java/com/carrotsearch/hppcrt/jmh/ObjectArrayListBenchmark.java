@@ -1,6 +1,7 @@
 package com.carrotsearch.hppcrt.jmh;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
@@ -12,7 +13,6 @@ import org.openjdk.jmh.runner.RunnerException;
 import com.carrotsearch.hppcrt.BenchmarkSuiteRunner;
 import com.carrotsearch.hppcrt.cursors.ObjectCursor;
 import com.carrotsearch.hppcrt.lists.ObjectArrayList;
-import com.carrotsearch.hppcrt.mutables.IntHolder;
 import com.carrotsearch.hppcrt.procedures.ObjectProcedure;
 
 /**
@@ -85,17 +85,17 @@ public class ObjectArrayListBenchmark
     @Benchmark
     public int testWithProcedureClosure()
     {
-        final IntHolder count = new IntHolder();
+        final AtomicInteger count = new AtomicInteger();
         this.list.forEach(new ObjectProcedure<Object>() {
             @Override
             public void apply(final Object v)
             {
                 if (v != ObjectArrayListBenchmark.defValue)
-                    count.value++;
+                    count.incrementAndGet();
             }
         });
 
-        return count.value;
+        return count.get();
     }
 
     /* */

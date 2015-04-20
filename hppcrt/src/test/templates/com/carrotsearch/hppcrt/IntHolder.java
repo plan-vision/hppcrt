@@ -1,4 +1,4 @@
-package com.carrotsearch.hppcrt.mutables;
+package com.carrotsearch.hppcrt;
 
 /**
  * <code>int</code> holder.

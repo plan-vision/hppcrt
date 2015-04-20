@@ -2,6 +2,7 @@ package com.carrotsearch.hppcrt.jmh;
 
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
@@ -13,7 +14,6 @@ import org.openjdk.jmh.runner.RunnerException;
 import com.carrotsearch.hppcrt.BenchmarkSuiteRunner;
 import com.carrotsearch.hppcrt.cursors.IntCursor;
 import com.carrotsearch.hppcrt.lists.IntArrayList;
-import com.carrotsearch.hppcrt.mutables.IntHolder;
 import com.carrotsearch.hppcrt.procedures.IntProcedure;
 
 /**
@@ -85,15 +85,15 @@ public class IterationSpeedBenchmark
     @Benchmark
     public int testWithProcedureClosure()
     {
-        final IntHolder holder = new IntHolder();
+        final AtomicInteger holder = new AtomicInteger();
         this.list.forEach(new IntProcedure() {
             @Override
             public void apply(final int v)
             {
-                holder.value += v;
+                holder.getAndAdd(v);
             }
         });
-        return holder.value;
+        return holder.get();
     }
 
     /* */

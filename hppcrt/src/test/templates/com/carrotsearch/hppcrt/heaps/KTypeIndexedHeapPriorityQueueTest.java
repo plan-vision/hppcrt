@@ -11,7 +11,6 @@ import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.lists.*;
 import com.carrotsearch.hppcrt.TestUtils;
 import com.carrotsearch.hppcrt.cursors.*;
-import com.carrotsearch.hppcrt.mutables.*;
 import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
 import com.carrotsearch.hppcrt.sets.*;
@@ -1094,9 +1093,9 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         Assert.assertEquals(reference.size(), this.prioq.size());
 
         //B) values() iterate and check that each value is taken
-        final LongHolder val = new LongHolder();
-        final LongHolder key = new LongHolder();
-        final LongHolder count = new LongHolder();
+        final IntHolder val = new IntHolder();
+        final IntHolder key = new IntHolder();
+        final IntHolder count = new IntHolder();
 
         this.prioq.values().forEach(new KTypeProcedure<KType>() {
 

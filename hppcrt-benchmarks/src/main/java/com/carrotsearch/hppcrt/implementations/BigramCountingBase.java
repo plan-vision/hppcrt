@@ -6,11 +6,11 @@ import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.IOUtils;
 
 import com.carrotsearch.hppcrt.maps.IntIntOpenHashMap;
-import com.carrotsearch.hppcrt.mutables.IntHolder;
 
 public class BigramCountingBase
 {
@@ -86,18 +86,18 @@ public class BigramCountingBase
         int benchCount = 0;
 
         final char[] CHARS = this.data;
-        final Map<Integer, IntHolder> counts = new HashMap<Integer, IntHolder>();
+        final Map<Integer, AtomicInteger> counts = new HashMap<Integer, AtomicInteger>();
         for (int i = 0; i < CHARS.length - 1; i++)
         {
             final int bigram = CHARS[i] << 16 | CHARS[i + 1];
-            final IntHolder currentCount = counts.get(bigram);
+            final AtomicInteger currentCount = counts.get(bigram);
             if (currentCount == null)
             {
-                benchCount += (counts.put(bigram, new IntHolder(1)) != null) ? 1 : 0;
+                benchCount += (counts.put(bigram, new AtomicInteger(1)) != null) ? 1 : 0;
             }
             else
             {
-                currentCount.value++;
+                currentCount.incrementAndGet();
                 benchCount++;
             }
         }
