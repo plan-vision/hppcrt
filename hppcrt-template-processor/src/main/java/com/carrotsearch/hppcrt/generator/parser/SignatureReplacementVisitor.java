@@ -8,14 +8,22 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
+import javax.swing.JPanel;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.antlr.v4.runtime.tree.gui.TreeViewer;
 
 import com.carrotsearch.hppcrt.generator.TemplateOptions;
-import com.carrotsearch.hppcrt.generator.Type;
 import com.carrotsearch.hppcrt.generator.TemplateProcessor.VerboseLevel;
+import com.carrotsearch.hppcrt.generator.Type;
 import com.carrotsearch.hppcrt.generator.parser.Java7Parser.ClassDeclarationContext;
 import com.carrotsearch.hppcrt.generator.parser.Java7Parser.ClassOrInterfaceTypeContext;
 import com.carrotsearch.hppcrt.generator.parser.Java7Parser.ConstructorDeclarationContext;
@@ -37,7 +45,6 @@ import com.google.common.collect.Lists;
 
 class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacement>>
 {
-
     private final static List<Replacement> NONE = Collections.emptyList();
     private final TemplateOptions templateOptions;
     private final SignatureProcessor processor;
@@ -149,6 +156,9 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
 
         String className = ctx.Identifier().getText();
 
+        //In full verbose, display the parsed tree in GUI with for the class Name
+        displayParseTreeInGui(ctx, className);
+
         logVisitor(VerboseLevel.medium, "visitClassDeclaration", "className = " + className);
 
         if (isTemplateIdentifier(className) || true) {
@@ -161,7 +171,7 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
                     typeBounds.add(typeBoundOf(c));
                 }
 
-                result.add(new Replacement(ctx.typeParameters(), toString(typeBounds)));
+                result.add(new Replacement(ctx.typeParameters().getText(), ctx.typeParameters(), toString(typeBounds)));
 
                 logVisitor(VerboseLevel.full, "visitClassDeclaration", "type parameters replacements = " + result.get(result.size() - 1));
             }
@@ -186,7 +196,7 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
                 className = className.replace("VType", this.templateOptions.vtype.getBoxedType());
             }
 
-            result.add(new Replacement(ctx.Identifier(), className));
+            result.add(new Replacement(ctx.Identifier().getText(), ctx.Identifier(), className));
 
             logVisitor(VerboseLevel.full, "visitClassDeclaration", " result className replacement = " + result.get(result.size() - 1));
         }
@@ -212,7 +222,8 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
                 typeBounds.add(typeBoundOf(c));
             }
 
-            final Replacement replaceGenericTypes = new Replacement(ctx.typeParameters(), toString(typeBounds));
+            final Replacement replaceGenericTypes = new Replacement(ctx.typeParameters().getText(),
+                    ctx.typeParameters(), toString(typeBounds));
 
             logVisitor(VerboseLevel.full, "visitInterfaceDeclaration", "replaceGenericTypes = " + replaceGenericTypes);
 
@@ -226,7 +237,7 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
                 className = className.replace("VType", typeBounds.get(typeBoundIndex++).templateBound().getBoxedType());
             }
 
-            final Replacement replaceIdentifier = new Replacement(ctx.Identifier(), className);
+            final Replacement replaceIdentifier = new Replacement(ctx.Identifier().getText(), ctx.Identifier(), className);
 
             logVisitor(VerboseLevel.full, "visitInterfaceDeclaration", "replaceIdentifier = " + replaceIdentifier);
 
@@ -319,10 +330,10 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
         final List<Replacement> replacements = new ArrayList<>();
 
         if (bounds.isEmpty()) {
-            replacements.add(new Replacement(ctx.typeParameters(), ""));
+            replacements.add(new Replacement(ctx.typeParameters().getText(), ctx.typeParameters(), ""));
         }
         else {
-            replacements.add(new Replacement(ctx.typeParameters(), "<" + join(", ", bounds) + ">"));
+            replacements.add(new Replacement(ctx.typeParameters().getText(), ctx.typeParameters(), "<" + join(", ", bounds) + ">"));
         }
 
         logVisitor(VerboseLevel.full, "visitGenericMethodDeclaration", "Adding parent....");
@@ -380,7 +391,7 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
             if (identifier.contains("KType")
                     && this.templateOptions.isKTypePrimitive()
                     && (!identifier.contains("VType") || this.templateOptions.isVTypePrimitive())) {
-                replacements.add(new Replacement(ctx.typeArgumentsOrDiamond(), ""));
+                replacements.add(new Replacement(identifier, ctx.typeArgumentsOrDiamond(), ""));
             }
 
             logVisitor(VerboseLevel.full, "visitIdentifierTypeOrDiamondPair", "replacements after '<>' = " + Lists.newArrayList(replacements).toString());
@@ -396,7 +407,7 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
             typeBounds.add(typeBoundOf(c, wildcards));
         }
 
-        replacements.add(new Replacement(typeArguments, toString(typeBounds)));
+        replacements.add(new Replacement(typeArguments.getText(), typeArguments, toString(typeBounds)));
 
         logVisitor(VerboseLevel.full, "visitIdentifierTypeOrDiamondPair", "replacements after wildcards = " + Lists.newArrayList(replacements).toString());
 
@@ -423,7 +434,7 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
             }
         }
 
-        replacements.add(new Replacement(ctx.Identifier(), identifier));
+        replacements.add(new Replacement(ctx.Identifier().getText(), ctx.Identifier(), identifier));
 
         logVisitor(VerboseLevel.full, "visitIdentifierTypeOrDiamondPair", "replacements after replacing template identifiers = " + Lists.newArrayList(replacements).toString());
 
@@ -454,7 +465,7 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
                 for (final TypeArgumentContext c : ctx.typeArguments().typeArgument()) {
                     typeBounds.add(typeBoundOf(c, wildcards));
                 }
-                replacements.add(new Replacement(ctx.typeArguments(), toString(typeBounds)));
+                replacements.add(new Replacement(ctx.typeArguments().getText(), ctx.typeArguments(), toString(typeBounds)));
 
                 int typeBoundIndex = 0;
                 if (identifier.contains("KType")) {
@@ -475,7 +486,7 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
                         identifier = identifier.replace("VType", "Object");
                     }
                 }
-                replacements.add(new Replacement(ctx.Identifier(), identifier));
+                replacements.add(new Replacement(ctx.Identifier().getText(), ctx.Identifier(), identifier));
 
                 logVisitor(VerboseLevel.full, "visitIdentifierTypePair", "non-null template replacements = " + Lists.newArrayList(replacements));
 
@@ -506,7 +517,7 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
                 if (replacements == SignatureReplacementVisitor.NONE) {
                     replacements = new ArrayList<>();
                 }
-                replacements.add(new Replacement(identifier, symbol));
+                replacements.add(new Replacement(identifier.getText(), identifier, symbol));
             }
 
         }
@@ -563,12 +574,12 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
             switch (identifier) {
                 case "KType":
                     identifier = this.templateOptions.isKTypePrimitive()
-                    ? this.templateOptions.getKType().getType()
+                            ? this.templateOptions.getKType().getType()
                             : "KType";
                     break;
                 case "VType":
                     identifier = this.templateOptions.isVTypePrimitive()
-                    ? this.templateOptions.getVType().getType()
+                            ? this.templateOptions.getVType().getType()
                             : "VType";
                     break;
                 default:
@@ -580,7 +591,7 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
                     }
                     break;
             }
-            replacements.add(new Replacement(ctx, identifier));
+            replacements.add(new Replacement(ctx.getText(), ctx, identifier));
         } //end if isTemplateIdentifier
 
         logVisitor(VerboseLevel.full, "processIdentifier", "input replacements = " + Lists.newArrayList(replacements));
@@ -634,7 +645,32 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
 
         if (isVerboseEnabled(lvl)) {
 
-            System.out.println("SignatureReplacementVisitor." + methodName + "(): " + message);
+            System.out.println("SigReplaceVst." + methodName + ": " + message);
+        }
+    }
+
+    /**
+     * Open a modeless dialog that displays the tree ctx
+     * @param ctx
+     * @param title
+     */
+    private void displayParseTreeInGui(final ParserRuleContext ctx, final String title) {
+
+        //show AST in GUI
+        if (isVerboseEnabled(VerboseLevel.full)) {
+
+            final Future<JDialog> dialog = ctx.inspect(this.processor.parser);
+
+            try {
+                dialog.get().setTitle(String.format("Parse tree of %s (kind %s): %s",
+                        title,
+                        ctx.getClass().getSimpleName(),
+                        ctx.toString()));
+            }
+            catch (InterruptedException | ExecutionException e) {
+                //nothing
+                e.printStackTrace();
+            }
         }
     }
 }

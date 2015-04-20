@@ -80,7 +80,7 @@ public class SignatureProcessor
     /*
      * 
      */
-    <T extends Writer> T reconstruct(
+    public <T extends Writer> T reconstruct(
             final T sw,
             final BufferedTokenStream tokenStream,
             final int from, final int to,
@@ -88,6 +88,7 @@ public class SignatureProcessor
             final TemplateOptions templateOptions) throws IOException {
 
         final ArrayList<Replacement> sorted = new ArrayList<>(replacements);
+
         Collections.sort(sorted, new Comparator<Replacement>() {
             @Override
             public int compare(final Replacement a, final Replacement b) {

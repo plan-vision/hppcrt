@@ -7,20 +7,24 @@ import org.antlr.v4.runtime.tree.SyntaxTree;
 final class Replacement
 {
     public final Interval interval;
+    public final String source;
     public final String replacement;
 
-    public Replacement(final Interval interval, final String replacement) {
+    public Replacement(final String src, final Interval interval, final String replacement) {
+
+        //source is only useful for debug purposes
+        this.source = src;
 
         this.interval = interval;
         this.replacement = replacement;
     }
 
-    public Replacement(final SyntaxTree ctx, final String replacement) {
-        this(ctx.getSourceInterval(), replacement);
+    public Replacement(final String source, final SyntaxTree ctx, final String replacement) {
+        this(source, ctx.getSourceInterval(), replacement);
     }
 
     @Override
     public String toString() {
-        return this.interval + " => " + this.replacement;
+        return "'" + this.source + "'(" + this.interval + ") => '" + this.replacement + "'";
     }
 }

@@ -15,8 +15,15 @@ import org.junit.runner.RunWith;
 import com.carrotsearch.hppcrt.generator.TemplateOptions;
 import com.carrotsearch.hppcrt.generator.Type;
 import com.carrotsearch.randomizedtesting.RandomizedRunner;
+import com.carrotsearch.randomizedtesting.annotations.ThreadLeakAction;
+import com.carrotsearch.randomizedtesting.annotations.ThreadLeakFilters;
+import com.carrotsearch.randomizedtesting.annotations.ThreadLeakLingering;
+import com.carrotsearch.randomizedtesting.annotations.ThreadLeakZombies;
+import com.carrotsearch.randomizedtesting.annotations.ThreadLeakAction.Action;
 
 @RunWith(RandomizedRunner.class)
+//To be able to have Tree GUIs
+@ThreadLeakLingering(linger = Integer.MAX_VALUE)
 public class TestSignatureProcessor
 {
     @Test
@@ -68,7 +75,7 @@ public class TestSignatureProcessor
         final SignatureProcessor sp = new SignatureProcessor(
                 "public class KTypeVTypeClass<KType, VType> " +
                         " extends     KTypeVTypeSuperClass<KType, VType>" +
-                " implements  KTypeVTypeInterface<KType, VType> {}");
+                        " implements  KTypeVTypeInterface<KType, VType> {}");
 
         check(Type.INT, Type.LONG, sp, "public class IntLongClass extends IntLongSuperClass implements IntLongInterface {}");
         check(Type.INT, Type.GENERIC, sp, "public class IntObjectClass<VType> extends IntObjectSuperClass<VType> implements IntObjectInterface<VType> {}");
@@ -80,7 +87,7 @@ public class TestSignatureProcessor
     public void testInterfaceKV() throws IOException {
         final SignatureProcessor sp = new SignatureProcessor(
                 "public interface KTypeVTypeInterface<KType, VType> " +
-                "         extends KTypeVTypeSuper<KType, VType> {}");
+                        "         extends KTypeVTypeSuper<KType, VType> {}");
 
         check(Type.INT, Type.LONG, sp, "public interface IntLongInterface extends IntLongSuper {}");
         check(Type.INT, Type.GENERIC, sp, "public interface IntObjectInterface<VType> extends IntObjectSuper<VType> {}");
@@ -272,7 +279,6 @@ public class TestSignatureProcessor
         compareWithReferenceFile(new TemplateOptions(Type.LONG, null), testedPath, expectedPathLong);
     }
 
-
     @Test
     public void testIteratorPoolAlloc() throws IOException {
 
@@ -332,7 +338,6 @@ public class TestSignatureProcessor
 
         //whitespace is not significant, normalize it
         final String expectedNormalized = expected.trim().replaceAll("\\s+", " ");
-
 
         //Dump on sysout if not identical
         if (!outputNormalized.equals(expectedNormalized)) {
