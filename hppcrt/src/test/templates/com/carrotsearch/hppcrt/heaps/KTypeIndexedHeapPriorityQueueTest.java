@@ -113,7 +113,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
     @Before
     public void initialize()
     {
-        this.prioq = new KTypeIndexedHeapPriorityQueue<KType>(null);
+        this.prioq = new KTypeIndexedHeapPriorityQueue<KType>(0);
         this.prioqNaturalComparator = new KTypeIndexedHeapPriorityQueue<KType>(this.NATURAL_COMPARATOR);
         this.prioqInverseComparator = new KTypeIndexedHeapPriorityQueue<KType>(this.INVERSE_COMPARATOR);
     }
@@ -196,7 +196,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         this.prioq.put(1, this.key1);
         this.prioq.put(2, this.key1);
 
-        final KTypeIndexedHeapPriorityQueue<KType> prio2 = new KTypeIndexedHeapPriorityQueue<KType>(null);
+        final KTypeIndexedHeapPriorityQueue<KType> prio2 = new KTypeIndexedHeapPriorityQueue<KType>(0);
 
         prio2.put(2, this.key2);
         prio2.put(3, this.key4);
@@ -559,13 +559,13 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         insertElements(this.prioq, 0, 0, 1, 1, 2, 2, 11, 1, 44, 4);
 
         Assert.assertEquals(3, this.prioq.values().removeAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeIndexedHeapPriorityQueueTest.this.key1 || v == KTypeIndexedHeapPriorityQueueTest.this.key2;
             };
-                }));
+        }));
 
         assertPrioQueueEquals(this.prioq, 0, 0, 44, 4);
     }
@@ -599,7 +599,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size
             Assert.assertEquals(8, this.prioq.values().removeAll(new KTypePredicate<KType>()
-                    {
+            {
                 @Override
                 public boolean apply(final KType v)
                 {
@@ -608,7 +608,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
                     }
                     return v == KTypeIndexedHeapPriorityQueueTest.this.key1;
                 };
-                    }));
+            }));
             Assert.fail();
         }
         catch (final RuntimeException e)
@@ -702,13 +702,13 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         insertElements(this.prioq, 10, 0, 11, 1, 12, 2, 13, 1, 14, 0);
 
         Assert.assertEquals(2, this.prioq.values().retainAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeIndexedHeapPriorityQueueTest.this.key1 || v == KTypeIndexedHeapPriorityQueueTest.this.key2;
             };
-                }));
+        }));
 
         assertPrioQueueEquals(this.prioq, 11, 1, 13, 1, 12, 2);
     }
@@ -1198,7 +1198,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         }
 
         //create another
-        final KTypeIndexedHeapPriorityQueue<KType> prioq2 = new KTypeIndexedHeapPriorityQueue<KType>(null);
+        final KTypeIndexedHeapPriorityQueue<KType> prioq2 = new KTypeIndexedHeapPriorityQueue<KType>(0);
 
         for (final int index : reference.keySet())
         {
@@ -2458,7 +2458,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
                final int NB_ELEMENTS = 126;
             #end !*/
 
-        final KTypeIndexedHeapPriorityQueue<KType> newMap = new KTypeIndexedHeapPriorityQueue<KType>(null);
+        final KTypeIndexedHeapPriorityQueue<KType> newMap = new KTypeIndexedHeapPriorityQueue<KType>(0);
 
         //add a randomized number of key/values pairs
         //use the same value for keys and values to ease later analysis
@@ -2650,7 +2650,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
                final int NB_ELEMENTS = 126;
             #end !*/
 
-        final KTypeIndexedHeapPriorityQueue<KType> newMap = new KTypeIndexedHeapPriorityQueue<KType>(null);
+        final KTypeIndexedHeapPriorityQueue<KType> newMap = new KTypeIndexedHeapPriorityQueue<KType>(0);
 
         //add a randomized number of key/values pairs
         //use the same value for keys and values to ease later analysis
@@ -2752,7 +2752,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
                final int NB_ELEMENTS = 126;
             #end !*/
 
-        final KTypeIndexedHeapPriorityQueue<KType> newMap = new KTypeIndexedHeapPriorityQueue<KType>(null);
+        final KTypeIndexedHeapPriorityQueue<KType> newMap = new KTypeIndexedHeapPriorityQueue<KType>(0);
 
         //add a randomized number of key/values pairs
         //use the same value for keys and values to ease later analysis
@@ -2896,6 +2896,67 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
                 Assert.assertEquals(valueList.get(j), valueListTest.get(j));
             }
         } //end for each index
+    }
+
+    @Repeat(iterations = 10)
+    @Test
+    public void testNoOverallocation() {
+
+        final Random randomVK = RandomizedTest.getRandom();
+        //Test that the container do not resize if less that the initial size
+
+        //1) Choose a random number of elements
+        /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
+        final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
+        /*!
+            #elseif ($TemplateOptions.isKType("SHORT", "CHAR"))
+             int PREALLOCATED_SIZE = randomVK.nextInt(126);
+            #else
+              int PREALLOCATED_SIZE = randomVK.nextInt(10000);
+            #end !*/
+
+        //2) Preallocate to PREALLOCATED_SIZE :
+        final KTypeIndexedHeapPriorityQueue<KType> refContainer = new KTypeIndexedHeapPriorityQueue<KType>(PREALLOCATED_SIZE);
+
+        final int refCapacity = refContainer.capacity();
+
+        //3) Fill with random values, random number of elements below preallocation
+        final int nbElements = RandomizedTest.randomInt(PREALLOCATED_SIZE - 3);
+
+        for (int i = 0; i < nbElements; i++) {
+
+            refContainer.put(randomVK.nextInt(PREALLOCATED_SIZE - 10), cast(randomVK.nextInt()));
+        }
+
+        final int nbRefElements = refContainer.size();
+
+        Assert.assertEquals(refCapacity, refContainer.capacity());
+
+        //4) Duplicate by copy-construction and/or clone
+        KTypeIndexedHeapPriorityQueue<KType> clonedContainer = refContainer.clone();
+        KTypeIndexedHeapPriorityQueue<KType> copiedContainer = new KTypeIndexedHeapPriorityQueue<KType>(refContainer);
+
+        //Duplicated containers must be equal to their origin, with a capacity no bigger than the original.
+        Assert.assertEquals(nbRefElements, clonedContainer.size());
+        Assert.assertEquals(nbRefElements, copiedContainer.size());
+        Assert.assertTrue(refCapacity >= clonedContainer.capacity());
+        Assert.assertTrue(refCapacity >= copiedContainer.capacity());
+        Assert.assertTrue(clonedContainer.equals(refContainer));
+        Assert.assertTrue(copiedContainer.equals(refContainer));
+
+        //Maybe we were lucky, iterate duplication over itself several times
+        for (int j = 0; j < 5; j++) {
+
+            clonedContainer = clonedContainer.clone();
+            copiedContainer = new KTypeIndexedHeapPriorityQueue<KType>(copiedContainer);
+
+            Assert.assertEquals(nbRefElements, clonedContainer.size());
+            Assert.assertEquals(nbRefElements, copiedContainer.size());
+            Assert.assertTrue(refCapacity >= clonedContainer.capacity());
+            Assert.assertTrue(refCapacity >= copiedContainer.capacity());
+            Assert.assertTrue(clonedContainer.equals(refContainer));
+            Assert.assertTrue(copiedContainer.equals(refContainer));
+        }
     }
 
     /**

@@ -31,7 +31,7 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeLinkedList<KType>
-        extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, KTypeDeque<KType>, Cloneable
+extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, KTypeDeque<KType>, Cloneable
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -561,15 +561,21 @@ public class KTypeLinkedList<KType>
     {
         final int bufferLen = (this.buffer == null ? 0 : this.buffer.length);
 
+        //this.elementsCount is size() + 2
         if (this.elementsCount > bufferLen - expectedAdditions)
         {
-            final int newSize = this.resizer.grow(bufferLen, this.elementsCount, expectedAdditions);
+            int newSize = this.resizer.grow(bufferLen, this.elementsCount, expectedAdditions);
+
+            //first allocation, reserve 2 more slots
+            if (this.buffer == null) {
+                newSize += 2;
+            }
 
             try {
 
                 //the first 2 slots are head/tail placeholders
-                final KType[] newBuffer = Intrinsics.newKTypeArray(newSize + 2);
-                final long[] newPointers = new long[newSize + 2];
+                final KType[] newBuffer = Intrinsics.newKTypeArray(newSize);
+                final long[] newPointers = new long[newSize];
 
                 if (bufferLen > 0)
                 {
@@ -658,16 +664,16 @@ public class KTypeLinkedList<KType>
 
     /**
      * Clone this object. The returned clone will use the same resizing strategy.
-     * It also realizes a trim-to- this.size() in the process.
      */
     @Override
     public KTypeLinkedList<KType> clone()
     {
-        final KTypeLinkedList<KType> cloned = new KTypeLinkedList<KType>(this.capacity(), this.resizer);
+        //placeholder container
+        final KTypeLinkedList<KType> cloned = new KTypeLinkedList<KType>(Containers.DEFAULT_EXPECTED_ELEMENTS, this.resizer);
 
-        //copy contents directly: buffer is compact, but the first 2 elements are place holders
-        System.arraycopy(this.buffer, 0, cloned.buffer, 0, this.size() + 2);
-        System.arraycopy(this.beforeAfterPointers, 0, cloned.beforeAfterPointers, 0, this.size() + 2);
+        //clone raw buffers is ok
+        cloned.buffer = this.buffer.clone();
+        cloned.beforeAfterPointers = this.beforeAfterPointers.clone();
 
         cloned.elementsCount = this.elementsCount;
 
@@ -1813,7 +1819,7 @@ public class KTypeLinkedList<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> newInstance()
+    KTypeLinkedList<KType> newInstance()
     {
         return new KTypeLinkedList<KType>();
     }
@@ -1823,7 +1829,7 @@ public class KTypeLinkedList<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> newInstance(final int initialCapacity)
+    KTypeLinkedList<KType> newInstance(final int initialCapacity)
     {
         return new KTypeLinkedList<KType>(initialCapacity);
     }
@@ -1833,7 +1839,7 @@ public class KTypeLinkedList<KType>
      * The elements are copied from the argument to the internal buffer.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> from(final KType... elements)
+    KTypeLinkedList<KType> from(final KType... elements)
     {
         final KTypeLinkedList<KType> list = new KTypeLinkedList<KType>(elements.length);
         list.add(elements);
@@ -1844,7 +1850,7 @@ public class KTypeLinkedList<KType>
      * Create a list from elements of another container.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> from(final KTypeContainer<KType> container)
+    KTypeLinkedList<KType> from(final KTypeContainer<KType> container)
     {
         return new KTypeLinkedList<KType>(container);
     }

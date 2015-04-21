@@ -50,7 +50,7 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayList<KType>
-extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, Cloneable
+        extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, Cloneable
 {
     /**
      * Internal array for storing the list. The array may be larger than the current size
@@ -563,10 +563,11 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     @Override
     public KTypeArrayList<KType> clone()
     {
-        final KTypeArrayList<KType> cloned = new KTypeArrayList<KType>(this.capacity(), this.resizer);
+        //placeholder
+        final KTypeArrayList<KType> cloned = new KTypeArrayList<KType>(Containers.DEFAULT_EXPECTED_ELEMENTS, this.resizer);
 
-        //copy contents directly
-        System.arraycopy(this.buffer, 0, cloned.buffer, 0, this.size());
+        //clone raw buffers
+        cloned.buffer = this.buffer.clone();
 
         cloned.elementsCount = this.elementsCount;
         cloned.defaultValue = this.defaultValue;
@@ -833,7 +834,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeArrayList<KType> newInstance()
+            KTypeArrayList<KType> newInstance()
     {
         return new KTypeArrayList<KType>();
     }
@@ -843,17 +844,16 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeArrayList<KType> newInstance(final int initialCapacity)
+            KTypeArrayList<KType> newInstance(final int initialCapacity)
     {
         return new KTypeArrayList<KType>(initialCapacity);
     }
 
     /**
      * Create a list from a variable number of arguments or an array of <code>KType</code>.
-     * The elements are copied from the argument to the internal buffer.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeArrayList<KType> from(final KType... elements)
+            KTypeArrayList<KType> from(final KType... elements)
     {
         final KTypeArrayList<KType> list = new KTypeArrayList<KType>(elements.length);
         list.add(elements);
@@ -864,7 +864,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * Create a list from elements of another container.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeArrayList<KType> from(final KTypeContainer<KType> container)
+            KTypeArrayList<KType> from(final KTypeContainer<KType> container)
     {
         return new KTypeArrayList<KType>(container);
     }

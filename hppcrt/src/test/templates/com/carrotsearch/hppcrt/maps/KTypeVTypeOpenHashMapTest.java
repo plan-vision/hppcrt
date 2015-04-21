@@ -2336,6 +2336,67 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeVTypeT
         } //end for each index
     }
 
+    @Repeat(iterations = 10)
+    @Test
+    public void testNoOverallocation() {
+
+        final Random randomVK = RandomizedTest.getRandom();
+        //Test that the container do not resize if less that the initial size
+
+        //1) Choose a random number of elements
+        /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
+        final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
+        /*!
+            #elseif ($TemplateOptions.isKType("SHORT", "CHAR"))
+             int PREALLOCATED_SIZE = randomVK.nextInt(126);
+            #else
+              int PREALLOCATED_SIZE = randomVK.nextInt(10000);
+            #end !*/
+
+        //2) Preallocate to PREALLOCATED_SIZE :
+        final KTypeVTypeOpenHashMap<KType, VType> refContainer = new KTypeVTypeOpenHashMap<KType, VType>(PREALLOCATED_SIZE);
+
+        final int refCapacity = refContainer.capacity();
+
+        //3) Fill with random values, random number of elements below preallocation
+        final int nbElements = RandomizedTest.randomInt(PREALLOCATED_SIZE - 3);
+
+        for (int i = 0; i < nbElements; i++) {
+
+            refContainer.put(cast(i), vcast(randomVK.nextInt()));
+        }
+
+        final int nbRefElements = refContainer.size();
+
+        Assert.assertEquals(refCapacity, refContainer.capacity());
+
+        //4) Duplicate by copy-construction and/or clone
+        KTypeVTypeOpenHashMap<KType, VType> clonedContainer = refContainer.clone();
+        KTypeVTypeOpenHashMap<KType, VType> copiedContainer = KTypeVTypeOpenHashMap.from(refContainer);
+
+        //Duplicated containers must be equal to their origin, with a capacity no bigger than the original.
+        Assert.assertEquals(nbRefElements, clonedContainer.size());
+        Assert.assertEquals(nbRefElements, copiedContainer.size());
+        Assert.assertTrue(refCapacity >= clonedContainer.capacity());
+        Assert.assertTrue(refCapacity >= copiedContainer.capacity());
+        Assert.assertTrue(clonedContainer.equals(refContainer));
+        Assert.assertTrue(copiedContainer.equals(refContainer));
+
+        //Maybe we were lucky, iterate duplication over itself several times
+        for (int j = 0; j < 5; j++) {
+
+            clonedContainer = clonedContainer.clone();
+            copiedContainer = KTypeVTypeOpenHashMap.from(copiedContainer);
+
+            Assert.assertEquals(nbRefElements, clonedContainer.size());
+            Assert.assertEquals(nbRefElements, copiedContainer.size());
+            Assert.assertTrue(refCapacity >= clonedContainer.capacity());
+            Assert.assertTrue(refCapacity >= copiedContainer.capacity());
+            Assert.assertTrue(clonedContainer.equals(refContainer));
+            Assert.assertTrue(copiedContainer.equals(refContainer));
+        }
+    }
+
     private KTypeVTypeOpenHashMap<KType, VType> createMapWithOrderedData(final int size)
     {
         final KTypeVTypeOpenHashMap<KType, VType> newMap = KTypeVTypeOpenHashMap.newInstance(Containers.DEFAULT_EXPECTED_ELEMENTS,

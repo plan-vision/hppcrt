@@ -55,7 +55,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenCustomHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     protected VType defaultValue = Intrinsics.<VType> defaultVTypeValue();
 
@@ -1445,7 +1445,7 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
      * A view of the keys inside this hash map.
      */
     public final class KeysCollection
-            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenCustomHashMap<KType, VType> owner =
                 KTypeVTypeOpenCustomHashMap.this;
@@ -1989,8 +1989,9 @@ public class KTypeVTypeOpenCustomHashMap<KType, VType>
     @Override
     public KTypeVTypeOpenCustomHashMap<KType, VType> clone()
     {
+        //clone to size to prevent exponential growth
         final KTypeVTypeOpenCustomHashMap<KType, VType> cloned =
-                new KTypeVTypeOpenCustomHashMap<KType, VType>(capacity(), this.loadFactor, this.hashStrategy);
+                new KTypeVTypeOpenCustomHashMap<KType, VType>(this.size(), this.loadFactor, this.hashStrategy);
 
         //We must NOT clone because of independent perturbations seeds
         cloned.putAll(this);

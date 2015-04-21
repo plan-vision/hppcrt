@@ -52,7 +52,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     protected VType defaultValue = Intrinsics.<VType> defaultVTypeValue();
 
@@ -174,10 +174,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      */
     public KTypeVTypeOpenHashMap(final int initialCapacity, final double loadFactor)
     {
+        this.loadFactor = loadFactor;
         //take into account of the load factor to guarantee no reallocations before reaching  initialCapacity.
         allocateBuffers(HashContainers.minBufferSize(Math.max(Containers.DEFAULT_EXPECTED_ELEMENTS, initialCapacity), loadFactor));
-
-        this.loadFactor = loadFactor;
     }
 
     /**
@@ -1412,7 +1411,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * A view of the keys inside this map.
      */
     public final class KeysCollection
-            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+    extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenHashMap<KType, VType> owner =
                 KTypeVTypeOpenHashMap.this;
@@ -1954,7 +1953,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     @Override
     public KTypeVTypeOpenHashMap<KType, VType> clone()
     {
-        final KTypeVTypeOpenHashMap<KType, VType> cloned = new KTypeVTypeOpenHashMap<KType, VType>(this.capacity(), this.loadFactor);
+        //clone to size() to prevent some cases of exponential sizes,
+        final KTypeVTypeOpenHashMap<KType, VType> cloned = new KTypeVTypeOpenHashMap<KType, VType>(this.size(), this.loadFactor);
 
         //do not clone because of independent perturbation seeds
         cloned.putAll(this);
@@ -2011,7 +2011,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     }
 
     /**
-     * Create a hash map from another associative container.
+     * Create a hash map from another associative container. (constructor shortcut)
      */
     public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> from(final KTypeVTypeAssociativeContainer<KType, VType> container)
     {

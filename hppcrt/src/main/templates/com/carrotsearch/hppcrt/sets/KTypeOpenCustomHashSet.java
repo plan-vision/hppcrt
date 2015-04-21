@@ -959,7 +959,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     @Override
     public KTypeOpenCustomHashSet<KType> clone()
     {
-        final KTypeOpenCustomHashSet<KType> cloned = new KTypeOpenCustomHashSet<KType>(capacity(), this.loadFactor, this.hashStrategy);
+        //clone to size() to prevent eventual exponential growth
+        final KTypeOpenCustomHashSet<KType> cloned = new KTypeOpenCustomHashSet<KType>(this.size(), this.loadFactor, this.hashStrategy);
 
         //We must NOT clone because of the independent perturbation seeds
         cloned.addAll(this);

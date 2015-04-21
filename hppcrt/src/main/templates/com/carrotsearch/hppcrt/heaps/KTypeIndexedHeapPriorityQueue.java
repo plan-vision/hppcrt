@@ -168,6 +168,42 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     }
 
     /**
+     * Create a indexed heap from all key-value pairs of another container.
+     */
+    public KTypeIndexedHeapPriorityQueue(final IntKTypeAssociativeContainer<KType> container)
+    {
+        this(container.size());
+        putAll(container);
+    }
+
+    /**
+     * Create a indexed heap from all key-value pairs of another container.. (constructor shortcut)
+     */
+    public static <KType> KTypeIndexedHeapPriorityQueue<KType> from(final IntKTypeAssociativeContainer<KType> container)
+    {
+        return new KTypeIndexedHeapPriorityQueue<KType>(container);
+    }
+
+    /**
+     * Creates a Indexed heap from two index-aligned arrays of key-value pairs.
+     */
+    public static <KType> KTypeIndexedHeapPriorityQueue<KType> from(final int[] keys, final KType[] values)
+    {
+        if (keys.length != values.length)
+        {
+            throw new IllegalArgumentException("Arrays of keys and values must have an identical length.");
+        }
+
+        final KTypeIndexedHeapPriorityQueue<KType> heap = new KTypeIndexedHeapPriorityQueue<KType>(keys.length);
+
+        for (int i = 0; i < keys.length; i++)
+        {
+            heap.put(keys[i], values[i]);
+        }
+        return heap;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -954,18 +990,16 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     @Override
     public KTypeIndexedHeapPriorityQueue<KType> clone()
     {
-        //use capacity here
-        final KTypeIndexedHeapPriorityQueue<KType> cloned = new KTypeIndexedHeapPriorityQueue<KType>(this.comparator, this.capacity());
+        //placeholder container
+        final KTypeIndexedHeapPriorityQueue<KType> cloned = new KTypeIndexedHeapPriorityQueue<KType>(this.comparator, Containers.DEFAULT_EXPECTED_ELEMENTS);
 
-        //copy heap contents directly, 1-based index
-        System.arraycopy(this.buffer, 0, cloned.buffer, 0, this.size() + 1);
+        //clone raw buffers
+        cloned.buffer = this.buffer.clone();
+        cloned.pq = this.pq.clone();
+        cloned.qp = this.qp.clone();
 
         cloned.defaultValue = this.defaultValue;
         cloned.elementsCount = this.elementsCount;
-
-        //indexing arrays are sparse, so is entirely copied
-        System.arraycopy(this.pq, 0, cloned.pq, 0, this.pq.length);
-        System.arraycopy(this.qp, 0, cloned.qp, 0, this.qp.length);
 
         return cloned;
     }
@@ -1526,15 +1560,15 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
     /*! #else
-                                                                                                                                                                                                            public KTypeComparator<? super KType>
-                                                                                                                                                                                                            #end !*/
+                                                                                                                                                                                                                                            public KTypeComparator<? super KType>
+                                                                                                                                                                                                                                            #end !*/
     comparator() {
 
         return this.comparator;
     }
 
     /**
-     * Ensures the internal buffer has enough free slots to accomodate the index
+     * Ensures the internal buffer has enough free slots to accommodate the index
      * <code>index</code>. Increases internal buffer size if needed.
      */
     protected void ensureBufferSpace(final int index)

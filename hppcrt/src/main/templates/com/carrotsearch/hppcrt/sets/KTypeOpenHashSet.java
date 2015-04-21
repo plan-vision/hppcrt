@@ -49,8 +49,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Hash-indexed array holding all set entries.
@@ -918,7 +918,8 @@ public class KTypeOpenHashSet<KType>
     @Override
     public KTypeOpenHashSet<KType> clone()
     {
-        final KTypeOpenHashSet<KType> cloned = new KTypeOpenHashSet<KType>(this.capacity(), this.loadFactor);
+        //clone to size() to prevent eventual exponential growth
+        final KTypeOpenHashSet<KType> cloned = new KTypeOpenHashSet<KType>(this.size(), this.loadFactor);
 
         //We must NOT clone, because of the independent perturbation seeds
         cloned.addAll(this);

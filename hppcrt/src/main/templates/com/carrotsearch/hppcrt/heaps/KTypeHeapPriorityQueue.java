@@ -30,7 +30,7 @@ import com.carrotsearch.hppcrt.strategies.*;
 /*! #set( $DEBUG = false) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType>
-implements KTypePriorityQueue<KType>, Cloneable
+        implements KTypePriorityQueue<KType>, Cloneable
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -162,7 +162,7 @@ implements KTypePriorityQueue<KType>, Cloneable
      * @see BoundedProportionalArraySizingStrategy
      */
     public KTypeHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp
-            /*! #else
+    /*! #else
     KTypeComparator<? super KType> comp
     #end !*/)
     {
@@ -197,6 +197,40 @@ implements KTypePriorityQueue<KType>, Cloneable
             #end !*/final int initialCapacity)
     {
         this(comp, initialCapacity, new BoundedProportionalArraySizingStrategy());
+    }
+
+    /**
+     * Creates a new heap from elements of another container.
+     */
+    public KTypeHeapPriorityQueue(final KTypeContainer<? extends KType> container)
+    {
+        this(container.size());
+        addAll(container);
+    }
+
+    /**
+     * Create a heap from elements of another container (constructor shortcut)
+     */
+    public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
+            KTypeHeapPriorityQueue<KType> from(final KTypeContainer<KType> container)
+    {
+        return new KTypeHeapPriorityQueue<KType>(container);
+    }
+
+    /**
+     * Create a heap from a variable number of arguments or an array of <code>KType</code>.
+     */
+    public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
+            KTypeHeapPriorityQueue<KType> from(final KType... elements)
+    {
+        final KTypeHeapPriorityQueue<KType> heap = new KTypeHeapPriorityQueue<KType>(elements.length);
+
+        for (final KType elem : elements) {
+
+            heap.add(elem);
+        }
+
+        return heap;
     }
 
     /**
@@ -606,11 +640,11 @@ implements KTypePriorityQueue<KType>, Cloneable
     @Override
     public KTypeHeapPriorityQueue<KType> clone()
     {
-        //real constructor call
-        final KTypeHeapPriorityQueue<KType> cloned = new KTypeHeapPriorityQueue<KType>(this.comparator, this.capacity(), this.resizer);
+        //real constructor call, of a place holder
+        final KTypeHeapPriorityQueue<KType> cloned = new KTypeHeapPriorityQueue<KType>(this.comparator, Containers.DEFAULT_EXPECTED_ELEMENTS, this.resizer);
 
-        //copy contents directly, 1-based index
-        System.arraycopy(this.buffer, 0, cloned.buffer, 0, this.size() + 1);
+        //clone raw buffers
+        cloned.buffer = this.buffer.clone();
 
         cloned.defaultValue = this.defaultValue;
         cloned.elementsCount = this.elementsCount;
@@ -704,7 +738,12 @@ implements KTypePriorityQueue<KType>, Cloneable
         //element of index 0 is not used
         if (this.elementsCount + 1 > bufferLen - expectedAdditions)
         {
-            final int newSize = this.resizer.grow(bufferLen, this.elementsCount, expectedAdditions);
+            int newSize = this.resizer.grow(bufferLen, this.elementsCount, expectedAdditions);
+
+            //first allocation, reserve an additional slot because index 0  is not used
+            if (this.buffer == null) {
+                newSize++;
+            }
 
             try {
                 final KType[] newBuffer = Intrinsics.newKTypeArray(newSize);
@@ -747,10 +786,10 @@ implements KTypePriorityQueue<KType>, Cloneable
      */
 /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
-    /*! #else
-                                                                                                                                                            public KTypeComparator<? super KType>
-                                                                                                                                                            #end !*/
-    comparator() {
+            /*! #else
+                                                                                                                                                                                                    public KTypeComparator<? super KType>
+                                                                                                                                                                                                    #end !*/
+            comparator() {
 
         return this.comparator;
     }
@@ -847,11 +886,11 @@ implements KTypePriorityQueue<KType>, Cloneable
             //swap k and its parent
             parent = k >> 1;
 
-        tmp = buffer[k];
-        buffer[k] = buffer[parent];
-        buffer[parent] = tmp;
+            tmp = buffer[k];
+            buffer[k] = buffer[parent];
+            buffer[parent] = tmp;
 
-        k = parent;
+            k = parent;
         }
     }
 
@@ -875,11 +914,11 @@ implements KTypePriorityQueue<KType>, Cloneable
         {
             //swap k and its parent
             parent = k >> 1;
-        tmp = buffer[k];
-        buffer[k] = buffer[parent];
-        buffer[parent] = tmp;
+            tmp = buffer[k];
+            buffer[k] = buffer[parent];
+            buffer[parent] = tmp;
 
-        k = parent;
+            k = parent;
         }
     }
 
