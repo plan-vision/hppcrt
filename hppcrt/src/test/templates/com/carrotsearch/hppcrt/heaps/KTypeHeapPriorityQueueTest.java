@@ -281,13 +281,13 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         insertElements(this.prioq, 0, 1, 2, 1, 4);
 
         Assert.assertEquals(3, this.prioq.removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeHeapPriorityQueueTest.this.key1 || v == KTypeHeapPriorityQueueTest.this.key2;
             };
-        }));
+                }));
 
         assertPrioQueueEquals(this.prioq, 0, 4);
     }
@@ -299,13 +299,13 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         insertElements(this.prioq, 0, 1, 2, 1, 0);
 
         Assert.assertEquals(2, this.prioq.retainAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeHeapPriorityQueueTest.this.key1 || v == KTypeHeapPriorityQueueTest.this.key2;
             };
-        }));
+                }));
 
         assertPrioQueueEquals(this.prioq, 1, 1, 2);
     }
@@ -322,7 +322,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size
             Assert.assertEquals(5, this.prioq.removeAll(new KTypePredicate<KType>()
-            {
+                    {
                 @Override
                 public boolean apply(final KType v)
                 {
@@ -331,7 +331,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
                     }
                     return v == KTypeHeapPriorityQueueTest.this.key1;
                 };
-            }));
+                    }));
 
             Assert.fail();
         }
@@ -1901,7 +1901,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         final int refCapacity = refContainer.capacity();
 
         //3) Fill with random values, random number of elements below preallocation
-        final int nbElements = RandomizedTest.randomInt(PREALLOCATED_SIZE - 3);
+        final int nbElements = RandomizedTest.randomInt(PREALLOCATED_SIZE);
 
         for (int i = 0; i < nbElements; i++) {
 
@@ -1916,24 +1916,26 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         KTypeHeapPriorityQueue<KType> clonedContainer = refContainer.clone();
         KTypeHeapPriorityQueue<KType> copiedContainer = new KTypeHeapPriorityQueue<KType>(refContainer);
 
-        //Duplicated containers must be equal to their origin, with a capacity no bigger than the original.
+        final int copiedCapacity = copiedContainer.capacity();
+
         Assert.assertEquals(nbRefElements, clonedContainer.size());
         Assert.assertEquals(nbRefElements, copiedContainer.size());
-        Assert.assertTrue(refCapacity >= clonedContainer.capacity());
-        Assert.assertTrue(refCapacity >= copiedContainer.capacity());
+        Assert.assertEquals(refCapacity, clonedContainer.capacity()); //clone is supposed to be cloned, so exact match !
+        Assert.assertTrue(refCapacity >= copiedCapacity);
         Assert.assertTrue(clonedContainer.equals(refContainer));
         Assert.assertTrue(copiedContainer.equals(refContainer));
 
         //Maybe we were lucky, iterate duplication over itself several times
-        for (int j = 0; j < 5; j++) {
+        for (int j = 0; j < 10; j++) {
 
             clonedContainer = clonedContainer.clone();
             copiedContainer = new KTypeHeapPriorityQueue<KType>(copiedContainer);
 
+            //when copied over itself, of course every characteristic must be constant, else something is wrong.
             Assert.assertEquals(nbRefElements, clonedContainer.size());
             Assert.assertEquals(nbRefElements, copiedContainer.size());
-            Assert.assertTrue(refCapacity >= clonedContainer.capacity());
-            Assert.assertTrue(refCapacity >= copiedContainer.capacity());
+            Assert.assertEquals(refCapacity, clonedContainer.capacity());
+            Assert.assertEquals(copiedCapacity, copiedContainer.capacity());
             Assert.assertTrue(clonedContainer.equals(refContainer));
             Assert.assertTrue(copiedContainer.equals(refContainer));
         }

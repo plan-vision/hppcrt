@@ -1201,7 +1201,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         final int refCapacity = refContainer.capacity();
 
         //3) Fill with random values, random number of elements below preallocation
-        final int nbElements = RandomizedTest.randomInt(PREALLOCATED_SIZE - 3);
+        final int nbElements = RandomizedTest.randomInt(PREALLOCATED_SIZE);
 
         for (int i = 0; i < nbElements; i++) {
 
@@ -1217,23 +1217,27 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         KTypeArrayList<KType> copiedContainer = new KTypeArrayList<KType>(refContainer);
 
         //Duplicated containers must be equal to their origin, with a capacity no bigger than the original.
+
+        final int copiedCapacity = copiedContainer.capacity();
+
         Assert.assertEquals(nbRefElements, clonedContainer.size());
         Assert.assertEquals(nbRefElements, copiedContainer.size());
-        Assert.assertTrue(refCapacity >= clonedContainer.capacity());
-        Assert.assertTrue(refCapacity >= copiedContainer.capacity());
+        Assert.assertEquals(refCapacity, clonedContainer.capacity()); //clone is supposed to be cloned, so exact match !
+        Assert.assertTrue(refCapacity >= copiedCapacity);
         Assert.assertTrue(clonedContainer.equals(refContainer));
         Assert.assertTrue(copiedContainer.equals(refContainer));
 
         //Maybe we were lucky, iterate duplication over itself several times
-        for (int j = 0; j < 5; j++) {
+        for (int j = 0; j < 10; j++) {
 
             clonedContainer = clonedContainer.clone();
             copiedContainer = new KTypeArrayList<KType>(copiedContainer);
 
+            //when copied over itself, of course every characteristic must be constant, else something is wrong.
             Assert.assertEquals(nbRefElements, clonedContainer.size());
             Assert.assertEquals(nbRefElements, copiedContainer.size());
-            Assert.assertTrue(refCapacity >= clonedContainer.capacity());
-            Assert.assertTrue(refCapacity >= copiedContainer.capacity());
+            Assert.assertEquals(refCapacity, clonedContainer.capacity());
+            Assert.assertEquals(copiedCapacity, copiedContainer.capacity());
             Assert.assertTrue(clonedContainer.equals(refContainer));
             Assert.assertTrue(copiedContainer.equals(refContainer));
         }

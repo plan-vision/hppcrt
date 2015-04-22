@@ -20,7 +20,6 @@ public class HashContainersTest extends RandomizedTest
         Assert.assertEquals(0x40, HashContainers.minBufferSize(0x10, 0.49f));
 
         final int maxCapacity = HashContainers.maxElements(HashContainers.MAX_LOAD_FACTOR);
-        Assert.assertEquals(0x40000000, HashContainers.minBufferSize(maxCapacity, HashContainers.MAX_LOAD_FACTOR));
 
         try {
             // This should be impossible because it'd create a negative-sized array.

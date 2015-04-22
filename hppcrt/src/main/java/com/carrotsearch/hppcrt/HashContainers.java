@@ -24,12 +24,12 @@ public final class HashContainers
     /**
      * Minimal sane load factor (90 empty slots per 100).
      */
-    public final static float MIN_LOAD_FACTOR = 10 / 100.0f;
+    public final static double MIN_LOAD_FACTOR = 10.0 / 100.0;
 
     /**
      * Maximum sane load factor (10 empty slot per 100).
      */
-    public final static float MAX_LOAD_FACTOR = 90 / 100.0f;
+    public final static double MAX_LOAD_FACTOR = 90.0 / 100.0;
 
     /**
      * Computer static perturbations table.
