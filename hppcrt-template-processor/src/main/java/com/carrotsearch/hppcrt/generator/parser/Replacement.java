@@ -1,5 +1,6 @@
 package com.carrotsearch.hppcrt.generator.parser;
 
+import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.SyntaxTree;
 

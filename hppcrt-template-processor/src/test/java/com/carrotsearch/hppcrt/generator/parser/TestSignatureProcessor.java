@@ -75,7 +75,7 @@ public class TestSignatureProcessor
         final SignatureProcessor sp = new SignatureProcessor(
                 "public class KTypeVTypeClass<KType, VType> " +
                         " extends     KTypeVTypeSuperClass<KType, VType>" +
-                        " implements  KTypeVTypeInterface<KType, VType> {}");
+                " implements  KTypeVTypeInterface<KType, VType> {}");
 
         check(Type.INT, Type.LONG, sp, "public class IntLongClass extends IntLongSuperClass implements IntLongInterface {}");
         check(Type.INT, Type.GENERIC, sp, "public class IntObjectClass<VType> extends IntObjectSuperClass<VType> implements IntObjectInterface<VType> {}");
@@ -87,7 +87,7 @@ public class TestSignatureProcessor
     public void testInterfaceKV() throws IOException {
         final SignatureProcessor sp = new SignatureProcessor(
                 "public interface KTypeVTypeInterface<KType, VType> " +
-                        "         extends KTypeVTypeSuper<KType, VType> {}");
+                "         extends KTypeVTypeSuper<KType, VType> {}");
 
         check(Type.INT, Type.LONG, sp, "public interface IntLongInterface extends IntLongSuper {}");
         check(Type.INT, Type.GENERIC, sp, "public interface IntObjectInterface<VType> extends IntObjectSuper<VType> {}");
@@ -243,8 +243,8 @@ public class TestSignatureProcessor
     @Test
     public void testFullClass() throws IOException {
 
-        final String testedPath = "src/test/java/com/carrotsearch/hppcrt/generator/parser/KTypeVTypeClass.java";
-        final String expectedLongObjectTest = "src/test/java/com/carrotsearch/hppcrt/generator/parser/LongObjectClass.ok";
+        final String testedPath = "src/test/java/com/carrotsearch/hppcrt/generator/parser/test_cases/KTypeVTypeClass.java";
+        final String expectedLongObjectTest = "src/test/java/com/carrotsearch/hppcrt/generator/parser/test_cases/LongObjectClass.ok";
 
         compareWithReferenceFile(new TemplateOptions(Type.LONG, Type.GENERIC), testedPath, expectedLongObjectTest);
     }
@@ -252,10 +252,10 @@ public class TestSignatureProcessor
     @Test
     public void testFullClassArrays() throws IOException {
 
-        final String testedPath = "src/test/java/com/carrotsearch/hppcrt/generator/parser/KTypeArraysClass.test";
+        final String testedPath = "src/test/java/com/carrotsearch/hppcrt/generator/parser/test_cases/KTypeArraysClass.test";
 
-        final String expectedPathLong = "src/test/java/com/carrotsearch/hppcrt/generator/parser/LongArraysClass.ok";
-        final String expectedPathObject = "src/test/java/com/carrotsearch/hppcrt/generator/parser/ObjectArraysClass.ok";
+        final String expectedPathLong = "src/test/java/com/carrotsearch/hppcrt/generator/parser/test_cases/LongArraysClass.ok";
+        final String expectedPathObject = "src/test/java/com/carrotsearch/hppcrt/generator/parser/test_cases/ObjectArraysClass.ok";
 
         System.out.println(">>>> Converted to Object: \n\n");
         compareWithReferenceFile(new TemplateOptions(Type.GENERIC, null), testedPath, expectedPathObject);
@@ -267,10 +267,10 @@ public class TestSignatureProcessor
     @Test
     public void testFullClassPartialTemplateSpecialization() throws IOException {
 
-        final String testedPath = "src/test/java/com/carrotsearch/hppcrt/generator/parser/KTypePartialSpecializationClass.test";
+        final String testedPath = "src/test/java/com/carrotsearch/hppcrt/generator/parser/test_cases/KTypePartialSpecializationClass.test";
 
-        final String expectedPathLong = "src/test/java/com/carrotsearch/hppcrt/generator/parser/LongPartialSpecializationClass.ok";
-        final String expectedPathObject = "src/test/java/com/carrotsearch/hppcrt/generator/parser/ObjectPartialSpecializationClass.ok";
+        final String expectedPathLong = "src/test/java/com/carrotsearch/hppcrt/generator/parser/test_cases/LongPartialSpecializationClass.ok";
+        final String expectedPathObject = "src/test/java/com/carrotsearch/hppcrt/generator/parser/test_cases/ObjectPartialSpecializationClass.ok";
 
         System.out.println(">>>> Converted to Object: \n\n");
         compareWithReferenceFile(new TemplateOptions(Type.GENERIC, null), testedPath, expectedPathObject);
@@ -282,10 +282,10 @@ public class TestSignatureProcessor
     @Test
     public void testIteratorPoolAlloc() throws IOException {
 
-        final String testedPath = "src/test/java/com/carrotsearch/hppcrt/generator/parser/IteratorPoolAlloc.test";
+        final String testedPath = "src/test/java/com/carrotsearch/hppcrt/generator/parser/test_cases/IteratorPoolAlloc.test";
 
-        final String expectedPathLong = "src/test/java/com/carrotsearch/hppcrt/generator/parser/IteratorPoolAllocLong.ok";
-        final String expectedPathObject = "src/test/java/com/carrotsearch/hppcrt/generator/parser/IteratorPoolAllocGeneric.ok";
+        final String expectedPathLong = "src/test/java/com/carrotsearch/hppcrt/generator/parser/test_cases/IteratorPoolAllocLong.ok";
+        final String expectedPathObject = "src/test/java/com/carrotsearch/hppcrt/generator/parser/test_cases/IteratorPoolAllocGeneric.ok";
 
         System.out.println(">>>> Converted to Object: \n\n");
         compareWithReferenceFile(new TemplateOptions(Type.GENERIC, null), testedPath, expectedPathObject);

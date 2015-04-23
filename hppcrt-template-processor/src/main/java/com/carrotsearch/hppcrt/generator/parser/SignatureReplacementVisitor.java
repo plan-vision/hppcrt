@@ -46,6 +46,7 @@ import com.google.common.collect.Lists;
 class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacement>>
 {
     private final static List<Replacement> NONE = Collections.emptyList();
+
     private final TemplateOptions templateOptions;
     private final SignatureProcessor processor;
 
@@ -155,9 +156,6 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
         logVisitor(VerboseLevel.full, "visitClassDeclaration", "calling parent, result = " + Lists.newArrayList(result).toString());
 
         String className = ctx.Identifier().getText();
-
-        //In full verbose, display the parsed tree in GUI with for the class Name
-        displayParseTreeInGui(ctx, className);
 
         logVisitor(VerboseLevel.medium, "visitClassDeclaration", "className = " + className);
 
@@ -574,12 +572,12 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
             switch (identifier) {
                 case "KType":
                     identifier = this.templateOptions.isKTypePrimitive()
-                            ? this.templateOptions.getKType().getType()
+                    ? this.templateOptions.getKType().getType()
                             : "KType";
                     break;
                 case "VType":
                     identifier = this.templateOptions.isVTypePrimitive()
-                            ? this.templateOptions.getVType().getType()
+                    ? this.templateOptions.getVType().getType()
                             : "VType";
                     break;
                 default:
@@ -645,32 +643,8 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
 
         if (isVerboseEnabled(lvl)) {
 
-            System.out.println("SigReplaceVst." + methodName + ": " + message);
+            System.out.println("SigReplVst." + methodName + ": " + message);
         }
     }
 
-    /**
-     * Open a modeless dialog that displays the tree ctx
-     * @param ctx
-     * @param title
-     */
-    private void displayParseTreeInGui(final ParserRuleContext ctx, final String title) {
-
-        //show AST in GUI
-        if (isVerboseEnabled(VerboseLevel.full)) {
-
-            final Future<JDialog> dialog = ctx.inspect(this.processor.parser);
-
-            try {
-                dialog.get().setTitle(String.format("Parse tree of %s (kind %s): %s",
-                        title,
-                        ctx.getClass().getSimpleName(),
-                        ctx.toString()));
-            }
-            catch (InterruptedException | ExecutionException e) {
-                //nothing
-                e.printStackTrace();
-            }
-        }
-    }
 }
