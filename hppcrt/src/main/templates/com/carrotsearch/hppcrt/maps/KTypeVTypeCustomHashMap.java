@@ -18,7 +18,7 @@ import com.carrotsearch.hppcrt.hash.*;
  * A hash map of <code>KType</code> to <code>VType</code>, implemented using open
  * addressing with linear probing for collision resolution.
  * <p>
- * The difference with {@link KTypeVTypeOpenHashMap} is that it uses a
+ * The difference with {@link KTypeVTypeHashMap} is that it uses a
  * {@link KTypeHashingStrategy} to compare objects externally instead of using
  * the built-in hashCode() /  equals(). In particular, the management of <code>null</code>
  * keys is up to the {@link KTypeHashingStrategy} implementation.
@@ -54,7 +54,7 @@ import com.carrotsearch.hppcrt.hash.*;
  *
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
-public class KTypeVTypeOpenCustomHashMap<KType, VType>
+public class KTypeVTypeCustomHashMap<KType, VType>
 implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     protected VType defaultValue = Intrinsics.<VType> defaultVTypeValue();
@@ -153,7 +153,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      * 
      * <p>See class notes about hash distribution importance.</p>
      */
-    public KTypeVTypeOpenCustomHashMap(final KTypeHashingStrategy<? super KType> hashStrategy)
+    public KTypeVTypeCustomHashMap(final KTypeHashingStrategy<? super KType> hashStrategy)
     {
         this(Containers.DEFAULT_EXPECTED_ELEMENTS, hashStrategy);
     }
@@ -165,7 +165,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      * @param initialCapacity Initial capacity (greater than zero and automatically
      *            rounded to the next power of two).
      */
-    public KTypeVTypeOpenCustomHashMap(final int initialCapacity, final KTypeHashingStrategy<? super KType> hashStrategy)
+    public KTypeVTypeCustomHashMap(final int initialCapacity, final KTypeHashingStrategy<? super KType> hashStrategy)
     {
         this(initialCapacity, HashContainers.DEFAULT_LOAD_FACTOR, hashStrategy);
     }
@@ -178,7 +178,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      * 
      * 
      */
-    public KTypeVTypeOpenCustomHashMap(final int initialCapacity, final double loadFactor, final KTypeHashingStrategy<? super KType> hashStrategy)
+    public KTypeVTypeCustomHashMap(final int initialCapacity, final double loadFactor, final KTypeHashingStrategy<? super KType> hashStrategy)
     {
         //only accept not-null strategies.
         if (hashStrategy != null)
@@ -198,7 +198,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     /**
      * Creates a hash map from all key-value pairs of another container.
      */
-    public KTypeVTypeOpenCustomHashMap(final KTypeVTypeAssociativeContainer<KType, VType> container, final KTypeHashingStrategy<? super KType> hashStrategy)
+    public KTypeVTypeCustomHashMap(final KTypeVTypeAssociativeContainer<KType, VType> container, final KTypeHashingStrategy<? super KType> hashStrategy)
     {
         this(container.size(), hashStrategy);
         putAll(container);
@@ -1246,13 +1246,13 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                 return false;
             }
 
-            if (!this.hashStrategy.equals(((KTypeVTypeOpenCustomHashMap<KType, VType>) obj).hashStrategy))
+            if (!this.hashStrategy.equals(((KTypeVTypeCustomHashMap<KType, VType>) obj).hashStrategy))
             {
                 return false;
             }
 
             @SuppressWarnings("unchecked")
-            final KTypeVTypeOpenCustomHashMap<KType, VType> other = (KTypeVTypeOpenCustomHashMap<KType, VType>) obj;
+            final KTypeVTypeCustomHashMap<KType, VType> other = (KTypeVTypeCustomHashMap<KType, VType>) obj;
 
             if (other.size() == this.size())
             {
@@ -1300,25 +1300,25 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         @Override
         protected KTypeVTypeCursor<KType, VType> fetch()
         {
-            if (this.cursor.index == KTypeVTypeOpenCustomHashMap.this.keys.length + 1) {
+            if (this.cursor.index == KTypeVTypeCustomHashMap.this.keys.length + 1) {
 
-                if (KTypeVTypeOpenCustomHashMap.this.allocatedDefaultKey) {
+                if (KTypeVTypeCustomHashMap.this.allocatedDefaultKey) {
 
-                    this.cursor.index = KTypeVTypeOpenCustomHashMap.this.keys.length;
+                    this.cursor.index = KTypeVTypeCustomHashMap.this.keys.length;
                     this.cursor.key = Intrinsics.defaultKTypeValue();
-                    this.cursor.value = KTypeVTypeOpenCustomHashMap.this.allocatedDefaultKeyValue;
+                    this.cursor.value = KTypeVTypeCustomHashMap.this.allocatedDefaultKeyValue;
 
                     return this.cursor;
 
                 }
                 //no value associated with the default key, continue iteration...
-                this.cursor.index = KTypeVTypeOpenCustomHashMap.this.keys.length;
+                this.cursor.index = KTypeVTypeCustomHashMap.this.keys.length;
             }
 
             int i = this.cursor.index - 1;
 
             while (i >= 0 &&
-                    !is_allocated(i, KTypeVTypeOpenCustomHashMap.this.keys))
+                    !is_allocated(i, KTypeVTypeCustomHashMap.this.keys))
             {
                 i--;
             }
@@ -1329,8 +1329,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             }
 
             this.cursor.index = i;
-            this.cursor.key = KTypeVTypeOpenCustomHashMap.this.keys[i];
-            this.cursor.value = KTypeVTypeOpenCustomHashMap.this.values[i];
+            this.cursor.key = KTypeVTypeCustomHashMap.this.keys[i];
+            this.cursor.value = KTypeVTypeCustomHashMap.this.values[i];
 
             return this.cursor;
         }
@@ -1351,7 +1351,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                 @Override
                 public void initialize(final EntryIterator obj)
                 {
-                    obj.cursor.index = KTypeVTypeOpenCustomHashMap.this.keys.length + 1;
+                    obj.cursor.index = KTypeVTypeCustomHashMap.this.keys.length + 1;
                 }
 
                 @Override
@@ -1447,8 +1447,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     public final class KeysCollection
     extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
-        private final KTypeVTypeOpenCustomHashMap<KType, VType> owner =
-                KTypeVTypeOpenCustomHashMap.this;
+        private final KTypeVTypeCustomHashMap<KType, VType> owner =
+                KTypeVTypeCustomHashMap.this;
 
         @Override
         public boolean contains(final KType e)
@@ -1577,7 +1577,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                     @Override
                     public void initialize(final KeysIterator obj)
                     {
-                        obj.cursor.index = KTypeVTypeOpenCustomHashMap.this.keys.length + 1;
+                        obj.cursor.index = KTypeVTypeCustomHashMap.this.keys.length + 1;
                     }
 
                     @Override
@@ -1631,23 +1631,23 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         @Override
         protected KTypeCursor<KType> fetch()
         {
-            if (this.cursor.index == KTypeVTypeOpenCustomHashMap.this.keys.length + 1) {
+            if (this.cursor.index == KTypeVTypeCustomHashMap.this.keys.length + 1) {
 
-                if (KTypeVTypeOpenCustomHashMap.this.allocatedDefaultKey) {
+                if (KTypeVTypeCustomHashMap.this.allocatedDefaultKey) {
 
-                    this.cursor.index = KTypeVTypeOpenCustomHashMap.this.keys.length;
+                    this.cursor.index = KTypeVTypeCustomHashMap.this.keys.length;
                     this.cursor.value = Intrinsics.defaultKTypeValue();
 
                     return this.cursor;
 
                 }
                 //no value associated with the default key, continue iteration...
-                this.cursor.index = KTypeVTypeOpenCustomHashMap.this.keys.length;
+                this.cursor.index = KTypeVTypeCustomHashMap.this.keys.length;
             }
 
             int i = this.cursor.index - 1;
 
-            while (i >= 0 && !is_allocated(i, KTypeVTypeOpenCustomHashMap.this.keys))
+            while (i >= 0 && !is_allocated(i, KTypeVTypeCustomHashMap.this.keys))
             {
                 i--;
             }
@@ -1658,7 +1658,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             }
 
             this.cursor.index = i;
-            this.cursor.value = KTypeVTypeOpenCustomHashMap.this.keys[i];
+            this.cursor.value = KTypeVTypeCustomHashMap.this.keys[i];
 
             return this.cursor;
         }
@@ -1679,8 +1679,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      */
     public final class ValuesCollection extends AbstractKTypeCollection<VType>
     {
-        private final KTypeVTypeOpenCustomHashMap<KType, VType> owner =
-                KTypeVTypeOpenCustomHashMap.this;
+        private final KTypeVTypeCustomHashMap<KType, VType> owner =
+                KTypeVTypeCustomHashMap.this;
 
         /**
          * {@inheritDoc}
@@ -1889,7 +1889,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                     @Override
                     public void initialize(final ValuesIterator obj)
                     {
-                        obj.cursor.index = KTypeVTypeOpenCustomHashMap.this.keys.length + 1;
+                        obj.cursor.index = KTypeVTypeCustomHashMap.this.keys.length + 1;
                     }
 
                     @Override
@@ -1946,24 +1946,24 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         protected KTypeCursor<VType> fetch()
         {
 
-            if (this.cursor.index == KTypeVTypeOpenCustomHashMap.this.values.length + 1) {
+            if (this.cursor.index == KTypeVTypeCustomHashMap.this.values.length + 1) {
 
-                if (KTypeVTypeOpenCustomHashMap.this.allocatedDefaultKey) {
+                if (KTypeVTypeCustomHashMap.this.allocatedDefaultKey) {
 
-                    this.cursor.index = KTypeVTypeOpenCustomHashMap.this.values.length;
-                    this.cursor.value = KTypeVTypeOpenCustomHashMap.this.allocatedDefaultKeyValue;
+                    this.cursor.index = KTypeVTypeCustomHashMap.this.values.length;
+                    this.cursor.value = KTypeVTypeCustomHashMap.this.allocatedDefaultKeyValue;
 
                     return this.cursor;
 
                 }
                 //no value associated with the default key, continue iteration...
-                this.cursor.index = KTypeVTypeOpenCustomHashMap.this.keys.length;
+                this.cursor.index = KTypeVTypeCustomHashMap.this.keys.length;
             }
 
             int i = this.cursor.index - 1;
 
             while (i >= 0 &&
-                    !is_allocated(i, KTypeVTypeOpenCustomHashMap.this.keys))
+                    !is_allocated(i, KTypeVTypeCustomHashMap.this.keys))
             {
                 i--;
             }
@@ -1974,7 +1974,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             }
 
             this.cursor.index = i;
-            this.cursor.value = KTypeVTypeOpenCustomHashMap.this.values[i];
+            this.cursor.value = KTypeVTypeCustomHashMap.this.values[i];
 
             return this.cursor;
         }
@@ -1987,11 +1987,11 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      * #end
      */
     @Override
-    public KTypeVTypeOpenCustomHashMap<KType, VType> clone()
+    public KTypeVTypeCustomHashMap<KType, VType> clone()
     {
         //clone to size to prevent exponential growth
-        final KTypeVTypeOpenCustomHashMap<KType, VType> cloned =
-                new KTypeVTypeOpenCustomHashMap<KType, VType>(this.size(), this.loadFactor, this.hashStrategy);
+        final KTypeVTypeCustomHashMap<KType, VType> cloned =
+                new KTypeVTypeCustomHashMap<KType, VType>(this.size(), this.loadFactor, this.hashStrategy);
 
         //We must NOT clone because of independent perturbations seeds
         cloned.putAll(this);
@@ -2032,14 +2032,14 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     /**
      * Creates a hash map from two index-aligned arrays of key-value pairs.
      */
-    public static <KType, VType> KTypeVTypeOpenCustomHashMap<KType, VType> from(final KType[] keys, final VType[] values, final KTypeHashingStrategy<? super KType> hashStrategy)
+    public static <KType, VType> KTypeVTypeCustomHashMap<KType, VType> from(final KType[] keys, final VType[] values, final KTypeHashingStrategy<? super KType> hashStrategy)
     {
         if (keys.length != values.length)
         {
             throw new IllegalArgumentException("Arrays of keys and values must have an identical length.");
         }
 
-        final KTypeVTypeOpenCustomHashMap<KType, VType> map = new KTypeVTypeOpenCustomHashMap<KType, VType>(keys.length, hashStrategy);
+        final KTypeVTypeCustomHashMap<KType, VType> map = new KTypeVTypeCustomHashMap<KType, VType>(keys.length, hashStrategy);
 
         for (int i = 0; i < keys.length; i++)
         {
@@ -2051,27 +2051,27 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     /**
      * Create a hash map from another associative container.
      */
-    public static <KType, VType> KTypeVTypeOpenCustomHashMap<KType, VType> from(final KTypeVTypeAssociativeContainer<KType, VType> container, final KTypeHashingStrategy<? super KType> hashStrategy)
+    public static <KType, VType> KTypeVTypeCustomHashMap<KType, VType> from(final KTypeVTypeAssociativeContainer<KType, VType> container, final KTypeHashingStrategy<? super KType> hashStrategy)
     {
-        return new KTypeVTypeOpenCustomHashMap<KType, VType>(container, hashStrategy);
+        return new KTypeVTypeCustomHashMap<KType, VType>(container, hashStrategy);
     }
 
     /**
      * Create a new hash map without providing the full generic signature (constructor
      * shortcut).
      */
-    public static <KType, VType> KTypeVTypeOpenCustomHashMap<KType, VType> newInstance(final KTypeHashingStrategy<? super KType> hashStrategy)
+    public static <KType, VType> KTypeVTypeCustomHashMap<KType, VType> newInstance(final KTypeHashingStrategy<? super KType> hashStrategy)
     {
-        return new KTypeVTypeOpenCustomHashMap<KType, VType>(hashStrategy);
+        return new KTypeVTypeCustomHashMap<KType, VType>(hashStrategy);
     }
 
     /**
      * Create a new hash map with initial capacity and load factor control. (constructor
      * shortcut).
      */
-    public static <KType, VType> KTypeVTypeOpenCustomHashMap<KType, VType> newInstance(final int initialCapacity, final float loadFactor, final KTypeHashingStrategy<? super KType> hashStrategy)
+    public static <KType, VType> KTypeVTypeCustomHashMap<KType, VType> newInstance(final int initialCapacity, final float loadFactor, final KTypeHashingStrategy<? super KType> hashStrategy)
     {
-        return new KTypeVTypeOpenCustomHashMap<KType, VType>(initialCapacity, loadFactor, hashStrategy);
+        return new KTypeVTypeCustomHashMap<KType, VType>(initialCapacity, loadFactor, hashStrategy);
     }
 
     /**

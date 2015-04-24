@@ -1,28 +1,23 @@
 package com.carrotsearch.hppcrt.sets;
 
+import java.util.*;
+
 import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.cursors.*;
 import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
-import com.carrotsearch.hppcrt.strategies.*;
 import com.carrotsearch.hppcrt.hash.*;
 
 /*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
-/*! #set( $ROBIN_HOOD_FOR_ALL = true) !*/
+/*! #set( $ROBIN_HOOD_FOR_GENERICS = true) !*/
 /*! #set( $DEBUG = false) !*/
-//If RH is defined, RobinHood Hashing is in effect :
-/*! #set( $RH = $ROBIN_HOOD_FOR_ALL) !*/
+// If RH is defined, RobinHood Hashing is in effect
+/*! #set( $RH = ($TemplateOptions.KTypeGeneric && $ROBIN_HOOD_FOR_GENERICS) ) !*/
 
 /**
  * A hash set of <code>KType</code>s, implemented using using open
  * addressing with linear probing for collision resolution.
- * 
- * <p>
- * The difference with {@link KTypeOpenHashSet} is that it uses a
- * {@link KTypeHashingStrategy} to compare objects externally instead of using
- * the built-in hashCode() /  equals(). In particular, the management of <code>null</code>
- * keys is up to the {@link KTypeHashingStrategy} implementation.
  * 
  * <p>
  * The internal buffers of this implementation ({@link #keys}, etc...)
@@ -32,14 +27,12 @@ import com.carrotsearch.hppcrt.hash.*;
  * 
  * <p><b>Important note.</b> The implementation uses power-of-two tables and linear
  * probing, which may cause poor performance (many collisions) if hash values are
- * not properly distributed. Therefore, it is up to the {@link KTypeHashingStrategy} to
- * assure good performance.</p>
+ * not properly distributed.
  * 
- *
 #if ($TemplateOptions.KTypeGeneric)
- * <p>This implementation supports <code>null</code> keys. In addition, objects passed to the {@link KTypeHashingStrategy} are guaranteed to be not-<code>null</code>. </p>
+ * <p>This implementation supports <code>null</code> keys.</p>
 #end
- *
+ * 
  * @author This code is inspired by the original <a
  *         href="http://labs.carrotsearch.com/hppc.html">HPPC</a> and also by the <a
  *         href="http://fastutil.di.unimi.it/">fastutil</a> project.
@@ -55,9 +48,9 @@ import com.carrotsearch.hppcrt.hash.*;
  *
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
-public class KTypeOpenCustomHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+public class KTypeHashSet<KType>
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Hash-indexed array holding all set entries.
@@ -75,11 +68,13 @@ public class KTypeOpenCustomHashSet<KType>
      * Direct set iteration: iterate  {keys[i]} for i in [0; keys.length[ where keys[i] != 0/null, then also
      * {0/null} is in the set if {@link #allocatedDefaultKey} = true.
      * </p>
+     * 
      */
     public KType[] keys;
 
     /*! #if ($RH) !*/
     /**
+
      * #if ($RH)
      * Caches the hash value = hash(keys[i]) & mask, if keys[i] != 0/null,
      * for every index i.
@@ -119,45 +114,28 @@ public class KTypeOpenCustomHashSet<KType>
     private final int perturbation = HashContainers.computeUniqueIdentifier(this);
 
     /**
-     * Custom hashing strategy :
-     * comparisons and hash codes of keys will be computed
-     * with the strategy methods instead of the native Object equals() and hashCode() methods.
-     */
-    protected final KTypeHashingStrategy<? super KType> hashStrategy;
-
-    /**
      * Creates a hash set with the default capacity of {@value #DEFAULT_CAPACITY},
-     * load factor of {@value #DEFAULT_LOAD_FACTOR}, using the hashStrategy as {@link KTypeHashingStrategy}
+     * load factor of {@value #DEFAULT_LOAD_FACTOR}.
      */
-    public KTypeOpenCustomHashSet(final KTypeHashingStrategy<? super KType> hashStrategy)
+    public KTypeHashSet()
     {
-        this(Containers.DEFAULT_EXPECTED_ELEMENTS, HashContainers.DEFAULT_LOAD_FACTOR, hashStrategy);
+        this(Containers.DEFAULT_EXPECTED_ELEMENTS, HashContainers.DEFAULT_LOAD_FACTOR);
     }
 
     /**
      * Creates a hash set with the given capacity,
-     * load factor of {@value #DEFAULT_LOAD_FACTOR}, using the hashStrategy as {@link KTypeHashingStrategy}
+     * load factor of {@value #DEFAULT_LOAD_FACTOR}.
      */
-    public KTypeOpenCustomHashSet(final int initialCapacity, final KTypeHashingStrategy<? super KType> hashStrategy)
+    public KTypeHashSet(final int initialCapacity)
     {
-        this(initialCapacity, HashContainers.DEFAULT_LOAD_FACTOR, hashStrategy);
+        this(initialCapacity, HashContainers.DEFAULT_LOAD_FACTOR);
     }
 
     /**
-     * Creates a hash set with the given capacity and load factor, using the hashStrategy as {@link KTypeHashingStrategy}
+     * Creates a hash set with the given capacity and load factor.
      */
-    public KTypeOpenCustomHashSet(final int initialCapacity, final double loadFactor, final KTypeHashingStrategy<? super KType> hashStrategy)
+    public KTypeHashSet(final int initialCapacity, final double loadFactor)
     {
-        //only accept not-null strategies.
-        if (hashStrategy != null)
-        {
-            this.hashStrategy = hashStrategy;
-        }
-        else {
-
-            throw new IllegalArgumentException("KTypeOpenCustomHashSet() cannot have a null hashStrategy !");
-        }
-
         this.loadFactor = loadFactor;
         //take into account of the load factor to guarantee no reallocations before reaching  initialCapacity.
         allocateBuffers(HashContainers.minBufferSize(Math.max(Containers.DEFAULT_EXPECTED_ELEMENTS, initialCapacity), loadFactor));
@@ -166,9 +144,9 @@ public class KTypeOpenCustomHashSet<KType>
     /**
      * Creates a hash set from elements of another container. Default load factor is used.
      */
-    public KTypeOpenCustomHashSet(final KTypeContainer<KType> container, final KTypeHashingStrategy<? super KType> hashStrategy)
+    public KTypeHashSet(final KTypeContainer<KType> container)
     {
-        this(container.size(), hashStrategy);
+        this(container.size());
         addAll(container);
     }
 
@@ -192,8 +170,6 @@ public class KTypeOpenCustomHashSet<KType>
 
         final int mask = this.keys.length - 1;
 
-        final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
-
         final KType[] keys = this.keys;
 
         //copied straight from  fastutil "fast-path"
@@ -201,10 +177,10 @@ public class KTypeOpenCustomHashSet<KType>
         KType curr;
 
         //1.1 The rehashed key slot is occupied...
-        if (!Intrinsics.isEmptyKey(curr = keys[slot = REHASH(strategy, e) & mask])) {
+        if (!Intrinsics.isEmptyKey(curr = keys[slot = REHASH(e) & mask])) {
 
             //1.2 the occupied place is indeed key, return false
-            if (strategy.equals(curr, e)) {
+            if (Intrinsics.equalsKTypeNotNull(curr, e)) {
 
                 return false;
             }
@@ -236,7 +212,7 @@ public class KTypeOpenCustomHashSet<KType>
 
         while (is_allocated(slot, keys))
         {
-            if (strategy.equals(e, keys[slot]))
+            if (Intrinsics.equalsKTypeNotNull(e, keys[slot]))
             {
                 return false;
             }
@@ -258,8 +234,8 @@ public class KTypeOpenCustomHashSet<KType>
 
                 /*! #if($DEBUG) !*/
                 //Check invariants
-                assert cached[slot] == (REHASH(strategy, keys[slot]) & mask);
-                assert initial_slot == (REHASH(strategy, e) & mask);
+                assert cached[slot] == (REHASH(keys[slot]) & mask);
+                assert initial_slot == (REHASH(e) & mask);
                 /*! #end !*/
 
                 dist = existing_distance;
@@ -289,7 +265,7 @@ public class KTypeOpenCustomHashSet<KType>
             /*! #if ($RH) !*/
             /*! #if($DEBUG) !*/
             //Check invariants
-            assert cached[slot] == (REHASH(strategy, keys[slot]) & mask);
+            assert cached[slot] == (REHASH(keys[slot]) & mask);
             /*! #end !*/
             /*! #end !*/
         }
@@ -386,8 +362,6 @@ public class KTypeOpenCustomHashSet<KType>
         //Variables for adding
         final int mask = this.keys.length - 1;
 
-        final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
-
         KType e = Intrinsics.<KType> defaultKTypeValue();
         //adding phase
         int slot = -1;
@@ -413,7 +387,7 @@ public class KTypeOpenCustomHashSet<KType>
             if (is_allocated(i, oldKeys))
             {
                 e = oldKeys[i];
-                slot = REHASH(strategy, e) & mask;
+                slot = REHASH(e) & mask;
 
                 /*! #if ($RH) !*/
                 initial_slot = slot;
@@ -439,8 +413,8 @@ public class KTypeOpenCustomHashSet<KType>
 
                         /*! #if($DEBUG) !*/
                         //Check invariants
-                        assert cached[slot] == (REHASH(strategy, keys[slot]) & mask);
-                        assert initial_slot == (REHASH(strategy, e) & mask);
+                        assert cached[slot] == (REHASH(keys[slot]) & mask);
+                        assert initial_slot == (REHASH(e) & mask);
                         /*! #end !*/
 
                         dist = existing_distance;
@@ -464,7 +438,7 @@ public class KTypeOpenCustomHashSet<KType>
                 /*! #if ($RH) !*/
                 /*! #if($DEBUG) !*/
                 //Check invariants
-                assert cached[slot] == (REHASH(strategy, keys[slot]) & mask);
+                assert cached[slot] == (REHASH(keys[slot]) & mask);
                 /*! #end !*/
                 /*! #end !*/
             }
@@ -534,8 +508,6 @@ public class KTypeOpenCustomHashSet<KType>
 
         final int mask = this.keys.length - 1;
 
-        final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
-
         final KType[] keys = this.keys;
 
         //copied straight from  fastutil "fast-path"
@@ -543,13 +515,13 @@ public class KTypeOpenCustomHashSet<KType>
         KType curr;
 
         //1.1 The rehashed slot is free, nothing to remove, return false
-        if (Intrinsics.isEmptyKey(curr = keys[slot = REHASH(strategy, key) & mask])) {
+        if (Intrinsics.isEmptyKey(curr = keys[slot = REHASH(key) & mask])) {
 
             return false;
         }
 
         //1.2) The rehashed entry is occupied by the key, remove it, return true
-        if (strategy.equals(curr, key)) {
+        if (Intrinsics.equalsKTypeNotNull(curr, key)) {
 
             this.assigned--;
             shiftConflictingKeys(slot);
@@ -567,7 +539,7 @@ public class KTypeOpenCustomHashSet<KType>
         while (is_allocated(slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/)
         {
-            if (strategy.equals(key, keys[slot]))
+            if (Intrinsics.equalsKTypeNotNull(key, keys[slot]))
             {
                 this.assigned--;
                 shiftConflictingKeys(slot);
@@ -589,8 +561,6 @@ public class KTypeOpenCustomHashSet<KType>
     private void shiftConflictingKeys(int gapSlot)
     {
         final int mask = this.keys.length - 1;
-
-        final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
         final KType[] keys = this.keys;
 
@@ -615,10 +585,10 @@ public class KTypeOpenCustomHashSet<KType>
             final int idealSlotModMask = cached[slot];
             /*! #if($DEBUG) !*/
             //Check invariants
-            assert idealSlotModMask == (REHASH(strategy, existing) & mask);
+            assert idealSlotModMask == (REHASH(existing) & mask);
             /*! #end !*/
             /*! #else
-            final int idealSlotModMask = REHASH(strategy, existing) & mask;
+            final int idealSlotModMask = REHASH(existing) & mask;
             #end !*/
 
             //original HPPC code: shift = (slot - idealSlot) & mask;
@@ -659,8 +629,6 @@ public class KTypeOpenCustomHashSet<KType>
 
         final int mask = this.keys.length - 1;
 
-        final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
-
         final KType[] keys = this.keys;
 
         //copied straight from  fastutil "fast-path"
@@ -668,13 +636,13 @@ public class KTypeOpenCustomHashSet<KType>
         KType curr;
 
         //1.1 The rehashed slot is free, return false
-        if (Intrinsics.isEmptyKey(curr = keys[slot = REHASH(strategy, key) & mask])) {
+        if (Intrinsics.isEmptyKey(curr = keys[slot = REHASH(key) & mask])) {
 
             return false;
         }
 
         //1.2) The rehashed entry is occupied by the key, return true
-        if (strategy.equals(curr, key)) {
+        if (Intrinsics.equalsKTypeNotNull(curr, key)) {
 
             return true;
         }
@@ -690,7 +658,7 @@ public class KTypeOpenCustomHashSet<KType>
         while (is_allocated(slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/)
         {
-            if (strategy.equals(key, keys[slot]))
+            if (Intrinsics.equalsKTypeNotNull(key, keys[slot]))
             {
                 return true;
             }
@@ -700,8 +668,6 @@ public class KTypeOpenCustomHashSet<KType>
             dist++;
             /*! #end !*/
         } //end while true
-
-        //unsuccessful search
 
         return false;
     }
@@ -747,8 +713,6 @@ public class KTypeOpenCustomHashSet<KType>
     @Override
     public int hashCode()
     {
-        final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
-
         int h = 0;
 
         if (this.allocatedDefaultKey) {
@@ -761,7 +725,7 @@ public class KTypeOpenCustomHashSet<KType>
         {
             if (is_allocated(i, keys))
             {
-                h += PhiMix.hash(strategy.computeHashCode(keys[i]));
+                h += Internals.rehash(keys[i]);
             }
         }
 
@@ -786,12 +750,8 @@ public class KTypeOpenCustomHashSet<KType>
                 return false;
             }
 
-            if (!this.hashStrategy.equals(((KTypeOpenCustomHashSet<KType>) obj).hashStrategy)) {
-
-                return false;
-            }
-
-            final KTypeOpenCustomHashSet<KType> other = (KTypeOpenCustomHashSet<KType>) obj;
+            @SuppressWarnings("unchecked")
+            final KTypeSet<KType> other = (KTypeSet<KType>) obj;
 
             if (other.size() == this.size())
             {
@@ -832,24 +792,25 @@ public class KTypeOpenCustomHashSet<KType>
         @Override
         protected KTypeCursor<KType> fetch()
         {
-            if (this.cursor.index == KTypeOpenCustomHashSet.this.keys.length + 1) {
+            if (this.cursor.index == KTypeHashSet.this.keys.length + 1) {
 
-                if (KTypeOpenCustomHashSet.this.allocatedDefaultKey) {
+                if (KTypeHashSet.this.allocatedDefaultKey) {
 
-                    this.cursor.index = KTypeOpenCustomHashSet.this.keys.length;
+                    this.cursor.index = KTypeHashSet.this.keys.length;
                     this.cursor.value = Intrinsics.defaultKTypeValue();
 
                     return this.cursor;
 
                 }
                 //no value associated with the default key, continue iteration...
-                this.cursor.index = KTypeOpenCustomHashSet.this.keys.length;
+                this.cursor.index = KTypeHashSet.this.keys.length;
+
             }
 
             int i = this.cursor.index - 1;
 
             while (i >= 0 &&
-                    !is_allocated(i, KTypeOpenCustomHashSet.this.keys))
+                    !is_allocated(i, KTypeHashSet.this.keys))
             {
                 i--;
             }
@@ -859,7 +820,7 @@ public class KTypeOpenCustomHashSet<KType>
             }
 
             this.cursor.index = i;
-            this.cursor.value = KTypeOpenCustomHashSet.this.keys[i];
+            this.cursor.value = KTypeHashSet.this.keys[i];
             return this.cursor;
         }
     }
@@ -878,7 +839,7 @@ public class KTypeOpenCustomHashSet<KType>
 
                 @Override
                 public void initialize(final EntryIterator obj) {
-                    obj.cursor.index = KTypeOpenCustomHashSet.this.keys.length + 1;
+                    obj.cursor.index = KTypeHashSet.this.keys.length + 1;
                 }
 
                 @Override
@@ -945,24 +906,22 @@ public class KTypeOpenCustomHashSet<KType>
                 target[count++] = keys[i];
             }
         }
+
         assert count == this.size();
 
         return target;
     }
 
     /**
-     * Clone this object.
-     * #if ($TemplateOptions.KTypeGeneric)
-     * The returned clone will use the same HashingStrategy strategy.
-     * #end
+     * {@inheritDoc}
      */
     @Override
-    public KTypeOpenCustomHashSet<KType> clone()
+    public KTypeHashSet<KType> clone()
     {
         //clone to size() to prevent eventual exponential growth
-        final KTypeOpenCustomHashSet<KType> cloned = new KTypeOpenCustomHashSet<KType>(this.size(), this.loadFactor, this.hashStrategy);
+        final KTypeHashSet<KType> cloned = new KTypeHashSet<KType>(this.size(), this.loadFactor);
 
-        //We must NOT clone because of the independent perturbation seeds
+        //We must NOT clone, because of the independent perturbation seeds
         cloned.addAll(this);
 
         cloned.allocatedDefaultKey = this.allocatedDefaultKey;
@@ -977,7 +936,6 @@ public class KTypeOpenCustomHashSet<KType>
     @Override
     public <T extends KTypePredicate<? super KType>> T forEach(final T predicate)
     {
-
         if (this.allocatedDefaultKey) {
 
             if (!predicate.apply(Intrinsics.<KType> defaultKTypeValue())) {
@@ -1040,9 +998,9 @@ public class KTypeOpenCustomHashSet<KType>
     /**
      * Create a set from a variable number of arguments or an array of <code>KType</code>.
      */
-    public static <KType> KTypeOpenCustomHashSet<KType> from(final KTypeHashingStrategy<? super KType> hashStrategy, final KType... elements)
+    public static <KType> KTypeHashSet<KType> from(final KType... elements)
     {
-        final KTypeOpenCustomHashSet<KType> set = new KTypeOpenCustomHashSet<KType>(elements.length, hashStrategy);
+        final KTypeHashSet<KType> set = new KTypeHashSet<KType>(elements.length);
         set.add(elements);
         return set;
     }
@@ -1050,36 +1008,27 @@ public class KTypeOpenCustomHashSet<KType>
     /**
      * Create a set from elements of another container.
      */
-    public static <KType> KTypeOpenCustomHashSet<KType> from(final KTypeContainer<KType> container, final KTypeHashingStrategy<? super KType> hashStrategy)
+    public static <KType> KTypeHashSet<KType> from(final KTypeContainer<KType> container)
     {
-        return new KTypeOpenCustomHashSet<KType>(container, hashStrategy);
+        return new KTypeHashSet<KType>(container);
     }
 
     /**
      * Create a new hash set with default parameters (shortcut
      * instead of using a constructor).
      */
-    public static <KType> KTypeOpenCustomHashSet<KType> newInstance(final KTypeHashingStrategy<? super KType> hashStrategy)
+    public static <KType> KTypeHashSet<KType> newInstance()
     {
-        return new KTypeOpenCustomHashSet<KType>(hashStrategy);
+        return new KTypeHashSet<KType>();
     }
 
     /**
      * Returns a new object of this class with no need to declare generic type (shortcut
      * instead of using a constructor).
      */
-    public static <KType> KTypeOpenCustomHashSet<KType> newInstance(final int initialCapacity, final float loadFactor, final KTypeHashingStrategy<? super KType> hashStrategy)
+    public static <KType> KTypeHashSet<KType> newInstance(final int initialCapacity, final float loadFactor)
     {
-        return new KTypeOpenCustomHashSet<KType>(initialCapacity, loadFactor, hashStrategy);
-    }
-
-    /**
-     * Return the current {@link HashingStrategy} in use.
-     * @return
-     */
-    public KTypeHashingStrategy<? super KType> strategy()
-    {
-        return this.hashStrategy;
+        return new KTypeHashSet<KType>(initialCapacity, loadFactor);
     }
 
     //Test for existence in template
@@ -1097,7 +1046,7 @@ public class KTypeOpenCustomHashSet<KType>
 
     /*! #end !*/
 
-/*! #if ($TemplateOptions.inlineKType("probe_distance",
+    /*! #if ($TemplateOptions.inlineKType("probe_distance",
     "(slot, cached)",
     "slot < cached[slot] ? slot + cached.length - cached[slot] : slot - cached[slot]")) !*/
     /**
@@ -1110,7 +1059,7 @@ public class KTypeOpenCustomHashSet<KType>
         /*! #if($DEBUG) !*/
         //Check : cached hashed slot is == computed value
         final int mask = cached.length - 1;
-        assert rh == (REHASH(this.hashStrategy, this.keys[slot]) & mask);
+        assert rh == (REHASH(this.keys[slot]) & mask);
         /*! #end !*/
 
         if (slot < rh) {
@@ -1121,17 +1070,24 @@ public class KTypeOpenCustomHashSet<KType>
         return slot - rh;
     }
 
-/*! #end !*/
+    /*! #end !*/
 
-    /*! #if ($TemplateOptions.inlineKType("REHASH",
-    "(strategy, value)",
-    "MurmurHash3.hash(strategy.computeHashCode(value) ^ this.perturbation )")) !*/
+    /*! #if ($TemplateOptions.inlineKTypeWithFullSpecialization("REHASH",
+    "(value)",
+    "MurmurHash3.hash(value.hashCode() ^ this.perturbation)",
+    "PhiMix.hash(value ^ this.perturbation)",
+    "(int)PhiMix.hash(value ^ this.perturbation)",
+    "PhiMix.hash(Float.floatToIntBits(value) ^ this.perturbation)",
+    "(int)PhiMix.hash(Double.doubleToLongBits(value) ^ this.perturbation)",
+    "")) !*/
     /**
-     * (actual method is inlined in generated code)
+     * REHASH method for rehashing the keys.
+     * (inlined in generated code)
+     * Thanks to single array mode, no need to check for null/0 or booleans.
      */
-    private int REHASH(final KTypeHashingStrategy<? super KType> strategy, final KType value) {
+    private int REHASH(final KType value) {
 
-        return MurmurHash3.hash(strategy.computeHashCode(value) ^ this.perturbation);
+        return MurmurHash3.hash(value.hashCode() ^ this.perturbation);
     }
     /*! #end !*/
 

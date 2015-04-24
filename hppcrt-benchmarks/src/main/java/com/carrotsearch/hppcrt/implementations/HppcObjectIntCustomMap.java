@@ -4,12 +4,11 @@ import java.util.Random;
 
 import org.openjdk.jmh.infra.Blackhole;
 
-import com.carrotsearch.hppcrt.Util;
 import com.carrotsearch.hppcrt.XorShiftRandom;
-import com.carrotsearch.hppcrt.maps.ObjectIntOpenCustomHashMap;
+import com.carrotsearch.hppcrt.maps.ObjectIntCustomHashMap;
 import com.carrotsearch.hppcrt.strategies.ObjectHashingStrategy;
 
-public class HppcObjectIntCustomMap extends MapImplementation<ObjectIntOpenCustomHashMap<MapImplementation.ComparableInt>>
+public class HppcObjectIntCustomMap extends MapImplementation<ObjectIntCustomHashMap<MapImplementation.ComparableInt>>
 {
 
     private ComparableInt[] insertKeys;
@@ -19,28 +18,28 @@ public class HppcObjectIntCustomMap extends MapImplementation<ObjectIntOpenCusto
 
     protected HppcObjectIntCustomMap(final int size, final float loadFactor)
     {
-        super(new ObjectIntOpenCustomHashMap<MapImplementation.ComparableInt>(size, loadFactor,
+        super(new ObjectIntCustomHashMap<MapImplementation.ComparableInt>(size, loadFactor,
                 //A good behaved startegy that compensates bad hashCode() implementation.
                 new ObjectHashingStrategy<MapImplementation.ComparableInt>() {
 
-            @Override
-            public int computeHashCode(final MapImplementation.ComparableInt object) {
+                    @Override
+                    public int computeHashCode(final MapImplementation.ComparableInt object) {
 
-                //eat some CPU to simulate method cost
-                Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
+                        //eat some CPU to simulate method cost
+                        Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
 
-                return object.value;
-            }
+                        return object.value;
+                    }
 
-            @Override
-            public boolean equals(final MapImplementation.ComparableInt o1, final MapImplementation.ComparableInt o2) {
+                    @Override
+                    public boolean equals(final MapImplementation.ComparableInt o1, final MapImplementation.ComparableInt o2) {
 
-                //eat some CPU to simulate method cost
-                Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
+                        //eat some CPU to simulate method cost
+                        Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
 
-                return o1.value == o2.value;
-            }
-        }));
+                        return o1.value == o2.value;
+                    }
+                }));
     }
 
     /**
@@ -93,7 +92,7 @@ public class HppcObjectIntCustomMap extends MapImplementation<ObjectIntOpenCusto
     @Override
     public int benchPutAll() {
 
-        final ObjectIntOpenCustomHashMap<MapImplementation.ComparableInt> instance = this.instance;
+        final ObjectIntCustomHashMap<MapImplementation.ComparableInt> instance = this.instance;
 
         final int[] values = this.insertValues;
 
@@ -112,7 +111,7 @@ public class HppcObjectIntCustomMap extends MapImplementation<ObjectIntOpenCusto
     @Override
     public int benchContainKeys()
     {
-        final ObjectIntOpenCustomHashMap<MapImplementation.ComparableInt> instance = this.instance;
+        final ObjectIntCustomHashMap<MapImplementation.ComparableInt> instance = this.instance;
 
         int count = 0;
 
@@ -129,7 +128,7 @@ public class HppcObjectIntCustomMap extends MapImplementation<ObjectIntOpenCusto
     @Override
     public int benchRemoveKeys() {
 
-        final ObjectIntOpenCustomHashMap<MapImplementation.ComparableInt> instance = this.instance;
+        final ObjectIntCustomHashMap<MapImplementation.ComparableInt> instance = this.instance;
 
         int count = 0;
 
@@ -146,7 +145,7 @@ public class HppcObjectIntCustomMap extends MapImplementation<ObjectIntOpenCusto
     @Override
     public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
 
-        this.instance = ((ObjectIntOpenCustomHashMap<MapImplementation.ComparableInt>) toCloneFrom.instance).clone();
+        this.instance = ((ObjectIntCustomHashMap<MapImplementation.ComparableInt>) toCloneFrom.instance).clone();
 
     }
 }

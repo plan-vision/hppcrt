@@ -265,7 +265,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
     {
         insertElements(this.prioq, 0, 1, 2, 1, 0);
 
-        final KTypeOpenHashSet<KType> list2 = KTypeOpenHashSet.newInstance();
+        final KTypeHashSet<KType> list2 = KTypeHashSet.newInstance();
         list2.add(asArray(0, 2));
 
         Assert.assertEquals(3, this.prioq.removeAll(list2));

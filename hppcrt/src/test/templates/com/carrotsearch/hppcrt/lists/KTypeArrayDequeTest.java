@@ -547,7 +547,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     {
         this.deque.addLast(asArray(0, 1, 2, 1, 0));
 
-        final KTypeOpenHashSet<KType> set = KTypeOpenHashSet.newInstance();
+        final KTypeHashSet<KType> set = KTypeHashSet.newInstance();
         set.add(asArray(0, 2));
 
         Assert.assertEquals(3, this.deque.removeAll(set));

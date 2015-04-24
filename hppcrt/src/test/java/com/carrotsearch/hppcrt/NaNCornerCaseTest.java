@@ -9,12 +9,12 @@ import org.junit.Test;
 
 import com.carrotsearch.hppcrt.lists.DoubleArrayList;
 import com.carrotsearch.hppcrt.lists.FloatArrayList;
-import com.carrotsearch.hppcrt.maps.DoubleObjectOpenHashMap;
-import com.carrotsearch.hppcrt.maps.FloatObjectOpenHashMap;
-import com.carrotsearch.hppcrt.maps.IntDoubleOpenHashMap;
-import com.carrotsearch.hppcrt.maps.IntFloatOpenHashMap;
-import com.carrotsearch.hppcrt.sets.DoubleOpenHashSet;
-import com.carrotsearch.hppcrt.sets.FloatOpenHashSet;
+import com.carrotsearch.hppcrt.maps.DoubleObjectHashMap;
+import com.carrotsearch.hppcrt.maps.FloatObjectHashMap;
+import com.carrotsearch.hppcrt.maps.IntDoubleHashMap;
+import com.carrotsearch.hppcrt.maps.IntFloatHashMap;
+import com.carrotsearch.hppcrt.sets.DoubleHashSet;
+import com.carrotsearch.hppcrt.sets.FloatHashSet;
 import com.carrotsearch.hppcrt.sorting.DoubleSort;
 import com.carrotsearch.hppcrt.sorting.FloatSort;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
@@ -106,11 +106,12 @@ public class NaNCornerCaseTest extends RandomizedTest
 
                 referenceList.add(prng.nextDouble() * NB_SORT_ELEMENTS);
 
-            } else {
+            }
+            else {
 
                 final int chunkSize = RandomizedTest.randomIntBetween(1, 5);
 
-                for (int j = 0; j < chunkSize;  j++) {
+                for (int j = 0; j < chunkSize; j++) {
 
                     referenceList.add(this.nanListD[j]);
                 }
@@ -232,7 +233,7 @@ public class NaNCornerCaseTest extends RandomizedTest
     @Test
     public void testNaNAsDoubleKey()
     {
-        final DoubleObjectMap<String> map = DoubleObjectOpenHashMap.newInstance();
+        final DoubleObjectMap<String> map = DoubleObjectHashMap.newInstance();
         map.put(Double.NaN, "a");
         map.put(Double.NaN, "b");
 
@@ -246,7 +247,7 @@ public class NaNCornerCaseTest extends RandomizedTest
                 (Double) map.keys().iterator().next().value,
                 (Double) Double.NaN);
 
-        final DoubleOpenHashSet set = DoubleOpenHashSet.newInstance();
+        final DoubleHashSet set = DoubleHashSet.newInstance();
         set.add(Double.NaN);
         set.add(Double.NaN);
         set.add(Double.longBitsToDouble(0xfff8000000000000L));
@@ -260,7 +261,7 @@ public class NaNCornerCaseTest extends RandomizedTest
     @Test
     public void testNaNAsFloatKey()
     {
-        final FloatObjectMap<String> map = FloatObjectOpenHashMap.newInstance();
+        final FloatObjectMap<String> map = FloatObjectHashMap.newInstance();
         map.put(Float.NaN, "a");
         map.put(Float.NaN, "b");
 
@@ -274,7 +275,7 @@ public class NaNCornerCaseTest extends RandomizedTest
                 (Float) map.keys().iterator().next().value,
                 (Float) Float.NaN);
 
-        final FloatOpenHashSet set = FloatOpenHashSet.newInstance();
+        final FloatHashSet set = FloatHashSet.newInstance();
         set.add(Float.NaN);
         set.add(Float.NaN);
         set.add(Float.intBitsToFloat(0xfff80000));
@@ -289,17 +290,17 @@ public class NaNCornerCaseTest extends RandomizedTest
     public void testNaNAsValue()
     {
         {
-            final IntDoubleMap m1 = IntDoubleOpenHashMap.newInstance();
+            final IntDoubleMap m1 = IntDoubleHashMap.newInstance();
             m1.put(1, Double.NaN);
-            final IntDoubleMap m2 = IntDoubleOpenHashMap.newInstance();
+            final IntDoubleMap m2 = IntDoubleHashMap.newInstance();
             m2.put(1, Double.NaN);
             Assert.assertEquals(m1, m2);
         }
 
         {
-            final IntFloatMap m1 = IntFloatOpenHashMap.newInstance();
+            final IntFloatMap m1 = IntFloatHashMap.newInstance();
             m1.put(1, Float.NaN);
-            final IntFloatMap m2 = IntFloatOpenHashMap.newInstance();
+            final IntFloatMap m2 = IntFloatHashMap.newInstance();
             m2.put(1, Float.NaN);
             Assert.assertEquals(m1, m2);
         }

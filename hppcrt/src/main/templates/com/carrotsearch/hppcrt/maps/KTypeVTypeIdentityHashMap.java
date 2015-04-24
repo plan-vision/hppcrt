@@ -12,7 +12,7 @@ import com.carrotsearch.hppcrt.hash.*;
  * An identity hash map of <code>KType</code> to <code>VType</code>, implemented using open
  * addressing with linear probing for collision resolution.
  *
- * The difference with {@link KTypeVTypeOpenHashMap} is that it uses direct Object reference equality for comparison and
+ * The difference with {@link KTypeVTypeHashMap} is that it uses direct Object reference equality for comparison and
  * direct "address" {@link System#identityHashCode(Object)} for hashCode(), instead of using
  * the built-in hashCode() /  equals().
  * The internal buffers of this implementation ({@link #keys},{@link #values}, etc...)
@@ -29,8 +29,8 @@ import com.carrotsearch.hppcrt.hash.*;
  * 
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
-public final class KTypeVTypeOpenIdentityHashMap<KType, VType>
-        extends KTypeVTypeOpenCustomHashMap<KType, VType>
+public final class KTypeVTypeIdentityHashMap<KType, VType>
+        extends KTypeVTypeCustomHashMap<KType, VType>
 {
     private static final KTypeIdentityHash<Object> IDENTITY_EQUALITY = new KTypeIdentityHash<Object>();
 
@@ -40,7 +40,7 @@ public final class KTypeVTypeOpenIdentityHashMap<KType, VType>
      * 
      * <p>See class notes about hash distribution importance.</p>
      */
-    public KTypeVTypeOpenIdentityHashMap()
+    public KTypeVTypeIdentityHashMap()
     {
         this(Containers.DEFAULT_EXPECTED_ELEMENTS, HashContainers.DEFAULT_LOAD_FACTOR);
     }
@@ -52,7 +52,7 @@ public final class KTypeVTypeOpenIdentityHashMap<KType, VType>
      * @param initialCapacity Initial capacity (greater than zero and automatically
      *            rounded to the next power of two).
      */
-    public KTypeVTypeOpenIdentityHashMap(final int initialCapacity)
+    public KTypeVTypeIdentityHashMap(final int initialCapacity)
     {
         this(initialCapacity, HashContainers.DEFAULT_LOAD_FACTOR);
     }
@@ -69,26 +69,26 @@ public final class KTypeVTypeOpenIdentityHashMap<KType, VType>
      * 
      */
     @SuppressWarnings({ "cast", "unchecked" })
-    public KTypeVTypeOpenIdentityHashMap(final int initialCapacity, final double loadFactor)
+    public KTypeVTypeIdentityHashMap(final int initialCapacity, final double loadFactor)
     {
-        super(initialCapacity, loadFactor, (KTypeIdentityHash<KType>) KTypeVTypeOpenIdentityHashMap.IDENTITY_EQUALITY);
+        super(initialCapacity, loadFactor, (KTypeIdentityHash<KType>) KTypeVTypeIdentityHashMap.IDENTITY_EQUALITY);
     }
 
     /**
      * Create a hash map from all key-value pairs of another container.
      */
-    public KTypeVTypeOpenIdentityHashMap(final KTypeVTypeAssociativeContainer<KType, VType> container)
+    public KTypeVTypeIdentityHashMap(final KTypeVTypeAssociativeContainer<KType, VType> container)
     {
         this(container.size());
         putAll(container);
     }
 
     @Override
-    public KTypeVTypeOpenIdentityHashMap<KType, VType> clone()
+    public KTypeVTypeIdentityHashMap<KType, VType> clone()
     {
         //clone to size() to prevent eventual exponential growth
-        final KTypeVTypeOpenIdentityHashMap<KType, VType> cloned =
-                new KTypeVTypeOpenIdentityHashMap<KType, VType>(size(), this.loadFactor);
+        final KTypeVTypeIdentityHashMap<KType, VType> cloned =
+                new KTypeVTypeIdentityHashMap<KType, VType>(size(), this.loadFactor);
 
         //We must NOT clone because of the independent perturbation seeds
         cloned.putAll(this);
@@ -103,14 +103,14 @@ public final class KTypeVTypeOpenIdentityHashMap<KType, VType>
     /**
      * Creates a hash map from two index-aligned arrays of key-value pairs.
      */
-    public static <KType, VType> KTypeVTypeOpenIdentityHashMap<KType, VType> from(final KType[] keys, final VType[] values)
+    public static <KType, VType> KTypeVTypeIdentityHashMap<KType, VType> from(final KType[] keys, final VType[] values)
     {
         if (keys.length != values.length)
         {
             throw new IllegalArgumentException("Arrays of keys and values must have an identical length.");
         }
 
-        final KTypeVTypeOpenIdentityHashMap<KType, VType> map = new KTypeVTypeOpenIdentityHashMap<KType, VType>(keys.length);
+        final KTypeVTypeIdentityHashMap<KType, VType> map = new KTypeVTypeIdentityHashMap<KType, VType>(keys.length);
 
         for (int i = 0; i < keys.length; i++)
         {
@@ -122,34 +122,34 @@ public final class KTypeVTypeOpenIdentityHashMap<KType, VType>
     /**
      * Create a hash map from another associative container.
      */
-    public static <KType, VType> KTypeVTypeOpenIdentityHashMap<KType, VType> from(final KTypeVTypeAssociativeContainer<KType, VType> container)
+    public static <KType, VType> KTypeVTypeIdentityHashMap<KType, VType> from(final KTypeVTypeAssociativeContainer<KType, VType> container)
     {
-        return new KTypeVTypeOpenIdentityHashMap<KType, VType>(container);
+        return new KTypeVTypeIdentityHashMap<KType, VType>(container);
     }
 
     /**
      * Create a new hash map without providing the full generic signature (constructor
      * shortcut).
      */
-    public static <KType, VType> KTypeVTypeOpenIdentityHashMap<KType, VType> newInstance()
+    public static <KType, VType> KTypeVTypeIdentityHashMap<KType, VType> newInstance()
     {
-        return new KTypeVTypeOpenIdentityHashMap<KType, VType>();
+        return new KTypeVTypeIdentityHashMap<KType, VType>();
     }
 
     /**
      * Create a new hash map with initial capacity and load factor control. (constructor
      * shortcut).
      */
-    public static <KType, VType> KTypeVTypeOpenIdentityHashMap<KType, VType> newInstance(final int initialCapacity, final float loadFactor)
+    public static <KType, VType> KTypeVTypeIdentityHashMap<KType, VType> newInstance(final int initialCapacity, final float loadFactor)
     {
-        return new KTypeVTypeOpenIdentityHashMap<KType, VType>(initialCapacity, loadFactor);
+        return new KTypeVTypeIdentityHashMap<KType, VType>(initialCapacity, loadFactor);
     }
 
     /**
      * Inherited from KTypeVTypeOpenCustomHashMap, DO NOT USE, throws RuntimeException
      * @throws RuntimeException
      */
-    public static final <KType, VType> KTypeVTypeOpenIdentityHashMap<KType, VType> newInstance(final KTypeHashingStrategy<? super KType> hashStrategy)
+    public static final <KType, VType> KTypeVTypeIdentityHashMap<KType, VType> newInstance(final KTypeHashingStrategy<? super KType> hashStrategy)
     {
         throw new RuntimeException("Identity hash newInstance(strategy) usage logical error");
     }
@@ -158,7 +158,7 @@ public final class KTypeVTypeOpenIdentityHashMap<KType, VType>
      * Inherited from KTypeVTypeOpenCustomHashMap, DO NOT USE, throws RuntimeException
      * @throws RuntimeException
      */
-    public static final <KType, VType> KTypeVTypeOpenIdentityHashMap<KType, VType> newInstance(final int initialCapacity, final float loadFactor, final KTypeHashingStrategy<? super KType> hashStrategy)
+    public static final <KType, VType> KTypeVTypeIdentityHashMap<KType, VType> newInstance(final int initialCapacity, final float loadFactor, final KTypeHashingStrategy<? super KType> hashStrategy)
     {
         throw new RuntimeException("Identity hash newInstance(capacity, loadfactor, strategy) usage logical error");
     }
@@ -167,7 +167,7 @@ public final class KTypeVTypeOpenIdentityHashMap<KType, VType>
      * Inherited from KTypeVTypeOpenCustomHashMap, DO NOT USE, throws RuntimeException
      * @throws RuntimeException
      */
-    public static final <KType, VType> KTypeVTypeOpenIdentityHashMap<KType, VType> from(final KType[] keys, final VType[] values, final KTypeHashingStrategy<? super KType> hashStrategy)
+    public static final <KType, VType> KTypeVTypeIdentityHashMap<KType, VType> from(final KType[] keys, final VType[] values, final KTypeHashingStrategy<? super KType> hashStrategy)
     {
         throw new RuntimeException("Identity hash from(keys,values,strategy) usage logical error");
     }
@@ -176,7 +176,7 @@ public final class KTypeVTypeOpenIdentityHashMap<KType, VType>
      * Inherited from KTypeVTypeOpenCustomHashMap, DO NOT USE, throws RuntimeException
      * @throws RuntimeException
      */
-    public static final <KType, VType> KTypeVTypeOpenIdentityHashMap<KType, VType> from(final KTypeVTypeAssociativeContainer<KType, VType> container,
+    public static final <KType, VType> KTypeVTypeIdentityHashMap<KType, VType> from(final KTypeVTypeAssociativeContainer<KType, VType> container,
             final KTypeHashingStrategy<? super KType> hashStrategy)
             {
         throw new RuntimeException("Identity hash from(KTypeVTypeAssociativeContainer, strategy) usage logical error");

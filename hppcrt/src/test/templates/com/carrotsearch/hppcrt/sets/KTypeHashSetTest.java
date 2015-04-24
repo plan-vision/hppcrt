@@ -9,7 +9,6 @@ import static org.junit.Assert.*;
 
 import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.hash.MurmurHash3;
-import com.carrotsearch.hppcrt.hash.PhiMix;
 import com.carrotsearch.hppcrt.lists.*;
 import com.carrotsearch.hppcrt.TestUtils;
 import com.carrotsearch.hppcrt.cursors.*;
@@ -17,24 +16,25 @@ import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
 import com.carrotsearch.hppcrt.sets.*;
 import com.carrotsearch.hppcrt.sorting.*;
-import com.carrotsearch.hppcrt.strategies.*;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.*;
 
 /*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
 /**
- * Unit tests for {@link KTypeOpenCustomHashSetTest}.
+ * Unit tests for {@link KTypeHashSet}.
  */
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
-public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
+public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
 {
     /**
      * Per-test fresh initialized instance.
      */
-    public KTypeOpenCustomHashSet<KType> set;
+    public KTypeHashSet<KType> set;
 
     public volatile long guard;
+
+    private int perturbation;
 
     @BeforeClass
     public static void configure()
@@ -42,30 +42,11 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         IteratorPool.configureInitialPoolSize(8);
     }
 
-    private static final int STRIDE = 13;
-
-    private final KTypeHashingStrategy<KType> TEST_STRATEGY = new KTypeHashingStrategy<KType>() {
-
-        @Override
-        public int computeHashCode(final KType object) {
-
-            return Internals.rehash(cast(castType(object) + KTypeOpenCustomHashSetTest.STRIDE));
-        }
-
-        @Override
-        public boolean equals(final KType o1, final KType o2) {
-
-            return Intrinsics.equalsKType(cast(castType(o1) + KTypeOpenCustomHashSetTest.STRIDE),
-                    cast(castType(o2) + KTypeOpenCustomHashSetTest.STRIDE));
-        }
-
-    };
-
     /* */
     @Before
     public void initialize()
     {
-        this.set = KTypeOpenCustomHashSet.newInstance(this.TEST_STRATEGY);
+        this.set = KTypeHashSet.newInstance();
     }
 
     /**
@@ -76,6 +57,8 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
     @After
     public void checkConsistency()
     {
+        this.perturbation = HashContainers.computePerturbationValue(this.set.keys.length);
+
         if (this.set != null)
         {
             int occupied = 0;
@@ -104,6 +87,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
 
                 //try to reach the key by contains()
                 Assert.assertTrue(this.set.contains(this.keyE));
+
                 occupied++;
             }
 
@@ -118,8 +102,8 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         // This test is only applicable to selected key types.
         Assume.assumeTrue(
                 int[].class.isInstance(this.set.keys) ||
-                        long[].class.isInstance(this.set.keys) ||
-                        Object[].class.isInstance(this.set.keys));
+                long[].class.isInstance(this.set.keys) ||
+                Object[].class.isInstance(this.set.keys));
 
         final IntArrayList hashChain = TestUtils.generateMurmurHash3CollisionChain(0x1fff, 0x7e, 0x1fff / 3);
 
@@ -127,6 +111,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
          * Add all of the conflicting keys to a map.
          */
         for (final IntCursor c : hashChain) {
+
             this.set.add(cast(c.value));
         }
 
@@ -136,8 +121,8 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
          * Add some more keys (random).
          */
         final Random rnd = new Random(0xbabebeef);
-        final IntSet chainKeys = IntOpenHashSet.from(hashChain);
-        final IntSet differentKeys = new IntOpenHashSet();
+        final IntSet chainKeys = IntHashSet.from(hashChain);
+        final IntSet differentKeys = new IntHashSet();
         while (differentKeys.size() < 500)
         {
             final int k = rnd.nextInt();
@@ -201,6 +186,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertTrue(this.set.add(this.key1));
         Assert.assertFalse(this.set.add(this.key1));
         Assert.assertEquals(1, this.set.size());
+
         Assert.assertTrue(this.set.add(this.keyE));
         Assert.assertFalse(this.set.add(this.keyE));
 
@@ -237,7 +223,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testAddAll()
     {
-        final KTypeOpenCustomHashSet<KType> set2 = new KTypeOpenCustomHashSet<KType>(this.TEST_STRATEGY);
+        final KTypeHashSet<KType> set2 = new KTypeHashSet<KType>();
         set2.add(asArray(1, 2));
         this.set.add(asArray(0, 1));
 
@@ -266,7 +252,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
     {
         for (int i = 0; i < 256; i++)
         {
-            final KTypeOpenCustomHashSet<KType> set = new KTypeOpenCustomHashSet<KType>(i, this.TEST_STRATEGY);
+            final KTypeHashSet<KType> set = new KTypeHashSet<KType>(i);
 
             for (int j = 0; j < i; j++)
             {
@@ -283,7 +269,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
     {
         this.set.add(asArray(0, 1, 2, 3, 4));
 
-        final KTypeOpenCustomHashSet<KType> list2 = new KTypeOpenCustomHashSet<KType>(this.TEST_STRATEGY);
+        final KTypeHashSet<KType> list2 = new KTypeHashSet<KType>();
         list2.add(asArray(1, 3, 5));
 
         Assert.assertEquals(2, this.set.removeAll(list2));
@@ -298,13 +284,13 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         this.set.add(newArray(this.k0, this.k1, this.k2));
 
         Assert.assertEquals(1, this.set.removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
-                return v == KTypeOpenCustomHashSetTest.this.key1;
+                return v == KTypeHashSetTest.this.k1;
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.k0, this.k2);
     }
@@ -316,13 +302,13 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         this.set.add(this.keyE, this.key1, this.key2, this.key4);
 
         Assert.assertEquals(2, this.set.removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
-                return (v == KTypeOpenCustomHashSetTest.this.key1) || (v == KTypeOpenCustomHashSetTest.this.keyE);
+                return (v == KTypeHashSetTest.this.key1) || (v == KTypeHashSetTest.this.keyE);
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.key2, this.key4);
     }
@@ -339,16 +325,16 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size + 1
             Assert.assertEquals(10, this.set.removeAll(new KTypePredicate<KType>()
-            {
+                    {
                 @Override
                 public boolean apply(final KType v)
                 {
-                    if (v == KTypeOpenCustomHashSetTest.this.key7) {
+                    if (v == KTypeHashSetTest.this.key7) {
                         throw t;
                     }
-                    return v == KTypeOpenCustomHashSetTest.this.key2 || v == KTypeOpenCustomHashSetTest.this.key9 || v == KTypeOpenCustomHashSetTest.this.key5;
+                    return v == KTypeHashSetTest.this.key2 || v == KTypeHashSetTest.this.key9 || v == KTypeHashSetTest.this.key5;
                 };
-            }));
+                    }));
 
             Assert.fail();
         }
@@ -364,6 +350,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         //but we know that since key7 throws an exception, key7 is still present in the set.
 
         Assert.assertTrue(this.set.contains(this.key7));
+        checkConsistency();
     }
 
     /* */
@@ -373,13 +360,13 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         this.set.add(newArray(this.k0, this.k1, this.k2, this.k3, this.k4, this.k5));
 
         Assert.assertEquals(4, this.set.retainAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
-                return v == KTypeOpenCustomHashSetTest.this.key1 || v == KTypeOpenCustomHashSetTest.this.key2;
+                return v == KTypeHashSetTest.this.key1 || v == KTypeHashSetTest.this.key2;
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.key1, this.key2);
     }
@@ -391,13 +378,13 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         this.set.add(newArray(this.keyE, this.k1, this.k2, this.k3, this.k4, this.k5));
 
         Assert.assertEquals(4, this.set.retainAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
-                return v == KTypeOpenCustomHashSetTest.this.keyE || v == KTypeOpenCustomHashSetTest.this.k3;
+                return v == KTypeHashSetTest.this.keyE || v == KTypeHashSetTest.this.k3;
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.keyE, this.k3);
     }
@@ -428,6 +415,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         int counted = 0;
         for (final KTypeCursor<KType> cursor : this.set)
         {
+
             if (cursor.index == this.set.keys.length) {
 
                 TestUtils.assertEquals2(this.keyE, cursor.value);
@@ -456,6 +444,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         int counted = 0;
         for (final KTypeCursor<KType> cursor : this.set)
         {
+
             if (cursor.index == this.set.keys.length) {
 
                 TestUtils.assertEquals2(this.keyE, cursor.value);
@@ -531,21 +520,23 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
     /*! #end !*/
     public void testHashCodeEquals()
     {
-        final KTypeOpenCustomHashSet<KType> l0 = KTypeOpenCustomHashSet.from(this.TEST_STRATEGY);
+        final KTypeHashSet<Integer> l0 = KTypeHashSet.from();
         Assert.assertEquals(0, l0.hashCode());
-        Assert.assertEquals(l0, KTypeOpenCustomHashSet.<KType> newInstance(this.TEST_STRATEGY));
+        Assert.assertEquals(l0, KTypeHashSet.newInstance());
 
-        final KTypeOpenCustomHashSet<KType> l1 = KTypeOpenCustomHashSet.from(this.TEST_STRATEGY, this.k1, this.k2, this.k3);
-        final KTypeOpenCustomHashSet<KType> l2 = KTypeOpenCustomHashSet.from(this.TEST_STRATEGY, this.k1, this.k2);
+        final KTypeHashSet<KType> l1 = KTypeHashSet.from(this.k1, this.k2, this.k3);
+        final KTypeHashSet<KType> l2 = KTypeHashSet.from(this.k1, this.k2);
         l2.add(this.k3);
 
         Assert.assertEquals(l1.hashCode(), l2.hashCode());
         Assert.assertEquals(l1, l2);
+
         l1.add(this.keyE);
         l2.add(this.keyE);
 
         Assert.assertEquals(l1.hashCode(), l2.hashCode());
         Assert.assertEquals(l1, l2);
+
     }
 
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
@@ -553,8 +544,8 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testHashCodeWithNulls()
     {
-        final KTypeOpenCustomHashSet<KType> l1 = KTypeOpenCustomHashSet.from(this.TEST_STRATEGY, this.k1, null, this.k3);
-        final KTypeOpenCustomHashSet<KType> l2 = KTypeOpenCustomHashSet.from(this.TEST_STRATEGY, this.k1, null);
+        final KTypeHashSet<KType> l1 = KTypeHashSet.from(this.k1, null, this.k3);
+        final KTypeHashSet<KType> l2 = KTypeHashSet.from(this.k1, null);
         l2.add(this.k3);
 
         Assert.assertEquals(l1.hashCode(), l2.hashCode());
@@ -571,7 +562,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
     {
         this.set.add(this.key1, this.key2, this.key3, this.keyE);
 
-        final KTypeOpenCustomHashSet<KType> cloned = this.set.clone();
+        final KTypeHashSet<KType> cloned = this.set.clone();
         cloned.removeAll(this.key1);
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.keyE, this.key1, this.key2, this.key3);
@@ -586,10 +577,10 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
     {
         Assume.assumeTrue(
                 int[].class.isInstance(this.set.keys) ||
-                        short[].class.isInstance(this.set.keys) ||
-                        byte[].class.isInstance(this.set.keys) ||
-                        long[].class.isInstance(this.set.keys) ||
-                        Object[].class.isInstance(this.set.keys));
+                short[].class.isInstance(this.set.keys) ||
+                byte[].class.isInstance(this.set.keys) ||
+                long[].class.isInstance(this.set.keys) ||
+                Object[].class.isInstance(this.set.keys));
 
         this.set.add(this.key1, this.key2);
         String asString = this.set.toString();
@@ -608,7 +599,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         final int TEST_SIZE = 126;
         final long TEST_ROUNDS = 5000;
 
-        final KTypeOpenCustomHashSet<KType> testContainer = createSetWithOrderedData(TEST_SIZE);
+        final KTypeHashSet<KType> testContainer = createSetWithOrderedData(TEST_SIZE);
 
         final long checksum = testContainer.forEach(new KTypeProcedure<KType>() {
 
@@ -654,7 +645,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         final int TEST_SIZE = 126;
         final long TEST_ROUNDS = 5000;
 
-        final KTypeOpenCustomHashSet<KType> testContainer = createSetWithOrderedData(TEST_SIZE);
+        final KTypeHashSet<KType> testContainer = createSetWithOrderedData(TEST_SIZE);
 
         int count = 0;
         for (int round = 0; round < TEST_ROUNDS; round++)
@@ -700,7 +691,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         final int TEST_SIZE = 126;
         final long TEST_ROUNDS = 5000;
 
-        final KTypeOpenCustomHashSet<KType> testContainer = createSetWithOrderedData(TEST_SIZE);
+        final KTypeHashSet<KType> testContainer = createSetWithOrderedData(TEST_SIZE);
 
         final long checksum = testContainer.forEach(new KTypeProcedure<KType>() {
 
@@ -721,7 +712,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
             //Classical iterator loop, with manually allocated Iterator
             final int initialPoolSize = testContainer.entryIteratorPool.size();
 
-            final KTypeOpenCustomHashSet<KType>.EntryIterator loopIterator = testContainer.iterator();
+            final KTypeHashSet<KType>.EntryIterator loopIterator = testContainer.iterator();
 
             Assert.assertEquals(initialPoolSize - 1, testContainer.entryIteratorPool.size());
 
@@ -752,7 +743,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         final int TEST_SIZE = 126;
         final long TEST_ROUNDS = 5000;
 
-        final KTypeOpenCustomHashSet<KType> testContainer = createSetWithOrderedData(TEST_SIZE);
+        final KTypeHashSet<KType> testContainer = createSetWithOrderedData(TEST_SIZE);
         final int startingPoolSize = testContainer.entryIteratorPool.size();
 
         int count = 0;
@@ -761,7 +752,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
             //Classical iterator loop, with manually allocated Iterator
             final long initialPoolSize = testContainer.entryIteratorPool.size();
 
-            final KTypeOpenCustomHashSet<KType>.EntryIterator loopIterator = testContainer.iterator();
+            final KTypeHashSet<KType>.EntryIterator loopIterator = testContainer.iterator();
 
             Assert.assertEquals(initialPoolSize - 1, testContainer.entryIteratorPool.size());
 
@@ -801,7 +792,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         final int TEST_SIZE = 126;
         final long TEST_ROUNDS = 5000;
 
-        final KTypeOpenCustomHashSet<KType> testContainer = createSetWithOrderedData(TEST_SIZE);
+        final KTypeHashSet<KType> testContainer = createSetWithOrderedData(TEST_SIZE);
 
         final long checksum = testContainer.forEach(new KTypeProcedure<KType>() {
 
@@ -817,7 +808,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         final int startingPoolSize = testContainer.entryIteratorPool.size();
 
         int count = 0;
-        KTypeOpenCustomHashSet<KType>.EntryIterator loopIterator = null;
+        KTypeHashSet<KType>.EntryIterator loopIterator = null;
 
         for (int round = 0; round < TEST_ROUNDS; round++)
         {
@@ -880,14 +871,13 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
               int PREALLOCATED_SIZE = randomVK.nextInt(126);
             #end !*/
 
-        //2) Preallocate to PREALLOCATED_SIZE :
-        final KTypeOpenCustomHashSet<KType> newSet = KTypeOpenCustomHashSet.newInstance(PREALLOCATED_SIZE,
-                HashContainers.DEFAULT_LOAD_FACTOR, this.TEST_STRATEGY);
+        final KTypeHashSet<KType> newSet = KTypeHashSet.newInstance(PREALLOCATED_SIZE,
+                HashContainers.DEFAULT_LOAD_FACTOR);
 
         //computed real capacity
         final int realCapacity = newSet.capacity();
 
-        //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
+        //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == realCapacity,
         //and internal buffer/allocated must not have changed of size
         final int contructorBufferSize = newSet.keys.length;
 
@@ -904,7 +894,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
             }
 
             if (contructorBufferSize < newSet.keys.length) {
-                //The container as just reallocated, its actual size must not be too far from the previous capacity:
+                //The container as just reallocated, its actual size must be not too far from the previous capacity:
                 Assert.assertTrue("Container as reallocated at size = " + newSet.size() + " with previous capacity = " + realCapacity,
                         (newSet.size() - realCapacity) <= 3);
                 break;
@@ -930,7 +920,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
               int NB_ELEMENTS = 126;
             #end !*/
 
-        final KTypeOpenCustomHashSet<KType> newSet = KTypeOpenCustomHashSet.newInstance(this.TEST_STRATEGY);
+        final KTypeHashSet<KType> newSet = KTypeHashSet.newInstance();
 
         //add a randomized number of key
         for (int i = 0; i < NB_ELEMENTS; i++) {
@@ -1042,7 +1032,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
               int NB_ELEMENTS = 126;
             #end !*/
 
-        final KTypeOpenCustomHashSet<KType> newSet = KTypeOpenCustomHashSet.newInstance(this.TEST_STRATEGY);
+        final KTypeHashSet<KType> newSet = KTypeHashSet.newInstance();
 
         //add a randomized number of key
         //use the same value for keys and values to ease later analysis
@@ -1107,7 +1097,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
               int NB_ELEMENTS = 126;
             #end !*/
 
-        final KTypeOpenCustomHashSet<KType> newSet = KTypeOpenCustomHashSet.newInstance(this.TEST_STRATEGY);
+        final KTypeHashSet<KType> newSet = KTypeHashSet.newInstance();
 
         //add a randomized number of key
         //use the same value for keys and values to ease later analysis
@@ -1192,220 +1182,6 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         } //end for each index
     }
 
-    //
-    @Test
-    public void testHashingStrategyCloneEquals()
-    {
-        //a) Check that 2 different sets filled the same way with same values and equal strategies.
-        //are indeed equal.
-        final long TEST_SEED = 23167132166456L;
-        final int TEST_SIZE = (int) 100e3;
-
-        final KTypeStandardHash<KType> std1 = new KTypeStandardHash<KType>();
-
-        final KTypeOpenCustomHashSet<KType> refSet = createSetWithRandomData(TEST_SIZE, std1, TEST_SEED);
-        KTypeOpenCustomHashSet<KType> refSet2 = createSetWithRandomData(TEST_SIZE, std1, TEST_SEED);
-
-        Assert.assertEquals(refSet, refSet2);
-
-        //b) Clone the above. All sets are now identical.
-        KTypeOpenCustomHashSet<KType> refSetclone = refSet.clone();
-        KTypeOpenCustomHashSet<KType> refSet2clone = refSet2.clone();
-
-        //all strategies are null
-        Assert.assertEquals(refSet.strategy(), refSet2.strategy());
-        Assert.assertEquals(refSet2.strategy(), refSetclone.strategy());
-        Assert.assertEquals(refSetclone.strategy(), refSet2clone.strategy());
-        Assert.assertEquals(refSet2clone.strategy(), std1);
-
-        Assert.assertEquals(refSet, refSetclone);
-        Assert.assertEquals(refSetclone, refSet2);
-        Assert.assertEquals(refSet2, refSet2clone);
-        Assert.assertEquals(refSet2clone, refSet);
-
-        //cleanup
-        refSetclone = null;
-        refSet2 = null;
-        refSet2clone = null;
-        System.gc();
-
-        //c) Create a set nb 3 with same integer content, but with a strategy mapping on equals.
-        final KTypeOpenCustomHashSet<KType> refSet3 = createSetWithRandomData(TEST_SIZE,
-                new KTypeHashingStrategy<KType>() {
-
-                    @Override
-                    public int computeHashCode(final KType object) {
-
-                        return Internals.rehash(object);
-                    }
-
-                    @Override
-                    public boolean equals(final KType o1, final KType o2) {
-
-                        return Intrinsics.equalsKType(o1, o2);
-                    }
-                }, TEST_SEED);
-
-        //because they do the same thing as above, but with semantically different strategies, ref3 is != ref
-        Assert.assertFalse(refSet.equals(refSet3));
-
-        //However, if we cloned refSet3
-        final KTypeOpenCustomHashSet<KType> refSet3clone = refSet3.clone();
-        Assert.assertEquals(refSet3, refSet3clone);
-
-        //strategies are copied by reference only
-        Assert.assertTrue(refSet3.strategy() == refSet3clone.strategy());
-
-        //d) Create identical set with same different strategy instances, but which consider themselves equals()
-        KTypeOpenCustomHashSet<KType> refSet4 = createSetWithRandomData(TEST_SIZE,
-                new KTypeHashingStrategy<KType>() {
-
-                    @Override
-                    public boolean equals(final Object obj) {
-
-                        return true;
-                    }
-
-                    @Override
-                    public int computeHashCode(final KType object) {
-
-                        return Internals.rehash(object);
-                    }
-
-                    @Override
-                    public boolean equals(final KType o1, final KType o2) {
-
-                        return Intrinsics.equalsKType(o1, o2);
-                    }
-                }, TEST_SEED);
-
-        KTypeOpenCustomHashSet<KType> refSet4Image = createSetWithRandomData(TEST_SIZE,
-                new KTypeHashingStrategy<KType>() {
-
-                    @Override
-                    public boolean equals(final Object obj) {
-
-                        return true;
-                    }
-
-                    @Override
-                    public int computeHashCode(final KType object) {
-
-                        return Internals.rehash(object);
-                    }
-
-                    @Override
-                    public boolean equals(final KType o1, final KType o2) {
-
-                        return Intrinsics.equalsKType(o1, o2);
-                    }
-                }, TEST_SEED);
-
-        Assert.assertEquals(refSet4, refSet4Image);
-        //but strategy instances are indeed 2 different objects
-        Assert.assertFalse(refSet4.strategy() == refSet4Image.strategy());
-
-        //cleanup
-        refSet4 = null;
-        refSet4Image = null;
-        System.gc();
-
-        //e) Do contrary to 4), hashStrategies always != from each other by equals.
-        final KTypeHashingStrategy<KType> alwaysDifferentStrategy = new KTypeHashingStrategy<KType>() {
-
-            @Override
-            public boolean equals(final Object obj) {
-
-                //never equal !!!
-                return false;
-            }
-
-            @Override
-            public int computeHashCode(final KType object) {
-
-                return Internals.rehash(object);
-            }
-
-            @Override
-            public boolean equals(final KType o1, final KType o2) {
-
-                return Intrinsics.equalsKType(o1, o2);
-            }
-        };
-
-        final KTypeOpenCustomHashSet<KType> refSet5 = createSetWithRandomData(TEST_SIZE, alwaysDifferentStrategy, TEST_SEED);
-        final KTypeOpenCustomHashSet<KType> refSet5alwaysDifferent = createSetWithRandomData(TEST_SIZE, alwaysDifferentStrategy, TEST_SEED);
-
-        //both sets are NOT equal because their strategies said they are different
-        Assert.assertFalse(refSet5.equals(refSet5alwaysDifferent));
-    }
-
-    @Test
-    public void testHashingStrategyAddContainsRemove()
-    {
-        final long TEST_SEED = 749741621030146103L;
-        final int TEST_SIZE = (int) 500e3;
-
-        //those following 3  sets behave indeed the same in the test context:
-        final KTypeOpenCustomHashSet<KType> refSet = KTypeOpenCustomHashSet.newInstance(new KTypeStandardHash<KType>());
-
-        final KTypeOpenCustomHashSet<KType> refSetIdenticalStrategy = KTypeOpenCustomHashSet.newInstance(
-                Containers.DEFAULT_EXPECTED_ELEMENTS,
-                HashContainers.DEFAULT_LOAD_FACTOR,
-                new KTypeHashingStrategy<KType>() {
-
-                    @Override
-                    public boolean equals(final Object obj) {
-
-                        //always
-                        return true;
-                    }
-
-                    @Override
-                    public int computeHashCode(final KType object) {
-
-                        return Internals.rehash(object);
-                    }
-
-                    @Override
-                    public boolean equals(final KType o1, final KType o2) {
-
-                        return Intrinsics.equalsKType(o1, o2);
-                    }
-                });
-
-        //compute the iterations doing multiple operations
-        final Random prng = new Random(TEST_SEED);
-
-        for (int i = 0; i < TEST_SIZE; i++)
-        {
-            //a) generate a value to put
-            int putValue = prng.nextInt();
-
-            refSet.add(cast(putValue));
-            refSetIdenticalStrategy.add(cast(putValue));
-
-            Assert.assertEquals(refSet.contains(cast(putValue)), refSetIdenticalStrategy.contains(cast(putValue)));
-
-            final boolean isToBeRemoved = (prng.nextInt() % 3 == 0);
-            putValue = prng.nextInt();
-
-            if (isToBeRemoved)
-            {
-                refSet.remove(cast(putValue));
-                refSetIdenticalStrategy.remove(cast(putValue));
-
-                Assert.assertFalse(refSet.contains(cast(putValue)));
-                Assert.assertFalse(refSetIdenticalStrategy.contains(cast(putValue)));
-            }
-
-            Assert.assertEquals(refSet.contains(cast(putValue)), refSetIdenticalStrategy.contains(cast(putValue)));
-
-            //test size
-            Assert.assertEquals(refSet.size(), refSetIdenticalStrategy.size());
-        }
-    }
-
     @Repeat(iterations = 10)
     @Test
     public void testNoOverallocation() {
@@ -1424,7 +1200,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
             #end !*/
 
         //2) Preallocate to PREALLOCATED_SIZE :
-        final KTypeOpenCustomHashSet<KType> refContainer = new KTypeOpenCustomHashSet<KType>(PREALLOCATED_SIZE, new KTypeStandardHash<KType>());
+        final KTypeHashSet<KType> refContainer = new KTypeHashSet<KType>(PREALLOCATED_SIZE);
 
         final int refCapacity = refContainer.capacity();
 
@@ -1433,7 +1209,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
 
         for (int i = 0; i < nbElements; i++) {
 
-            refContainer.add(cast(randomVK.nextInt()));
+            refContainer.add(cast(i));
         }
 
         final int nbRefElements = refContainer.size();
@@ -1441,8 +1217,8 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertEquals(refCapacity, refContainer.capacity());
 
         //4) Duplicate by copy-construction and/or clone
-        KTypeOpenCustomHashSet<KType> clonedContainer = refContainer.clone();
-        KTypeOpenCustomHashSet<KType> copiedContainer = KTypeOpenCustomHashSet.from(refContainer, new KTypeStandardHash<KType>());
+        KTypeHashSet<KType> clonedContainer = refContainer.clone();
+        KTypeHashSet<KType> copiedContainer = new KTypeHashSet<KType>(refContainer);
 
         final int copiedCapacity = copiedContainer.capacity();
         final int clonedCapacity = copiedContainer.capacity();
@@ -1458,7 +1234,7 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         for (int j = 0; j < 10; j++) {
 
             clonedContainer = clonedContainer.clone();
-            copiedContainer = KTypeOpenCustomHashSet.from(copiedContainer, new KTypeStandardHash<KType>());
+            copiedContainer = KTypeHashSet.from(copiedContainer);
 
             //when copied over itself, of course every characteristic must be constant, else something is wrong.
             Assert.assertEquals(nbRefElements, clonedContainer.size());
@@ -1470,25 +1246,10 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         }
     }
 
-    private KTypeOpenCustomHashSet<KType> createSetWithRandomData(final int size, final KTypeHashingStrategy<? super KType> strategy, final long randomSeed)
+    private KTypeHashSet<KType> createSetWithOrderedData(final int size)
     {
-        final Random prng = new Random(randomSeed);
-
-        final KTypeOpenCustomHashSet<KType> newSet = KTypeOpenCustomHashSet.newInstance(Containers.DEFAULT_EXPECTED_ELEMENTS,
-                HashContainers.DEFAULT_LOAD_FACTOR, strategy);
-
-        for (int i = 0; i < size; i++)
-        {
-            newSet.add(cast(prng.nextInt()));
-        }
-
-        return newSet;
-    }
-
-    private KTypeOpenCustomHashSet<KType> createSetWithOrderedData(final int size)
-    {
-        final KTypeOpenCustomHashSet<KType> newSet = KTypeOpenCustomHashSet.newInstance(Containers.DEFAULT_EXPECTED_ELEMENTS,
-                HashContainers.DEFAULT_LOAD_FACTOR, this.TEST_STRATEGY);
+        final KTypeHashSet<KType> newSet = KTypeHashSet.newInstance(Containers.DEFAULT_EXPECTED_ELEMENTS,
+                HashContainers.DEFAULT_LOAD_FACTOR);
 
         for (int i = 0; i < size; i++) {
 
@@ -1498,10 +1259,6 @@ public class KTypeOpenCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         return newSet;
     }
 
-    /**
-     * Robin-Hood / template version
-     * (no need to inline in tests)
-     */
     private boolean is_allocated(final int slot, final KType[] keys) {
 
         return !Intrinsics.isEmptyKey(keys[slot]);

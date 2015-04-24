@@ -3,8 +3,8 @@ This release fix important bugs, and align on some refactorings or changes of HP
 
 ** API-breaking changes / New features
 HPPCRT-36: Simplify specific IdentityHash impl by deriving a specific CustomHash
-HPPCRT-40 : Remove DoubleLinkedIntSet
-HPPC-140 : Indeed, keys() and values() already returned Collections from a long time in HPPC-RT. 
+HPPCRT-40: Remove DoubleLinkedIntSet 
+HPPC-140: Indeed, keys() and values() already returned Collections from a long time in HPPC-RT. 
 Still, rename the retuned types from KeysContainer/ValuesContainer into KeysCollection/ValuesCollection to stress on that fact.
 
 HPPCRT-37: API changes and internal code refactorings from HPPC v0.7.0:
@@ -13,7 +13,10 @@ HPPCRT-37: API changes and internal code refactorings from HPPC v0.7.0:
 - HPPC-105: renamed hppcrt-core to hppcrt, and hppcrt-templateprocessor into hppcrt-template-processor
 - HPPC-114: Buffer resizing and allocation should be throwing non-assertion mode exceptions.
 - HPPC-117: Static factory methods newInstanceXXX() renamed into newInstance() everywhere with proper overrides.
-- HPPC-121: Rename remove{All|First|Last}Occurrence(s) to remove{All|First|Last}(key) 
+- HPPC-121: Renamed methods:
+          T.removeFirstOccurrences -> T.removeFirst
+          T.removeLastOccurrences  -> T.removeLast
+          T.removeAllOccurrences   -> T.removeAll(type)
 - HPPC-120: Rework entry shifting routine to be less hairy
 - HPPC-125: equals should not compare with subclasses of itself.
 - HPPC-130: removeAll(KTypeLookupContainer) had an incorrect 
@@ -43,6 +46,7 @@ HPPCRT-37: API changes and internal code refactorings from HPPC v0.7.0:
             public int removeAll(KTypeContainer<? super KType> container)
 
 - HPPC-141: Dropped mutable type wrappers (*Holder classes)
+- HPPC-145: Removed any "Open" infix from all Hash container classes. 
 
 ** Bug fixes
 

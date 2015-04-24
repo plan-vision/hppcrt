@@ -1,13 +1,11 @@
 package com.carrotsearch.hppcrt.implementations;
 
-
 import java.util.Random;
 
-import com.carrotsearch.hppcrt.Util;
 import com.carrotsearch.hppcrt.XorShiftRandom;
-import com.carrotsearch.hppcrt.maps.ObjectIntOpenHashMap;
+import com.carrotsearch.hppcrt.maps.ObjectIntHashMap;
 
-public class HppcObjectIntMap extends MapImplementation<ObjectIntOpenHashMap<MapImplementation.ComparableInt>>
+public class HppcObjectIntMap extends MapImplementation<ObjectIntHashMap<MapImplementation.ComparableInt>>
 {
 
     private ComparableInt[] insertKeys;
@@ -17,7 +15,7 @@ public class HppcObjectIntMap extends MapImplementation<ObjectIntOpenHashMap<Map
 
     protected HppcObjectIntMap(final int size, final float loadFactor)
     {
-        super(new ObjectIntOpenHashMap<ComparableInt>(size, loadFactor));
+        super(new ObjectIntHashMap<ComparableInt>(size, loadFactor));
     }
 
     /**
@@ -70,7 +68,7 @@ public class HppcObjectIntMap extends MapImplementation<ObjectIntOpenHashMap<Map
     @Override
     public int benchPutAll() {
 
-        final ObjectIntOpenHashMap<ComparableInt> instance = this.instance;
+        final ObjectIntHashMap<ComparableInt> instance = this.instance;
         final int[] values = this.insertValues;
 
         int count = 0;
@@ -88,7 +86,7 @@ public class HppcObjectIntMap extends MapImplementation<ObjectIntOpenHashMap<Map
     @Override
     public int benchContainKeys()
     {
-        final ObjectIntOpenHashMap<ComparableInt> instance = this.instance;
+        final ObjectIntHashMap<ComparableInt> instance = this.instance;
 
         int count = 0;
 
@@ -105,7 +103,7 @@ public class HppcObjectIntMap extends MapImplementation<ObjectIntOpenHashMap<Map
     @Override
     public int benchRemoveKeys() {
 
-        final ObjectIntOpenHashMap<ComparableInt> instance = this.instance;
+        final ObjectIntHashMap<ComparableInt> instance = this.instance;
 
         int count = 0;
 
@@ -122,7 +120,7 @@ public class HppcObjectIntMap extends MapImplementation<ObjectIntOpenHashMap<Map
     @Override
     public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
 
-        this.instance = ((ObjectIntOpenHashMap<MapImplementation.ComparableInt>) toCloneFrom.instance).clone();
+        this.instance = ((ObjectIntHashMap<MapImplementation.ComparableInt>) toCloneFrom.instance).clone();
 
     }
 }

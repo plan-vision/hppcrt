@@ -1,12 +1,12 @@
 package com.carrotsearch.hppcrt;
 
-import static org.junit.Assert.*;
-
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.carrotsearch.hppcrt.lists.*;
-import com.carrotsearch.hppcrt.maps.*;
+import com.carrotsearch.hppcrt.lists.ByteArrayList;
+import com.carrotsearch.hppcrt.lists.CharArrayList;
+import com.carrotsearch.hppcrt.lists.ObjectArrayList;
+import com.carrotsearch.hppcrt.maps.ObjectObjectHashMap;
 
 public class StringConversionsTest
 {
@@ -37,8 +37,8 @@ public class StringConversionsTest
     @Test
     public void testObjectObjectMap()
     {
-        final ObjectObjectOpenHashMap<String, String> map =
-                ObjectObjectOpenHashMap.from(
+        final ObjectObjectHashMap<String, String> map =
+                ObjectObjectHashMap.from(
                         new String[] { "a" },
                         new String[] { "b" });
 

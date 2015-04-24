@@ -20,8 +20,8 @@ import com.carrotsearch.hppcrt.implementations.MapImplementation;
 import com.carrotsearch.hppcrt.implementations.MapImplementation.ComparableInt;
 import com.carrotsearch.hppcrt.implementations.MapImplementation.HASH_QUALITY;
 import com.carrotsearch.hppcrt.lists.IntArrayList;
-import com.carrotsearch.hppcrt.sets.IntOpenHashSet;
-import com.carrotsearch.hppcrt.sets.ObjectOpenIdentityHashSet;
+import com.carrotsearch.hppcrt.sets.IntHashSet;
+import com.carrotsearch.hppcrt.sets.ObjectIdentityHashSet;
 
 /**
  * Benchmark putting a given number of integers / Objects into a hashmap.
@@ -171,7 +171,7 @@ public class BenchmarkHashMapBase
 
         if (this.impl.isIdentityMap()) {
 
-            final ObjectOpenIdentityHashSet<ComparableInt> testIdentityFactor = new ObjectOpenIdentityHashSet<ComparableInt>(nbElementsToPush);
+            final ObjectIdentityHashSet<ComparableInt> testIdentityFactor = new ObjectIdentityHashSet<ComparableInt>(nbElementsToPush);
 
             for (final Entry<ComparableInt, Integer> curr : dryRunHashSet.entrySet()) {
 
@@ -182,7 +182,7 @@ public class BenchmarkHashMapBase
 
         }
         else {
-            final IntOpenHashSet testSetFactor = new IntOpenHashSet(nbElementsToPush);
+            final IntHashSet testSetFactor = new IntHashSet(nbElementsToPush);
 
             testSetFactor.addAll(keysListToPush);
 

@@ -9,7 +9,7 @@ public class HppcOomPut
     public static void main(final String[] args)
             throws Exception
     {
-        final IntIntOpenHashMap map = new IntIntOpenHashMap(100, 1f);
+        final IntIntHashMap map = new IntIntHashMap(100, 1f);
         final Field f = map.getClass().getDeclaredField("keys");
         f.setAccessible(true);
 

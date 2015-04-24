@@ -2,11 +2,10 @@ package com.carrotsearch.hppcrt.implementations;
 
 import java.util.Random;
 
-import com.carrotsearch.hppcrt.Util;
 import com.carrotsearch.hppcrt.XorShiftRandom;
-import com.carrotsearch.hppcrt.maps.ObjectIntOpenIdentityHashMap;
+import com.carrotsearch.hppcrt.maps.ObjectIntIdentityHashMap;
 
-public class HppcIdentityIntMap extends MapImplementation<ObjectIntOpenIdentityHashMap<MapImplementation.ComparableInt>>
+public class HppcIdentityIntMap extends MapImplementation<ObjectIntIdentityHashMap<MapImplementation.ComparableInt>>
 {
     private ComparableInt[] insertKeys;
     private ComparableInt[] containsKeys;
@@ -15,7 +14,7 @@ public class HppcIdentityIntMap extends MapImplementation<ObjectIntOpenIdentityH
 
     protected HppcIdentityIntMap(final int size, final float loadFactor)
     {
-        super(new ObjectIntOpenIdentityHashMap<ComparableInt>(size, loadFactor));
+        super(new ObjectIntIdentityHashMap<ComparableInt>(size, loadFactor));
     }
 
     /**
@@ -68,7 +67,7 @@ public class HppcIdentityIntMap extends MapImplementation<ObjectIntOpenIdentityH
     @Override
     public int benchPutAll() {
 
-        final ObjectIntOpenIdentityHashMap<ComparableInt> instance = this.instance;
+        final ObjectIntIdentityHashMap<ComparableInt> instance = this.instance;
         final int[] values = this.insertValues;
 
         int count = 0;
@@ -86,7 +85,7 @@ public class HppcIdentityIntMap extends MapImplementation<ObjectIntOpenIdentityH
     @Override
     public int benchContainKeys()
     {
-        final ObjectIntOpenIdentityHashMap<ComparableInt> instance = this.instance;
+        final ObjectIntIdentityHashMap<ComparableInt> instance = this.instance;
 
         int count = 0;
 
@@ -103,7 +102,7 @@ public class HppcIdentityIntMap extends MapImplementation<ObjectIntOpenIdentityH
     @Override
     public int benchRemoveKeys() {
 
-        final ObjectIntOpenIdentityHashMap<ComparableInt> instance = this.instance;
+        final ObjectIntIdentityHashMap<ComparableInt> instance = this.instance;
 
         int count = 0;
 
@@ -126,7 +125,7 @@ public class HppcIdentityIntMap extends MapImplementation<ObjectIntOpenIdentityH
     @Override
     public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
 
-        this.instance = ((ObjectIntOpenIdentityHashMap<ComparableInt>) toCloneFrom.instance).clone();
+        this.instance = ((ObjectIntIdentityHashMap<ComparableInt>) toCloneFrom.instance).clone();
 
     }
 }

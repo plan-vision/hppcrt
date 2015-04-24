@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.IOUtils;
 
-import com.carrotsearch.hppcrt.maps.IntIntOpenHashMap;
+import com.carrotsearch.hppcrt.maps.IntIntHashMap;
 
 public class BigramCountingBase
 {
@@ -33,7 +33,7 @@ public class BigramCountingBase
         // We'll use a int -> int map for counting. A bigram can be encoded
         // as an int by shifting one of the bigram's characters by 16 bits
         // and then ORing the other character to form a 32-bit int.
-        final IntIntOpenHashMap map = new IntIntOpenHashMap();
+        final IntIntHashMap map = new IntIntHashMap();
 
         int count = 0;
 

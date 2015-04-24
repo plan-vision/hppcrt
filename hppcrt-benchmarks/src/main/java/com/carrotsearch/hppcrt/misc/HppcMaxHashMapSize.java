@@ -11,7 +11,7 @@ public class HppcMaxHashMapSize
     public static void main(final String[] args)
             throws Exception
     {
-        final IntOpenHashSet set = new IntOpenHashSet(0x40000000, 0.75f);
+        final IntHashSet set = new IntHashSet(0x40000000, 0.75f);
 
         for (int i = 0;; i++) {
             try {

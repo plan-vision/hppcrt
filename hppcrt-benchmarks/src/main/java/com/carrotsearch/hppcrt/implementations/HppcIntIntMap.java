@@ -1,13 +1,12 @@
 package com.carrotsearch.hppcrt.implementations;
 
-
 import java.util.Arrays;
 import java.util.Random;
 
 import com.carrotsearch.hppcrt.XorShiftRandom;
-import com.carrotsearch.hppcrt.maps.IntIntOpenHashMap;
+import com.carrotsearch.hppcrt.maps.IntIntHashMap;
 
-public class HppcIntIntMap extends MapImplementation<IntIntOpenHashMap>
+public class HppcIntIntMap extends MapImplementation<IntIntHashMap>
 {
     private int[] insertKeys;
     private int[] containsKeys;
@@ -16,7 +15,7 @@ public class HppcIntIntMap extends MapImplementation<IntIntOpenHashMap>
 
     protected HppcIntIntMap(final int size, final float loadFactor)
     {
-        super(new IntIntOpenHashMap(size, loadFactor));
+        super(new IntIntHashMap(size, loadFactor));
     }
 
     /**
@@ -54,7 +53,7 @@ public class HppcIntIntMap extends MapImplementation<IntIntOpenHashMap>
     @Override
     public int benchPutAll() {
 
-        final IntIntOpenHashMap instance = this.instance;
+        final IntIntHashMap instance = this.instance;
         final int[] values = this.insertValues;
 
         int count = 0;
@@ -72,7 +71,7 @@ public class HppcIntIntMap extends MapImplementation<IntIntOpenHashMap>
     @Override
     public int benchContainKeys()
     {
-        final IntIntOpenHashMap instance = this.instance;
+        final IntIntHashMap instance = this.instance;
 
         int count = 0;
 
@@ -89,7 +88,7 @@ public class HppcIntIntMap extends MapImplementation<IntIntOpenHashMap>
     @Override
     public int benchRemoveKeys() {
 
-        final IntIntOpenHashMap instance = this.instance;
+        final IntIntHashMap instance = this.instance;
 
         int count = 0;
 
@@ -106,7 +105,7 @@ public class HppcIntIntMap extends MapImplementation<IntIntOpenHashMap>
     @Override
     public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
 
-        this.instance = ((IntIntOpenHashMap) toCloneFrom.instance).clone();
+        this.instance = ((IntIntHashMap) toCloneFrom.instance).clone();
 
     }
 }

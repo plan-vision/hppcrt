@@ -1,5 +1,7 @@
 package com.carrotsearch.hppcrt.jmh;
 
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+
 import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.Benchmark;
@@ -13,24 +15,21 @@ import org.openjdk.jmh.annotations.Timeout;
 import org.openjdk.jmh.runner.RunnerException;
 
 import com.carrotsearch.hppcrt.BenchmarkSuiteRunner;
-import com.carrotsearch.hppcrt.BitUtil;
 import com.carrotsearch.hppcrt.DistributionGenerator;
 import com.carrotsearch.hppcrt.XorShiftRandom;
-import com.carrotsearch.hppcrt.maps.IntIntOpenHashMap;
 import com.carrotsearch.hppcrt.procedures.IntProcedure;
-import com.carrotsearch.hppcrt.sets.IntOpenHashSet;
-import com.carrotsearch.hppcrt.sets.ObjectOpenHashSet;
+import com.carrotsearch.hppcrt.sets.IntHashSet;
 
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Thread)
 public class BenchmarkHashCollisions
 {
     /* Prepare some test data */
-    public IntOpenHashSet testSet;
+    public IntHashSet testSet;
 
-    public IntOpenHashSet currentUnderTestSet;
+    public IntHashSet currentUnderTestSet;
 
-    public IntOpenHashSet currentUnderTestSet2;
+    public IntHashSet currentUnderTestSet2;
 
     /**
      * Consider that @Benchmark executing in more than TIMEOUT_EXEC_IN_S s
@@ -91,7 +90,7 @@ public class BenchmarkHashCollisions
     {
         final int nbElementsToPush = this.targetSize.testSize;
 
-        this.testSet = new IntOpenHashSet(nbElementsToPush);
+        this.testSet = new IntHashSet(nbElementsToPush);
 
         final DistributionGenerator gene = new DistributionGenerator(-nbElementsToPush, 3 * nbElementsToPush, new XorShiftRandom(87955214455L));
 
@@ -126,8 +125,8 @@ public class BenchmarkHashCollisions
         //In PREALLOCATED we only need to create once, and clear the containers under test before each test.
         if (this.allocation == Allocation.PREALLOCATED) {
 
-            this.currentUnderTestSet = IntOpenHashSet.newInstance(nbElementsToPush, this.loadFactor);
-            this.currentUnderTestSet2 = IntOpenHashSet.newInstance(nbElementsToPush, this.loadFactor);
+            this.currentUnderTestSet = IntHashSet.newInstance(nbElementsToPush, this.loadFactor);
+            this.currentUnderTestSet2 = IntHashSet.newInstance(nbElementsToPush, this.loadFactor);
         }
 
         System.out.println("Initialized to test size = " + nbElementsToPush);
@@ -143,8 +142,8 @@ public class BenchmarkHashCollisions
 
         if (this.allocation == Allocation.DEFAULT_SIZE) {
 
-            this.currentUnderTestSet = IntOpenHashSet.newInstance();
-            this.currentUnderTestSet2 = IntOpenHashSet.newInstance();
+            this.currentUnderTestSet = IntHashSet.newInstance();
+            this.currentUnderTestSet2 = IntHashSet.newInstance();
         }
 
         // PREALLOCATED is created once and simply cleared. Since the clear

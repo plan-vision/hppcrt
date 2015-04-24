@@ -3,15 +3,13 @@ package com.carrotsearch.hppcrt.maps;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.carrotsearch.hppcrt.maps.ObjectIntOpenHashMap;
-
 public class ObjectIntOpenHashMapRegressionTest
 {
     /** @see "http://issues.carrot2.org/browse/HPPC-32" */
     @Test
     public void testEqualsOnObjectKeys()
     {
-        final ObjectIntOpenHashMap<String> map = new ObjectIntOpenHashMap<String>();
+        final ObjectIntHashMap<String> map = new ObjectIntHashMap<String>();
         final String key1 = "key1";
         final String key2 = new String("key1");
 
