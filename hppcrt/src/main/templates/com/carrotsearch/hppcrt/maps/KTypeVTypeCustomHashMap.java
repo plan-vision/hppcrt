@@ -2145,13 +2145,13 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
     /*! #if ($TemplateOptions.inlineKType("REHASH",
     "(strategy, value)",
-    "MurmurHash3.hash(strategy.computeHashCode(value) ^ this.perturbation )")) !*/
+    "MurmurHash3.mix(strategy.computeHashCode(value) , this.perturbation )")) !*/
     /**
      * (actual method is inlined in generated code)
      */
     private int REHASH(final KTypeHashingStrategy<? super KType> strategy, final KType value) {
 
-        return MurmurHash3.hash(strategy.computeHashCode(value) ^ this.perturbation);
+        return MurmurHash3.mix(strategy.computeHashCode(value), this.perturbation);
     }
     /*! #end !*/
 

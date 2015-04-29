@@ -3,6 +3,7 @@ package com.carrotsearch.hppcrt;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.carrotsearch.hppcrt.hash.MurmurHash3;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 
 import static com.carrotsearch.hppcrt.HashContainers.*;

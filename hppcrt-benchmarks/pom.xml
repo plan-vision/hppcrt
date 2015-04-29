@@ -26,13 +26,13 @@
         <commons-lang.version>2.6</commons-lang.version>
         
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jmh.version>1.9</jmh.version>
+        <jmh.version>1.9.1</jmh.version>
         <javac.target>1.7</javac.target>
         <uberjar.name>benchmarks</uberjar.name>
         
-        <fastutil.version>7.0.2</fastutil.version>
+        <fastutil.version>7.0.3</fastutil.version>
         <gs.version>6.1.0</gs.version>
-        <koloboke.version>0.6.6</koloboke.version>
+        <koloboke.version>0.6.7</koloboke.version>
         <javolution.version>6.0.0</javolution.version>
     </properties>
 

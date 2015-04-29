@@ -159,6 +159,9 @@ public final class HashContainers
      */
     public static int computeUniqueIdentifier(final Object instance)
     {
-        return (int) (System.identityHashCode(instance) ^ System.nanoTime());
+        final long longId = System.identityHashCode(instance) ^ System.nanoTime();
+
+        //fold to 32 bit
+        return (int) ((longId >>> 32) ^ longId);
     }
 }

@@ -4,6 +4,7 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.carrotsearch.hppcrt.cursors.IntCursor;
@@ -16,6 +17,13 @@ public class HashCollisionsClusteringTest extends RandomizedTest
 {
     private static long BATCH_TIMEOUT_INTEGERS = TimeUnit.SECONDS.toMillis(3); //3s
     private static long BATCH_TIMEOUT_OBJECTS = TimeUnit.SECONDS.toMillis(10);  //5s
+
+    @Before
+    public void purgeMemory() {
+        System.gc();
+        System.gc();
+        System.gc();
+    }
 
     /** @see "http://issues.carrot2.org/browse/HPPC-80" */
     @Test
@@ -83,7 +91,7 @@ public class HashCollisionsClusteringTest extends RandomizedTest
 
     /** @see "http://issues.carrot2.org/browse/HPPC-80" */
     @Test
-    @Timeout(millis = 20000)
+    @Timeout(millis = 10000)
     public void testHashMapClusteringOnRehash()
     {
         final IntIntHashMap a = new IntIntHashMap();

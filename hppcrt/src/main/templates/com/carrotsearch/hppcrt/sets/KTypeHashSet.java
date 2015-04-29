@@ -49,8 +49,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeHashSet<KType>
-extends AbstractKTypeCollection<KType>
-implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+        extends AbstractKTypeCollection<KType>
+        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Hash-indexed array holding all set entries.
@@ -1072,14 +1072,10 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.inlineKTypeWithFullSpecialization("REHASH",
+    /*! #if ($TemplateOptions.inlineKTypeGenericAndPrimitive("REHASH",
     "(value)",
-    "MurmurHash3.hash(value.hashCode() ^ this.perturbation)",
-    "PhiMix.hash(value ^ this.perturbation)",
-    "(int)PhiMix.hash(value ^ this.perturbation)",
-    "PhiMix.hash(Float.floatToIntBits(value) ^ this.perturbation)",
-    "(int)PhiMix.hash(Double.doubleToLongBits(value) ^ this.perturbation)",
-    "")) !*/
+    "MurmurHash3.mix(value.hashCode() , this.perturbation)",
+    "MurmurHash3.mix(value , this.perturbation)")) !*/
     /**
      * REHASH method for rehashing the keys.
      * (inlined in generated code)
@@ -1087,7 +1083,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      */
     private int REHASH(final KType value) {
 
-        return MurmurHash3.hash(value.hashCode() ^ this.perturbation);
+        return MurmurHash3.mix(value.hashCode(), this.perturbation);
     }
     /*! #end !*/
 
