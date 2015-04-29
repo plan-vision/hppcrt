@@ -1076,9 +1076,8 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
         TestUtils.assertSortedListEquals(cloned.keys().toArray(), this.keyE, this.key2, this.key3);
     }
 
-    /*
-     * 
-     */
+    /*! #if ($TemplateOptions.isKType("int", "short", "byte", "long", "Object") &&
+             $TemplateOptions.isVType("int", "short", "byte", "long", "Object")) !*/
     @Test
     public void testToString()
     {
@@ -1104,6 +1103,9 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
         Assert.assertEquals("1122", new String(asCharArray));
     }
 
+    /*! #end !*/
+
+    /*! #if ($TemplateOptions.isKType("int", "long", "Object")) !*/
     @Test
     public void testAddRemoveSameHashCollision()
     {
@@ -1174,6 +1176,8 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
             TestUtils.assertEquals2(this.value2, this.map.get(cast(c.value)));
         }
     }
+
+    /*! #end !*/
 
     /* */
     @Test

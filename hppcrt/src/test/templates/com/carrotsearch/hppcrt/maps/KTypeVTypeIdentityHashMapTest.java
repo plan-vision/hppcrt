@@ -336,16 +336,15 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
         Assert.assertFalse(l2.equals(l1));
     }
 
-    /*
-     * 
-     */
+    /*! #if ($TemplateOptions.isKType("int", "short", "byte", "long", "Object") &&
+             $TemplateOptions.isVType("int", "short", "byte", "long", "Object")) !*/
     @Test
     public void testToString()
     {
         Assume.assumeTrue(Object[].class.isInstance(this.map.keys) &&
                 (!float[].class.isInstance(this.map.values) &&
                         !double[].class.isInstance(this.map.values) &&
-                        !char[].class.isInstance(this.map.values)));
+                !char[].class.isInstance(this.map.values)));
 
         this.map.put(this.key1, this.value1);
         this.map.put(this.key2, this.value2);
@@ -356,6 +355,8 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
         Arrays.sort(asCharArray);
         Assert.assertEquals("1122", new String(asCharArray));
     }
+
+    /*! #end !*/
 
     private KTypeVTypeIdentityHashMap<KType, VType> createMapWithRandomData(final int size, final long randomSeed)
     {

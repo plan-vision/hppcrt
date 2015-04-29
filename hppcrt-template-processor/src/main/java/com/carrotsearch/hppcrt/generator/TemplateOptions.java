@@ -84,8 +84,14 @@ public class TemplateOptions
     {
         //return true if it matches any type of the list, case insensitively while
         //only accepting valid Type strings
-        for (final String kind : strKind)
+        for (String kind : strKind)
         {
+            //accept Object as synonym of Generic
+            if (kind.toLowerCase().equals("object")) {
+
+                kind = Type.GENERIC.name();
+            }
+
             if (this.ktype == Type.valueOf(kind.toUpperCase()))
             {
                 return true;
@@ -113,8 +119,14 @@ public class TemplateOptions
     public boolean isVType(final String... strKind)
     {
         //return true if it matches any type of the list
-        for (final String kind : strKind)
+        for (String kind : strKind)
         {
+            //accept Object as synonym of Generic
+            if (kind.toLowerCase().equals("object")) {
+
+                kind = Type.GENERIC.name();
+            }
+
             //return true if it matches any type of the list, case insensitively while
             //only accepting valid Type strings
             if (this.vtype == Type.valueOf(kind.toUpperCase()))
@@ -176,7 +188,13 @@ public class TemplateOptions
         //if any of the notGeneratingType is this.ktype, then do not generate
         //return true if it matches any type of the list, case insensitively while
         //only accepting valid Type strings
-        for (final String notToBeGenerated : notGeneratingType) {
+        for (String notToBeGenerated : notGeneratingType) {
+
+            //accept Object as synonym of Generic
+            if (notToBeGenerated.toLowerCase().equals("object")) {
+
+                notToBeGenerated = Type.GENERIC.name();
+            }
 
             if (notToBeGenerated.toUpperCase().equals("ALL") || this.ktype == Type.valueOf(notToBeGenerated.toUpperCase())) {
 
@@ -195,8 +213,14 @@ public class TemplateOptions
         //if any of the notGeneratingType is this.ktype, then do not generate
         //return true if it matches any type of the list, case insensitively while
         //only accepting valid Type strings
-        for (final String notToBeGenerated : notGeneratingType)
+        for (String notToBeGenerated : notGeneratingType)
         {
+            //accept Object as synonym of Generic
+            if (notToBeGenerated.toLowerCase().equals("object")) {
+
+                notToBeGenerated = Type.GENERIC.name();
+            }
+
             if (notToBeGenerated.toUpperCase().equals("ALL") || this.vtype == Type.valueOf(notToBeGenerated.toUpperCase()))
             {
                 doNotGenerate();

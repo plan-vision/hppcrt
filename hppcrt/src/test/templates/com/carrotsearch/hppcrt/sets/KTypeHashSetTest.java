@@ -96,6 +96,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
         }
     }
 
+    /*! #if ($TemplateOptions.isKType("int", "long", "Object")) !*/
     @Test
     public void testAddRemoveSameHashCollision()
     {
@@ -171,6 +172,8 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
             Assert.assertTrue(this.set.contains(cast(cursor.value)));
         }
     }
+
+    /*! #end !*/
 
     /* */
     @Test
@@ -569,9 +572,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
         TestUtils.assertSortedListEquals(cloned.toArray(), this.keyE, this.key2, this.key3);
     }
 
-    /*
-     * 
-     */
+    /*! #if ($TemplateOptions.isKType("int", "short", "byte", "long", "Object")) !*/
     @Test
     public void testToString()
     {
@@ -589,6 +590,8 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
         Arrays.sort(asCharArray);
         Assert.assertEquals("12", new String(asCharArray));
     }
+
+    /*! #end !*/
 
     @Test
     public void testPooledIteratorForEach()
