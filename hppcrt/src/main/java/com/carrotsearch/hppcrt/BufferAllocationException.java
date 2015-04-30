@@ -19,17 +19,24 @@ public class BufferAllocationException extends RuntimeException
     }
 
     private static String formatMessage(final String message, final Throwable t, final Object... args) {
+
+        String formattedMessage = "";
+
         try {
-            return String.format(Locale.ROOT, message, args);
+
+            formattedMessage = String.format(Locale.ROOT, message, args);
         }
         catch (final IllegalFormatException e) {
-            final BufferAllocationException substitute =
-                    new BufferAllocationException(message + " [ILLEGAL FORMAT, ARGS SUPPRESSED]");
-            if (t != null) {
-                substitute.addSuppressed(t);
-            }
-            substitute.addSuppressed(e);
-            throw substitute;
+
+            //something bad happened , replace by a default message
+            formattedMessage = "'" + message + "' message has ILLEGAL FORMAT, ARGS SUPPRESSED !";
+
+            //Problem is, this IllegalFormatException may have masked the originally sent exception t,
+            //so be it.
+            //We can't use Throwable.setSuppressed() (Java 1.7+) because we want to continue
+            //to accomodate Java 1.5+.
         }
+
+        return formattedMessage;
     }
 }
