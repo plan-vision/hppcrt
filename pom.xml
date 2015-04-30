@@ -51,8 +51,11 @@
     <!-- Global properties. -->
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.6</maven.compiler.source>
-        <maven.compiler.target>1.6</maven.compiler.target>
+        <!-- Template processor itself is Java 7 level while the final lib is still 1.6 -->
+        <lib.hppcrt.source>1.6</lib.hppcrt.source>
+        <template-processor.source>1.7</template-processor.source>
+        
+        <version.guava>18.0</version.guava>
 
         <version.junit>4.12</version.junit>
         <version.ant>1.9.4</version.ant>
@@ -90,6 +93,11 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${version.guava}</version>
+            </dependency>
+            <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${version.junit}</version>
@@ -123,8 +131,8 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${version.maven-compiler-plugin}</version>
                     <configuration>
-                        <source>${maven.compiler.source}</source>
-                        <target>${maven.compiler.target}</target>
+                        <source>${lib.hppcrt.source}</source>
+                        <target>${lib.hppcrt.source}</target>
                     </configuration>
                 </plugin>
 
