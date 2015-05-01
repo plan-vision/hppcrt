@@ -61,6 +61,7 @@
         <version.ant>1.9.4</version.ant>
 
         <version.randomizedtesting>2.1.14</version.randomizedtesting>
+        <version.antlr>4.5</version.antlr>
         <version.maven-assembly-plugin>2.5.3</version.maven-assembly-plugin>
         <version.maven-clean-plugin>2.6.1</version.maven-clean-plugin>
         <version.maven-compiler-plugin>3.3</version.maven-compiler-plugin>
@@ -125,6 +126,11 @@
     <build>
         <pluginManagement>
             <plugins>
+            <plugin>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-maven-plugin</artifactId>
+                <version>${version.antlr}</version>
+            </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
