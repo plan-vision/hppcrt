@@ -26,6 +26,17 @@
 
   <!-- Dependencies. -->
   <dependencies>
+  <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${version.guava}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.antlr</groupId>
+      <artifactId>antlr4</artifactId>
+      <version>${version.antlr}</version>
+    </dependency>
+    
     <dependency>
       <groupId>org.apache.velocity</groupId>
       <artifactId>velocity</artifactId>
@@ -37,11 +48,18 @@
       <artifactId>velocity-tools</artifactId>
       <version>${version.velocity-tools}</version>
     </dependency>
+    
+    <dependency>
+      <groupId>com.carrotsearch.randomizedtesting</groupId>
+      <artifactId>randomizedtesting-runner</artifactId>
+      <scope>test</scope>
+    </dependency>
+    
   </dependencies>
 
-  <!-- Build tuning. -->
+  <!-- Build tuning, run ANTLRv4 to build from grammar -->
   <build>
-        <plugins>
+        <plugins>  
             <!-- Template processor itself is Java 7 level while the final lib is still 1.6 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -51,6 +69,21 @@
                     <source>${template-processor.source}</source>
                     <target>${template-processor.source}</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-maven-plugin</artifactId>
+                <executions>
+                  <execution>
+                    <id>antlr4</id>
+                    <goals>
+                      <goal>antlr4</goal>
+                    </goals>
+                    <configuration>
+                      <visitor>true</visitor>
+                    </configuration>
+                  </execution>
+                </executions>
             </plugin>
         </plugins>
   </build>

@@ -30,7 +30,6 @@ import com.carrotsearch.hppcrt.strategies.*;
  * at any given time is only able to have <code>int</code> keys in
  * the [0 ; {@link #capacity()}[ range. So when a {@link #put(int, KType)} occurs, the map may be resized to be able hold a key exceeding the current capacity.</b>
  * </p>
- * @author <a href="https://github.com/vsonnier" >Vincent Sonnier</a>
  */
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
 /*! #set( $DEBUG = false) !*/

@@ -187,8 +187,6 @@
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-    Copyright 2010-2013, Carrot Search s.c., Boznicza 11/56, Poznan, Poland
-    Copyright 2014, Cliff Moon (cliff@leaninto.it)
     Copyright 2013-2015, Vincent Sonnier (vsonnier@gmail.com)
 
    Licensed under the Apache License, Version 2.0 (the "License");

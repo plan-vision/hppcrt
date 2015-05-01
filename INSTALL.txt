@@ -5,7 +5,7 @@ Maven shortcuts
 mvn clean
 
 # Generate Eclipse project files (the setup is a bit complex, so use this!)
-mvn -DskipTests=true clean compile eclipse:clean eclipse:eclipse
+mvn clean compile eclipse:clean eclipse:eclipse
 
 # Compile 
 mvn clean compile
@@ -16,8 +16,8 @@ mvn clean test
 # Install packages in a local repository, also builds benchmarks
 mvn clean install
 
-# Rebuild jars, builds the benchmarks jar, skip the tests execution
-mvn -DskipTests=true clean install
+# Package JAR files, builds the benchmarks jar, skip the tests execution
+mvn clean install -Pquick
 
 # Generate site, also running Findbugs in the process
 mvn site

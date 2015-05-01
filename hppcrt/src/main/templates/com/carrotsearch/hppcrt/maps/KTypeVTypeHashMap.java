@@ -36,9 +36,6 @@ import com.carrotsearch.hppcrt.hash.*;
  * <p>This implementation supports <code>null</code> values.</p>
 #end
  *
- * @author This code is inspired by the original <a
- *         href="http://labs.carrotsearch.com/hppc.html">HPPC</a> and also by the <a
- *         href="http://fastutil.di.unimi.it/">fastutil</a> project.
  * 
 #if ($RH)
  *   <p> Robin-Hood hashing algorithm is also used to minimize variance

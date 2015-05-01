@@ -24,7 +24,6 @@ import com.carrotsearch.hppcrt.strategies.*;
  * #end
  *  or by a custom comparator provided in constructors,
  * see {@link #comparator()} .
- * @author <a href="https://github.com/vsonnier" >Vincent Sonnier</a>
  */
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
 /*! #set( $DEBUG = false) !*/

@@ -8,6 +8,7 @@ HPPC-140: Indeed, keys() and values() already returned Collections from a long t
 Still, rename the retuned types from KeysContainer/ValuesContainer into KeysCollection/ValuesCollection to stress on that fact.
 
 HPPCRT-37: API changes and internal code refactorings from HPPC v0.7.0:
+- HPPC-109: Moved @author tags to NOTICE.txt.
 
 - HPPC-104 + HPPC-116: Ability to create a read-only view of a map. For that, lset/lget/lslot..., all l* methods from hash containers are removed.
 - HPPC-105: renamed hppcrt-core to hppcrt, and hppcrt-templateprocessor into hppcrt-template-processor

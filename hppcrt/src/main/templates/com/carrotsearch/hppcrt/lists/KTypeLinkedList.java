@@ -27,7 +27,6 @@ import com.carrotsearch.hppcrt.strategies.*;
  * Important note: DO NOT USE java.util.Iterator methods ! They are here only for enhanced-loop syntax. Use
  * the specialized methods of  {@link ValueIterator} or {@link DescendingValueIterator} instead !
  * </b>
- * @author <a href="https://github.com/vsonnier" >Vincent Sonnier</a>
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeLinkedList<KType>

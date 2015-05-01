@@ -51,7 +51,6 @@ import com.carrotsearch.hppcrt.procedures.LongProcedure;
  * @see #asIntLookupContainer()
  * @see #asLongLookupContainer()
  * 
- * @author "Original implementation from the Lucene project."
  */
 public class BitSet implements Cloneable
 {

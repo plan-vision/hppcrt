@@ -2,7 +2,7 @@
 
 This is a fork of HPPC from CarrotSearch, see JavaDoc and documentation at: http://labs.carrotsearch.com/hppc.html for more info.
 
-IMPORTANT: Developers - read INSTALL file for proper Eclipse setup!
+IMPORTANT: Developers - read INSTALL file for proper Eclipse setup and requirements
 
 ---------------------------------------
 
