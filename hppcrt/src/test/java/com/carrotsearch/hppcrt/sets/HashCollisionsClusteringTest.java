@@ -15,8 +15,8 @@ import com.carrotsearch.randomizedtesting.annotations.Timeout;
 
 public class HashCollisionsClusteringTest extends RandomizedTest
 {
-    private static long BATCH_TIMEOUT_INTEGERS = TimeUnit.SECONDS.toMillis(3); //3s
-    private static long BATCH_TIMEOUT_OBJECTS = TimeUnit.SECONDS.toMillis(10);  //5s
+    private static long BATCH_TIMEOUT_INTEGERS = TimeUnit.SECONDS.toMillis(5); //5s
+    private static long BATCH_TIMEOUT_OBJECTS = TimeUnit.SECONDS.toMillis(15);  //15s
 
     @Before
     public void purgeMemory() {
