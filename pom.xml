@@ -54,15 +54,17 @@
         <!-- Template processor itself is Java 7 level while the final lib is still 1.6 -->
         <lib.hppcrt.source>1.6</lib.hppcrt.source>
         <template-processor.source>1.7</template-processor.source>
-        
+
         <version.guava>18.0</version.guava>
 
         <version.junit>4.12</version.junit>
+        
+        <version.maven-antrun-plugin>1.8</version.maven-antrun-plugin>
         <version.ant>1.9.4</version.ant>
 
         <version.randomizedtesting>2.1.14</version.randomizedtesting>
         <version.antlr>4.5</version.antlr>
-        <version.maven-assembly-plugin>2.5.3</version.maven-assembly-plugin>
+        <version.maven-assembly-plugin>2.5.4</version.maven-assembly-plugin>
         <version.maven-clean-plugin>2.6.1</version.maven-clean-plugin>
         <version.maven-compiler-plugin>3.3</version.maven-compiler-plugin>
         <version.maven-dependency-plugin>2.10</version.maven-dependency-plugin>
@@ -76,7 +78,7 @@
         <version.maven-surefire-report-plugin>2.18.1</version.maven-surefire-report-plugin>
         <version.maven-site-plugin>3.4</version.maven-site-plugin>
         <version.maven-project-info-reports-plugin>2.8</version.maven-project-info-reports-plugin>
-        <version.maven-antrun-plugin>1.8</version.maven-antrun-plugin>
+        
         <version.maven-enforcer-plugin>1.4</version.maven-enforcer-plugin>
         <version.maven-source-plugin>2.4</version.maven-source-plugin>
         <version.findbugs-maven-plugin>3.0.0</version.findbugs-maven-plugin> 
@@ -89,7 +91,7 @@
     <prerequisites>
         <maven>${version.maven.api}</maven>
     </prerequisites>
-  
+
     <modules>
         <module>hppcrt-template-processor</module>
         <module>hppcrt</module>
@@ -108,8 +110,8 @@
                 <artifactId>junit</artifactId>
                 <version>${version.junit}</version>
             </dependency>
-            
-             <dependency>
+
+            <dependency>
                 <groupId>com.carrotsearch.randomizedtesting</groupId>
                 <artifactId>randomizedtesting-runner</artifactId>
                 <version>${version.randomizedtesting}</version>
@@ -126,11 +128,11 @@
     <build>
         <pluginManagement>
             <plugins>
-            <plugin>
-                <groupId>org.antlr</groupId>
-                <artifactId>antlr4-maven-plugin</artifactId>
-                <version>${version.antlr}</version>
-            </plugin>
+                <plugin>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>antlr4-maven-plugin</artifactId>
+                    <version>${version.antlr}</version>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
@@ -150,6 +152,9 @@
                     <configuration>
                         <source>${lib.hppcrt.source}</source>
                         <target>${lib.hppcrt.source}</target>
+                        <compilerArgs>
+                            <arg>-Xlint</arg>
+                        </compilerArgs>
                     </configuration>
                 </plugin>
 
@@ -192,7 +197,7 @@
                         </excludes>
                     </configuration>
                 </plugin>
-             
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
