@@ -13,21 +13,22 @@ mvn clean compile
 # Compile all, run all unit tests
 mvn clean test
 
-# Install packages in a local repository, also builds benchmarks
+# Compile all, run all unit tests, package runtime JAR files, builds the benchmarks jar, install packages in a local repository.
 mvn clean install
 
-# Package JAR files, builds the benchmarks jar, skip the tests execution
-mvn clean install -Pquick
+# Package all JAR files, builds the benchmarks jar, skip the tests execution.
+mvn clean package source:jar -Pquick
+
+# Package all JAR files, builds the benchmarks jar, skip the tests execution, install packages in a local repository.
+mvn clean install source:jar -Pquick
 
 # Generate site, also running Findbugs in the process
 mvn site
 
-# Build sources jar
+# Build sources jar.
 mvn source:jar
 
 # Try to resolve all dependencies to be able to work off the Net
 mvn dependency:go-offline
 
 
-# Package JAR files, no tests.
-mvn clean package source:jar -Pquick
