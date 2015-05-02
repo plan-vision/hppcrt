@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/hppcrt-template-processor/src/main/java/com/carrotsearch/hppcrt/generator/TemplateProcessor.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<booleanAttribute key="org.eclipse.jdt.debug.ui.INCLUDE_EXTERNAL_JARS" value="true"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.carrotsearch.hppcrt.generator.TemplateProcessor"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="${project_loc:hppcrt}/src/main/templates  ${project_loc:hppcrt}/target/generated-sources/main/java ${project_loc:hppcrt}/src/main/templates"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="hppcrt-template-processor"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea -Xms256m -Xmx512m -Dincremental=false -Dverbose=off"/>
+</launchConfiguration>

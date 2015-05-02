@@ -107,6 +107,7 @@
         <dependency>
             <groupId>org.apache.ant</groupId>
             <artifactId>ant</artifactId>
+            <version>${version.ant}</version>
         </dependency>
         <dependency>
             <groupId>org.javolution</groupId>
