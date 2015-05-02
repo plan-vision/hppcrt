@@ -58,7 +58,7 @@
         <version.guava>18.0</version.guava>
 
         <version.junit>4.12</version.junit>
-        
+         
         <version.maven-antrun-plugin>1.8</version.maven-antrun-plugin>
         <version.ant>1.9.4</version.ant>
 

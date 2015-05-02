@@ -8,24 +8,21 @@ import java.nio.file.Paths;
 import java.util.Locale;
 
 import org.junit.Assert;
-import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.carrotsearch.hppcrt.generator.TemplateOptions;
 import com.carrotsearch.hppcrt.generator.Type;
 import com.carrotsearch.randomizedtesting.RandomizedRunner;
-import com.carrotsearch.randomizedtesting.annotations.ThreadLeakAction;
-import com.carrotsearch.randomizedtesting.annotations.ThreadLeakFilters;
 import com.carrotsearch.randomizedtesting.annotations.ThreadLeakLingering;
-import com.carrotsearch.randomizedtesting.annotations.ThreadLeakZombies;
-import com.carrotsearch.randomizedtesting.annotations.ThreadLeakAction.Action;
 
 @RunWith(RandomizedRunner.class)
 //To be able to have Tree GUIs
 @ThreadLeakLingering(linger = Integer.MAX_VALUE)
 public class TestSignatureProcessor
 {
+    private static final String TEST_CASE_PATH = "src/test/java/com/carrotsearch/hppcrt/generator/parser/test_cases/";
+
     @Test
     public void testClassKV() throws IOException {
         final SignatureProcessor sp = new SignatureProcessor("public class KTypeVTypeClass<KType, VType> {}");
@@ -73,8 +70,8 @@ public class TestSignatureProcessor
     @Test
     public void testClassImplementsTemplate() throws IOException {
         final SignatureProcessor sp = new SignatureProcessor(
-                "public class KTypeVTypeClass<KType, VType> " +
-                        " extends     KTypeVTypeSuperClass<KType, VType>" +
+                                                             "public class KTypeVTypeClass<KType, VType> " +
+                                                                     " extends     KTypeVTypeSuperClass<KType, VType>" +
                 " implements  KTypeVTypeInterface<KType, VType> {}");
 
         check(Type.INT, Type.LONG, sp, "public class IntLongClass extends IntLongSuperClass implements IntLongInterface {}");
@@ -86,7 +83,7 @@ public class TestSignatureProcessor
     @Test
     public void testInterfaceKV() throws IOException {
         final SignatureProcessor sp = new SignatureProcessor(
-                "public interface KTypeVTypeInterface<KType, VType> " +
+                                                             "public interface KTypeVTypeInterface<KType, VType> " +
                 "         extends KTypeVTypeSuper<KType, VType> {}");
 
         check(Type.INT, Type.LONG, sp, "public interface IntLongInterface extends IntLongSuper {}");
@@ -231,10 +228,10 @@ public class TestSignatureProcessor
     @Test
     public void testUtilityClassStaticGenericMethods() throws IOException {
         final SignatureProcessor sp = new SignatureProcessor(
-                "public final class KTypeArraysClass {  "
-                        + "public static <KType> void utilityMethod(final KType[] objectArray, final int startIndex, final int endIndex) {"
-                        + "} "
-                        + "}");
+                                                             "public final class KTypeArraysClass {  "
+                                                                     + "public static <KType> void utilityMethod(final KType[] objectArray, final int startIndex, final int endIndex) {"
+                                                                     + "} "
+                                                                     + "}");
 
         System.out.println("\n" + sp.process(new TemplateOptions(Type.GENERIC, null)) + "\n");
         System.out.println("\n" + sp.process(new TemplateOptions(Type.INT, null)) + "\n");
@@ -243,8 +240,8 @@ public class TestSignatureProcessor
     @Test
     public void testFullClass() throws IOException {
 
-        final String testedPath = "src/test/java/com/carrotsearch/hppcrt/generator/parser/test_cases/KTypeVTypeClass.java";
-        final String expectedLongObjectTest = "src/test/java/com/carrotsearch/hppcrt/generator/parser/test_cases/LongObjectClass.ok";
+        final String testedPath = TestSignatureProcessor.TEST_CASE_PATH + "KTypeVTypeClass.java";
+        final String expectedLongObjectTest = TestSignatureProcessor.TEST_CASE_PATH + "LongObjectClass.ok";
 
         compareWithReferenceFile(new TemplateOptions(Type.LONG, Type.GENERIC), testedPath, expectedLongObjectTest);
     }
@@ -252,10 +249,10 @@ public class TestSignatureProcessor
     @Test
     public void testFullClassArrays() throws IOException {
 
-        final String testedPath = "src/test/java/com/carrotsearch/hppcrt/generator/parser/test_cases/KTypeArraysClass.test";
+        final String testedPath = TestSignatureProcessor.TEST_CASE_PATH + "KTypeArraysClass.test";
 
-        final String expectedPathLong = "src/test/java/com/carrotsearch/hppcrt/generator/parser/test_cases/LongArraysClass.ok";
-        final String expectedPathObject = "src/test/java/com/carrotsearch/hppcrt/generator/parser/test_cases/ObjectArraysClass.ok";
+        final String expectedPathLong = TestSignatureProcessor.TEST_CASE_PATH + "LongArraysClass.ok";
+        final String expectedPathObject = TestSignatureProcessor.TEST_CASE_PATH + "ObjectArraysClass.ok";
 
         System.out.println(">>>> Converted to Object: \n\n");
         compareWithReferenceFile(new TemplateOptions(Type.GENERIC, null), testedPath, expectedPathObject);
@@ -267,10 +264,10 @@ public class TestSignatureProcessor
     @Test
     public void testFullClassPartialTemplateSpecialization() throws IOException {
 
-        final String testedPath = "src/test/java/com/carrotsearch/hppcrt/generator/parser/test_cases/KTypePartialSpecializationClass.test";
+        final String testedPath = TestSignatureProcessor.TEST_CASE_PATH + "KTypePartialSpecializationClass.test";
 
-        final String expectedPathLong = "src/test/java/com/carrotsearch/hppcrt/generator/parser/test_cases/LongPartialSpecializationClass.ok";
-        final String expectedPathObject = "src/test/java/com/carrotsearch/hppcrt/generator/parser/test_cases/ObjectPartialSpecializationClass.ok";
+        final String expectedPathLong = TestSignatureProcessor.TEST_CASE_PATH + "LongPartialSpecializationClass.ok";
+        final String expectedPathObject = TestSignatureProcessor.TEST_CASE_PATH + "ObjectPartialSpecializationClass.ok";
 
         System.out.println(">>>> Converted to Object: \n\n");
         compareWithReferenceFile(new TemplateOptions(Type.GENERIC, null), testedPath, expectedPathObject);
@@ -282,10 +279,10 @@ public class TestSignatureProcessor
     @Test
     public void testIteratorPoolAlloc() throws IOException {
 
-        final String testedPath = "src/test/java/com/carrotsearch/hppcrt/generator/parser/test_cases/IteratorPoolAlloc.test";
+        final String testedPath = TestSignatureProcessor.TEST_CASE_PATH + "IteratorPoolAlloc.test";
 
-        final String expectedPathLong = "src/test/java/com/carrotsearch/hppcrt/generator/parser/test_cases/IteratorPoolAllocLong.ok";
-        final String expectedPathObject = "src/test/java/com/carrotsearch/hppcrt/generator/parser/test_cases/IteratorPoolAllocGeneric.ok";
+        final String expectedPathLong = TestSignatureProcessor.TEST_CASE_PATH + "IteratorPoolAllocLong.ok";
+        final String expectedPathObject = TestSignatureProcessor.TEST_CASE_PATH + "IteratorPoolAllocGeneric.ok";
 
         System.out.println(">>>> Converted to Object: \n\n");
         compareWithReferenceFile(new TemplateOptions(Type.GENERIC, null), testedPath, expectedPathObject);
@@ -311,8 +308,8 @@ public class TestSignatureProcessor
 
         if (!outputNormalized.equals(expectedNormalized)) {
             System.out.println(String.format(Locale.ROOT,
-                    "Output:\n'%s'\n" +
-                            "Expected:\n'%s'\n", output, expected));
+                                             "Output:\n'%s'\n" +
+                                                     "Expected:\n'%s'\n", output, expected));
 
             //this is always false, so trigger the comparison with the original outputs
             //so that is easier to diff them because formatting is kept.
@@ -342,7 +339,7 @@ public class TestSignatureProcessor
         //Dump on sysout if not identical
         if (!outputNormalized.equals(expectedNormalized)) {
             System.out.println(String.format(Locale.ROOT,
-                    "Wrong output:\n'%s'\n\n", output));
+                                             "Wrong output:\n'%s'\n\n", output));
 
             //this is always false, so trigger the comparison with the original outputs
             //so that is easier to diff them because formatting is kept.
