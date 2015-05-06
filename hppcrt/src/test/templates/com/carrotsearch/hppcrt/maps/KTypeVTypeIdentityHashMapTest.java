@@ -1019,6 +1019,6 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
 
     private boolean is_allocated(final int slot, final Object[] keys) {
 
-        return !Intrinsics.isEmptyKey(keys[slot]);
+        return !Intrinsics.isEmpty(keys[slot]);
     }
 }

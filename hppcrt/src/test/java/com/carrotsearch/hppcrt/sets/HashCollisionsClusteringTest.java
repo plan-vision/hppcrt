@@ -7,6 +7,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.carrotsearch.hppcrt.IntBufferVisualizer;
+import com.carrotsearch.hppcrt.ObjectBufferVisualizer;
 import com.carrotsearch.hppcrt.cursors.IntCursor;
 import com.carrotsearch.hppcrt.cursors.ObjectCursor;
 import com.carrotsearch.hppcrt.maps.IntIntHashMap;
@@ -219,8 +221,9 @@ public class HashCollisionsClusteringTest extends RandomizedTest
 
             for (final IntCursor c : source) {
                 target.add(c.value);
-                if (firstSubsetOfKeys-- == 0)
+                if (firstSubsetOfKeys-- == 0) {
                     break;
+                }
             }
 
             printDistributionResult(i, start, System.currentTimeMillis(), target);
@@ -264,8 +267,9 @@ public class HashCollisionsClusteringTest extends RandomizedTest
 
                 target.add(c.value);
 
-                if (firstSubsetOfKeys-- == 0)
+                if (firstSubsetOfKeys-- == 0) {
                     break;
+                }
             }
 
             printDistributionResult(i, start, System.currentTimeMillis(), target);
@@ -276,61 +280,13 @@ public class HashCollisionsClusteringTest extends RandomizedTest
         }
     }
 
-    protected String visualizeDistribution(final IntHashSet target, final int lineLength) {
-        final int bucketSize = Math.max(lineLength, target.keys.length) / lineLength;
-        final int[] counts = new int[lineLength];
-
-        for (int x = 0; x < target.keys.length; x++) {
-
-            if (target.keys[x] != 0) {
-                counts[Math.min(counts.length - 1, x / bucketSize)]++;
-            }
-        }
-
-        int max = counts[0];
-        for (int x = 0; x < counts.length; x++) {
-            max = Math.max(max, counts[x]);
-        }
-
-        final StringBuilder b = new StringBuilder();
-        final char[] chars = ".0123456789".toCharArray();
-        for (int x = 0; x < counts.length; x++) {
-            b.append(chars[(counts[x] * 10 / max)]);
-        }
-        return b.toString();
-    }
-
-    protected <U> String visualizeDistribution(final ObjectHashSet<U> target, final int lineLength) {
-        final int bucketSize = Math.max(lineLength, target.keys.length) / lineLength;
-
-        final int[] counts = new int[lineLength];
-
-        for (int x = 0; x < target.keys.length; x++) {
-            if (target.keys[x] != null) {
-                counts[Math.min(counts.length - 1, x / bucketSize)]++;
-            }
-        }
-
-        int max = counts[0];
-        for (int x = 0; x < counts.length; x++) {
-            max = Math.max(max, counts[x]);
-        }
-
-        final StringBuilder b = new StringBuilder();
-        final char[] chars = ".0123456789".toCharArray();
-        for (int x = 0; x < counts.length; x++) {
-            b.append(chars[(counts[x] * 10 / max)]);
-        }
-        return b.toString();
-    }
-
     protected <U> void printDistributionResult(final int keyNb, final long startMillis, final long endMillis, final ObjectHashSet<U> target) {
 
         System.out.println(String.format(Locale.ROOT,
                 "Keys: %7d, %5d ms.: %s",
                 keyNb,
                 endMillis - startMillis,
-                visualizeDistribution(target, 100)));
+                ObjectBufferVisualizer.visualizeKeyDistribution((Object[]) target.keys, 100)));
     }
 
     protected void printDistributionResult(final int keyNb, final long startMillis, final long endMillis, final IntHashSet target) {
@@ -339,6 +295,6 @@ public class HashCollisionsClusteringTest extends RandomizedTest
                 "Keys: %7d, %5d ms.: %s",
                 keyNb,
                 endMillis - startMillis,
-                visualizeDistribution(target, 100)));
+                IntBufferVisualizer.visualizeKeyDistribution(target.keys, 100)));
     }
 }

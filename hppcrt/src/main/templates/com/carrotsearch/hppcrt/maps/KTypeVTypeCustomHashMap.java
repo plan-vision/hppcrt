@@ -52,7 +52,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeCustomHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     protected VType defaultValue = Intrinsics.<VType> defaultVTypeValue();
 
@@ -202,7 +202,7 @@ public class KTypeVTypeCustomHashMap<KType, VType>
      */
     @Override
     public VType put(KType key, VType value) {
-        if (Intrinsics.isEmptyKey(key)) {
+        if (Intrinsics.isEmpty(key)) {
 
             if (this.allocatedDefaultKey) {
 
@@ -230,7 +230,7 @@ public class KTypeVTypeCustomHashMap<KType, VType>
         KType curr;
 
         //1.1 The rehashed key slot is occupied...
-        if (!Intrinsics.isEmptyKey((curr = keys[slot = (REHASH(strategy, key) & mask)]))) {
+        if (!Intrinsics.isEmpty((curr = keys[slot = (REHASH(strategy, key) & mask)]))) {
 
             //1.2 the occupied place is indeed key, so only updates the value and nothing else.
             if (strategy.equals(curr, key)) {
@@ -397,7 +397,7 @@ public class KTypeVTypeCustomHashMap<KType, VType>
     @Override
     public VType putOrAdd(KType key, VType putValue, VType additionValue)
     {
-        if (Intrinsics.isEmptyKey(key)) {
+        if (Intrinsics.isEmpty(key)) {
 
             if (this.allocatedDefaultKey) {
 
@@ -427,7 +427,7 @@ public class KTypeVTypeCustomHashMap<KType, VType>
         KType curr;
 
         //1.1 The rehashed key slot is occupied...
-        if (!Intrinsics.isEmptyKey(curr = keys[slot = REHASH(strategy, key) & mask])) {
+        if (!Intrinsics.isEmpty(curr = keys[slot = REHASH(strategy, key) & mask])) {
 
             //1.2 the occupied place is indeed key, so only increments the value and nothing else.
             if (strategy.equals(curr, key)) {
@@ -555,7 +555,7 @@ public class KTypeVTypeCustomHashMap<KType, VType>
         assert this.assigned == this.resizeAt;
 
         //default sentinel value is never in the keys[] array, so never trigger reallocs
-        assert !Intrinsics.isEmptyKey(pendingKey);
+        assert !Intrinsics.isEmpty(pendingKey);
 
         // Try to allocate new buffers first. If we OOM, it'll be now without
         // leaving the data structure in an inconsistent state.
@@ -707,7 +707,7 @@ public class KTypeVTypeCustomHashMap<KType, VType>
      */
     @Override
     public VType remove(final KType key) {
-        if (Intrinsics.isEmptyKey(key)) {
+        if (Intrinsics.isEmpty(key)) {
 
             if (this.allocatedDefaultKey) {
 
@@ -737,7 +737,7 @@ public class KTypeVTypeCustomHashMap<KType, VType>
         KType curr;
 
         //1.1 The rehashed slot is free, nothing to remove, return default value
-        if (Intrinsics.isEmptyKey(curr = keys[slot = REHASH(strategy, key) & mask])) {
+        if (Intrinsics.isEmpty(curr = keys[slot = REHASH(strategy, key) & mask])) {
 
             return this.defaultValue;
         }
@@ -808,7 +808,7 @@ public class KTypeVTypeCustomHashMap<KType, VType>
             final KType existing = keys[slot];
             final VType existingValue = values[slot];
 
-            if (Intrinsics.isEmptyKey(existing)) {
+            if (Intrinsics.isEmpty(existing)) {
                 break;
             }
 
@@ -983,7 +983,7 @@ public class KTypeVTypeCustomHashMap<KType, VType>
      */
     @Override
     public VType get(final KType key) {
-        if (Intrinsics.isEmptyKey(key)) {
+        if (Intrinsics.isEmpty(key)) {
 
             if (this.allocatedDefaultKey) {
 
@@ -1005,7 +1005,7 @@ public class KTypeVTypeCustomHashMap<KType, VType>
         KType curr;
 
         //1.1 The rehashed slot is free, nothing to get, return default value
-        if (Intrinsics.isEmptyKey(curr = keys[slot = REHASH(strategy, key) & mask])) {
+        if (Intrinsics.isEmpty(curr = keys[slot = REHASH(strategy, key) & mask])) {
 
             return this.defaultValue;
         }
@@ -1044,7 +1044,7 @@ public class KTypeVTypeCustomHashMap<KType, VType>
      */
     @Override
     public boolean containsKey(final KType key) {
-        if (Intrinsics.isEmptyKey(key)) {
+        if (Intrinsics.isEmpty(key)) {
 
             return this.allocatedDefaultKey;
         }
@@ -1060,7 +1060,7 @@ public class KTypeVTypeCustomHashMap<KType, VType>
         KType curr;
 
         //1.1 The rehashed slot is free, return false
-        if (Intrinsics.isEmptyKey(curr = keys[slot = REHASH(strategy, key) & mask])) {
+        if (Intrinsics.isEmpty(curr = keys[slot = REHASH(strategy, key) & mask])) {
 
             return false;
         }
@@ -1959,14 +1959,14 @@ public class KTypeVTypeCustomHashMap<KType, VType>
     //Test for existence in template
     /*! #if ($TemplateOptions.inlineKType("is_allocated",
     "(slot, keys)",
-    "!Intrinsics.isEmptyKey(keys[slot])")) !*/
+    "!Intrinsics.isEmpty(keys[slot])")) !*/
     /**
      *  template version
      * (actual method is inlined in generated code)
      */
     private boolean is_allocated(final int slot, final KType[] keys) {
 
-        return !Intrinsics.isEmptyKey(keys[slot]);
+        return !Intrinsics.isEmpty(keys[slot]);
     }
 
     /*! #end !*/

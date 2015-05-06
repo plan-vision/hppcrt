@@ -78,9 +78,9 @@ public final class Intrinsics
      * 
      * Testing for zeros should be compiled into fast machine code.
      */
-    public static boolean isEmptyKey(final Object key) {
+    public static boolean isEmpty(final Object key) {
 
-        /*! ($TemplateOptions.inlineKTypeWithFullSpecialization("Intrinsics.isEmptyKey",
+        /*! ($TemplateOptions.inlineKTypeWithFullSpecialization("Intrinsics.isEmpty",
         "(key)",
         "key == null",
         "key == ${TemplateOptions.getKType().getDefaultValue()}",

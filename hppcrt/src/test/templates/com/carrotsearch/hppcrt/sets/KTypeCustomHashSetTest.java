@@ -1398,6 +1398,6 @@ public class KTypeCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
    */
   private boolean is_allocated(final int slot, final KType[] keys) {
 
-    return !Intrinsics.isEmptyKey(keys[slot]);
+    return !Intrinsics.isEmpty(keys[slot]);
   }
 }
