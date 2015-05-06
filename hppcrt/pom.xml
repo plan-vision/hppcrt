@@ -173,6 +173,49 @@
           </execution>
         </executions>
       </plugin>
+	  
+	  <plugin>
+		  <groupId>org.apache.maven.plugins</groupId>
+		  <artifactId>maven-source-plugin</artifactId>
+		  <executions>
+			<execution>
+			  <id>attach-sources</id>
+			  <goals>
+				<goal>jar</goal>
+			  </goals>
+			</execution>
+		  </executions>
+	   </plugin>
+
+	   <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <configuration>
+                  <encoding>${project.build.sourceEncoding}</encoding>
+                  <windowtitle>HPPC-RT v${project.version} API Documentation</windowtitle>
+                  <doctitle>HPPC-RT v${project.version} API Documentation</doctitle>
+                  <header><![CDATA[<div id='header'><a class='logo' target='_top' href='https://github.com/vsonnier/hppcrt'></a>High Performance Primitive Collections Realtime(HPPC-RT) v${project.version} <br>API Documentation</div>]]></header>
+                  <failOnError>false</failOnError>
+                  <docfilessubdirs>true</docfilessubdirs>
+                  <use>false</use>
+                  <noindex>true</noindex>
+                  <notree>true</notree>
+                  <groups>
+                    <group>
+                      <title>HPPC-RT</title>
+                      <packages>com.carrotsearch.hppcrt*</packages>
+                    </group>
+                  </groups>
+                </configuration>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
 
       <!-- Run tests with JUnit4 instead. A simple configuration here. -->
       <plugin>

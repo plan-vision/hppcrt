@@ -11,7 +11,7 @@ import com.carrotsearch.hppcrt.sorting.*;
 import com.carrotsearch.hppcrt.strategies.*;
 
 /**
- * A double-linked queue of <code>KType</code>s.
+ * A double-sided queue of <code>KType</code>s.
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public interface KTypeDeque<KType> extends KTypeCollection<KType>
