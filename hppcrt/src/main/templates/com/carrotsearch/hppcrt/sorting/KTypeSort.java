@@ -18,7 +18,7 @@ public final class KTypeSort
     /**
      * Minimum window length to apply insertion sort.
      */
-    private static final int MIN_LENGTH_FOR_INSERTION_SORT = 32;
+    private static final int MIN_LENGTH_FOR_INSERTION_SORT = 24;
 
     private static final int DIST_SIZE_DUALQSORT = 13;
 
@@ -139,10 +139,10 @@ public final class KTypeSort
     public static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void quicksort(final KType[] table,
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
-            /*! #else
+    /*! #else
                                             KTypeComparator<? super KType>
                                                #end !*/
-            comp)
+    comp)
     {
         KTypeSort.quicksort(table, 0, table.length, comp);
     }
@@ -179,10 +179,10 @@ public final class KTypeSort
     public static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void quicksort(final KTypeIndexedContainer<KType> table,
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
-            /*! #else
+    /*! #else
                                             KTypeComparator<? super KType>
                                             #end !*/
-            comp)
+    comp)
     {
         KTypeSort.quicksort(table, 0, table.size(), comp);
     }

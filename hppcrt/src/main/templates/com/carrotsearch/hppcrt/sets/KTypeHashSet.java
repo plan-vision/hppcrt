@@ -51,7 +51,7 @@ public class KTypeHashSet<KType>
 {
     /**
      * Hash-indexed array holding all set entries.
-    #if ($TemplateOptions.KTypeGeneric)
+      #if ($TemplateOptions.KTypeGeneric)
      * <p><strong>Important!</strong>
      * The actual value in this field is always an instance of <code>Object[]</code>.
      * Be warned that <code>javac</code> emits additional casts when <code>keys</code>
@@ -60,7 +60,7 @@ public class KTypeHashSet<KType>
      * <code>Object[]</code> before accessing the buffer's elements (although it is highly
      * recommended to use a {@link #iterator()} instead.
      * </pre>
-    #end
+      #end
      * <p>
      * Direct set iteration: iterate  {keys[i]} for i in [0; keys.length[ where keys[i] != 0/null, then also
      * {0/null} is in the set if {@link #allocatedDefaultKey} = true.
@@ -84,7 +84,7 @@ public class KTypeHashSet<KType>
     /*! #end !*/
 
     /**
-     *True if key = 0/null is in the map.
+     * True if key = 0/null is in the map.
      */
     public boolean allocatedDefaultKey = false;
 
@@ -114,8 +114,7 @@ public class KTypeHashSet<KType>
      * Creates a hash set with the default capacity of {@value #DEFAULT_CAPACITY},
      * load factor of {@value #DEFAULT_LOAD_FACTOR}.
      */
-    public KTypeHashSet()
-    {
+    public KTypeHashSet() {
         this(Containers.DEFAULT_EXPECTED_ELEMENTS, HashContainers.DEFAULT_LOAD_FACTOR);
     }
 
@@ -123,26 +122,24 @@ public class KTypeHashSet<KType>
      * Creates a hash set with the given capacity,
      * load factor of {@value #DEFAULT_LOAD_FACTOR}.
      */
-    public KTypeHashSet(final int initialCapacity)
-    {
+    public KTypeHashSet(final int initialCapacity) {
         this(initialCapacity, HashContainers.DEFAULT_LOAD_FACTOR);
     }
 
     /**
      * Creates a hash set with the given capacity and load factor.
      */
-    public KTypeHashSet(final int initialCapacity, final double loadFactor)
-    {
+    public KTypeHashSet(final int initialCapacity, final double loadFactor) {
         this.loadFactor = loadFactor;
         //take into account of the load factor to guarantee no reallocations before reaching  initialCapacity.
-        allocateBuffers(HashContainers.minBufferSize(Math.max(Containers.DEFAULT_EXPECTED_ELEMENTS, initialCapacity), loadFactor));
+        allocateBuffers(HashContainers.minBufferSize(Math.max(Containers.DEFAULT_EXPECTED_ELEMENTS, initialCapacity),
+                loadFactor));
     }
 
     /**
      * Creates a hash set from elements of another container. Default load factor is used.
      */
-    public KTypeHashSet(final KTypeContainer<KType> container)
-    {
+    public KTypeHashSet(final KTypeContainer<KType> container) {
         this(container.size());
         addAll(container);
     }
@@ -151,8 +148,7 @@ public class KTypeHashSet<KType>
      * {@inheritDoc}
      */
     @Override
-    public boolean add(KType e)
-    {
+    public boolean add(KType e) {
         if (Intrinsics.isEmptyKey(e)) {
 
             if (this.allocatedDefaultKey) {
@@ -183,8 +179,7 @@ public class KTypeHashSet<KType>
             }
 
             //1.3 key is colliding, manage below :
-        }
-        else if (this.assigned < this.resizeAt) {
+        } else if (this.assigned < this.resizeAt) {
 
             //1.4 key is not colliding, without resize, so insert, return true.
             keys[slot] = e;
@@ -207,10 +202,8 @@ public class KTypeHashSet<KType>
         int existing_distance = 0;
         /*! #end !*/
 
-        while (is_allocated(slot, keys))
-        {
-            if (Intrinsics.equalsKTypeNotNull(e, keys[slot]))
-            {
+        while (is_allocated(slot, keys)) {
+            if (Intrinsics.equalsKTypeNotNull(e, keys[slot])) {
                 return false;
             }
 
@@ -218,8 +211,7 @@ public class KTypeHashSet<KType>
             //re-shuffle keys to minimize variance
             existing_distance = probe_distance(slot, cached);
 
-            if (dist > existing_distance)
-            {
+            if (dist > existing_distance) {
                 //swap current (key, value, initial_slot) with slot places
                 tmpKey = keys[slot];
                 keys[slot] = e;
@@ -250,8 +242,7 @@ public class KTypeHashSet<KType>
         if (this.assigned == this.resizeAt) {
 
             expandAndAdd(e, slot);
-        }
-        else {
+        } else {
             this.assigned++;
             /*! #if ($RH) !*/
             cached[slot] = initial_slot;
@@ -272,8 +263,7 @@ public class KTypeHashSet<KType>
     /**
      * Adds two elements to the set.
      */
-    public int add(final KType e1, final KType e2)
-    {
+    public int add(final KType e1, final KType e2) {
         int count = 0;
         if (add(e1)) {
             count++;
@@ -292,8 +282,7 @@ public class KTypeHashSet<KType>
      * @return Returns the number of elements that were added to the set
      * (were not present in the set).
      */
-    public int add(final KType... elements)
-    {
+    public int add(final KType... elements) {
         int count = 0;
         for (final KType e : elements) {
             if (add(e)) {
@@ -307,10 +296,9 @@ public class KTypeHashSet<KType>
      * Adds all elements from a given container to this set.
      * 
      * @return Returns the number of elements actually added as a result of this
-     * call (not previously present in the set).
+     *         call (not previously present in the set).
      */
-    public int addAll(final KTypeContainer<? extends KType> container)
-    {
+    public int addAll(final KTypeContainer<? extends KType> container) {
         return addAll((Iterable<? extends KTypeCursor<? extends KType>>) container);
     }
 
@@ -318,13 +306,11 @@ public class KTypeHashSet<KType>
      * Adds all elements from a given iterable to this set.
      * 
      * @return Returns the number of elements actually added as a result of this
-     * call (not previously present in the set).
+     *         call (not previously present in the set).
      */
-    public int addAll(final Iterable<? extends KTypeCursor<? extends KType>> iterable)
-    {
+    public int addAll(final Iterable<? extends KTypeCursor<? extends KType>> iterable) {
         int count = 0;
-        for (final KTypeCursor<? extends KType> cursor : iterable)
-        {
+        for (final KTypeCursor<? extends KType> cursor : iterable) {
             if (add(cursor.value)) {
                 count++;
             }
@@ -336,8 +322,7 @@ public class KTypeHashSet<KType>
      * Expand the internal storage buffers (capacity) or rehash current
      * keys and values if there are a lot of deleted slots.
      */
-    private void expandAndAdd(final KType pendingKey, final int freeSlot)
-    {
+    private void expandAndAdd(final KType pendingKey, final int freeSlot) {
         assert this.assigned == this.resizeAt;
 
         //default sentinel value is never in the keys[] array, so never trigger reallocs
@@ -379,10 +364,8 @@ public class KTypeHashSet<KType>
 
         //iterate all the old arrays to add in the newly allocated buffers
         //It is important to iterate backwards to minimize the conflict chain length !
-        for (int i = oldKeys.length; --i >= 0;)
-        {
-            if (is_allocated(i, oldKeys))
-            {
+        for (int i = oldKeys.length; --i >= 0;) {
+            if (is_allocated(i, oldKeys)) {
                 e = oldKeys[i];
                 slot = REHASH(e) & mask;
 
@@ -391,14 +374,12 @@ public class KTypeHashSet<KType>
                 dist = 0;
                 /*! #end !*/
 
-                while (is_allocated(slot, keys))
-                {
+                while (is_allocated(slot, keys)) {
                     /*! #if ($RH) !*/
                     //re-shuffle keys to minimize variance
                     existing_distance = probe_distance(slot, cached);
 
-                    if (dist > existing_distance)
-                    {
+                    if (dist > existing_distance) {
                         //swap current (key, value, initial_slot) with slot places
                         tmpKey = keys[slot];
                         keys[slot] = e;
@@ -447,8 +428,7 @@ public class KTypeHashSet<KType>
      * 
      * @param capacity New capacity (must be a power of two).
      */
-    private void allocateBuffers(final int capacity)
-    {
+    private void allocateBuffers(final int capacity) {
         try {
 
             final KType[] keys = Intrinsics.newKTypeArray(capacity);
@@ -466,8 +446,7 @@ public class KTypeHashSet<KType>
             //allocate so that there is at least one slot that remains allocated = false
             //this is compulsory to guarantee proper stop in searching loops
             this.resizeAt = Math.max(3, (int) (capacity * this.loadFactor)) - 2;
-        }
-        catch (final OutOfMemoryError e) {
+        } catch (final OutOfMemoryError e) {
 
             throw new BufferAllocationException(
                     "Not enough memory to allocate buffers to grow from %d -> %d elements",
@@ -481,8 +460,7 @@ public class KTypeHashSet<KType>
      * {@inheritDoc}
      */
     @Override
-    public int removeAll(final KType key)
-    {
+    public int removeAll(final KType key) {
         return remove(key) ? 1 : 0;
     }
 
@@ -490,8 +468,7 @@ public class KTypeHashSet<KType>
      * An alias for {@link #removeAll}, i.e returns true
      * if key was present in the set and has been successfully removed.
      */
-    public boolean remove(final KType key)
-    {
+    public boolean remove(final KType key) {
         if (Intrinsics.isEmptyKey(key)) {
 
             if (this.allocatedDefaultKey) {
@@ -534,10 +511,8 @@ public class KTypeHashSet<KType>
         /*! #end !*/
 
         while (is_allocated(slot, keys)
-                /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/)
-        {
-            if (Intrinsics.equalsKTypeNotNull(key, keys[slot]))
-            {
+                /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/) {
+            if (Intrinsics.equalsKTypeNotNull(key, keys[slot])) {
                 this.assigned--;
                 shiftConflictingKeys(slot);
                 return true;
@@ -555,8 +530,7 @@ public class KTypeHashSet<KType>
     /**
      * Shift all the slot-conflicting keys allocated to (and including) <code>slot</code>.
      */
-    private void shiftConflictingKeys(int gapSlot)
-    {
+    private void shiftConflictingKeys(int gapSlot) {
         final int mask = this.keys.length - 1;
 
         final KType[] keys = this.keys;
@@ -617,8 +591,7 @@ public class KTypeHashSet<KType>
      * {@inheritDoc}
      */
     @Override
-    public boolean contains(final KType key)
-    {
+    public boolean contains(final KType key) {
         if (Intrinsics.isEmptyKey(key)) {
 
             return this.allocatedDefaultKey;
@@ -653,10 +626,8 @@ public class KTypeHashSet<KType>
         /*! #end !*/
 
         while (is_allocated(slot, keys)
-                /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/)
-        {
-            if (Intrinsics.equalsKTypeNotNull(key, keys[slot]))
-            {
+                /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/) {
+            if (Intrinsics.equalsKTypeNotNull(key, keys[slot])) {
                 return true;
             }
             slot = (slot + 1) & mask;
@@ -675,8 +646,7 @@ public class KTypeHashSet<KType>
      * <p>Does not release internal buffers.</p>
      */
     @Override
-    public void clear()
-    {
+    public void clear() {
         this.assigned = 0;
 
         // States are always cleared.
@@ -690,8 +660,7 @@ public class KTypeHashSet<KType>
      * {@inheritDoc}
      */
     @Override
-    public int size()
-    {
+    public int size() {
         return this.assigned + (this.allocatedDefaultKey ? 1 : 0);
     }
 
@@ -708,8 +677,7 @@ public class KTypeHashSet<KType>
      * {@inheritDoc}
      */
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         int h = 0;
 
         if (this.allocatedDefaultKey) {
@@ -718,11 +686,9 @@ public class KTypeHashSet<KType>
 
         final KType[] keys = this.keys;
 
-        for (int i = keys.length; --i >= 0;)
-        {
-            if (is_allocated(i, keys))
-            {
-                h += Internals.rehash(keys[i]);
+        for (int i = keys.length; --i >= 0;) {
+            if (is_allocated(i, keys)) {
+                h += BitMixer.mix(keys[i]);
             }
         }
 
@@ -733,10 +699,8 @@ public class KTypeHashSet<KType>
      * {@inheritDoc}
      */
     @Override
-    public boolean equals(final Object obj)
-    {
-        if (obj != null)
-        {
+    public boolean equals(final Object obj) {
+        if (obj != null) {
             if (obj == this) {
                 return true;
             }
@@ -750,14 +714,11 @@ public class KTypeHashSet<KType>
             @SuppressWarnings("unchecked")
             final KTypeSet<KType> other = (KTypeSet<KType>) obj;
 
-            if (other.size() == this.size())
-            {
+            if (other.size() == this.size()) {
                 final EntryIterator it = this.iterator();
 
-                while (it.hasNext())
-                {
-                    if (!other.contains(it.next().value))
-                    {
+                while (it.hasNext()) {
+                    if (!other.contains(it.next().value)) {
                         //recycle
                         it.release();
                         return false;
@@ -776,8 +737,7 @@ public class KTypeHashSet<KType>
     {
         public final KTypeCursor<KType> cursor;
 
-        public EntryIterator()
-        {
+        public EntryIterator() {
             this.cursor = new KTypeCursor<KType>();
             this.cursor.index = -2;
         }
@@ -787,8 +747,7 @@ public class KTypeHashSet<KType>
          * minimize collision chains when filling another hash container (ex. with putAll())
          */
         @Override
-        protected KTypeCursor<KType> fetch()
-        {
+        protected KTypeCursor<KType> fetch() {
             if (this.cursor.index == KTypeHashSet.this.keys.length + 1) {
 
                 if (KTypeHashSet.this.allocatedDefaultKey) {
@@ -806,9 +765,7 @@ public class KTypeHashSet<KType>
 
             int i = this.cursor.index - 1;
 
-            while (i >= 0 &&
-                    !is_allocated(i, KTypeHashSet.this.keys))
-            {
+            while (i >= 0 && !is_allocated(i, KTypeHashSet.this.keys)) {
                 i--;
             }
 
@@ -847,11 +804,11 @@ public class KTypeHashSet<KType>
 
     /**
      * {@inheritDoc}
+     * 
      * @return
      */
     @Override
-    public EntryIterator iterator()
-    {
+    public EntryIterator iterator() {
         //return new EntryIterator();
         return this.entryIteratorPool.borrow();
     }
@@ -860,8 +817,7 @@ public class KTypeHashSet<KType>
      * {@inheritDoc}
      */
     @Override
-    public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure)
-    {
+    public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure) {
         if (this.allocatedDefaultKey) {
 
             procedure.apply(Intrinsics.<KType> defaultKTypeValue());
@@ -871,8 +827,7 @@ public class KTypeHashSet<KType>
 
         //Iterate in reverse for side-stepping the longest conflict chain
         //in another hash, in case apply() is actually used to fill another hash container.
-        for (int i = keys.length - 1; i >= 0; i--)
-        {
+        for (int i = keys.length - 1; i >= 0; i--) {
             if (is_allocated(i, keys)) {
                 procedure.apply(keys[i]);
             }
@@ -885,8 +840,7 @@ public class KTypeHashSet<KType>
      * {@inheritDoc}
      */
     @Override
-    public KType[] toArray(final KType[] target)
-    {
+    public KType[] toArray(final KType[] target) {
         int count = 0;
 
         if (this.allocatedDefaultKey) {
@@ -896,10 +850,8 @@ public class KTypeHashSet<KType>
 
         final KType[] keys = this.keys;
 
-        for (int i = 0; i < keys.length; i++)
-        {
-            if (is_allocated(i, keys))
-            {
+        for (int i = 0; i < keys.length; i++) {
+            if (is_allocated(i, keys)) {
                 target[count++] = keys[i];
             }
         }
@@ -913,8 +865,7 @@ public class KTypeHashSet<KType>
      * {@inheritDoc}
      */
     @Override
-    public KTypeHashSet<KType> clone()
-    {
+    public KTypeHashSet<KType> clone() {
         //clone to size() to prevent eventual exponential growth
         final KTypeHashSet<KType> cloned = new KTypeHashSet<KType>(this.size(), this.loadFactor);
 
@@ -931,8 +882,7 @@ public class KTypeHashSet<KType>
      * {@inheritDoc}
      */
     @Override
-    public <T extends KTypePredicate<? super KType>> T forEach(final T predicate)
-    {
+    public <T extends KTypePredicate<? super KType>> T forEach(final T predicate) {
         if (this.allocatedDefaultKey) {
 
             if (!predicate.apply(Intrinsics.<KType> defaultKTypeValue())) {
@@ -945,10 +895,8 @@ public class KTypeHashSet<KType>
 
         //Iterate in reverse for side-stepping the longest conflict chain
         //in another hash, in case apply() is actually used to fill another hash container.
-        for (int i = keys.length - 1; i >= 0; i--)
-        {
-            if (is_allocated(i, keys))
-            {
+        for (int i = keys.length - 1; i >= 0; i--) {
+            if (is_allocated(i, keys)) {
                 if (!predicate.apply(keys[i])) {
                     break;
                 }
@@ -962,29 +910,24 @@ public class KTypeHashSet<KType>
      * {@inheritDoc}
      */
     @Override
-    public int removeAll(final KTypePredicate<? super KType> predicate)
-    {
+    public int removeAll(final KTypePredicate<? super KType> predicate) {
         final int before = this.size();
 
         if (this.allocatedDefaultKey) {
 
-            if (predicate.apply(Intrinsics.<KType> defaultKTypeValue()))
-            {
+            if (predicate.apply(Intrinsics.<KType> defaultKTypeValue())) {
                 this.allocatedDefaultKey = false;
             }
         }
 
         final KType[] keys = this.keys;
 
-        for (int i = 0; i < keys.length;)
-        {
-            if (is_allocated(i, keys) && predicate.apply(keys[i]))
-            {
+        for (int i = 0; i < keys.length;) {
+            if (is_allocated(i, keys) && predicate.apply(keys[i])) {
                 this.assigned--;
                 shiftConflictingKeys(i);
                 // Shift, do not increment slot.
-            }
-            else {
+            } else {
                 i++;
             }
         }
@@ -995,8 +938,7 @@ public class KTypeHashSet<KType>
     /**
      * Create a set from a variable number of arguments or an array of <code>KType</code>.
      */
-    public static <KType> KTypeHashSet<KType> from(final KType... elements)
-    {
+    public static <KType> KTypeHashSet<KType> from(final KType... elements) {
         final KTypeHashSet<KType> set = new KTypeHashSet<KType>(elements.length);
         set.add(elements);
         return set;
@@ -1005,8 +947,7 @@ public class KTypeHashSet<KType>
     /**
      * Create a set from elements of another container.
      */
-    public static <KType> KTypeHashSet<KType> from(final KTypeContainer<KType> container)
-    {
+    public static <KType> KTypeHashSet<KType> from(final KTypeContainer<KType> container) {
         return new KTypeHashSet<KType>(container);
     }
 
@@ -1014,8 +955,7 @@ public class KTypeHashSet<KType>
      * Create a new hash set with default parameters (shortcut
      * instead of using a constructor).
      */
-    public static <KType> KTypeHashSet<KType> newInstance()
-    {
+    public static <KType> KTypeHashSet<KType> newInstance() {
         return new KTypeHashSet<KType>();
     }
 
@@ -1023,8 +963,7 @@ public class KTypeHashSet<KType>
      * Returns a new object of this class with no need to declare generic type (shortcut
      * instead of using a constructor).
      */
-    public static <KType> KTypeHashSet<KType> newInstance(final int initialCapacity, final float loadFactor)
-    {
+    public static <KType> KTypeHashSet<KType> newInstance(final int initialCapacity, final float loadFactor) {
         return new KTypeHashSet<KType>(initialCapacity, loadFactor);
     }
 
