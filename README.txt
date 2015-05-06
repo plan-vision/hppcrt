@@ -21,8 +21,6 @@ have less than capacity() elements.
 dynamically at runtime. 
 That means in particular using the enhanced for loop without any dynamic allocation underneath.
 
-* toArray(existing array) for every container, good for array reuse in RealTime environnement
-
 * Primitive and Objects in-place array sorts, similar to java.util.Arrays with Comparable and Comparator versions.
 
 * [Object|primitives]Arrays as a complement of java.util.Arrays for in-place buffer manipulation : reverse, rotate...etc. 
@@ -30,8 +28,6 @@ That means in particular using the enhanced for loop without any dynamic allocat
 * Native and optimized in-place sort methods for ArrayLists, LinkedLists, ArrayDeques, Stacks.
 
 * Custom hashing strategies to override the usual equals()/hashCode() in Hash containers, in specific CustomHash containers.
-
-* Identity hash maps and sets, comparing Objects by reference and native hash codes.
 
 * Heaps : Priority queues, and Indexed (a.k.a indirect) priority queues.
 

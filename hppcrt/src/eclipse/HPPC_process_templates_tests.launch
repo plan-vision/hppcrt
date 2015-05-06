@@ -6,6 +6,7 @@
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>
 </listAttribute>
+<booleanAttribute key="org.eclipse.jdt.debug.ui.INCLUDE_EXTERNAL_JARS" value="true"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.carrotsearch.hppcrt.generator.TemplateProcessor"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="${project_loc:hppcrt}/src/test/templates  ${project_loc:hppcrt}/target/generated-sources/test/java ${project_loc:hppcrt}/src/main/templates"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="hppcrt-template-processor"/>
