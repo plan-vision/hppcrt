@@ -57,36 +57,36 @@ public class KTypeVTypeCustomHashMap<KType, VType>
     protected VType defaultValue = Intrinsics.<VType> defaultVTypeValue();
 
     /**
-       * Hash-indexed array holding all keys.
+     * Hash-indexed array holding all keys.
       #if ($TemplateOptions.KTypeGeneric)
-       * <p><strong>Important!</strong>
-       * The actual value in this field is always an instance of <code>Object[]</code>.
-       * Be warned that <code>javac</code> emits additional casts when <code>keys</code>
-       * are directly accessed; <strong>these casts
-       * may result in exceptions at runtime</strong>. A workaround is to cast directly to
-       * <code>Object[]</code> before accessing the buffer's elements (although it is highly
-       * recommended to use a {@link #iterator()} instead.
-       * </pre>
+     * <p><strong>Important!</strong>
+     * The actual value in this field is always an instance of <code>Object[]</code>.
+     * Be warned that <code>javac</code> emits additional casts when <code>keys</code>
+     * are directly accessed; <strong>these casts
+     * may result in exceptions at runtime</strong>. A workaround is to cast directly to
+     * <code>Object[]</code> before accessing the buffer's elements (although it is highly
+     * recommended to use a {@link #iterator()} instead.
+     * </pre>
       #end
      * <p>
-       * Direct map iteration: iterate  {keys[i], values[i]} for i in [0; keys.length[ where keys[i] != 0/null, then also
-       * {0/null, {@link #allocatedDefaultKeyValue} } is in the map if {@link #allocatedDefaultKey} = true.
+     * Direct map iteration: iterate  {keys[i], values[i]} for i in [0; keys.length[ where keys[i] != 0/null, then also
+     * {0/null, {@link #allocatedDefaultKeyValue} } is in the map if {@link #allocatedDefaultKey} = true.
      * </p>
      */
     public KType[] keys;
 
     /**
-       * Hash-indexed array holding all values associated to the keys.
-       * stored in {@link #keys}.
+     * Hash-indexed array holding all values associated to the keys.
+     * stored in {@link #keys}.
       #if ($TemplateOptions.KTypeGeneric)
-       * <p><strong>Important!</strong>
-       * The actual value in this field is always an instance of <code>Object[]</code>.
-       * Be warned that <code>javac</code> emits additional casts when <code>values</code>
-       * are directly accessed; <strong>these casts
-       * may result in exceptions at runtime</strong>. A workaround is to cast directly to
-       * <code>Object[]</code> before accessing the buffer's elements (although it is highly
-       * recommended to use a {@link #iterator()} instead.
-       * </pre>
+     * <p><strong>Important!</strong>
+     * The actual value in this field is always an instance of <code>Object[]</code>.
+     * Be warned that <code>javac</code> emits additional casts when <code>values</code>
+     * are directly accessed; <strong>these casts
+     * may result in exceptions at runtime</strong>. A workaround is to cast directly to
+     * <code>Object[]</code> before accessing the buffer's elements (although it is highly
+     * recommended to use a {@link #iterator()} instead.
+     * </pre>
       #end
      * 
      */
@@ -94,10 +94,10 @@ public class KTypeVTypeCustomHashMap<KType, VType>
 
     /*! #if ($RH) !*/
     /**
-       * #if ($RH)
-       * Caches the hash value = hash(strategy, keys[i]) & mask, if keys[i] != 0/null,
-       * for every index i.
-       * #end
+     * #if ($RH)
+     * Caches the hash value = hash(strategy, keys[i]) & mask, if keys[i] != 0/null,
+     * for every index i.
+     * #end
      * @see #assigned
      */
     /*! #end !*/
@@ -111,7 +111,7 @@ public class KTypeVTypeCustomHashMap<KType, VType>
     public boolean allocatedDefaultKey = false;
 
     /**
-       * if allocatedDefaultKey = true, contains the associated V to the key = 0/null
+     * if allocatedDefaultKey = true, contains the associated V to the key = 0/null
      */
     public VType allocatedDefaultKeyValue;
 
@@ -121,8 +121,8 @@ public class KTypeVTypeCustomHashMap<KType, VType>
     protected int assigned;
 
     /**
-       * The load factor for this map (fraction of allocated slots
-       * before the buffers must be rehashed or reallocated).
+     * The load factor for this map (fraction of allocated slots
+     * before the buffers must be rehashed or reallocated).
      */
     protected final double loadFactor;
 
@@ -132,23 +132,23 @@ public class KTypeVTypeCustomHashMap<KType, VType>
     protected int resizeAt;
 
     /**
-       * Per-instance, per-allocation size perturbation
-       * introduced in rehashing to create a unique key distribution.
+     * Per-instance, per-allocation size perturbation
+     * introduced in rehashing to create a unique key distribution.
      */
     private final int perturbation = HashContainers.computeUniqueIdentifier(this);
 
     /**
-       * Custom hashing strategy :
-       * comparisons and hash codes of keys will be computed
-       * with the strategy methods instead of the native Object equals() and hashCode() methods.
+     * Custom hashing strategy :
+     * comparisons and hash codes of keys will be computed
+     * with the strategy methods instead of the native Object equals() and hashCode() methods.
      */
     protected final KTypeHashingStrategy<? super KType> hashStrategy;
 
     /**
      * Creates a hash map with the default capacity of {@value #DEFAULT_CAPACITY},
-       * load factor of {@value #DEFAULT_LOAD_FACTOR}, using the hashStrategy as {@link KTypeHashingStrategy}
+     * load factor of {@value #DEFAULT_LOAD_FACTOR}, using the hashStrategy as {@link KTypeHashingStrategy}
      * 
-       * <p>See class notes about hash distribution importance.</p>
+     * <p>See class notes about hash distribution importance.</p>
      */
     public KTypeVTypeCustomHashMap(final KTypeHashingStrategy<? super KType> hashStrategy) {
         this(Containers.DEFAULT_EXPECTED_ELEMENTS, hashStrategy);
@@ -156,20 +156,20 @@ public class KTypeVTypeCustomHashMap<KType, VType>
 
     /**
      * Creates a hash map with the given initial capacity, default load factor of
-       * {@value #DEFAULT_LOAD_FACTOR}, using the hashStrategy as {@link KTypeHashingStrategy}
+     * {@value #DEFAULT_LOAD_FACTOR}, using the hashStrategy as {@link KTypeHashingStrategy}
      * 
-       * @param initialCapacity Initial capacity (greater than zero and automatically
-       *            rounded to the next power of two).
+     * @param initialCapacity Initial capacity (greater than zero and automatically
+     *            rounded to the next power of two).
      */
     public KTypeVTypeCustomHashMap(final int initialCapacity, final KTypeHashingStrategy<? super KType> hashStrategy) {
         this(initialCapacity, HashContainers.DEFAULT_LOAD_FACTOR, hashStrategy);
     }
 
     /**
-       * Creates a hash map with the given initial capacity,
-       * load factor, using the hashStrategy as {@link KTypeHashingStrategy}
+     * Creates a hash map with the given initial capacity,
+     * load factor, using the hashStrategy as {@link KTypeHashingStrategy}
      *
-       * @param loadFactor The load factor (greater than zero and smaller than 1).
+     * @param loadFactor The load factor (greater than zero and smaller than 1).
      * 
      * 
      */
@@ -371,26 +371,26 @@ public class KTypeVTypeCustomHashMap<KType, VType>
 
     /*! #if ($TemplateOptions.VTypeNumeric) !*/
     /**
-       * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. An equivalent
-       * of the following code:
+     * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. An equivalent
+     * of the following code:
      * <pre>
-       *  if (containsKey(key))
-       *  {
+     *  if (containsKey(key))
+     *  {
      *   VType v = (VType) (lget() + additionValue);
      *   lset(v);
      *   return v;
-       *  }
-       *  else
-       *  {
+     *  }
+     *  else
+     *  {
      *   put(key, putValue);
      *   return putValue;
      * }
      * </pre>
      * 
-       * @param key The key of the value to adjust.
-       * @param putValue The value to put if <code>key</code> does not exist.
-       * @param additionValue The value to add to the existing value if <code>key</code> exists.
-       * @return Returns the current value associated with <code>key</code> (after changes).
+     * @param key The key of the value to adjust.
+     * @param putValue The value to put if <code>key</code> does not exist.
+     * @param additionValue The value to add to the existing value if <code>key</code> exists.
+     * @return Returns the current value associated with <code>key</code> (after changes).
      */
     /*! #end !*/
     /*! #if ($TemplateOptions.VTypeNumeric)
@@ -522,22 +522,22 @@ public class KTypeVTypeCustomHashMap<KType, VType>
      * An equivalent of calling
      * 
      * <pre>
-       *  if (containsKey(key))
-       *  {
+     *  if (containsKey(key))
+     *  {
      *   VType v = (VType) (lget() + additionValue);
      *   lset(v);
      *   return v;
-       *  }
-       *  else
-       *  {
+     *  }
+     *  else
+     *  {
      *   put(key, additionValue);
      *   return additionValue;
      * }
      * </pre>
      * 
-       * @param key The key of the value to adjust.
-       * @param additionValue The value to put or add to the existing value if <code>key</code> exists.
-       * @return Returns the current value associated with <code>key</code> (after changes).
+     * @param key The key of the value to adjust.
+     * @param additionValue The value to put or add to the existing value if <code>key</code> exists.
+     * @return Returns the current value associated with <code>key</code> (after changes).
      */
     /*! #end !*/
     /*! #if ($TemplateOptions.VTypeNumeric)
@@ -600,12 +600,14 @@ public class KTypeVTypeCustomHashMap<KType, VType>
 
         //iterate all the old arrays to add in the newly allocated buffers
         //It is important to iterate backwards to minimize the conflict chain length !
+        final int perturb = this.perturbation;
+
         for (int i = oldKeys.length; --i >= 0;) {
             if (is_allocated(i, oldKeys)) {
                 key = oldKeys[i];
                 value = oldValues[i];
 
-                slot = REHASH(strategy, key) & mask;
+                slot = REHASH2(strategy, key, perturb) & mask;
 
                 /*! #if ($RH) !*/
                 initial_slot = slot;
@@ -668,7 +670,7 @@ public class KTypeVTypeCustomHashMap<KType, VType>
     /**
      * Allocate internal buffers for a given capacity.
      * 
-       * @param capacity New capacity (must be a power of two).
+     * @param capacity New capacity (must be a power of two).
      */
     private void allocateBuffers(final int capacity) {
         try {
@@ -781,7 +783,7 @@ public class KTypeVTypeCustomHashMap<KType, VType>
     }
 
     /**
-       * Shift all the slot-conflicting keys allocated to (and including) <code>slot</code>.
+     * Shift all the slot-conflicting keys allocated to (and including) <code>slot</code>.
      */
     private void shiftConflictingKeys(int gapSlot) {
         final int mask = this.keys.length - 1;
@@ -793,7 +795,9 @@ public class KTypeVTypeCustomHashMap<KType, VType>
 
         /*! #if ($RH) !*/
         final int[] cached = this.hash_cache;
-        /*!  #end !*/
+        /*!  #else
+        final int perturb = this.perturbation;
+        #end !*/
 
         // Perform shifts of conflicting keys to fill in the gap.
         int distance = 0;
@@ -816,7 +820,7 @@ public class KTypeVTypeCustomHashMap<KType, VType>
             assert idealSlotModMask == (REHASH(strategy, existing) & mask);
             /*! #end !*/
             /*! #else
-            final int idealSlotModMask = REHASH(strategy, existing) & mask;
+            final int idealSlotModMask = REHASH2(strategy, existing, perturb) & mask;
             #end !*/
 
             //original HPPC code: shift = (slot - idealSlot) & mask;
@@ -970,8 +974,8 @@ public class KTypeVTypeCustomHashMap<KType, VType>
     /**
      * {@inheritDoc}
      * 
-       * <p> Use the following snippet of code to check for key existence
-       * first and then retrieve the value if it exists.</p>
+     * <p> Use the following snippet of code to check for key existence
+     * first and then retrieve the value if it exists.</p>
      * <pre>
      * if (map.containsKey(key))
      *   value = map.lget();
@@ -1135,8 +1139,8 @@ public class KTypeVTypeCustomHashMap<KType, VType>
     /**
      * {@inheritDoc}
      * 
-       * <p>Note that an empty container may still contain many deleted keys (that occupy buffer
-       * space). Adding even a single element to such a container may cause rehashing.</p>
+     * <p>Note that an empty container may still contain many deleted keys (that occupy buffer
+     * space). Adding even a single element to such a container may cause rehashing.</p>
      */
     @Override
     public boolean isEmpty() {
@@ -1225,8 +1229,8 @@ public class KTypeVTypeCustomHashMap<KType, VType>
         }
 
         /**
-             * Iterate backwards w.r.t the buffer, to
-             * minimize collision chains when filling another hash container (ex. with putAll())
+         * Iterate backwards w.r.t the buffer, to
+         * minimize collision chains when filling another hash container (ex. with putAll())
          */
         @Override
         protected KTypeVTypeCursor<KType, VType> fetch() {
@@ -1520,8 +1524,8 @@ public class KTypeVTypeCustomHashMap<KType, VType>
         }
 
         /**
-             * Iterate backwards w.r.t the buffer, to
-             * minimize collision chains when filling another hash container (ex. with putAll())
+         * Iterate backwards w.r.t the buffer, to
+         * minimize collision chains when filling another hash container (ex. with putAll())
          */
         @Override
         protected KTypeCursor<KType> fetch() {
@@ -1557,8 +1561,8 @@ public class KTypeVTypeCustomHashMap<KType, VType>
     }
 
     /**
-       *  @return a new ValuesCollection, view of the values of this map.
-       * This view then reflects all changes from the map.
+     *  @return a new ValuesCollection, view of the values of this map.
+     * This view then reflects all changes from the map.
      */
     @Override
     public ValuesCollection values() {
@@ -1658,9 +1662,9 @@ public class KTypeVTypeCustomHashMap<KType, VType>
         }
 
         /**
-             * {@inheritDoc}
-             * Indeed removes all the (key,value) pairs matching
-             * (key ? ,  e) with the  same  e,  from  the map.
+         * {@inheritDoc}
+         * Indeed removes all the (key,value) pairs matching
+         * (key ? ,  e) with the  same  e,  from  the map.
          */
         @Override
         public int removeAll(final VType e) {
@@ -1732,8 +1736,8 @@ public class KTypeVTypeCustomHashMap<KType, VType>
         }
 
         /**
-             * {@inheritDoc}
-             *  Alias for clear() the whole map.
+         * {@inheritDoc}
+         *  Alias for clear() the whole map.
          */
         @Override
         public void clear() {
@@ -1800,8 +1804,8 @@ public class KTypeVTypeCustomHashMap<KType, VType>
         }
 
         /**
-             * Iterate backwards w.r.t the buffer, to
-             * minimize collision chains when filling another hash container (ex. with putAll())
+         * Iterate backwards w.r.t the buffer, to
+         * minimize collision chains when filling another hash container (ex. with putAll())
          */
         @Override
         protected KTypeCursor<VType> fetch() {
@@ -1838,10 +1842,10 @@ public class KTypeVTypeCustomHashMap<KType, VType>
     }
 
     /**
-       * Clone this object.
-       * #if ($TemplateOptions.AnyGeneric)
-       * The returned clone will use the same HashingStrategy strategy.
-       * #end
+     * Clone this object.
+     * #if ($TemplateOptions.AnyGeneric)
+     * The returned clone will use the same HashingStrategy strategy.
+     * #end
      */
     @Override
     public KTypeVTypeCustomHashMap<KType, VType> clone() {
@@ -1910,8 +1914,8 @@ public class KTypeVTypeCustomHashMap<KType, VType>
     }
 
     /**
-       * Create a new hash map without providing the full generic signature (constructor
-       * shortcut).
+     * Create a new hash map without providing the full generic signature (constructor
+     * shortcut).
      */
     public static <KType, VType> KTypeVTypeCustomHashMap<KType, VType> newInstance(
             final KTypeHashingStrategy<? super KType> hashStrategy) {
@@ -1919,8 +1923,8 @@ public class KTypeVTypeCustomHashMap<KType, VType>
     }
 
     /**
-       * Create a new hash map with initial capacity and load factor control. (constructor
-       * shortcut).
+     * Create a new hash map with initial capacity and load factor control. (constructor
+     * shortcut).
      */
     public static <KType, VType> KTypeVTypeCustomHashMap<KType, VType> newInstance(final int initialCapacity,
             final float loadFactor, final KTypeHashingStrategy<? super KType> hashStrategy) {
@@ -1935,8 +1939,8 @@ public class KTypeVTypeCustomHashMap<KType, VType>
     }
 
     /**
-       * Returns the "default value" value used
-       * in containers methods returning "default value"
+     * Returns the "default value" value used
+     * in containers methods returning "default value"
      * @return
      */
     public VType getDefaultValue() {
@@ -1944,8 +1948,8 @@ public class KTypeVTypeCustomHashMap<KType, VType>
     }
 
     /**
-       * Set the "default value" value to be used
-       * in containers methods returning "default value"
+     * Set the "default value" value to be used
+     * in containers methods returning "default value"
      * @return
      */
     public void setDefaultValue(final VType defaultValue) {
@@ -1957,8 +1961,8 @@ public class KTypeVTypeCustomHashMap<KType, VType>
     "(slot, keys)",
     "!Intrinsics.isEmptyKey(keys[slot])")) !*/
     /**
-       *  template version
-       * (actual method is inlined in generated code)
+     *  template version
+     * (actual method is inlined in generated code)
      */
     private boolean is_allocated(final int slot, final KType[] keys) {
 
@@ -2003,6 +2007,20 @@ public class KTypeVTypeCustomHashMap<KType, VType>
 
         return MurmurHash3.mix(strategy.computeHashCode(value), this.perturbation);
     }
+
     /*! #end !*/
 
+    /*! #if ($TemplateOptions.inlineKType("REHASH2",
+    "(strategy, value, perturb)",
+    "MurmurHash3.mix(strategy.computeHashCode(value) , perturb)")) !*/
+    /**
+     * REHASH2 method for rehashing the keys with perturbation seed as parameter
+     * (inlined in generated code)
+     * Thanks to single array mode, no need to check for null/0 or booleans.
+     */
+    private int REHASH2(final KTypeHashingStrategy<? super KType> strategy, final KType value, final int perturb) {
+
+        return MurmurHash3.mix(strategy.computeHashCode(value), perturb);
+    }
+    /*! #end !*/
 }

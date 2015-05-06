@@ -46,8 +46,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Hash-indexed array holding all set entries.
@@ -364,10 +364,15 @@ public class KTypeHashSet<KType>
 
         //iterate all the old arrays to add in the newly allocated buffers
         //It is important to iterate backwards to minimize the conflict chain length !
+        final int perturb = this.perturbation;
+
         for (int i = oldKeys.length; --i >= 0;) {
+
             if (is_allocated(i, oldKeys)) {
+
                 e = oldKeys[i];
-                slot = REHASH(e) & mask;
+
+                slot = REHASH2(e, perturb) & mask;
 
                 /*! #if ($RH) !*/
                 initial_slot = slot;
@@ -537,10 +542,13 @@ public class KTypeHashSet<KType>
 
         /*! #if ($RH) !*/
         final int[] cached = this.hash_cache;
-        /*!  #end !*/
+        /*!  #else
+         final int perturb = this.perturbation;
+         #end !*/
 
         // Perform shifts of conflicting keys to fill in the gap.
         int distance = 0;
+
         while (true) {
 
             final int slot = (gapSlot + (++distance)) & mask;
@@ -559,7 +567,7 @@ public class KTypeHashSet<KType>
             assert idealSlotModMask == (REHASH(existing) & mask);
             /*! #end !*/
             /*! #else
-            final int idealSlotModMask = REHASH(existing) & mask;
+            final int idealSlotModMask = REHASH2(existing, perturb) & mask;
             #end !*/
 
             //original HPPC code: shift = (slot - idealSlot) & mask;
@@ -1021,6 +1029,21 @@ public class KTypeHashSet<KType>
 
         return MurmurHash3.mix(value.hashCode(), this.perturbation);
     }
+
     /*! #end !*/
 
+    /*! #if ($TemplateOptions.inlineKTypeGenericAndPrimitive("REHASH2",
+    "(value, perturb)",
+    "MurmurHash3.mix(value.hashCode() , perturb)",
+    "MurmurHash3.mix(value , perturb)")) !*/
+    /**
+     * REHASH2 method for rehashing the keys with perturbation seed as parameter
+     * (inlined in generated code)
+     * Thanks to single array mode, no need to check for null/0 or booleans.
+     */
+    private int REHASH2(final KType value, final int perturb) {
+
+        return MurmurHash3.mix(value.hashCode(), perturb);
+    }
+    /*! #end !*/
 }

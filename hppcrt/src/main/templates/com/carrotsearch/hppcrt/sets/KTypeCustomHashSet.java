@@ -57,30 +57,30 @@ public class KTypeCustomHashSet<KType>
         implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
-       * Hash-indexed array holding all set entries.
+     * Hash-indexed array holding all set entries.
       #if ($TemplateOptions.KTypeGeneric)
-       * <p><strong>Important!</strong>
-       * The actual value in this field is always an instance of <code>Object[]</code>.
-       * Be warned that <code>javac</code> emits additional casts when <code>keys</code>
-       * are directly accessed; <strong>these casts
-       * may result in exceptions at runtime</strong>. A workaround is to cast directly to
-       * <code>Object[]</code> before accessing the buffer's elements (although it is highly
-       * recommended to use a {@link #iterator()} instead.
-       * </pre>
+     * <p><strong>Important!</strong>
+     * The actual value in this field is always an instance of <code>Object[]</code>.
+     * Be warned that <code>javac</code> emits additional casts when <code>keys</code>
+     * are directly accessed; <strong>these casts
+     * may result in exceptions at runtime</strong>. A workaround is to cast directly to
+     * <code>Object[]</code> before accessing the buffer's elements (although it is highly
+     * recommended to use a {@link #iterator()} instead.
+     * </pre>
       #end
      * <p>
-       * Direct set iteration: iterate  {keys[i]} for i in [0; keys.length[ where keys[i] != 0/null, then also
-       * {0/null} is in the set if {@link #allocatedDefaultKey} = true.
+     * Direct set iteration: iterate  {keys[i]} for i in [0; keys.length[ where keys[i] != 0/null, then also
+     * {0/null} is in the set if {@link #allocatedDefaultKey} = true.
      * </p>
      */
     public KType[] keys;
 
     /*! #if ($RH) !*/
     /**
-       * #if ($RH)
-       * Caches the hash value = hash(keys[i]) & mask, if keys[i] != 0/null,
-       * for every index i.
-       * #end
+     * #if ($RH)
+     * Caches the hash value = hash(keys[i]) & mask, if keys[i] != 0/null,
+     * for every index i.
+     * #end
      * @see #assigned
      */
     /*! #end !*/
@@ -99,8 +99,8 @@ public class KTypeCustomHashSet<KType>
     protected int assigned;
 
     /**
-       * The load factor for this map (fraction of allocated slots
-       * before the buffers must be rehashed or reallocated).
+     * The load factor for this map (fraction of allocated slots
+     * before the buffers must be rehashed or reallocated).
      */
     protected final double loadFactor;
 
@@ -110,36 +110,36 @@ public class KTypeCustomHashSet<KType>
     protected int resizeAt;
 
     /**
-       * Per-instance, per-allocation size perturbation
-       * introduced in rehashing to create a unique key distribution.
+     * Per-instance, per-allocation size perturbation
+     * introduced in rehashing to create a unique key distribution.
      */
     private final int perturbation = HashContainers.computeUniqueIdentifier(this);
 
     /**
-       * Custom hashing strategy :
-       * comparisons and hash codes of keys will be computed
-       * with the strategy methods instead of the native Object equals() and hashCode() methods.
+     * Custom hashing strategy :
+     * comparisons and hash codes of keys will be computed
+     * with the strategy methods instead of the native Object equals() and hashCode() methods.
      */
     protected final KTypeHashingStrategy<? super KType> hashStrategy;
 
     /**
      * Creates a hash set with the default capacity of {@value #DEFAULT_CAPACITY},
-       * load factor of {@value #DEFAULT_LOAD_FACTOR}, using the hashStrategy as {@link KTypeHashingStrategy}
+     * load factor of {@value #DEFAULT_LOAD_FACTOR}, using the hashStrategy as {@link KTypeHashingStrategy}
      */
     public KTypeCustomHashSet(final KTypeHashingStrategy<? super KType> hashStrategy) {
         this(Containers.DEFAULT_EXPECTED_ELEMENTS, HashContainers.DEFAULT_LOAD_FACTOR, hashStrategy);
     }
 
     /**
-       * Creates a hash set with the given capacity,
-       * load factor of {@value #DEFAULT_LOAD_FACTOR}, using the hashStrategy as {@link KTypeHashingStrategy}
+     * Creates a hash set with the given capacity,
+     * load factor of {@value #DEFAULT_LOAD_FACTOR}, using the hashStrategy as {@link KTypeHashingStrategy}
      */
     public KTypeCustomHashSet(final int initialCapacity, final KTypeHashingStrategy<? super KType> hashStrategy) {
         this(initialCapacity, HashContainers.DEFAULT_LOAD_FACTOR, hashStrategy);
     }
 
     /**
-       * Creates a hash set with the given capacity and load factor, using the hashStrategy as {@link KTypeHashingStrategy}
+     * Creates a hash set with the given capacity and load factor, using the hashStrategy as {@link KTypeHashingStrategy}
      */
     public KTypeCustomHashSet(final int initialCapacity, final double loadFactor,
             final KTypeHashingStrategy<? super KType> hashStrategy) {
@@ -158,7 +158,7 @@ public class KTypeCustomHashSet<KType>
     }
 
     /**
-       * Creates a hash set from elements of another container. Default load factor is used.
+     * Creates a hash set from elements of another container. Default load factor is used.
      */
     public KTypeCustomHashSet(final KTypeContainer<KType> container,
             final KTypeHashingStrategy<? super KType> hashStrategy) {
@@ -300,11 +300,11 @@ public class KTypeCustomHashSet<KType>
 
     /**
      * Vararg-signature method for adding elements to this set.
-       * <p><b>This method is handy, but costly if used in tight loops (anonymous
-       * array passing)</b></p>
+     * <p><b>This method is handy, but costly if used in tight loops (anonymous
+     * array passing)</b></p>
      * 
-       * @return Returns the number of elements that were added to the set
-       * (were not present in the set).
+     * @return Returns the number of elements that were added to the set
+     * (were not present in the set).
      */
     public int add(final KType... elements) {
         int count = 0;
@@ -343,8 +343,8 @@ public class KTypeCustomHashSet<KType>
     }
 
     /**
-       * Expand the internal storage buffers (capacity) or rehash current
-       * keys and values if there are a lot of deleted slots.
+     * Expand the internal storage buffers (capacity) or rehash current
+     * keys and values if there are a lot of deleted slots.
      */
     private void expandAndAdd(final KType pendingKey, final int freeSlot) {
         assert this.assigned == this.resizeAt;
@@ -390,10 +390,14 @@ public class KTypeCustomHashSet<KType>
 
         //iterate all the old arrays to add in the newly allocated buffers
         //It is important to iterate backwards to minimize the conflict chain length !
+        final int perturb = this.perturbation;
+
         for (int i = oldKeys.length; --i >= 0;) {
+
             if (is_allocated(i, oldKeys)) {
+
                 e = oldKeys[i];
-                slot = REHASH(strategy, e) & mask;
+                slot = REHASH2(strategy, e, perturb) & mask;
 
                 /*! #if ($RH) !*/
                 initial_slot = slot;
@@ -452,7 +456,7 @@ public class KTypeCustomHashSet<KType>
     /**
      * Allocate internal buffers for a given capacity.
      * 
-       * @param capacity New capacity (must be a power of two).
+     * @param capacity New capacity (must be a power of two).
      */
     private void allocateBuffers(final int capacity) {
         try {
@@ -488,8 +492,8 @@ public class KTypeCustomHashSet<KType>
     }
 
     /**
-       * An alias for {@link #removeAll}, i.e returns true
-       * if key was present in the set and has been successfully removed.
+     * An alias for {@link #removeAll}, i.e returns true
+     * if key was present in the set and has been successfully removed.
      */
     public boolean remove(final KType key) {
         if (Intrinsics.isEmptyKey(key)) {
@@ -553,7 +557,7 @@ public class KTypeCustomHashSet<KType>
     }
 
     /**
-       * Shift all the slot-conflicting keys allocated to (and including) <code>slot</code>.
+     * Shift all the slot-conflicting keys allocated to (and including) <code>slot</code>.
      */
     private void shiftConflictingKeys(int gapSlot) {
         final int mask = this.keys.length - 1;
@@ -564,7 +568,9 @@ public class KTypeCustomHashSet<KType>
 
         /*! #if ($RH) !*/
         final int[] cached = this.hash_cache;
-        /*!  #end !*/
+        /*!  #else
+        final int perturb = this.perturbation;
+        #end !*/
 
         // Perform shifts of conflicting keys to fill in the gap.
         int distance = 0;
@@ -586,7 +592,7 @@ public class KTypeCustomHashSet<KType>
             assert idealSlotModMask == (REHASH(strategy, existing) & mask);
             /*! #end !*/
             /*! #else
-            final int idealSlotModMask = REHASH(strategy, existing) & mask;
+            final int idealSlotModMask = REHASH2(strategy, existing, perturb) & mask;
             #end !*/
 
             //original HPPC code: shift = (slot - idealSlot) & mask;
@@ -674,7 +680,7 @@ public class KTypeCustomHashSet<KType>
     /**
      * {@inheritDoc}
      * 
-       * <p>Does not release internal buffers.</p>
+     * <p>Does not release internal buffers.</p>
      */
     @Override
     public void clear() {
@@ -780,8 +786,8 @@ public class KTypeCustomHashSet<KType>
         }
 
         /**
-             * Iterate backwards w.r.t the buffer, to
-             * minimize collision chains when filling another hash container (ex. with putAll())
+         * Iterate backwards w.r.t the buffer, to
+         * minimize collision chains when filling another hash container (ex. with putAll())
          */
         @Override
         protected KTypeCursor<KType> fetch() {
@@ -897,10 +903,10 @@ public class KTypeCustomHashSet<KType>
     }
 
     /**
-       * Clone this object.
-       * #if ($TemplateOptions.KTypeGeneric)
-       * The returned clone will use the same HashingStrategy strategy.
-       * #end
+     * Clone this object.
+     * #if ($TemplateOptions.KTypeGeneric)
+     * The returned clone will use the same HashingStrategy strategy.
+     * #end
      */
     @Override
     public KTypeCustomHashSet<KType> clone() {
@@ -976,7 +982,7 @@ public class KTypeCustomHashSet<KType>
     }
 
     /**
-       * Create a set from a variable number of arguments or an array of <code>KType</code>.
+     * Create a set from a variable number of arguments or an array of <code>KType</code>.
      */
     public static <KType> KTypeCustomHashSet<KType> from(final KTypeHashingStrategy<? super KType> hashStrategy,
             final KType... elements) {
@@ -994,8 +1000,8 @@ public class KTypeCustomHashSet<KType>
     }
 
     /**
-       * Create a new hash set with default parameters (shortcut
-       * instead of using a constructor).
+     * Create a new hash set with default parameters (shortcut
+     * instead of using a constructor).
      */
     public static <KType> KTypeCustomHashSet<KType> newInstance(final KTypeHashingStrategy<? super KType> hashStrategy) {
         return new KTypeCustomHashSet<KType>(hashStrategy);
@@ -1024,8 +1030,8 @@ public class KTypeCustomHashSet<KType>
     "(slot, keys)",
     "!Intrinsics.isEmptyKey(keys[slot])")) !*/
     /**
-       *  template version
-       * (actual method is inlined in generated code)
+     *  template version
+     * (actual method is inlined in generated code)
      */
     private boolean is_allocated(final int slot, final KType[] keys) {
 
@@ -1070,6 +1076,20 @@ public class KTypeCustomHashSet<KType>
 
         return MurmurHash3.mix(strategy.computeHashCode(value), this.perturbation);
     }
+
     /*! #end !*/
 
+    /*! #if ($TemplateOptions.inlineKType("REHASH2",
+    "(strategy, value, perturb)",
+    "MurmurHash3.mix(strategy.computeHashCode(value) , perturb)")) !*/
+    /**
+     * REHASH2 method for rehashing the keys with perturbation seed as parameter
+     * (inlined in generated code)
+     * Thanks to single array mode, no need to check for null/0 or booleans.
+     */
+    private int REHASH2(final KTypeHashingStrategy<? super KType> strategy, final KType value, final int perturb) {
+
+        return MurmurHash3.mix(strategy.computeHashCode(value), perturb);
+    }
+    /*! #end !*/
 }
