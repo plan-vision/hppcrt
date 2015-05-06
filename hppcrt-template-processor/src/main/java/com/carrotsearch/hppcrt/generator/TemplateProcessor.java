@@ -245,6 +245,9 @@ public final class TemplateProcessor {
         final VelocityContext ctx = new VelocityContext();
 
         ctx.put("TemplateOptions", options);
+		ctx.put("true", true);
+        ctx.put("templateOnly", false);
+        ctx.put("false", false);
 
         //Attach some GenericTools that may be useful for code generation :
         ctx.put("esct", new EscapeTool());
