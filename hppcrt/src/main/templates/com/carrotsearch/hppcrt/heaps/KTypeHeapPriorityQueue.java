@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.cursors.*;
+import com.carrotsearch.hppcrt.hash.BitMixer;
 import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
 import com.carrotsearch.hppcrt.strategies.*;
@@ -31,12 +32,12 @@ import com.carrotsearch.hppcrt.strategies.*;
 public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType>
         implements KTypePriorityQueue<KType>, Cloneable
 {
-    /**
-     * Default capacity if no other capacity is given in the constructor.
-     */
-    public final static int DEFAULT_CAPACITY = 16;
+  /**
+   * Default capacity if no other capacity is given in the constructor.
+   */
+  public final static int DEFAULT_CAPACITY = 16;
 
-    /**
+  /**
      * Internal array for storing the priority queue.
     #if ($TemplateOptions.KTypeGeneric)
      * <p><strong>Important!</strong>
@@ -48,192 +49,185 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
      * recommended to use a {@link #iterator()} instead.
      * </pre>
     #end
-     * <p>
+   * <p>
      * Direct priority queue iteration: iterate buffer[i] for i in [1; size()] (included) but is out-of-order w.r.t {@link #popTop()}
-     * </p>
-     */
-    public KType[] buffer;
+   * </p>
+   */
+  public KType[] buffer;
 
-    /**
-     * Number of elements in the queue.
-     */
-    protected int elementsCount;
+  /**
+   * Number of elements in the queue.
+   */
+  protected int elementsCount;
 
-    /**
-     * Defines the Comparator ordering of the queue,
-     * If null, natural ordering is used.
-     */
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    protected Comparator<? super KType> comparator;
-    /*! #else
-    protected KTypeComparator<? super KType> comparator;
-    #end !*/
+  /**
+   * Defines the Comparator ordering of the queue,
+   * If null, natural ordering is used.
+   */
+  /*! #if ($TemplateOptions.KTypeGeneric) !*/
+  protected Comparator<? super KType> comparator;
+  /*! #else
+  protected KTypeComparator<? super KType> comparator;
+  #end !*/
 
-    /**
-     * Buffer resizing strategy.
-     */
-    protected final ArraySizingStrategy resizer;
+  /**
+   * Buffer resizing strategy.
+   */
+  protected final ArraySizingStrategy resizer;
 
-    /**
-     * internal pool of ValueIterator (must be created in constructor)
-     */
-    protected final IteratorPool<KTypeCursor<KType>, ValueIterator> valueIteratorPool;
+  /**
+   * internal pool of ValueIterator (must be created in constructor)
+   */
+  protected final IteratorPool<KTypeCursor<KType>, ValueIterator> valueIteratorPool;
 
-    /**
-     * The current value set for removeAll
-     */
-    private KType currentOccurenceToBeRemoved;
+  /**
+   * The current value set for removeAll
+   */
+  private KType currentOccurenceToBeRemoved;
 
-    /**
-     * Internal predicate for removeAll
-     */
-    private final KTypePredicate<? super KType> removeAllOccurencesPredicate = new KTypePredicate<KType>() {
+  /**
+   * Internal predicate for removeAll
+   */
+  private final KTypePredicate<? super KType> removeAllOccurencesPredicate = new KTypePredicate<KType>() {
 
-        @Override
-        public final boolean apply(final KType value) {
+    @Override
+    public final boolean apply(final KType value) {
 
-            if (KTypeHeapPriorityQueue.this.comparator == null) {
+      if (KTypeHeapPriorityQueue.this.comparator == null) {
 
-                if (Intrinsics.isCompEqualKTypeUnchecked(value, KTypeHeapPriorityQueue.this.currentOccurenceToBeRemoved)) {
+        if (Intrinsics.isCompEqualKTypeUnchecked(value, KTypeHeapPriorityQueue.this.currentOccurenceToBeRemoved)) {
 
-                    return true;
-                }
-            }
-            else {
-
-                if (KTypeHeapPriorityQueue.this.comparator.compare(value, KTypeHeapPriorityQueue.this.currentOccurenceToBeRemoved) == 0) {
-
-                    return true;
-                }
-            }
-
-            return false;
+          return true;
         }
-    };
+      } else {
 
-    /**
-     * Create with a Comparator, an initial capacity, and a custom buffer resizing strategy.
-     */
-    public KTypeHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp,
-            /*! #else
-            KTypeComparator<? super KType> comp,
-            #end !*/final int initialCapacity, final ArraySizingStrategy resizer)
-    {
-        this.comparator = comp;
+        if (KTypeHeapPriorityQueue.this.comparator.compare(value,
+            KTypeHeapPriorityQueue.this.currentOccurenceToBeRemoved) == 0) {
 
-        assert resizer != null;
+          return true;
+        }
+      }
 
-        this.resizer = resizer;
-
-        //1-based index buffer, assure allocation
-        ensureBufferSpace(Math.max(Containers.DEFAULT_EXPECTED_ELEMENTS, initialCapacity));
-
-        this.valueIteratorPool = new IteratorPool<KTypeCursor<KType>, ValueIterator>(
-                new ObjectFactory<ValueIterator>() {
-
-                    @Override
-                    public ValueIterator create()
-                    {
-                        return new ValueIterator();
-                    }
-
-                    @Override
-                    public void initialize(final ValueIterator obj)
-                    {
-                        obj.cursor.index = 0;
-                        obj.size = KTypeHeapPriorityQueue.this.size();
-                        obj.buffer = KTypeHeapPriorityQueue.this.buffer;
-                    }
-
-                    @Override
-                    public void reset(final ValueIterator obj) {
-                        // for GC sake
-                        obj.buffer = null;
-
-                    }
-                });
+      return false;
     }
+  };
 
-    /**
-     * Create with default sizing strategy and initial capacity for storing
-     * {@value #DEFAULT_CAPACITY} elements.
-     * 
-     * @see BoundedProportionalArraySizingStrategy
-     */
-    public KTypeHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp
-    /*! #else
-    KTypeComparator<? super KType> comp
+  /**
+     * Create with a Comparator, an initial capacity, and a custom buffer resizing strategy.
+   */
+  public KTypeHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp,
+  /*! #else
+  KTypeComparator<? super KType> comp,
+  #end !*/final int initialCapacity, final ArraySizingStrategy resizer) {
+    this.comparator = comp;
+
+    assert resizer != null;
+
+    this.resizer = resizer;
+
+    //1-based index buffer, assure allocation
+    ensureBufferSpace(Math.max(Containers.DEFAULT_EXPECTED_ELEMENTS, initialCapacity));
+
+    this.valueIteratorPool = new IteratorPool<KTypeCursor<KType>, ValueIterator>(new ObjectFactory<ValueIterator>() {
+
+      @Override
+      public ValueIterator create() {
+        return new ValueIterator();
+      }
+
+      @Override
+      public void initialize(final ValueIterator obj) {
+        obj.cursor.index = 0;
+        obj.size = KTypeHeapPriorityQueue.this.size();
+        obj.buffer = KTypeHeapPriorityQueue.this.buffer;
+      }
+
+      @Override
+      public void reset(final ValueIterator obj) {
+        // for GC sake
+        obj.buffer = null;
+
+      }
+    });
+  }
+
+  /**
+   * Create with default sizing strategy and initial capacity for storing
+   * {@value #DEFAULT_CAPACITY} elements.
+   * 
+   * @see BoundedProportionalArraySizingStrategy
+   */
+  public KTypeHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp
+  /*! #else
+  KTypeComparator<? super KType> comp
     #end !*/)
     {
-        this(comp, KTypeHeapPriorityQueue.DEFAULT_CAPACITY);
-    }
+    this(comp, KTypeHeapPriorityQueue.DEFAULT_CAPACITY);
+  }
 
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    /**
+  /*! #if ($TemplateOptions.KTypeGeneric) !*/
+  /**
      * Create with an initial capacity,
      * using the Comparable natural ordering
-     */
-    /*! #else !*/
-    /**
+   */
+  /*! #else !*/
+  /**
      * Create with an initial capacity,
      * using the natural ordering of <code>KType</code>s
-     */
-    /*! #end !*/
-    public KTypeHeapPriorityQueue(final int initialCapacity)
-    {
-        this(null, initialCapacity, new BoundedProportionalArraySizingStrategy());
-    }
+   */
+  /*! #end !*/
+  public KTypeHeapPriorityQueue(final int initialCapacity) {
+    this(null, initialCapacity, new BoundedProportionalArraySizingStrategy());
+  }
 
-    /**
+  /**
      * Create with a given initial capacity, using a
      * Comparator for ordering.
-     * 
-     * @see BoundedProportionalArraySizingStrategy
-     */
-    public KTypeHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp,
-            /*! #else
-            KTypeComparator<? super KType> comp,
+   * 
+   * @see BoundedProportionalArraySizingStrategy
+   */
+  public KTypeHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp,
+  /*! #else
+  KTypeComparator<? super KType> comp,
             #end !*/final int initialCapacity)
     {
-        this(comp, initialCapacity, new BoundedProportionalArraySizingStrategy());
+    this(comp, initialCapacity, new BoundedProportionalArraySizingStrategy());
+  }
+
+  /**
+   * Creates a new heap from elements of another container.
+   */
+  public KTypeHeapPriorityQueue(final KTypeContainer<? extends KType> container) {
+    this(container.size());
+    addAll(container);
+  }
+
+  /**
+   * Create a heap from elements of another container (constructor shortcut)
+   */
+  public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
+  KTypeHeapPriorityQueue<KType> from(final KTypeContainer<KType> container) {
+    return new KTypeHeapPriorityQueue<KType>(container);
+  }
+
+  /**
+   * Create a heap from a variable number of arguments or an array of
+   * <code>KType</code>.
+   */
+  public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
+  KTypeHeapPriorityQueue<KType> from(final KType... elements) {
+    final KTypeHeapPriorityQueue<KType> heap = new KTypeHeapPriorityQueue<KType>(elements.length);
+
+    for (final KType elem : elements) {
+
+      heap.add(elem);
     }
 
-    /**
-     * Creates a new heap from elements of another container.
-     */
-    public KTypeHeapPriorityQueue(final KTypeContainer<? extends KType> container)
-    {
-        this(container.size());
-        addAll(container);
-    }
+    return heap;
+  }
 
-    /**
-     * Create a heap from elements of another container (constructor shortcut)
-     */
-    public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeHeapPriorityQueue<KType> from(final KTypeContainer<KType> container)
-    {
-        return new KTypeHeapPriorityQueue<KType>(container);
-    }
-
-    /**
-     * Create a heap from a variable number of arguments or an array of <code>KType</code>.
-     */
-    public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeHeapPriorityQueue<KType> from(final KType... elements)
-    {
-        final KTypeHeapPriorityQueue<KType> heap = new KTypeHeapPriorityQueue<KType>(elements.length);
-
-        for (final KType elem : elements) {
-
-            heap.add(elem);
-        }
-
-        return heap;
-    }
-
-    /**
-     * {@inheritDoc}
+  /**
+   * {@inheritDoc}
      * <p><b>Note : </b> The comparison criteria for
      * identity test is based on
      * #if ($TemplateOptions.KTypeGeneric)
@@ -242,125 +236,112 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
      * natural ordering if no
      * #end
      * custom comparator is given, else it uses the {@link #comparator()} criteria.
-     */
-    @Override
-    public int removeAll(final KType e1)
-    {
-        this.currentOccurenceToBeRemoved = e1;
-        return removeAll(this.removeAllOccurencesPredicate);
-    }
+   */
+  @Override
+  public int removeAll(final KType e1) {
+    this.currentOccurenceToBeRemoved = e1;
+    return removeAll(this.removeAllOccurencesPredicate);
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int removeAll(final KTypePredicate<? super KType> predicate)
-    {
-        //remove by position
-        int deleted = 0;
-        final KType[] buffer = this.buffer;
-        int elementsCount = this.elementsCount;
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int removeAll(final KTypePredicate<? super KType> predicate) {
+    //remove by position
+    int deleted = 0;
+    final KType[] buffer = this.buffer;
+    int elementsCount = this.elementsCount;
 
-        //1-based index
-        int pos = 1;
+    //1-based index
+    int pos = 1;
 
-        try
-        {
-            while (pos <= elementsCount)
-            {
-                //delete it
-                if (predicate.apply(buffer[pos]))
-                {
-                    //put the last element at position pos, like in deleteIndex()
-                    buffer[pos] = buffer[elementsCount];
+    try {
+      while (pos <= elementsCount) {
+        //delete it
+        if (predicate.apply(buffer[pos])) {
+          //put the last element at position pos, like in deleteIndex()
+          buffer[pos] = buffer[elementsCount];
 
-                    //for GC
-                    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                    buffer[elementsCount] = Intrinsics.<KType> defaultKTypeValue();
-                    /*! #end !*/
+          //for GC
+          /*! #if ($TemplateOptions.KTypeGeneric) !*/
+          buffer[elementsCount] = Intrinsics.<KType> defaultKTypeValue();
+          /*! #end !*/
 
-                    //Diminish size
-                    elementsCount--;
-                    deleted++;
-                } //end if to delete
-                else
-                {
-                    pos++;
-                }
-            } //end while
+          //Diminish size
+          elementsCount--;
+          deleted++;
+        } //end if to delete
+        else {
+          pos++;
         }
-        finally
-        {
-            this.elementsCount = elementsCount;
-            //reestablish heap
-            updatePriorities();
-        }
-
-        /*! #if($DEBUG) !*/
-        assert isMinHeap();
-        /*! #end !*/
-
-        return deleted;
+      } //end while
+    } finally {
+      this.elementsCount = elementsCount;
+      //reestablish heap
+      updatePriorities();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void clear()
-    {
-        /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        //1-based indexing
-        KTypeArrays.blankArray(this.buffer, 1, this.elementsCount + 1);
-        /*! #end !*/
-        this.elementsCount = 0;
-    }
+    /*! #if($DEBUG) !*/
+    assert isMinHeap();
+    /*! #end !*/
 
-    /**
+    return deleted;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void clear() {
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    //1-based indexing
+    KTypeArrays.blankArray(this.buffer, 1, this.elementsCount + 1);
+    /*! #end !*/
+    this.elementsCount = 0;
+  }
+
+  /**
      * An iterator implementation for {@link HeapPriorityQueue#iterator}.
      * Holds a KTypeCursor<KType> cursor returning (value, index) = (KType value, index the position in heap)
-     */
-    public final class ValueIterator extends AbstractIterator<KTypeCursor<KType>>
-    {
-        public final KTypeCursor<KType> cursor;
+   */
+  public final class ValueIterator extends AbstractIterator<KTypeCursor<KType>> {
+    public final KTypeCursor<KType> cursor;
 
-        private KType[] buffer;
-        private int size;
+    private KType[] buffer;
+    private int size;
 
-        public ValueIterator()
-        {
-            this.cursor = new KTypeCursor<KType>();
-            //index 0 is not used in Priority queue
-            this.cursor.index = 0;
-            this.size = KTypeHeapPriorityQueue.this.size();
-            this.buffer = KTypeHeapPriorityQueue.this.buffer;
-        }
-
-        @Override
-        protected KTypeCursor<KType> fetch()
-        {
-            //priority is 1-based index
-            if (this.cursor.index == this.size) {
-                return done();
-            }
-
-            this.cursor.value = this.buffer[++this.cursor.index];
-            return this.cursor;
-        }
+    public ValueIterator() {
+      this.cursor = new KTypeCursor<KType>();
+      //index 0 is not used in Priority queue
+      this.cursor.index = 0;
+      this.size = KTypeHeapPriorityQueue.this.size();
+      this.buffer = KTypeHeapPriorityQueue.this.buffer;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public ValueIterator iterator()
-    {
-        //return new ValueIterator<KType>(buffer, size());
-        return this.valueIteratorPool.borrow();
-    }
+    protected KTypeCursor<KType> fetch() {
+      //priority is 1-based index
+      if (this.cursor.index == this.size) {
+        return done();
+      }
 
-    /**
-     * {@inheritDoc}
+      this.cursor.value = this.buffer[++this.cursor.index];
+      return this.cursor;
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ValueIterator iterator() {
+    //return new ValueIterator<KType>(buffer, size());
+    return this.valueIteratorPool.borrow();
+  }
+
+  /**
+   * {@inheritDoc}
      * <p><b>Note : </b> The comparison criteria for
      * identity test is based on
      * #if ($TemplateOptions.KTypeGeneric)
@@ -369,645 +350,581 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
      * natural ordering if no
      * #end
      * custom comparator is given, else it uses the {@link #comparator()} criteria.
-     */
-    @Override
-    public boolean contains(final KType element)
-    {
-        //1-based index
-        final int size = this.elementsCount;
-        final KType[] buff = this.buffer;
+   */
+  @Override
+  public boolean contains(final KType element) {
+    //1-based index
+    final int size = this.elementsCount;
+    final KType[] buff = this.buffer;
 
-        if (this.comparator == null) {
+    if (this.comparator == null) {
 
-            for (int i = 1; i <= size; i++)
-            {
-                if (Intrinsics.isCompEqualKTypeUnchecked(element, buff[i]))
-                {
-                    return true;
-                }
-            } //end for
+      for (int i = 1; i <= size; i++) {
+        if (Intrinsics.isCompEqualKTypeUnchecked(element, buff[i])) {
+          return true;
         }
-        else {
+      } //end for
+    } else {
 
-            /*! #if ($TemplateOptions.KTypeGeneric) !*/
-            final Comparator<? super KType> comp = this.comparator;
-            /*! #else
-            KTypeComparator<? super KType> comp = this.comparator;
-            #end !*/
+      /*! #if ($TemplateOptions.KTypeGeneric) !*/
+      final Comparator<? super KType> comp = this.comparator;
+      /*! #else
+      KTypeComparator<? super KType> comp = this.comparator;
+      #end !*/
 
-            for (int i = 1; i <= size; i++)
-            {
-                if (comp.compare(element, buff[i]) == 0)
-                {
-                    return true;
-                }
-            } //end for
+      for (int i = 1; i <= size; i++) {
+        if (comp.compare(element, buff[i]) == 0) {
+          return true;
         }
-
-        return false;
+      } //end for
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int size()
-    {
-        return this.elementsCount;
+    return false;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int size() {
+    return this.elementsCount;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int capacity() {
+
+    return this.buffer.length - 1;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure) {
+    final KType[] buff = this.buffer;
+    final int size = this.elementsCount;
+
+    for (int i = 1; i <= size; i++) {
+      procedure.apply(buff[i]);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int capacity() {
+    return procedure;
+  }
 
-        return this.buffer.length - 1;
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public <T extends KTypePredicate<? super KType>> T forEach(final T predicate) {
+    final KType[] buff = this.buffer;
+    final int size = this.elementsCount;
+
+    for (int i = 1; i <= size; i++) {
+      if (!predicate.apply(buff[i])) {
+        break;
+      }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure)
-    {
-        final KType[] buff = this.buffer;
-        final int size = this.elementsCount;
+    return predicate;
+  }
 
-        for (int i = 1; i <= size; i++)
-        {
-            procedure.apply(buff[i]);
-        }
-
-        return procedure;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public <T extends KTypePredicate<? super KType>> T forEach(final T predicate)
-    {
-        final KType[] buff = this.buffer;
-        final int size = this.elementsCount;
-
-        for (int i = 1; i <= size; i++)
-        {
-            if (!predicate.apply(buff[i])) {
-                break;
-            }
-        }
-
-        return predicate;
-    }
-
-    /**
+  /**
      * Insert a KType into the queue.
      * cost: O(log(N)) for a N sized queue
-     */
-    @Override
-    public void add(final KType element)
-    {
-        ensureBufferSpace(1);
+   */
+  @Override
+  public void add(final KType element) {
+    ensureBufferSpace(1);
 
-        //add at the end
-        this.elementsCount++;
-        this.buffer[this.elementsCount] = element;
+    //add at the end
+    this.elementsCount++;
+    this.buffer[this.elementsCount] = element;
 
-        //swim last element
-        swim(this.elementsCount);
-    }
+    //swim last element
+    swim(this.elementsCount);
+  }
 
-    /**
+  /**
      * {@inheritDoc}
      * cost: O(1)
-     */
-    @Override
-    public KType top()
-    {
-        KType elem = this.defaultValue;
+   */
+  @Override
+  public KType top() {
+    KType elem = this.defaultValue;
 
-        if (this.elementsCount > 0)
-        {
-            elem = this.buffer[1];
-        }
-
-        return elem;
+    if (this.elementsCount > 0) {
+      elem = this.buffer[1];
     }
 
-    /**
+    return elem;
+  }
+
+  /**
      * {@inheritDoc}
      * cost: O(log(N)) for a N sized queue
-     */
-    @Override
-    public KType popTop()
-    {
-        KType elem = this.defaultValue;
+   */
+  @Override
+  public KType popTop() {
+    KType elem = this.defaultValue;
 
-        if (this.elementsCount > 0)
-        {
-            elem = this.buffer[1];
+    if (this.elementsCount > 0) {
+      elem = this.buffer[1];
 
-            if (this.elementsCount == 1)
-            {
-                //for GC
-                /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                this.buffer[1] = Intrinsics.<KType> defaultKTypeValue();
-                /*! #end !*/
-                //diminish size
-                this.elementsCount = 0;
-            }
-            else
-            {
-                //at least 2 elements
-                //put the last element in first position
+      if (this.elementsCount == 1) {
+        //for GC
+        /*! #if ($TemplateOptions.KTypeGeneric) !*/
+        this.buffer[1] = Intrinsics.<KType> defaultKTypeValue();
+        /*! #end !*/
+        //diminish size
+        this.elementsCount = 0;
+      } else {
+        //at least 2 elements
+        //put the last element in first position
 
-                this.buffer[1] = this.buffer[this.elementsCount];
+        this.buffer[1] = this.buffer[this.elementsCount];
 
-                //for GC
-                /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                this.buffer[this.elementsCount] = Intrinsics.<KType> defaultKTypeValue();
-                /*! #end !*/
-
-                //diminish size
-                this.elementsCount--;
-
-                //percolate down the first element
-                sink(1);
-            }
-        }
-
-        return elem;
-    }
-
-    /**
-     * Adds all elements from another container.
-     * cost: O(N*log(N)) for N elements
-     */
-    public int addAll(final KTypeContainer<? extends KType> container)
-    {
-        return addAll((Iterable<? extends KTypeCursor<? extends KType>>) container);
-    }
-
-    /**
-     * Adds all elements from another iterable.
-     * cost: O(N*log(N)) for N elements
-     */
-    public int addAll(final Iterable<? extends KTypeCursor<? extends KType>> iterable)
-    {
-        int size = 0;
-        final KType[] buff = this.buffer;
-        int count = this.elementsCount;
-
-        for (final KTypeCursor<? extends KType> cursor : iterable)
-        {
-            ensureBufferSpace(1);
-            count++;
-            buff[count] = cursor.value;
-            size++;
-        }
-
-        this.elementsCount = count;
-
-        //restore heap
-        updatePriorities();
-        /*! #if($DEBUG) !*/
-        assert isMinHeap();
+        //for GC
+        /*! #if ($TemplateOptions.KTypeGeneric) !*/
+        this.buffer[this.elementsCount] = Intrinsics.<KType> defaultKTypeValue();
         /*! #end !*/
 
-        return size;
+        //diminish size
+        this.elementsCount--;
+
+        //percolate down the first element
+        sink(1);
+      }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int hashCode()
-    {
-        int h = 1;
-        final int max = this.elementsCount;
-        final KType[] buff = this.buffer;
+    return elem;
+  }
 
-        //1-based index
-        for (int i = 1; i <= max; i++)
-        {
-            h = 31 * h + Internals.rehash(buff[i]);
-        }
-        return h;
+  /**
+     * Adds all elements from another container.
+     * cost: O(N*log(N)) for N elements
+   */
+  public int addAll(final KTypeContainer<? extends KType> container) {
+    return addAll((Iterable<? extends KTypeCursor<? extends KType>>) container);
+  }
+
+  /**
+     * Adds all elements from another iterable.
+     * cost: O(N*log(N)) for N elements
+   */
+  public int addAll(final Iterable<? extends KTypeCursor<? extends KType>> iterable) {
+    int size = 0;
+    final KType[] buff = this.buffer;
+    int count = this.elementsCount;
+
+    for (final KTypeCursor<? extends KType> cursor : iterable) {
+      ensureBufferSpace(1);
+      count++;
+      buff[count] = cursor.value;
+      size++;
     }
 
-    /**
+    this.elementsCount = count;
+
+    //restore heap
+    updatePriorities();
+    /*! #if($DEBUG) !*/
+    assert isMinHeap();
+    /*! #end !*/
+
+    return size;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int hashCode() {
+    int h = 1;
+    final int max = this.elementsCount;
+    final KType[] buff = this.buffer;
+
+    //1-based index
+    for (int i = 1; i <= max; i++) {
+      h = 31 * h + BitMixer.mix(buff[i]);
+    }
+    return h;
+  }
+
+  /**
      * {@inheritDoc}
      * cost: O(n*log(N))
-     */
-    @Override
-    public void updatePriorities()
-    {
-        if (this.comparator == null)
-        {
-            for (int k = this.elementsCount >> 1; k >= 1; k--)
-            {
-                sinkComparable(k);
-            }
-        }
-        else
-        {
-            for (int k = this.elementsCount >> 1; k >= 1; k--)
-            {
-                sinkComparator(k);
-            }
-        }
+   */
+  @Override
+  public void updatePriorities() {
+    if (this.comparator == null) {
+      for (int k = this.elementsCount >> 1; k >= 1; k--) {
+        sinkComparable(k);
+      }
+    } else {
+      for (int k = this.elementsCount >> 1; k >= 1; k--) {
+        sinkComparator(k);
+      }
     }
+  }
 
-    /**
+  /**
      * {@inheritDoc}
      * cost: O(log(N))
-     */
-    @Override
-    public void updateTopPriority()
-    {
-        //only attempt to sink if there is at least 2 elements....
-        if (this.elementsCount > 1) {
+   */
+  @Override
+  public void updateTopPriority() {
+    //only attempt to sink if there is at least 2 elements....
+    if (this.elementsCount > 1) {
 
-            sink(1);
-        }
+      sink(1);
     }
+  }
 
-    /**
+  /**
      * Clone this object. The returned clone will use the same resizing strategy and comparator.
-     */
-    @Override
-    public KTypeHeapPriorityQueue<KType> clone()
-    {
-        //real constructor call, of a place holder
-        final KTypeHeapPriorityQueue<KType> cloned = new KTypeHeapPriorityQueue<KType>(this.comparator, Containers.DEFAULT_EXPECTED_ELEMENTS, this.resizer);
+   */
+  @Override
+  public KTypeHeapPriorityQueue<KType> clone() {
+    //real constructor call, of a place holder
+    final KTypeHeapPriorityQueue<KType> cloned = new KTypeHeapPriorityQueue<KType>(this.comparator,
+        Containers.DEFAULT_EXPECTED_ELEMENTS, this.resizer);
 
-        //clone raw buffers
-        cloned.buffer = this.buffer.clone();
+    //clone raw buffers
+    cloned.buffer = this.buffer.clone();
 
-        cloned.defaultValue = this.defaultValue;
-        cloned.elementsCount = this.elementsCount;
+    cloned.defaultValue = this.defaultValue;
+    cloned.elementsCount = this.elementsCount;
 
-        return cloned;
-    }
+    return cloned;
+  }
 
-    /**
+  /**
      * this instance and obj can only be equal to this if either: <pre>
-     * (both don't have set comparators)
-     * or
+   * (both don't have set comparators)
+   * or
      * (both have equal comparators defined by {@link #comparator}.equals(obj.comparator))</pre>
      * then, both heaps are compared as follows: <pre>
      * {@inheritDoc}</pre>
-     */
-    @Override
-/* #if ($TemplateOptions.KTypeGeneric) */
-    @SuppressWarnings("unchecked")
-/* #end */
-    public boolean equals(final Object obj)
-    {
-        if (obj != null)
-        {
-            if (obj == this) {
-                return true;
-            }
+   */
+  @Override
+  /* #if ($TemplateOptions.KTypeGeneric) */
+  @SuppressWarnings("unchecked")
+  /* #end */
+  public boolean equals(final Object obj) {
+    if (obj != null) {
+      if (obj == this) {
+        return true;
+      }
 
-            //we can only compare both KTypeHeapPriorityQueue and not subclasses between themselves
-            //that has the same comparison function reference
-            if (obj.getClass() != this.getClass())
-            {
-                return false;
-            }
+      //we can only compare both KTypeHeapPriorityQueue and not subclasses between themselves
+      //that has the same comparison function reference
+      if (obj.getClass() != this.getClass()) {
+        return false;
+      }
 
-            final KTypeHeapPriorityQueue<KType> other = (KTypeHeapPriorityQueue<KType>) obj;
+      final KTypeHeapPriorityQueue<KType> other = (KTypeHeapPriorityQueue<KType>) obj;
 
-            if (other.size() != this.size()) {
-
-                return false;
-            }
-
-            final int size = this.elementsCount;
-            final KType[] buffer = this.buffer;
-            final KType[] otherbuffer = other.buffer;
-
-            //both heaps must have the same comparison criteria
-            if (this.comparator == null && other.comparator == null) {
-
-                for (int i = 1; i <= size; i++)
-                {
-                    if (!Intrinsics.isCompEqualKTypeUnchecked(buffer[i], otherbuffer[i]))
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-            else if (this.comparator != null && this.comparator.equals(other.comparator)) {
-
-                /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                final Comparator<? super KType> comp = this.comparator;
-                /*! #else
-                KTypeComparator<? super KType> comp = this.comparator;
-                #end !*/
-
-                for (int i = 1; i <= size; i++)
-                {
-                    if (comp.compare(buffer[i], otherbuffer[i]) != 0)
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-
-        }
+      if (other.size() != this.size()) {
 
         return false;
+      }
+
+      final int size = this.elementsCount;
+      final KType[] buffer = this.buffer;
+      final KType[] otherbuffer = other.buffer;
+
+      //both heaps must have the same comparison criteria
+      if (this.comparator == null && other.comparator == null) {
+
+        for (int i = 1; i <= size; i++) {
+          if (!Intrinsics.isCompEqualKTypeUnchecked(buffer[i], otherbuffer[i])) {
+            return false;
+          }
+        }
+
+        return true;
+      } else if (this.comparator != null && this.comparator.equals(other.comparator)) {
+
+        /*! #if ($TemplateOptions.KTypeGeneric) !*/
+        final Comparator<? super KType> comp = this.comparator;
+        /*! #else
+        KTypeComparator<? super KType> comp = this.comparator;
+        #end !*/
+
+        for (int i = 1; i <= size; i++) {
+          if (comp.compare(buffer[i], otherbuffer[i]) != 0) {
+            return false;
+          }
+        }
+
+        return true;
+      }
+
     }
 
-    /**
-     * Ensures the internal buffer has enough free slots to store
-     * <code>expectedAdditions</code>. Increases internal buffer size if needed.
-     */
-    protected void ensureBufferSpace(final int expectedAdditions)
-    {
-        final int bufferLen = this.buffer == null ? 0 : this.buffer.length;
+    return false;
+  }
 
-        //element of index 0 is not used
-        if (this.elementsCount + 1 > bufferLen - expectedAdditions)
-        {
-            int newSize = this.resizer.grow(bufferLen, this.elementsCount, expectedAdditions);
+  /**
+   * Ensures the internal buffer has enough free slots to store
+   * <code>expectedAdditions</code>. Increases internal buffer size if needed.
+   */
+  protected void ensureBufferSpace(final int expectedAdditions) {
+    final int bufferLen = this.buffer == null ? 0 : this.buffer.length;
 
-            //first allocation, reserve an additional slot because index 0  is not used
-            if (this.buffer == null) {
-                newSize++;
-            }
+    //element of index 0 is not used
+    if (this.elementsCount + 1 > bufferLen - expectedAdditions) {
+      int newSize = this.resizer.grow(bufferLen, this.elementsCount, expectedAdditions);
 
-            try {
-                final KType[] newBuffer = Intrinsics.newKTypeArray(newSize);
+      //first allocation, reserve an additional slot because index 0  is not used
+      if (this.buffer == null) {
+        newSize++;
+      }
 
-                if (bufferLen > 0)
-                {
-                    System.arraycopy(this.buffer, 0, newBuffer, 0, this.buffer.length);
-                }
+      try {
+        final KType[] newBuffer = Intrinsics.newKTypeArray(newSize);
 
-                this.buffer = newBuffer;
-            }
-            catch (final OutOfMemoryError e) {
+        if (bufferLen > 0) {
+          System.arraycopy(this.buffer, 0, newBuffer, 0, this.buffer.length);
+        }
+
+        this.buffer = newBuffer;
+      } catch (final OutOfMemoryError e) {
 
                 throw new BufferAllocationException(
                         "Not enough memory to allocate buffers to grow from %d -> %d elements",
                         e,
                         bufferLen,
                         newSize);
-            }
-        }
+      }
     }
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public KType[] toArray(final KType[] target)
-    {
-        //copy from index 1
-        System.arraycopy(this.buffer, 1, target, 0, this.elementsCount);
-        return target;
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public KType[] toArray(final KType[] target) {
+    //copy from index 1
+    System.arraycopy(this.buffer, 1, target, 0, this.elementsCount);
+    return target;
+  }
 
-    /**
-     * Get the custom comparator used for comparing elements
+  /**
+   * Get the custom comparator used for comparing elements
      * @return null if no custom comparator was set, i.e natural ordering
      * of <code>KType</code>s is used instead
      * #if($TemplateOptions.KTypeGeneric) , which means objects in this case must be {@link Comparable}.
      * #end
-     */
-/*! #if ($TemplateOptions.KTypeGeneric) !*/
-    public Comparator<? super KType>
-            /*! #else
-                                                                                                                                                                                                    public KTypeComparator<? super KType>
-                                                                                                                                                                                                    #end !*/
-            comparator() {
+   */
+  /*! #if ($TemplateOptions.KTypeGeneric) !*/
+  public Comparator<? super KType>
+  /*! #else
+                                                                                                                                                                                          public KTypeComparator<? super KType>
+                                                                                                                                                                                          #end !*/
+  comparator() {
 
-        return this.comparator;
+    return this.comparator;
+  }
+
+  /**
+   * Sink function for Comparable elements
+   * 
+   * @param k
+   */
+  private void sinkComparable(int k) {
+    final int N = this.elementsCount;
+    final KType[] buffer = this.buffer;
+
+    KType tmp;
+    int child;
+
+    while ((k << 1) <= N) {
+      //get the child of k
+      child = k << 1;
+
+      if (child < N && Intrinsics.isCompSupKTypeUnchecked(buffer[child], buffer[child + 1])) {
+        child++;
+      }
+
+      if (!Intrinsics.isCompSupKTypeUnchecked(buffer[k], buffer[child])) {
+        break;
+      }
+
+      //swap k and child
+      tmp = buffer[k];
+      buffer[k] = buffer[child];
+      buffer[child] = tmp;
+
+      k = child;
+    } //end while
+  }
+
+  /**
+   * Sink function for KTypeComparator elements
+   * 
+   * @param k
+   */
+  private void sinkComparator(int k) {
+    final int N = this.elementsCount;
+    final KType[] buffer = this.buffer;
+
+    KType tmp;
+    int child;
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    final Comparator<? super KType> comp = this.comparator;
+    /*! #else
+        KTypeComparator<? super KType> comp = this.comparator;
+        #end !*/
+
+    while ((k << 1) <= N) {
+      //get the child of k
+      child = k << 1;
+
+      if (child < N && comp.compare(buffer[child], buffer[child + 1]) > 0) {
+        child++;
+      }
+
+      if (comp.compare(buffer[k], buffer[child]) <= 0) {
+        break;
+      }
+
+      //swap k and child
+      tmp = buffer[k];
+      buffer[k] = buffer[child];
+      buffer[child] = tmp;
+
+      k = child;
+    } //end while
+  }
+
+  /**
+   * Swim function for Comparable elements
+   * 
+   * @param k
+   */
+  private void swimComparable(int k) {
+    KType tmp;
+    int parent;
+    final KType[] buffer = this.buffer;
+
+    while (k > 1 && Intrinsics.isCompSupKTypeUnchecked(buffer[k >> 1], buffer[k])) {
+      //swap k and its parent
+      parent = k >> 1;
+
+      tmp = buffer[k];
+      buffer[k] = buffer[parent];
+      buffer[parent] = tmp;
+
+      k = parent;
+    }
+  }
+
+  /**
+   * Swim function for Comparator elements
+   * 
+   * @param k
+   */
+  private void swimComparator(int k) {
+    KType tmp;
+    int parent;
+    final KType[] buffer = this.buffer;
+
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    final Comparator<? super KType> comp = this.comparator;
+    /*! #else
+        KTypeComparator<? super KType> comp = this.comparator;
+        #end !*/
+
+    while (k > 1 && comp.compare(buffer[k >> 1], buffer[k]) > 0) {
+      //swap k and its parent
+      parent = k >> 1;
+      tmp = buffer[k];
+      buffer[k] = buffer[parent];
+      buffer[parent] = tmp;
+
+      k = parent;
+    }
+  }
+
+  private void swim(final int k) {
+    if (this.comparator == null) {
+      swimComparable(k);
+    } else {
+      swimComparator(k);
+    }
+  }
+
+  private void sink(final int k) {
+    if (this.comparator == null) {
+      sinkComparable(k);
+    } else {
+      sinkComparator(k);
+    }
+  }
+
+  /*! #if($DEBUG) !*/
+  /**
+   * methods to test invariant in assert, not present in final generated code
+   */
+  // is pq[1..N] a min heap?
+  private boolean isMinHeap() {
+    if (this.comparator == null) {
+      return isMinHeapComparable(1);
     }
 
-    /**
-     * Sink function for Comparable elements
-     * @param k
-     */
-    private void sinkComparable(int k)
-    {
-        final int N = this.elementsCount;
-        final KType[] buffer = this.buffer;
+    return isMinHeapComparator(1);
+  }
 
-        KType tmp;
-        int child;
+  // is subtree of pq[1..N] rooted at k a min heap?
+  private boolean isMinHeapComparable(final int k) {
+    final int N = this.elementsCount;
+    final KType[] buffer = this.buffer;
 
-        while ((k << 1) <= N)
-        {
-            //get the child of k
-            child = k << 1;
-
-            if (child < N && Intrinsics.isCompSupKTypeUnchecked(buffer[child], buffer[child + 1]))
-            {
-                child++;
-            }
-
-            if (!Intrinsics.isCompSupKTypeUnchecked(buffer[k], buffer[child]))
-            {
-                break;
-            }
-
-            //swap k and child
-            tmp = buffer[k];
-            buffer[k] = buffer[child];
-            buffer[child] = tmp;
-
-            k = child;
-        } //end while
+    if (k > N) {
+      return true;
     }
+    final int left = 2 * k, right = 2 * k + 1;
 
-    /**
-     * Sink function for KTypeComparator elements
-     * @param k
-     */
-    private void sinkComparator(int k)
-    {
-        final int N = this.elementsCount;
-        final KType[] buffer = this.buffer;
-
-        KType tmp;
-        int child;
-        /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        final Comparator<? super KType> comp = this.comparator;
-        /*! #else
-            KTypeComparator<? super KType> comp = this.comparator;
-            #end !*/
-
-        while ((k << 1) <= N)
-        {
-            //get the child of k
-            child = k << 1;
-
-            if (child < N && comp.compare(buffer[child], buffer[child + 1]) > 0)
-            {
-                child++;
-            }
-
-            if (comp.compare(buffer[k], buffer[child]) <= 0)
-            {
-                break;
-            }
-
-            //swap k and child
-            tmp = buffer[k];
-            buffer[k] = buffer[child];
-            buffer[child] = tmp;
-
-            k = child;
-        } //end while
+    if (left <= N && Intrinsics.isCompSupKTypeUnchecked(buffer[k], buffer[left])) {
+      return false;
     }
-
-    /**
-     * Swim function for Comparable elements
-     * @param k
-     */
-    private void swimComparable(int k)
-    {
-        KType tmp;
-        int parent;
-        final KType[] buffer = this.buffer;
-
-        while (k > 1 && Intrinsics.isCompSupKTypeUnchecked(buffer[k >> 1], buffer[k]))
-        {
-            //swap k and its parent
-            parent = k >> 1;
-
-            tmp = buffer[k];
-            buffer[k] = buffer[parent];
-            buffer[parent] = tmp;
-
-            k = parent;
-        }
+    if (right <= N && Intrinsics.isCompSupKTypeUnchecked(buffer[k], buffer[right])) {
+      return false;
     }
+    //recursively test
+    return isMinHeapComparable(left) && isMinHeapComparable(right);
+  }
 
-    /**
-     * Swim function for Comparator elements
-     * @param k
-     */
-    private void swimComparator(int k)
-    {
-        KType tmp;
-        int parent;
-        final KType[] buffer = this.buffer;
+  // is subtree of pq[1..N] rooted at k a min heap?
+  private boolean isMinHeapComparator(final int k) {
+    final int N = this.elementsCount;
+    final KType[] buffer = this.buffer;
 
-        /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        final Comparator<? super KType> comp = this.comparator;
-        /*! #else
-            KTypeComparator<? super KType> comp = this.comparator;
-            #end !*/
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    final Comparator<? super KType> comp = this.comparator;
+    /*! #else
+        KTypeComparator<? super KType> comp = this.comparator;
+        #end !*/
 
-        while (k > 1 && comp.compare(buffer[k >> 1], buffer[k]) > 0)
-        {
-            //swap k and its parent
-            parent = k >> 1;
-            tmp = buffer[k];
-            buffer[k] = buffer[parent];
-            buffer[parent] = tmp;
-
-            k = parent;
-        }
+    if (k > N) {
+      return true;
     }
+    final int left = 2 * k, right = 2 * k + 1;
 
-    private void swim(final int k)
-    {
-        if (this.comparator == null)
-        {
-            swimComparable(k);
-        }
-        else
-        {
-            swimComparator(k);
-        }
+    if (left <= N && comp.compare(buffer[k], buffer[left]) > 0) {
+      return false;
     }
-
-    private void sink(final int k)
-    {
-        if (this.comparator == null)
-        {
-            sinkComparable(k);
-        }
-        else
-        {
-            sinkComparator(k);
-        }
+    if (right <= N && comp.compare(buffer[k], buffer[right]) > 0) {
+      return false;
     }
+    //recursively test
+    return isMinHeapComparator(left) && isMinHeapComparator(right);
+  }
 
-/*! #if($DEBUG) !*/
-    /**
-     * methods to test invariant in assert, not present in final generated code
-     */
-// is pq[1..N] a min heap?
-    private boolean isMinHeap()
-    {
-        if (this.comparator == null)
-        {
-            return isMinHeapComparable(1);
-        }
-
-        return isMinHeapComparator(1);
-    }
-
-// is subtree of pq[1..N] rooted at k a min heap?
-    private boolean isMinHeapComparable(final int k)
-    {
-        final int N = this.elementsCount;
-        final KType[] buffer = this.buffer;
-
-        if (k > N) {
-            return true;
-        }
-        final int left = 2 * k, right = 2 * k + 1;
-
-        if (left <= N && Intrinsics.isCompSupKTypeUnchecked(buffer[k], buffer[left])) {
-            return false;
-        }
-        if (right <= N && Intrinsics.isCompSupKTypeUnchecked(buffer[k], buffer[right])) {
-            return false;
-        }
-        //recursively test
-        return isMinHeapComparable(left) && isMinHeapComparable(right);
-    }
-
-// is subtree of pq[1..N] rooted at k a min heap?
-    private boolean isMinHeapComparator(final int k)
-    {
-        final int N = this.elementsCount;
-        final KType[] buffer = this.buffer;
-
-        /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        final Comparator<? super KType> comp = this.comparator;
-        /*! #else
-            KTypeComparator<? super KType> comp = this.comparator;
-            #end !*/
-
-        if (k > N) {
-            return true;
-        }
-        final int left = 2 * k, right = 2 * k + 1;
-
-        if (left <= N && comp.compare(buffer[k], buffer[left]) > 0) {
-            return false;
-        }
-        if (right <= N && comp.compare(buffer[k], buffer[right]) > 0) {
-            return false;
-        }
-        //recursively test
-        return isMinHeapComparator(left) && isMinHeapComparator(right);
-    }
-
-//end of ifdef debug
-/*! #end !*/
+  //end of ifdef debug
+  /*! #end !*/
 }

@@ -27,7 +27,7 @@ public final class Intrinsics
     {
         /*! ($TemplateOptions.inlineKTypeGenericAndPrimitive("Intrinsics.newKTypeArray",
         "(arraySize)",
-        "Internals.<KType[]>newArray(arraySize)",
+        "(KType[]) new Object[arraySize]",
         "new ${TemplateOptions.KType}[arraySize]")) !*/
 
         return (T) new Object[arraySize];
@@ -45,7 +45,7 @@ public final class Intrinsics
         /*! #if($TemplateOptions.VType)
              ($TemplateOptions.inlineVTypeGenericAndPrimitive("Intrinsics.newVTypeArray",
             "(arraySize)",
-            "Internals.<VType[]>newArray(arraySize)",
+            "(VType[]) new Object[arraySize]",
             "new ${TemplateOptions.VType}[arraySize]"))
         #end  !*/
 

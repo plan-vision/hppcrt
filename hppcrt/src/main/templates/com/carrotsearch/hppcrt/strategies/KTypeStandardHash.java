@@ -1,7 +1,7 @@
 package com.carrotsearch.hppcrt.strategies;
 
-import com.carrotsearch.hppcrt.Internals;
 import com.carrotsearch.hppcrt.Intrinsics;
+import com.carrotsearch.hppcrt.hash.BitMixer;
 
 /*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
@@ -20,7 +20,7 @@ public final class KTypeStandardHash<KType> implements KTypeHashingStrategy<KTyp
     @Override
     public int computeHashCode(final KType object) {
 
-        return Internals.rehash(object);
+        return BitMixer.mix(object);
     }
 
     @Override

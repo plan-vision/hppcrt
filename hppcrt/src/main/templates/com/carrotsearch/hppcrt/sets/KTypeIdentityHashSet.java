@@ -15,11 +15,6 @@ import com.carrotsearch.hppcrt.hash.*;
  * The difference with {@link KTypeHashSet} is that it uses direct Object reference equality for comparison and
  * direct "address" {@link System#identityHashCode(Object)} for hashCode(), instead of using
  * the built-in hashCode() /  equals().
- * <p>
- * The internal buffers of this implementation ({@link #keys}, etc...)
- * are always allocated to the nearest size that is a power of two. When
- * the capacity exceeds the given load factor, the buffer size is doubled.
- * </p>
  * 
  * <p>This implementation supports <code>null</code> keys.</p>
  *

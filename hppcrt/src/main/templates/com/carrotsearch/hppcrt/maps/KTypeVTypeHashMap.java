@@ -49,51 +49,51 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     protected VType defaultValue = Intrinsics.<VType> defaultVTypeValue();
 
     /**
-     * Hash-indexed array holding all keys.
-    #if ($TemplateOptions.KTypeGeneric)
-     * <p><strong>Important!</strong>
-     * The actual value in this field is always an instance of <code>Object[]</code>.
-     * Be warned that <code>javac</code> emits additional casts when <code>keys</code>
-     * are directly accessed; <strong>these casts
-     * may result in exceptions at runtime</strong>. A workaround is to cast directly to
-     * <code>Object[]</code> before accessing the buffer's elements (although it is highly
-     * recommended to use a {@link #iterator()} instead.
-     * </pre>
-    #end
+       * Hash-indexed array holding all keys.
+      #if ($TemplateOptions.KTypeGeneric)
+       * <p><strong>Important!</strong>
+       * The actual value in this field is always an instance of <code>Object[]</code>.
+       * Be warned that <code>javac</code> emits additional casts when <code>keys</code>
+       * are directly accessed; <strong>these casts
+       * may result in exceptions at runtime</strong>. A workaround is to cast directly to
+       * <code>Object[]</code> before accessing the buffer's elements (although it is highly
+       * recommended to use a {@link #iterator()} instead.
+       * </pre>
+      #end
      * <p>
-     * Direct map iteration: iterate  {keys[i], values[i]} for i in [0; keys.length[ where keys[i] != 0/null, then also
-     * {0/null, {@link #allocatedDefaultKeyValue} } is in the map if {@link #allocatedDefaultKey} = true.
+       * Direct map iteration: iterate  {keys[i], values[i]} for i in [0; keys.length[ where keys[i] != 0/null, then also
+       * {0/null, {@link #allocatedDefaultKeyValue} } is in the map if {@link #allocatedDefaultKey} = true.
      * </p>
      */
     public KType[] keys;
 
     /**
-     * Hash-indexed array holding all values associated to the keys.
-     * stored in {@link #keys}.
-    #if ($TemplateOptions.KTypeGeneric)
-     * <p><strong>Important!</strong>
-     * The actual value in this field is always an instance of <code>Object[]</code>.
-     * Be warned that <code>javac</code> emits additional casts when <code>values</code>
-     * are directly accessed; <strong>these casts
-     * may result in exceptions at runtime</strong>. A workaround is to cast directly to
-     * <code>Object[]</code> before accessing the buffer's elements (although it is highly
-     * recommended to use a {@link #iterator()} instead.
-     * </pre>
-    #end
+       * Hash-indexed array holding all values associated to the keys.
+       * stored in {@link #keys}.
+      #if ($TemplateOptions.KTypeGeneric)
+       * <p><strong>Important!</strong>
+       * The actual value in this field is always an instance of <code>Object[]</code>.
+       * Be warned that <code>javac</code> emits additional casts when <code>values</code>
+       * are directly accessed; <strong>these casts
+       * may result in exceptions at runtime</strong>. A workaround is to cast directly to
+       * <code>Object[]</code> before accessing the buffer's elements (although it is highly
+       * recommended to use a {@link #iterator()} instead.
+       * </pre>
+      #end
      */
     public VType[] values;
 
     /*! #if ($RH) !*/
     /**
-     * #if ($RH)
-     * Caches the hash value = hash(keys[i]) & mask, if keys[i] != 0/null,
-     * for every index i.
-     * #end
+       * #if ($RH)
+       * Caches the hash value = hash(keys[i]) & mask, if keys[i] != 0/null,
+       * for every index i.
+       * #end
      * @see #assigned
      */
     /*! #end !*/
@@ -102,12 +102,12 @@ public class KTypeVTypeHashMap<KType, VType>
     /*! #end !*/
 
     /**
-     *True if key = 0/null is in the map.
+     * True if key = 0/null is in the map.
      */
     public boolean allocatedDefaultKey = false;
 
     /**
-     * if allocatedDefaultKey = true, contains the associated V to the key = 0/null
+       * if allocatedDefaultKey = true, contains the associated V to the key = 0/null
      */
     public VType allocatedDefaultKeyValue;
 
@@ -117,8 +117,8 @@ public class KTypeVTypeHashMap<KType, VType>
     protected int assigned;
 
     /**
-     * The load factor for this map (fraction of allocated slots
-     * before the buffers must be rehashed or reallocated).
+       * The load factor for this map (fraction of allocated slots
+       * before the buffers must be rehashed or reallocated).
      */
     protected final double loadFactor;
 
@@ -128,8 +128,8 @@ public class KTypeVTypeHashMap<KType, VType>
     protected int resizeAt;
 
     /**
-     * Per-instance, per-allocation size perturbation
-     * introduced in rehashing to create a unique key distribution.
+       * Per-instance, per-allocation size perturbation
+       * introduced in rehashing to create a unique key distribution.
      */
     private final int perturbation = HashContainers.computeUniqueIdentifier(this);
 
@@ -137,10 +137,9 @@ public class KTypeVTypeHashMap<KType, VType>
      * Creates a hash map with the default capacity of {@value #DEFAULT_CAPACITY},
      * load factor of {@value #DEFAULT_LOAD_FACTOR}.
      * 
-     * <p>See class notes about hash distribution importance.</p>
+       * <p>See class notes about hash distribution importance.</p>
      */
-    public KTypeVTypeHashMap()
-    {
+    public KTypeVTypeHashMap() {
         this(Containers.DEFAULT_EXPECTED_ELEMENTS);
     }
 
@@ -148,39 +147,37 @@ public class KTypeVTypeHashMap<KType, VType>
      * Creates a hash map with the given initial capacity, default load factor of
      * {@value #DEFAULT_LOAD_FACTOR}.
      * 
-     * <p>See class notes about hash distribution importance.</p>
+       * <p>See class notes about hash distribution importance.</p>
      * 
-     * @param initialCapacity Initial capacity (greater than zero and automatically
-     *            rounded to the next power of two).
+       * @param initialCapacity Initial capacity (greater than zero and automatically
+       *            rounded to the next power of two).
      */
-    public KTypeVTypeHashMap(final int initialCapacity)
-    {
+    public KTypeVTypeHashMap(final int initialCapacity) {
         this(initialCapacity, HashContainers.DEFAULT_LOAD_FACTOR);
     }
 
     /**
-     * Creates a hash map with the given initial capacity,
-     * load factor.
+       * Creates a hash map with the given initial capacity,
+       * load factor.
      * 
-     * <p>See class notes about hash distribution importance.</p>
+       * <p>See class notes about hash distribution importance.</p>
      * 
-     * @param initialCapacity Initial capacity (greater than zero and automatically
-     *            rounded to the next power of two).
+       * @param initialCapacity Initial capacity (greater than zero and automatically
+       *            rounded to the next power of two).
      *
-     * @param loadFactor The load factor (greater than zero and smaller than 1).
+       * @param loadFactor The load factor (greater than zero and smaller than 1).
      */
-    public KTypeVTypeHashMap(final int initialCapacity, final double loadFactor)
-    {
+    public KTypeVTypeHashMap(final int initialCapacity, final double loadFactor) {
         this.loadFactor = loadFactor;
         //take into account of the load factor to guarantee no reallocations before reaching  initialCapacity.
-        allocateBuffers(HashContainers.minBufferSize(Math.max(Containers.DEFAULT_EXPECTED_ELEMENTS, initialCapacity), loadFactor));
+        allocateBuffers(HashContainers.minBufferSize(Math.max(Containers.DEFAULT_EXPECTED_ELEMENTS, initialCapacity),
+                loadFactor));
     }
 
     /**
      * Create a hash map from all key-value pairs of another container.
      */
-    public KTypeVTypeHashMap(final KTypeVTypeAssociativeContainer<KType, VType> container)
-    {
+    public KTypeVTypeHashMap(final KTypeVTypeAssociativeContainer<KType, VType> container) {
         this(container.size());
         putAll(container);
     }
@@ -189,8 +186,7 @@ public class KTypeVTypeHashMap<KType, VType>
      * {@inheritDoc}
      */
     @Override
-    public VType put(KType key, VType value)
-    {
+    public VType put(KType key, VType value) {
         if (Intrinsics.isEmptyKey(key)) {
 
             if (this.allocatedDefaultKey) {
@@ -229,8 +225,7 @@ public class KTypeVTypeHashMap<KType, VType>
             }
 
             //1.3 key is colliding, manage below :
-        }
-        else if (this.assigned < this.resizeAt) {
+        } else if (this.assigned < this.resizeAt) {
 
             //1.4 key is not colliding, without resize, so insert, return defaultValue.
             keys[slot] = key;
@@ -256,10 +251,8 @@ public class KTypeVTypeHashMap<KType, VType>
         /*! #end !*/
 
         //2. Slow path, find a place somewhere down there...
-        while (is_allocated(slot, keys))
-        {
-            if (Intrinsics.equalsKTypeNotNull(key, keys[slot]))
-            {
+        while (is_allocated(slot, keys)) {
+            if (Intrinsics.equalsKTypeNotNull(key, keys[slot])) {
                 final VType oldValue = values[slot];
                 values[slot] = value;
 
@@ -270,8 +263,7 @@ public class KTypeVTypeHashMap<KType, VType>
             //re-shuffle keys to minimize variance
             existing_distance = probe_distance(slot, cached);
 
-            if (dist > existing_distance)
-            {
+            if (dist > existing_distance) {
                 //swap current (key, value, initial_slot) with slot places
                 tmpKey = keys[slot];
                 keys[slot] = key;
@@ -304,12 +296,9 @@ public class KTypeVTypeHashMap<KType, VType>
 
         // Check if we need to grow. If so, reallocate new data, fill in the last element
         // and rehash.
-        if (this.assigned == this.resizeAt)
-        {
+        if (this.assigned == this.resizeAt) {
             expandAndPut(key, value, slot);
-        }
-        else
-        {
+        } else {
             this.assigned++;
             /*! #if ($RH) !*/
             cached[slot] = initial_slot;
@@ -334,8 +323,7 @@ public class KTypeVTypeHashMap<KType, VType>
      * {@inheritDoc}
      */
     @Override
-    public int putAll(final KTypeVTypeAssociativeContainer<? extends KType, ? extends VType> container)
-    {
+    public int putAll(final KTypeVTypeAssociativeContainer<? extends KType, ? extends VType> container) {
         return putAll((Iterable<? extends KTypeVTypeCursor<? extends KType, ? extends VType>>) container);
     }
 
@@ -343,11 +331,9 @@ public class KTypeVTypeHashMap<KType, VType>
      * {@inheritDoc}
      */
     @Override
-    public int putAll(final Iterable<? extends KTypeVTypeCursor<? extends KType, ? extends VType>> iterable)
-    {
+    public int putAll(final Iterable<? extends KTypeVTypeCursor<? extends KType, ? extends VType>> iterable) {
         final int count = this.size();
-        for (final KTypeVTypeCursor<? extends KType, ? extends VType> c : iterable)
-        {
+        for (final KTypeVTypeCursor<? extends KType, ? extends VType> c : iterable) {
             put(c.key, c.value);
         }
         return this.size() - count;
@@ -357,197 +343,195 @@ public class KTypeVTypeHashMap<KType, VType>
      * {@inheritDoc}
      */
     @Override
-    public boolean putIfAbsent(final KType key, final VType value)
-    {
-        if (!containsKey(key))
-        {
+    public boolean putIfAbsent(final KType key, final VType value) {
+        if (!containsKey(key)) {
             put(key, value);
             return true;
         }
         return false;
     }
 
-/*! #if ($TemplateOptions.VTypeNumeric) !*/
+    /*! #if ($TemplateOptions.VTypeNumeric) !*/
     /**
-     * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. An equivalent
-     * of the following code:
+       * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. An equivalent
+       * of the following code:
      * <pre>
-     *  if (containsKey(key))
-     *  {
-     *      VType v = (VType) (lget() + additionValue);
-     *      lset(v);
-     *      return v;
-     *  }
-     *  else
-     *  {
-     *     put(key, putValue);
-     *     return putValue;
-     *  }
+       *  if (containsKey(key))
+       *  {
+     *   VType v = (VType) (lget() + additionValue);
+     *   lset(v);
+     *   return v;
+       *  }
+       *  else
+       *  {
+     *   put(key, putValue);
+     *   return putValue;
+     * }
      * </pre>
      * 
-     * @param key The key of the value to adjust.
-     * @param putValue The value to put if <code>key</code> does not exist.
-     * @param additionValue The value to add to the existing value if <code>key</code> exists.
-     * @return Returns the current value associated with <code>key</code> (after changes).
+       * @param key The key of the value to adjust.
+       * @param putValue The value to put if <code>key</code> does not exist.
+       * @param additionValue The value to add to the existing value if <code>key</code> exists.
+       * @return Returns the current value associated with <code>key</code> (after changes).
      */
-/*! #end !*/
-/*! #if ($TemplateOptions.VTypeNumeric)
-    @Override
-    public VType putOrAdd(KType key, VType putValue, VType additionValue)
-    {
-        if (Intrinsics.isEmptyKey(key)) {
-
-            if (this.allocatedDefaultKey) {
-
-                this.allocatedDefaultKeyValue += additionValue;
-
-                return this.allocatedDefaultKeyValue;
-            }
-
-            this.allocatedDefaultKeyValue = putValue;
-
-            this.allocatedDefaultKey = true;
-
-            return putValue;
-        }
-
-        final int mask = this.keys.length - 1;
-
-        final KType[] keys = this.keys;
-        final VType[] values = this.values;
-
-        VType value =  putValue;
-
-         //copied straight from  fastutil "fast-path"
-        int slot;
-        KType curr;
-
-        //1.1 The rehashed key slot is occupied...
-        if (!Intrinsics.isEmptyKey(curr = keys[slot = REHASH(key) & mask])) {
-
-            //1.2 the occupied place is indeed key, so only increments the value and nothing else.
-            if (Intrinsics.equalsKTypeNotNull(curr, key)) {
-
-                values[slot] += additionValue;
-                return values[slot];
-            }
-
-            //1.3 key is colliding, manage below :
-        }
-        else if (this.assigned < this.resizeAt) {
-
-            //1.4 key is not colliding, without resize, so insert, return defaultValue.
-            keys[slot] = key;
-            values[slot] = value;
-            this.assigned++;
-
-            #if ($RH)
-            this.hash_cache[slot] = slot;
-            #end
-
-            return putValue;
-        }
-
-        #if ($RH)
-        final int[] cached = this.hash_cache;
-        KType tmpKey;
-        VType tmpValue;
-        int tmpAllocated;
-        int initial_slot = slot;
-        int dist = 0;
-        int existing_distance = 0;
-        #end
-
-        while (is_allocated(slot, keys))
+    /*! #end !*/
+    /*! #if ($TemplateOptions.VTypeNumeric)
+        @Override
+        public VType putOrAdd(KType key, VType putValue, VType additionValue)
         {
-            #if ($RH)
-            existing_distance = probe_distance(slot, cached);
-            #end
+            if (Intrinsics.isEmptyKey(key)) {
 
-            if (Intrinsics.equalsKTypeNotNull(key, keys[slot]))
-            {
-                values[slot] += additionValue;
-                return values[slot];
+                if (this.allocatedDefaultKey) {
+
+                    this.allocatedDefaultKeyValue += additionValue;
+
+                    return this.allocatedDefaultKeyValue;
+                }
+
+                this.allocatedDefaultKeyValue = putValue;
+
+                this.allocatedDefaultKey = true;
+
+                return putValue;
             }
-            #if ($RH)
-    		else if (dist > existing_distance)
-            {
-    			//swap current (key, value, initial_slot) with slot places
-    			tmpKey = keys[slot];
-    			keys[slot] = key;
-    			key =  tmpKey;
 
-    			tmpValue = values[slot];
-    			values[slot] = value;
-    			value =  tmpValue;
+            final int mask = this.keys.length - 1;
 
-    			tmpAllocated = cached[slot];
-    			cached[slot] = initial_slot;
-    			initial_slot = tmpAllocated;
+            final KType[] keys = this.keys;
+            final VType[] values = this.values;
 
-                dist = existing_distance;
+            VType value =  putValue;
+
+             //copied straight from  fastutil "fast-path"
+            int slot;
+            KType curr;
+
+            //1.1 The rehashed key slot is occupied...
+            if (!Intrinsics.isEmptyKey(curr = keys[slot = REHASH(key) & mask])) {
+
+                //1.2 the occupied place is indeed key, so only increments the value and nothing else.
+                if (Intrinsics.equalsKTypeNotNull(curr, key)) {
+
+                    values[slot] += additionValue;
+                    return values[slot];
+                }
+
+                //1.3 key is colliding, manage below :
             }
-            #end
+            else if (this.assigned < this.resizeAt) {
 
-            slot = (slot + 1) & mask;
+                //1.4 key is not colliding, without resize, so insert, return defaultValue.
+                keys[slot] = key;
+                values[slot] = value;
+                this.assigned++;
 
-    		#if ($RH)
-            dist++;
-            #end
-        }
+                #if ($RH)
+                this.hash_cache[slot] = slot;
+                #end
 
-        if (assigned == resizeAt) {
-            expandAndPut(key, value, slot);
-        } else {
+                return putValue;
+            }
 
-            assigned++;
             #if ($RH)
-            cached[slot] = initial_slot;
+            final int[] cached = this.hash_cache;
+            KType tmpKey;
+            VType tmpValue;
+            int tmpAllocated;
+            int initial_slot = slot;
+            int dist = 0;
+            int existing_distance = 0;
             #end
 
-            keys[slot] = key;
-            values[slot] = value;
+            while (is_allocated(slot, keys))
+            {
+                #if ($RH)
+                existing_distance = probe_distance(slot, cached);
+                #end
+
+                if (Intrinsics.equalsKTypeNotNull(key, keys[slot]))
+                {
+                    values[slot] += additionValue;
+                    return values[slot];
+                }
+                #if ($RH)
+        		else if (dist > existing_distance)
+                {
+        			//swap current (key, value, initial_slot) with slot places
+        			tmpKey = keys[slot];
+        			keys[slot] = key;
+        			key =  tmpKey;
+
+        			tmpValue = values[slot];
+        			values[slot] = value;
+        			value =  tmpValue;
+
+        			tmpAllocated = cached[slot];
+        			cached[slot] = initial_slot;
+        			initial_slot = tmpAllocated;
+
+                    dist = existing_distance;
+                }
+                #end
+
+                slot = (slot + 1) & mask;
+
+        		#if ($RH)
+                dist++;
+                #end
+            }
+
+            if (assigned == resizeAt) {
+                expandAndPut(key, value, slot);
+            } else {
+
+                assigned++;
+                #if ($RH)
+                cached[slot] = initial_slot;
+                #end
+
+                keys[slot] = key;
+                values[slot] = value;
+            }
+
+            return putValue;
         }
+        #end !*/
 
-        return putValue;
-    }
-    #end !*/
-
-/*! #if ($TemplateOptions.VTypeNumeric) !*/
+    /*! #if ($TemplateOptions.VTypeNumeric) !*/
     /**
      * An equivalent of calling
+     * 
      * <pre>
-     *  if (containsKey(key))
-     *  {
-     *      VType v = (VType) (lget() + additionValue);
-     *      lset(v);
-     *      return v;
-     *  }
-     *  else
-     *  {
-     *     put(key, additionValue);
-     *     return additionValue;
-     *  }
+       *  if (containsKey(key))
+       *  {
+     *   VType v = (VType) (lget() + additionValue);
+     *   lset(v);
+     *   return v;
+       *  }
+       *  else
+       *  {
+     *   put(key, additionValue);
+     *   return additionValue;
+     * }
      * </pre>
      * 
-     * @param key The key of the value to adjust.
-     * @param additionValue The value to put or add to the existing value if <code>key</code> exists.
-     * @return Returns the current value associated with <code>key</code> (after changes).
+       * @param key The key of the value to adjust.
+       * @param additionValue The value to put or add to the existing value if <code>key</code> exists.
+       * @return Returns the current value associated with <code>key</code> (after changes).
      */
-/*! #end !*/
-/*! #if ($TemplateOptions.VTypeNumeric)
-    @Override
-    public VType addTo(KType key, VType additionValue)
-    {
-        return putOrAdd(key, additionValue, additionValue);
-    }
-    #end !*/
+    /*! #end !*/
+    /*! #if ($TemplateOptions.VTypeNumeric)
+        @Override
+        public VType addTo(KType key, VType additionValue)
+        {
+            return putOrAdd(key, additionValue, additionValue);
+        }
+        #end !*/
 
     /**
      * Expand the internal storage buffers (capacity) and rehash.
      */
-    private void expandAndPut(final KType pendingKey, final VType pendingValue, final int freeSlot)
-    {
+    private void expandAndPut(final KType pendingKey, final VType pendingValue, final int freeSlot) {
         assert this.assigned == this.resizeAt;
 
         //default sentinel value is never in the keys[] array, so never trigger reallocs
@@ -593,10 +577,8 @@ public class KTypeVTypeHashMap<KType, VType>
 
         //iterate all the old arrays to add in the newly allocated buffers
         //It is important to iterate backwards to minimize the conflict chain length !
-        for (int i = oldKeys.length; --i >= 0;)
-        {
-            if (is_allocated(i, oldKeys))
-            {
+        for (int i = oldKeys.length; --i >= 0;) {
+            if (is_allocated(i, oldKeys)) {
                 key = oldKeys[i];
                 value = oldValues[i];
 
@@ -607,14 +589,12 @@ public class KTypeVTypeHashMap<KType, VType>
                 dist = 0;
                 /*! #end !*/
 
-                while (is_allocated(slot, keys))
-                {
+                while (is_allocated(slot, keys)) {
                     /*! #if ($RH) !*/
                     //re-shuffle keys to minimize variance
                     existing_distance = probe_distance(slot, cached);
 
-                    if (dist > existing_distance)
-                    {
+                    if (dist > existing_distance) {
                         //swap current (key, value, initial_slot) with slot places
                         tmpKey = keys[slot];
                         keys[slot] = key;
@@ -665,10 +645,9 @@ public class KTypeVTypeHashMap<KType, VType>
     /**
      * Allocate internal buffers for a given capacity.
      * 
-     * @param capacity New capacity (must be a power of two).
+       * @param capacity New capacity (must be a power of two).
      */
-    private void allocateBuffers(final int capacity)
-    {
+    private void allocateBuffers(final int capacity) {
         try {
 
             final KType[] keys = Intrinsics.newKTypeArray(capacity);
@@ -688,8 +667,7 @@ public class KTypeVTypeHashMap<KType, VType>
             //allocate so that there is at least one slot that remains allocated = false
             //this is compulsory to guarantee proper stop in searching loops
             this.resizeAt = Math.max(3, (int) (capacity * this.loadFactor)) - 2;
-        }
-        catch (final OutOfMemoryError e) {
+        } catch (final OutOfMemoryError e) {
 
             throw new BufferAllocationException(
                     "Not enough memory to allocate buffers to grow from %d -> %d elements",
@@ -703,8 +681,7 @@ public class KTypeVTypeHashMap<KType, VType>
      * {@inheritDoc}
      */
     @Override
-    public VType remove(final KType key)
-    {
+    public VType remove(final KType key) {
         if (Intrinsics.isEmptyKey(key)) {
 
             if (this.allocatedDefaultKey) {
@@ -759,10 +736,8 @@ public class KTypeVTypeHashMap<KType, VType>
 
         //2. Slow path here
         while (is_allocated(slot, keys)
-                /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/)
-        {
-            if (Intrinsics.equalsKTypeNotNull(key, keys[slot]))
-            {
+                /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/) {
+            if (Intrinsics.equalsKTypeNotNull(key, keys[slot])) {
                 final VType value = values[slot];
 
                 this.assigned--;
@@ -781,10 +756,9 @@ public class KTypeVTypeHashMap<KType, VType>
     }
 
     /**
-     * Shift all the slot-conflicting keys allocated to (and including) <code>slot</code>.
+       * Shift all the slot-conflicting keys allocated to (and including) <code>slot</code>.
      */
-    private void shiftConflictingKeys(int gapSlot)
-    {
+    private void shiftConflictingKeys(int gapSlot) {
         final int mask = this.keys.length - 1;
 
         final KType[] keys = this.keys;
@@ -853,20 +827,17 @@ public class KTypeVTypeHashMap<KType, VType>
      */
     @SuppressWarnings("unchecked")
     @Override
-    public int removeAll(final KTypeContainer<? super KType> other)
-    {
+    public int removeAll(final KTypeContainer<? super KType> other) {
         final int before = this.size();
 
         //1) other is a KTypeLookupContainer, so with fast lookup guarantees
         //and is bigger than this, so take advantage of both and iterate over this
         //and test other elements by their contains().
-        if (other.size() >= before &&
-                other instanceof KTypeLookupContainer<?>) {
+        if (other.size() >= before && other instanceof KTypeLookupContainer<?>) {
 
             if (this.allocatedDefaultKey) {
 
-                if (other.contains(Intrinsics.<KType> defaultKTypeValue()))
-                {
+                if (other.contains(Intrinsics.<KType> defaultKTypeValue())) {
                     this.allocatedDefaultKey = false;
 
                     /*! #if ($TemplateOptions.VTypeGeneric) !*/
@@ -878,20 +849,16 @@ public class KTypeVTypeHashMap<KType, VType>
 
             final KType[] keys = this.keys;
 
-            for (int i = 0; i < keys.length;)
-            {
-                if (is_allocated(i, keys) && other.contains(keys[i]))
-                {
+            for (int i = 0; i < keys.length;) {
+                if (is_allocated(i, keys) && other.contains(keys[i])) {
                     this.assigned--;
                     shiftConflictingKeys(i);
                     // Shift, do not increment slot.
-                }
-                else {
+                } else {
                     i++;
                 }
             }
-        }
-        else {
+        } else {
             //2) Do not use contains() from container, which may lead to O(n**2) execution times,
             //so it iterate linearly and call remove() from map which is O(1).
             for (final KTypeCursor<? super KType> c : other) {
@@ -907,14 +874,12 @@ public class KTypeVTypeHashMap<KType, VType>
      * {@inheritDoc}
      */
     @Override
-    public int removeAll(final KTypePredicate<? super KType> predicate)
-    {
+    public int removeAll(final KTypePredicate<? super KType> predicate) {
         final int before = this.size();
 
         if (this.allocatedDefaultKey) {
 
-            if (predicate.apply(Intrinsics.<KType> defaultKTypeValue()))
-            {
+            if (predicate.apply(Intrinsics.<KType> defaultKTypeValue())) {
                 this.allocatedDefaultKey = false;
 
                 /*! #if ($TemplateOptions.VTypeGeneric) !*/
@@ -926,15 +891,12 @@ public class KTypeVTypeHashMap<KType, VType>
 
         final KType[] keys = this.keys;
 
-        for (int i = 0; i < keys.length;)
-        {
-            if (is_allocated(i, keys) && predicate.apply(keys[i]))
-            {
+        for (int i = 0; i < keys.length;) {
+            if (is_allocated(i, keys) && predicate.apply(keys[i])) {
                 this.assigned--;
                 shiftConflictingKeys(i);
                 // Shift, do not increment slot.
-            }
-            else {
+            } else {
                 i++;
             }
         }
@@ -952,8 +914,7 @@ public class KTypeVTypeHashMap<KType, VType>
 
         if (this.allocatedDefaultKey) {
 
-            if (predicate.apply(Intrinsics.<KType> defaultKTypeValue(), this.allocatedDefaultKeyValue))
-            {
+            if (predicate.apply(Intrinsics.<KType> defaultKTypeValue(), this.allocatedDefaultKeyValue)) {
                 this.allocatedDefaultKey = false;
 
                 /*! #if ($TemplateOptions.VTypeGeneric) !*/
@@ -966,15 +927,12 @@ public class KTypeVTypeHashMap<KType, VType>
         final KType[] keys = this.keys;
         final VType[] values = this.values;
 
-        for (int i = 0; i < keys.length;)
-        {
-            if (is_allocated(i, keys) && predicate.apply(keys[i], values[i]))
-            {
+        for (int i = 0; i < keys.length;) {
+            if (is_allocated(i, keys) && predicate.apply(keys[i], values[i])) {
                 this.assigned--;
                 shiftConflictingKeys(i);
                 // Shift, do not increment slot.
-            }
-            else {
+            } else {
                 i++;
             }
         }
@@ -985,16 +943,15 @@ public class KTypeVTypeHashMap<KType, VType>
     /**
      * {@inheritDoc}
      * 
-     * <p> Use the following snippet of code to check for key existence
-     * first and then retrieve the value if it exists.</p>
+       * <p> Use the following snippet of code to check for key existence
+       * first and then retrieve the value if it exists.</p>
      * <pre>
      * if (map.containsKey(key))
      *   value = map.lget();
      * </pre>
      */
     @Override
-    public VType get(final KType key)
-    {
+    public VType get(final KType key) {
         if (Intrinsics.isEmptyKey(key)) {
 
             if (this.allocatedDefaultKey) {
@@ -1035,10 +992,8 @@ public class KTypeVTypeHashMap<KType, VType>
         /*! #end !*/
 
         while (is_allocated(slot, keys)
-                /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/)
-        {
-            if (Intrinsics.equalsKTypeNotNull(key, keys[slot]))
-            {
+                /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/) {
+            if (Intrinsics.equalsKTypeNotNull(key, keys[slot])) {
                 return values[slot];
             }
             slot = (slot + 1) & mask;
@@ -1055,8 +1010,7 @@ public class KTypeVTypeHashMap<KType, VType>
      * {@inheritDoc}
      */
     @Override
-    public boolean containsKey(final KType key)
-    {
+    public boolean containsKey(final KType key) {
         if (Intrinsics.isEmptyKey(key)) {
 
             return this.allocatedDefaultKey;
@@ -1091,10 +1045,8 @@ public class KTypeVTypeHashMap<KType, VType>
         /*! #end !*/
 
         while (is_allocated(slot, keys)
-                /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/)
-        {
-            if (Intrinsics.equalsKTypeNotNull(key, keys[slot]))
-            {
+                /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/) {
+            if (Intrinsics.equalsKTypeNotNull(key, keys[slot])) {
                 return true;
             }
             slot = (slot + 1) & mask;
@@ -1112,11 +1064,10 @@ public class KTypeVTypeHashMap<KType, VType>
     /**
      * {@inheritDoc}
      * 
-     * <p>Does not release internal buffers.</p>
+       * <p>Does not release internal buffers.</p>
      */
     @Override
-    public void clear()
-    {
+    public void clear() {
         this.assigned = 0;
 
         this.allocatedDefaultKey = false;
@@ -1139,8 +1090,7 @@ public class KTypeVTypeHashMap<KType, VType>
      * {@inheritDoc}
      */
     @Override
-    public int size()
-    {
+    public int size() {
         return this.assigned + (this.allocatedDefaultKey ? 1 : 0);
     }
 
@@ -1156,12 +1106,11 @@ public class KTypeVTypeHashMap<KType, VType>
     /**
      * {@inheritDoc}
      * 
-     * <p>Note that an empty container may still contain many deleted keys (that occupy buffer
-     * space). Adding even a single element to such a container may cause rehashing.</p>
+       * <p>Note that an empty container may still contain many deleted keys (that occupy buffer
+       * space). Adding even a single element to such a container may cause rehashing.</p>
      */
     @Override
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return size() == 0;
     }
 
@@ -1169,22 +1118,19 @@ public class KTypeVTypeHashMap<KType, VType>
      * {@inheritDoc}
      */
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         int h = 0;
 
         if (this.allocatedDefaultKey) {
-            h += 0 + Internals.rehash(this.allocatedDefaultKeyValue);
+            h += 0 + BitMixer.mix(this.allocatedDefaultKeyValue);
         }
 
         final KType[] keys = this.keys;
         final VType[] values = this.values;
 
-        for (int i = keys.length; --i >= 0;)
-        {
-            if (is_allocated(i, keys))
-            {
-                h += Internals.rehash(keys[i]) + Internals.rehash(values[i]);
+        for (int i = keys.length; --i >= 0;) {
+            if (is_allocated(i, keys)) {
+                h += BitMixer.mix(keys[i]) + BitMixer.mix(values[i]);
             }
         }
 
@@ -1195,18 +1141,14 @@ public class KTypeVTypeHashMap<KType, VType>
      * {@inheritDoc}
      */
     @Override
-    public boolean equals(final Object obj)
-    {
-        if (obj != null)
-        {
-            if (obj == this)
-            {
+    public boolean equals(final Object obj) {
+        if (obj != null) {
+            if (obj == this) {
                 return true;
             }
 
             //must be of the same class, subclasses are not comparable
-            if (obj.getClass() != this.getClass())
-            {
+            if (obj.getClass() != this.getClass()) {
                 return false;
             }
 
@@ -1214,19 +1156,15 @@ public class KTypeVTypeHashMap<KType, VType>
             @SuppressWarnings("unchecked")
             final/* #end */
             KTypeVTypeMap<KType, VType> other = (KTypeVTypeMap<KType, VType>) obj;
-            if (other.size() == this.size())
-            {
+            if (other.size() == this.size()) {
                 final EntryIterator it = this.iterator();
 
-                while (it.hasNext())
-                {
+                while (it.hasNext()) {
                     final KTypeVTypeCursor<KType, VType> c = it.next();
 
-                    if (other.containsKey(c.key))
-                    {
+                    if (other.containsKey(c.key)) {
                         final VType v = other.get(c.key);
-                        if (Intrinsics.equalsVType(c.value, v))
-                        {
+                        if (Intrinsics.equalsVType(c.value, v)) {
                             continue;
                         }
                     }
@@ -1248,19 +1186,17 @@ public class KTypeVTypeHashMap<KType, VType>
     {
         public final KTypeVTypeCursor<KType, VType> cursor;
 
-        public EntryIterator()
-        {
+        public EntryIterator() {
             this.cursor = new KTypeVTypeCursor<KType, VType>();
             this.cursor.index = -2;
         }
 
         /**
-         * Iterate backwards w.r.t the buffer, to
-         * minimize collision chains when filling another hash container (ex. with putAll())
+             * Iterate backwards w.r.t the buffer, to
+             * minimize collision chains when filling another hash container (ex. with putAll())
          */
         @Override
-        protected KTypeVTypeCursor<KType, VType> fetch()
-        {
+        protected KTypeVTypeCursor<KType, VType> fetch() {
             if (this.cursor.index == KTypeVTypeHashMap.this.keys.length + 1) {
 
                 if (KTypeVTypeHashMap.this.allocatedDefaultKey) {
@@ -1279,14 +1215,11 @@ public class KTypeVTypeHashMap<KType, VType>
 
             int i = this.cursor.index - 1;
 
-            while (i >= 0 &&
-                    !is_allocated(i, KTypeVTypeHashMap.this.keys))
-            {
+            while (i >= 0 && !is_allocated(i, KTypeVTypeHashMap.this.keys)) {
                 i--;
             }
 
-            if (i == -1)
-            {
+            if (i == -1) {
                 return done();
             }
 
@@ -1305,14 +1238,12 @@ public class KTypeVTypeHashMap<KType, VType>
             new ObjectFactory<EntryIterator>() {
 
                 @Override
-                public EntryIterator create()
-                {
+                public EntryIterator create() {
                     return new EntryIterator();
                 }
 
                 @Override
-                public void initialize(final EntryIterator obj)
-                {
+                public void initialize(final EntryIterator obj) {
                     obj.cursor.index = KTypeVTypeHashMap.this.keys.length + 1;
                 }
 
@@ -1324,11 +1255,11 @@ public class KTypeVTypeHashMap<KType, VType>
 
     /**
      * {@inheritDoc}
+     * 
      * @return
      */
     @Override
-    public EntryIterator iterator()
-    {
+    public EntryIterator iterator() {
         //return new EntryIterator();
         return this.entryIteratorPool.borrow();
     }
@@ -1337,8 +1268,7 @@ public class KTypeVTypeHashMap<KType, VType>
      * {@inheritDoc}
      */
     @Override
-    public <T extends KTypeVTypeProcedure<? super KType, ? super VType>> T forEach(final T procedure)
-    {
+    public <T extends KTypeVTypeProcedure<? super KType, ? super VType>> T forEach(final T procedure) {
 
         if (this.allocatedDefaultKey) {
 
@@ -1350,10 +1280,8 @@ public class KTypeVTypeHashMap<KType, VType>
 
         //Iterate in reverse for side-stepping the longest conflict chain
         //in another hash, in case apply() is actually used to fill another hash container.
-        for (int i = keys.length - 1; i >= 0; i--)
-        {
-            if (is_allocated(i, keys))
-            {
+        for (int i = keys.length - 1; i >= 0; i--) {
+            if (is_allocated(i, keys)) {
                 procedure.apply(keys[i], values[i]);
             }
         }
@@ -1365,8 +1293,7 @@ public class KTypeVTypeHashMap<KType, VType>
      * {@inheritDoc}
      */
     @Override
-    public <T extends KTypeVTypePredicate<? super KType, ? super VType>> T forEach(final T predicate)
-    {
+    public <T extends KTypeVTypePredicate<? super KType, ? super VType>> T forEach(final T predicate) {
         if (this.allocatedDefaultKey) {
 
             if (!predicate.apply(Intrinsics.<KType> defaultKTypeValue(), this.allocatedDefaultKeyValue)) {
@@ -1380,12 +1307,9 @@ public class KTypeVTypeHashMap<KType, VType>
 
         //Iterate in reverse for side-stepping the longest conflict chain
         //in another hash, in case apply() is actually used to fill another hash container.
-        for (int i = keys.length - 1; i >= 0; i--)
-        {
-            if (is_allocated(i, keys))
-            {
-                if (!predicate.apply(keys[i], values[i]))
-                {
+        for (int i = keys.length - 1; i >= 0; i--) {
+            if (is_allocated(i, keys)) {
+                if (!predicate.apply(keys[i], values[i])) {
                     break;
                 }
             }
@@ -1395,33 +1319,28 @@ public class KTypeVTypeHashMap<KType, VType>
     }
 
     /**
-     *  @return a new KeysCollection view of the keys of this associated container.
-     * This view then reflects all changes from the map.
+     * @return a new KeysCollection view of the keys of this associated container.
+     *         This view then reflects all changes from the map.
      */
     @Override
-    public KeysCollection keys()
-    {
+    public KeysCollection keys() {
         return new KeysCollection();
     }
 
     /**
      * A view of the keys inside this map.
      */
-    public final class KeysCollection
-            extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
+    public final class KeysCollection extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
-        private final KTypeVTypeHashMap<KType, VType> owner =
-                KTypeVTypeHashMap.this;
+        private final KTypeVTypeHashMap<KType, VType> owner = KTypeVTypeHashMap.this;
 
         @Override
-        public boolean contains(final KType e)
-        {
+        public boolean contains(final KType e) {
             return containsKey(e);
         }
 
         @Override
-        public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure)
-        {
+        public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure) {
             if (this.owner.allocatedDefaultKey) {
 
                 procedure.apply(Intrinsics.<KType> defaultKTypeValue());
@@ -1431,10 +1350,8 @@ public class KTypeVTypeHashMap<KType, VType>
 
             //Iterate in reverse for side-stepping the longest conflict chain
             //in another hash, in case apply() is actually used to fill another hash container.
-            for (int i = keys.length - 1; i >= 0; i--)
-            {
-                if (is_allocated(i, keys))
-                {
+            for (int i = keys.length - 1; i >= 0; i--) {
+                if (is_allocated(i, keys)) {
                     procedure.apply(keys[i]);
                 }
             }
@@ -1443,8 +1360,7 @@ public class KTypeVTypeHashMap<KType, VType>
         }
 
         @Override
-        public <T extends KTypePredicate<? super KType>> T forEach(final T predicate)
-        {
+        public <T extends KTypePredicate<? super KType>> T forEach(final T predicate) {
             if (this.owner.allocatedDefaultKey) {
 
                 if (!predicate.apply(Intrinsics.<KType> defaultKTypeValue())) {
@@ -1457,12 +1373,9 @@ public class KTypeVTypeHashMap<KType, VType>
 
             //Iterate in reverse for side-stepping the longest conflict chain
             //in another hash, in case apply() is actually used to fill another hash container.
-            for (int i = keys.length - 1; i >= 0; i--)
-            {
-                if (is_allocated(i, keys))
-                {
-                    if (!predicate.apply(keys[i]))
-                    {
+            for (int i = keys.length - 1; i >= 0; i--) {
+                if (is_allocated(i, keys)) {
+                    if (!predicate.apply(keys[i])) {
                         break;
                     }
                 }
@@ -1475,8 +1388,7 @@ public class KTypeVTypeHashMap<KType, VType>
          * {@inheritDoc}
          */
         @Override
-        public KeysIterator iterator()
-        {
+        public KeysIterator iterator() {
             //return new KeysIterator();
             return this.keyIteratorPool.borrow();
         }
@@ -1485,8 +1397,7 @@ public class KTypeVTypeHashMap<KType, VType>
          * {@inheritDoc}
          */
         @Override
-        public int size()
-        {
+        public int size() {
             return this.owner.size();
         }
 
@@ -1500,24 +1411,20 @@ public class KTypeVTypeHashMap<KType, VType>
         }
 
         @Override
-        public void clear()
-        {
+        public void clear() {
             this.owner.clear();
         }
 
         @Override
-        public int removeAll(final KTypePredicate<? super KType> predicate)
-        {
+        public int removeAll(final KTypePredicate<? super KType> predicate) {
             return this.owner.removeAll(predicate);
         }
 
         @Override
-        public int removeAll(final KType e)
-        {
+        public int removeAll(final KType e) {
             final boolean hasKey = this.owner.containsKey(e);
             int result = 0;
-            if (hasKey)
-            {
+            if (hasKey) {
                 this.owner.remove(e);
                 result = 1;
             }
@@ -1531,14 +1438,12 @@ public class KTypeVTypeHashMap<KType, VType>
                 new ObjectFactory<KeysIterator>() {
 
                     @Override
-                    public KeysIterator create()
-                    {
+                    public KeysIterator create() {
                         return new KeysIterator();
                     }
 
                     @Override
-                    public void initialize(final KeysIterator obj)
-                    {
+                    public void initialize(final KeysIterator obj) {
                         obj.cursor.index = KTypeVTypeHashMap.this.keys.length + 1;
                     }
 
@@ -1550,8 +1455,7 @@ public class KTypeVTypeHashMap<KType, VType>
                 });
 
         @Override
-        public KType[] toArray(final KType[] target)
-        {
+        public KType[] toArray(final KType[] target) {
             int count = 0;
 
             if (this.owner.allocatedDefaultKey) {
@@ -1561,10 +1465,8 @@ public class KTypeVTypeHashMap<KType, VType>
 
             final KType[] keys = this.owner.keys;
 
-            for (int i = 0; i < keys.length; i++)
-            {
-                if (is_allocated(i, keys))
-                {
+            for (int i = 0; i < keys.length; i++) {
+                if (is_allocated(i, keys)) {
                     target[count++] = keys[i];
                 }
             }
@@ -1581,19 +1483,17 @@ public class KTypeVTypeHashMap<KType, VType>
     {
         public final KTypeCursor<KType> cursor;
 
-        public KeysIterator()
-        {
+        public KeysIterator() {
             this.cursor = new KTypeCursor<KType>();
             this.cursor.index = -2;
         }
 
         /**
-         * Iterate backwards w.r.t the buffer, to
-         * minimize collision chains when filling another hash container (ex. with putAll())
+             * Iterate backwards w.r.t the buffer, to
+             * minimize collision chains when filling another hash container (ex. with putAll())
          */
         @Override
-        protected KTypeCursor<KType> fetch()
-        {
+        protected KTypeCursor<KType> fetch() {
 
             if (this.cursor.index == KTypeVTypeHashMap.this.keys.length + 1) {
 
@@ -1612,13 +1512,11 @@ public class KTypeVTypeHashMap<KType, VType>
 
             int i = this.cursor.index - 1;
 
-            while (i >= 0 && !is_allocated(i, KTypeVTypeHashMap.this.keys))
-            {
+            while (i >= 0 && !is_allocated(i, KTypeVTypeHashMap.this.keys)) {
                 i--;
             }
 
-            if (i == -1)
-            {
+            if (i == -1) {
                 return done();
             }
 
@@ -1630,12 +1528,11 @@ public class KTypeVTypeHashMap<KType, VType>
     }
 
     /**
-     *  @return a new ValuesCollection, view of the values of this map.
-     * This view then reflects all changes from the map.
+     * @return a new ValuesCollection, view of the values of this map. This view
+     *         then reflects all changes from the map.
      */
     @Override
-    public ValuesCollection values()
-    {
+    public ValuesCollection values() {
         return new ValuesCollection();
     }
 
@@ -1644,15 +1541,13 @@ public class KTypeVTypeHashMap<KType, VType>
      */
     public final class ValuesCollection extends AbstractKTypeCollection<VType>
     {
-        private final KTypeVTypeHashMap<KType, VType> owner =
-                KTypeVTypeHashMap.this;
+        private final KTypeVTypeHashMap<KType, VType> owner = KTypeVTypeHashMap.this;
 
         /**
          * {@inheritDoc}
          */
         @Override
-        public int size()
-        {
+        public int size() {
             return this.owner.size();
         }
 
@@ -1666,8 +1561,7 @@ public class KTypeVTypeHashMap<KType, VType>
         }
 
         @Override
-        public boolean contains(final VType value)
-        {
+        public boolean contains(final VType value) {
             if (this.owner.allocatedDefaultKey && Intrinsics.equalsVType(value, this.owner.allocatedDefaultKeyValue)) {
 
                 return true;
@@ -1678,11 +1572,8 @@ public class KTypeVTypeHashMap<KType, VType>
             final KType[] keys = this.owner.keys;
             final VType[] values = this.owner.values;
 
-            for (int slot = 0; slot < keys.length; slot++)
-            {
-                if (is_allocated(slot, keys)
-                        && Intrinsics.equalsVType(value, values[slot]))
-                {
+            for (int slot = 0; slot < keys.length; slot++) {
+                if (is_allocated(slot, keys) && Intrinsics.equalsVType(value, values[slot])) {
                     return true;
                 }
             }
@@ -1690,8 +1581,7 @@ public class KTypeVTypeHashMap<KType, VType>
         }
 
         @Override
-        public <T extends KTypeProcedure<? super VType>> T forEach(final T procedure)
-        {
+        public <T extends KTypeProcedure<? super VType>> T forEach(final T procedure) {
             if (this.owner.allocatedDefaultKey) {
 
                 procedure.apply(this.owner.allocatedDefaultKeyValue);
@@ -1700,8 +1590,7 @@ public class KTypeVTypeHashMap<KType, VType>
             final KType[] keys = this.owner.keys;
             final VType[] values = this.owner.values;
 
-            for (int slot = 0; slot < keys.length; slot++)
-            {
+            for (int slot = 0; slot < keys.length; slot++) {
                 if (is_allocated(slot, keys)) {
 
                     procedure.apply(values[slot]);
@@ -1712,12 +1601,10 @@ public class KTypeVTypeHashMap<KType, VType>
         }
 
         @Override
-        public <T extends KTypePredicate<? super VType>> T forEach(final T predicate)
-        {
+        public <T extends KTypePredicate<? super VType>> T forEach(final T predicate) {
             if (this.owner.allocatedDefaultKey) {
 
-                if (!predicate.apply(this.owner.allocatedDefaultKeyValue))
-                {
+                if (!predicate.apply(this.owner.allocatedDefaultKeyValue)) {
                     return predicate;
                 }
             }
@@ -1725,12 +1612,9 @@ public class KTypeVTypeHashMap<KType, VType>
             final KType[] keys = this.owner.keys;
             final VType[] values = this.owner.values;
 
-            for (int slot = 0; slot < keys.length; slot++)
-            {
-                if (is_allocated(slot, keys))
-                {
-                    if (!predicate.apply(values[slot]))
-                    {
+            for (int slot = 0; slot < keys.length; slot++) {
+                if (is_allocated(slot, keys)) {
+                    if (!predicate.apply(values[slot])) {
                         break;
                     }
                 }
@@ -1740,20 +1624,18 @@ public class KTypeVTypeHashMap<KType, VType>
         }
 
         @Override
-        public ValuesIterator iterator()
-        {
+        public ValuesIterator iterator() {
             // return new ValuesIterator();
             return this.valuesIteratorPool.borrow();
         }
 
         /**
-         * {@inheritDoc}
-         * Indeed removes all the (key,value) pairs matching
-         * (key ? ,  e) with the  same  e,  from  the map.
+             * {@inheritDoc}
+             * Indeed removes all the (key,value) pairs matching
+             * (key ? ,  e) with the  same  e,  from  the map.
          */
         @Override
-        public int removeAll(final VType e)
-        {
+        public int removeAll(final VType e) {
             final int before = this.owner.size();
 
             if (this.owner.allocatedDefaultKey) {
@@ -1772,15 +1654,12 @@ public class KTypeVTypeHashMap<KType, VType>
             final KType[] keys = this.owner.keys;
             final VType[] values = this.owner.values;
 
-            for (int slot = 0; slot < keys.length;)
-            {
-                if (is_allocated(slot, keys) && Intrinsics.equalsVType(e, values[slot]))
-                {
+            for (int slot = 0; slot < keys.length;) {
+                if (is_allocated(slot, keys) && Intrinsics.equalsVType(e, values[slot])) {
                     this.owner.assigned--;
                     shiftConflictingKeys(slot);
                     // Shift, do not increment slot.
-                }
-                else {
+                } else {
                     slot++;
                 }
             }
@@ -1788,13 +1667,12 @@ public class KTypeVTypeHashMap<KType, VType>
         }
 
         /**
-         * {@inheritDoc}
-         * Indeed removes all the (key,value) pairs matching
-         * the predicate for the values, from  the map.
+             * {@inheritDoc}
+             * Indeed removes all the (key,value) pairs matching
+             * the predicate for the values, from  the map.
          */
         @Override
-        public int removeAll(final KTypePredicate<? super VType> predicate)
-        {
+        public int removeAll(final KTypePredicate<? super VType> predicate) {
             final int before = this.owner.size();
 
             if (this.owner.allocatedDefaultKey) {
@@ -1813,15 +1691,12 @@ public class KTypeVTypeHashMap<KType, VType>
             final KType[] keys = this.owner.keys;
             final VType[] values = this.owner.values;
 
-            for (int slot = 0; slot < keys.length;)
-            {
-                if (is_allocated(slot, keys) && predicate.apply(values[slot]))
-                {
+            for (int slot = 0; slot < keys.length;) {
+                if (is_allocated(slot, keys) && predicate.apply(values[slot])) {
                     this.owner.assigned--;
                     shiftConflictingKeys(slot);
                     // Shift, do not increment slot.
-                }
-                else {
+                } else {
                     slot++;
                 }
             }
@@ -1829,12 +1704,11 @@ public class KTypeVTypeHashMap<KType, VType>
         }
 
         /**
-         * {@inheritDoc}
-         *  Alias for clear() the whole map.
+             * {@inheritDoc}
+             *  Alias for clear() the whole map.
          */
         @Override
-        public void clear()
-        {
+        public void clear() {
             this.owner.clear();
         }
 
@@ -1845,14 +1719,12 @@ public class KTypeVTypeHashMap<KType, VType>
                 new ObjectFactory<ValuesIterator>() {
 
                     @Override
-                    public ValuesIterator create()
-                    {
+                    public ValuesIterator create() {
                         return new ValuesIterator();
                     }
 
                     @Override
-                    public void initialize(final ValuesIterator obj)
-                    {
+                    public void initialize(final ValuesIterator obj) {
                         obj.cursor.index = KTypeVTypeHashMap.this.keys.length + 1;
                     }
 
@@ -1863,8 +1735,7 @@ public class KTypeVTypeHashMap<KType, VType>
                 });
 
         @Override
-        public VType[] toArray(final VType[] target)
-        {
+        public VType[] toArray(final VType[] target) {
             int count = 0;
 
             if (this.owner.allocatedDefaultKey) {
@@ -1876,10 +1747,8 @@ public class KTypeVTypeHashMap<KType, VType>
 
             final VType[] values = this.owner.values;
 
-            for (int i = 0; i < values.length; i++)
-            {
-                if (is_allocated(i, keys))
-                {
+            for (int i = 0; i < values.length; i++) {
+                if (is_allocated(i, keys)) {
                     target[count++] = values[i];
                 }
             }
@@ -1890,25 +1759,23 @@ public class KTypeVTypeHashMap<KType, VType>
     }
 
     /**
-     * An iterator over the set of  values.
+     * An iterator over the set of values.
      */
     public final class ValuesIterator extends AbstractIterator<KTypeCursor<VType>>
     {
         public final KTypeCursor<VType> cursor;
 
-        public ValuesIterator()
-        {
+        public ValuesIterator() {
             this.cursor = new KTypeCursor<VType>();
             this.cursor.index = -2;
         }
 
         /**
-         * Iterate backwards w.r.t the buffer, to
-         * minimize collision chains when filling another hash container (ex. with putAll())
+             * Iterate backwards w.r.t the buffer, to
+             * minimize collision chains when filling another hash container (ex. with putAll())
          */
         @Override
-        protected KTypeCursor<VType> fetch()
-        {
+        protected KTypeCursor<VType> fetch() {
             if (this.cursor.index == KTypeVTypeHashMap.this.values.length + 1) {
 
                 if (KTypeVTypeHashMap.this.allocatedDefaultKey) {
@@ -1926,14 +1793,11 @@ public class KTypeVTypeHashMap<KType, VType>
 
             int i = this.cursor.index - 1;
 
-            while (i >= 0 &&
-                    !is_allocated(i, KTypeVTypeHashMap.this.keys))
-            {
+            while (i >= 0 && !is_allocated(i, KTypeVTypeHashMap.this.keys)) {
                 i--;
             }
 
-            if (i == -1)
-            {
+            if (i == -1) {
                 return done();
             }
 
@@ -1948,8 +1812,7 @@ public class KTypeVTypeHashMap<KType, VType>
      * {@inheritDoc}
      */
     @Override
-    public KTypeVTypeHashMap<KType, VType> clone()
-    {
+    public KTypeVTypeHashMap<KType, VType> clone() {
         //clone to size() to prevent some cases of exponential sizes,
         final KTypeVTypeHashMap<KType, VType> cloned = new KTypeVTypeHashMap<KType, VType>(this.size(), this.loadFactor);
 
@@ -1967,16 +1830,13 @@ public class KTypeVTypeHashMap<KType, VType>
      * Convert the contents of this map to a human-friendly string.
      */
     @Override
-    public String toString()
-    {
+    public String toString() {
         final StringBuilder buffer = new StringBuilder();
         buffer.append("[");
 
         boolean first = true;
-        for (final KTypeVTypeCursor<KType, VType> cursor : this)
-        {
-            if (!first)
-            {
+        for (final KTypeVTypeCursor<KType, VType> cursor : this) {
+            if (!first) {
                 buffer.append(", ");
             }
             buffer.append(cursor.key);
@@ -1991,86 +1851,82 @@ public class KTypeVTypeHashMap<KType, VType>
     /**
      * Creates a hash map from two index-aligned arrays of key-value pairs.
      */
-    public static <KType, VType> KTypeVTypeHashMap<KType, VType> from(final KType[] keys, final VType[] values)
-    {
-        if (keys.length != values.length)
-        {
+    public static <KType, VType> KTypeVTypeHashMap<KType, VType> from(final KType[] keys, final VType[] values) {
+        if (keys.length != values.length) {
             throw new IllegalArgumentException("Arrays of keys and values must have an identical length.");
         }
 
         final KTypeVTypeHashMap<KType, VType> map = new KTypeVTypeHashMap<KType, VType>(keys.length);
 
-        for (int i = 0; i < keys.length; i++)
-        {
+        for (int i = 0; i < keys.length; i++) {
             map.put(keys[i], values[i]);
         }
         return map;
     }
 
     /**
-     * Create a hash map from another associative container. (constructor shortcut)
+       * Create a hash map from another associative container. (constructor shortcut)
      */
-    public static <KType, VType> KTypeVTypeHashMap<KType, VType> from(final KTypeVTypeAssociativeContainer<KType, VType> container)
-    {
+    public static <KType, VType> KTypeVTypeHashMap<KType, VType> from(
+            final KTypeVTypeAssociativeContainer<KType, VType> container) {
         return new KTypeVTypeHashMap<KType, VType>(container);
     }
 
     /**
-     * Create a new hash map without providing the full generic signature (constructor
-     * shortcut).
+     * Create a new hash map without providing the full generic signature
+     * (constructor shortcut).
      */
-    public static <KType, VType> KTypeVTypeHashMap<KType, VType> newInstance()
-    {
+    public static <KType, VType> KTypeVTypeHashMap<KType, VType> newInstance() {
         return new KTypeVTypeHashMap<KType, VType>();
     }
 
     /**
-     * Create a new hash map with initial capacity and load factor control. (constructor
-     * shortcut).
+     * Create a new hash map with initial capacity and load factor control.
+     * (constructor shortcut).
      */
-    public static <KType, VType> KTypeVTypeHashMap<KType, VType> newInstance(final int initialCapacity, final float loadFactor)
-    {
+    public static <KType, VType> KTypeVTypeHashMap<KType, VType> newInstance(final int initialCapacity,
+            final float loadFactor) {
         return new KTypeVTypeHashMap<KType, VType>(initialCapacity, loadFactor);
     }
 
     /**
-     * Returns the "default value" value used
-     * in containers methods returning "default value"
+     * Returns the "default value" value used in containers methods returning
+     * "default value"
+     * 
      * @return
      */
-    public VType getDefaultValue()
-    {
+    public VType getDefaultValue() {
         return this.defaultValue;
     }
 
     /**
-     * Set the "default value" value to be used
-     * in containers methods returning "default value"
+     * Set the "default value" value to be used in containers methods returning
+     * "default value"
+     * 
      * @return
      */
-    public void setDefaultValue(final VType defaultValue)
-    {
+    public void setDefaultValue(final VType defaultValue) {
         this.defaultValue = defaultValue;
     }
 
-//Test for existence in template
-/*! #if ($TemplateOptions.inlineKType("is_allocated",
-    "(slot, keys)",
-    "!Intrinsics.isEmptyKey(keys[slot])")) !*/
+    //Test for existence in template
+    /*! #if ($TemplateOptions.inlineKType("is_allocated",
+        "(slot, keys)",
+        "!Intrinsics.isEmptyKey(keys[slot])")) !*/
     /**
-     *  template version
-     * (actual method is inlined in generated code)
+       *  template version
+       * (actual method is inlined in generated code)
      */
     private boolean is_allocated(final int slot, final KType[] keys) {
 
         return !Intrinsics.isEmptyKey(keys[slot]);
     }
 
-/*! #end !*/
+    /*! #end !*/
 
-/*! #if ($TemplateOptions.inlineKType("probe_distance",
-    "(slot, cache)",
-    "slot < cache[slot] ? slot + cache.length - cache[slot] : slot - cache[slot]")) !*/
+    /*! #if ($TemplateOptions.inlineKType("probe_distance",
+        "(slot, cache)",
+        "slot < cache[slot] ? slot + cache.length - cache[slot] : slot - cache[slot]")) !*/
     /**
      * (actual method is inlined in generated code)
      */
@@ -2092,16 +1948,16 @@ public class KTypeVTypeHashMap<KType, VType>
         return slot - rh;
     }
 
-/*! #end !*/
+    /*! #end !*/
 
     /*! #if ($TemplateOptions.inlineKTypeGenericAndPrimitive("REHASH",
     "(value)",
     "MurmurHash3.mix(value.hashCode() , this.perturbation)",
     "MurmurHash3.mix(value , this.perturbation)")) !*/
     /**
-     * REHASH method for rehashing the keys.
-     * (inlined in generated code)
-     * Thanks to single array mode, no need to check for null/0 or booleans.
+       * REHASH method for rehashing the keys.
+       * (inlined in generated code)
+       * Thanks to single array mode, no need to check for null/0 or booleans.
      */
     private int REHASH(final KType value) {
 
