@@ -51,27 +51,27 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayList<KType>
-extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, Cloneable
+        extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, Cloneable
 {
     /**
-       * Internal array for storing the list. The array may be larger than the current size
-       * ({@link #size()}).
+     * Internal array for storing the list. The array may be larger than the current size
+     * ({@link #size()}).
      * 
       #if ($TemplateOptions.KTypeGeneric)
-       * <p><strong>Important!</strong>
-       * The actual value in this field is always an instance of <code>Object[]</code>,
-       * regardless of the generic type used. The JDK is inconsistent here too:
-       * {@link ArrayList} declares internal <code>Object[]</code> buffer, but
-       * {@link ArrayDeque} declares an array of generic type objects like we do. The
-       * tradeoff is probably minimal, but you should be aware of additional casts generated
-       * by <code>javac</code> when <code>buffer</code> is directly accessed; <strong>these casts
-       * may also result in exceptions at runtime</strong>. A workaround is to cast directly to
-       * <code>Object[]</code> before accessing the buffer's elements, as shown
-       * in the following code snippet.</p>
+     * <p><strong>Important!</strong>
+     * The actual value in this field is always an instance of <code>Object[]</code>,
+     * regardless of the generic type used. The JDK is inconsistent here too:
+     * {@link ArrayList} declares internal <code>Object[]</code> buffer, but
+     * {@link ArrayDeque} declares an array of generic type objects like we do. The
+     * tradeoff is probably minimal, but you should be aware of additional casts generated
+     * by <code>javac</code> when <code>buffer</code> is directly accessed; <strong>these casts
+     * may also result in exceptions at runtime</strong>. A workaround is to cast directly to
+     * <code>Object[]</code> before accessing the buffer's elements, as shown
+     * in the following code snippet.</p>
      * 
      * <pre>
      * Object[] buf = list.buffer;
-       * for (int i = list.size(); --i >= 0;) {
+     * for (int i = list.size(); --i >= 0;) {
      *   doSomething(buf[i]);
      * }
      * </pre>
@@ -190,8 +190,8 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
 
     /**
      * Vararg-signature method for adding elements at the end of the list.
-       * <p><b>This method is handy, but costly if used in tight loops (anonymous
-       * array passing)</b></p>
+     * <p><b>This method is handy, but costly if used in tight loops (anonymous
+     * array passing)</b></p>
      */
     public void add(final KType... elements) {
         add(elements, 0, elements.length);
@@ -275,7 +275,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     @Override
     public void removeRange(final int fromIndex, final int toIndex) {
         assert (fromIndex >= 0 && fromIndex <= size()) : "Index " + fromIndex + " out of bounds [" + 0 + ", " + size()
-                + ").";
+        + ").";
 
         assert (toIndex >= 0 && toIndex <= size()) : "Index " + toIndex + " out of bounds [" + 0 + ", " + size() + "].";
 
@@ -386,9 +386,9 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     }
 
     /**
-       * Increases the capacity of this instance, if necessary, to ensure
-       * that it can hold at least the number of elements specified by
-       * the minimum capacity argument.
+     * Increases the capacity of this instance, if necessary, to ensure
+     * that it can hold at least the number of elements specified by
+     * the minimum capacity argument.
      */
     public void ensureCapacity(final int minCapacity) {
         if (minCapacity > this.buffer.length) {
@@ -400,6 +400,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * Ensures the internal buffer has enough free slots to store
      * <code>expectedAdditions</code>. Increases internal buffer size if needed.
      */
+    @SuppressWarnings("boxing")
     protected void ensureBufferSpace(final int expectedAdditions) {
         final int bufferLen = (this.buffer == null ? 0 : this.buffer.length);
 
@@ -424,10 +425,10 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     }
 
     /**
-       * Truncate or expand the list to the new size. If the list is truncated, the buffer
-       * will not be reallocated (use {@link #trimToSize()} if you need a truncated buffer).
-       * If the list is expanded, the elements beyond the current size are initialized with JVM-defaults
-       * (zero or <code>null</code> values).
+     * Truncate or expand the list to the new size. If the list is truncated, the buffer
+     * will not be reallocated (use {@link #trimToSize()} if you need a truncated buffer).
+     * If the list is expanded, the elements beyond the current size are initialized with JVM-defaults
+     * (zero or <code>null</code> values).
      */
     public void resize(final int newSize) {
         if (newSize <= this.buffer.length) {
@@ -492,7 +493,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     }
 
     /**
-       * Sets the number of stored elements to zero and releases the internal storage array.
+     * Sets the number of stored elements to zero and releases the internal storage array.
      */
     /* #if ($TemplateOptions.KTypeGeneric) */
     @SuppressWarnings("unchecked")
@@ -656,7 +657,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      */
     public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure, final int fromIndex, final int toIndex) {
         assert (fromIndex >= 0 && fromIndex <= size()) : "Index " + fromIndex + " out of bounds [" + 0 + ", " + size()
-                + ").";
+        + ").";
 
         assert (toIndex >= 0 && toIndex <= size()) : "Index " + toIndex + " out of bounds [" + 0 + ", " + size() + "].";
 
@@ -726,12 +727,12 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
 
     /**
      * Applies <code>predicate</code> to a slice of the list,
-       * <code>fromIndex</code>, inclusive, to <code>toIndex</code>,
-       * exclusive, or until predicate returns <code>false</code>.
+     * <code>fromIndex</code>, inclusive, to <code>toIndex</code>,
+     * exclusive, or until predicate returns <code>false</code>.
      */
     public <T extends KTypePredicate<? super KType>> T forEach(final T predicate, final int fromIndex, final int toIndex) {
         assert (fromIndex >= 0 && fromIndex <= size()) : "Index " + fromIndex + " out of bounds [" + 0 + ", " + size()
-                + ").";
+        + ").";
 
         assert (toIndex >= 0 && toIndex <= size()) : "Index " + toIndex + " out of bounds [" + 0 + ", " + size() + "].";
 
@@ -749,20 +750,20 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     }
 
     /**
-       * Returns a new object of this class with no need to declare generic type (shortcut
-       * instead of using a constructor).
+     * Returns a new object of this class with no need to declare generic type (shortcut
+     * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayList<KType> newInstance() {
+    KTypeArrayList<KType> newInstance() {
         return new KTypeArrayList<KType>();
     }
 
     /**
-       * Returns a new object of this class with no need to declare generic type (shortcut
-       * instead of using a constructor).
+     * Returns a new object of this class with no need to declare generic type (shortcut
+     * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayList<KType> newInstance(final int initialCapacity) {
+    KTypeArrayList<KType> newInstance(final int initialCapacity) {
         return new KTypeArrayList<KType>(initialCapacity);
     }
 
@@ -771,7 +772,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * <code>KType</code>.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayList<KType> from(final KType... elements) {
+    KTypeArrayList<KType> from(final KType... elements) {
         final KTypeArrayList<KType> list = new KTypeArrayList<KType>(elements.length);
         list.add(elements);
         return list;
@@ -781,17 +782,17 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * Create a list from elements of another container.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayList<KType> from(final KTypeContainer<KType> container) {
+    KTypeArrayList<KType> from(final KTypeContainer<KType> container) {
         return new KTypeArrayList<KType>(container);
     }
 
     /**
-       * In-place sort the list from [beginIndex, endIndex[
-       * by natural ordering (smaller first)
-       * @param beginIndex the start index to be sorted
-       * @param endIndex the end index to be sorted (excluded)
+     * In-place sort the list from [beginIndex, endIndex[
+     * by natural ordering (smaller first)
+     * @param beginIndex the start index to be sorted
+     * @param endIndex the end index to be sorted (excluded)
         #if ($TemplateOptions.KTypeGeneric)
-       * @throws ClassCastException if the array contains elements that are not mutually Comparable.
+     * @throws ClassCastException if the array contains elements that are not mutually Comparable.
        #end
      */
     public void sort(final int beginIndex, final int endIndex) {
@@ -804,11 +805,11 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
 
     /**
      * In-place sort the whole list by natural ordering (smaller first)
-       * <p><b>
-       * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009]
-       * </b></p>
+     * <p><b>
+     * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009]
+     * </b></p>
         #if ($TemplateOptions.KTypeGeneric)
-       * @throws ClassCastException if the array contains elements that are not mutually Comparable.
+     * @throws ClassCastException if the array contains elements that are not mutually Comparable.
        #end
      */
     public void sort() {
@@ -817,21 +818,21 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
 
     ////////////////////////////
     /**
-       * In-place sort the list from [beginIndex, endIndex[
-       * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
-       * <p><b>
-       * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
-       * </b></p>
-       * @param beginIndex the start index to be sorted
-       * @param endIndex the end index to be sorted (excluded)
+     * In-place sort the list from [beginIndex, endIndex[
+     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
+     * <p><b>
+     * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
+     * </b></p>
+     * @param beginIndex the start index to be sorted
+     * @param endIndex the end index to be sorted (excluded)
      */
     public void sort(final int beginIndex, final int endIndex,
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
-            /*! #else
+    /*! #else
             KTypeComparator<? super KType>
             #end !*/
-            comp) {
+    comp) {
         assert endIndex <= this.elementsCount;
 
         if (endIndex - beginIndex > 1) {
@@ -840,11 +841,11 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     }
 
     /**
-       * In-place sort the whole list
-       * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
-       * <p><b>
-       * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
-       * </b></p>
+     * In-place sort the whole list
+     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
+     * <p><b>
+     * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
+     * </b></p>
      */
     public void sort(
             /*! #if ($TemplateOptions.KTypeGeneric) !*/

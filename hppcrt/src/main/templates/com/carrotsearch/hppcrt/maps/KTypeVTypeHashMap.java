@@ -49,7 +49,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeHashMap<KType, VType>
-implements KTypeVTypeMap<KType, VType>, Cloneable
+        implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     protected VType defaultValue = Intrinsics.<VType> defaultVTypeValue();
 
@@ -650,6 +650,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      * 
      * @param capacity New capacity (must be a power of two).
      */
+    @SuppressWarnings("boxing")
     private void allocateBuffers(final int capacity) {
         try {
 

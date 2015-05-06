@@ -12,7 +12,7 @@ import java.util.ArrayList;
  * </pre>
  */
 public final class BoundedProportionalArraySizingStrategy
-        implements ArraySizingStrategy
+implements ArraySizingStrategy
 {
     public static final int MAX_ARRAY_LENGTH = Integer.MAX_VALUE - /* aligned array header + slack */32;
 
@@ -63,6 +63,7 @@ public final class BoundedProportionalArraySizingStrategy
     /**
      * Grow according to {@link #growRatio}, {@link #minGrowCount} and {@link #maxGrowCount}.
      */
+    @SuppressWarnings("boxing")
     @Override
     public int grow(final int currentBufferLength, final int elementsCount, final int expectedAdditions)
     {

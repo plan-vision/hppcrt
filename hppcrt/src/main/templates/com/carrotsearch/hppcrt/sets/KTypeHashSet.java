@@ -46,8 +46,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Hash-indexed array holding all set entries.
@@ -433,6 +433,7 @@ public class KTypeHashSet<KType>
      * 
      * @param capacity New capacity (must be a power of two).
      */
+    @SuppressWarnings("boxing")
     private void allocateBuffers(final int capacity) {
         try {
 
