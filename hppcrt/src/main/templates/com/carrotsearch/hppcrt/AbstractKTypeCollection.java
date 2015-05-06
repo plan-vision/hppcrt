@@ -125,6 +125,7 @@ public abstract class AbstractKTypeCollection<KType> implements KTypeCollection<
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("boxing")
     @Override
     /*! #if ($TemplateOptions.KTypePrimitive)
     public KType [] toArray()
@@ -135,8 +136,7 @@ public abstract class AbstractKTypeCollection<KType> implements KTypeCollection<
         try {
 
             return toArray(Intrinsics.<KType[]> newKTypeArray(size()));
-        }
-        catch (final OutOfMemoryError e) {
+        } catch (final OutOfMemoryError e) {
 
             throw new BufferAllocationException(
                     "Not enough memory to allocate a '%s'.toArray() of  %d elements",
