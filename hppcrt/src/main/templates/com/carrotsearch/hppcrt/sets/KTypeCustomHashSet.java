@@ -53,8 +53,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeCustomHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Hash-indexed array holding all set entries.
@@ -171,7 +171,7 @@ public class KTypeCustomHashSet<KType>
      */
     @Override
     public boolean add(KType e) {
-        if (Intrinsics.isEmptyKey(e)) {
+        if (Intrinsics.isEmpty(e)) {
 
             if (this.allocatedDefaultKey) {
 
@@ -194,7 +194,7 @@ public class KTypeCustomHashSet<KType>
         KType curr;
 
         //1.1 The rehashed key slot is occupied...
-        if (!Intrinsics.isEmptyKey(curr = keys[slot = REHASH(strategy, e) & mask])) {
+        if (!Intrinsics.isEmpty(curr = keys[slot = REHASH(strategy, e) & mask])) {
 
             //1.2 the occupied place is indeed key, return false
             if (strategy.equals(curr, e)) {
@@ -350,7 +350,7 @@ public class KTypeCustomHashSet<KType>
         assert this.assigned == this.resizeAt;
 
         //default sentinel value is never in the keys[] array, so never trigger reallocs
-        assert (!Intrinsics.isEmptyKey(pendingKey));
+        assert (!Intrinsics.isEmpty(pendingKey));
 
         // Try to allocate new buffers first. If we OOM, it'll be now without
         // leaving the data structure in an inconsistent state.
@@ -496,7 +496,7 @@ public class KTypeCustomHashSet<KType>
      * if key was present in the set and has been successfully removed.
      */
     public boolean remove(final KType key) {
-        if (Intrinsics.isEmptyKey(key)) {
+        if (Intrinsics.isEmpty(key)) {
 
             if (this.allocatedDefaultKey) {
 
@@ -518,7 +518,7 @@ public class KTypeCustomHashSet<KType>
         KType curr;
 
         //1.1 The rehashed slot is free, nothing to remove, return false
-        if (Intrinsics.isEmptyKey(curr = keys[slot = REHASH(strategy, key) & mask])) {
+        if (Intrinsics.isEmpty(curr = keys[slot = REHASH(strategy, key) & mask])) {
 
             return false;
         }
@@ -580,7 +580,7 @@ public class KTypeCustomHashSet<KType>
 
             final KType existing = keys[slot];
 
-            if (Intrinsics.isEmptyKey(existing)) {
+            if (Intrinsics.isEmpty(existing)) {
                 break;
             }
 
@@ -625,7 +625,7 @@ public class KTypeCustomHashSet<KType>
      */
     @Override
     public boolean contains(final KType key) {
-        if (Intrinsics.isEmptyKey(key)) {
+        if (Intrinsics.isEmpty(key)) {
 
             return this.allocatedDefaultKey;
         }
@@ -641,7 +641,7 @@ public class KTypeCustomHashSet<KType>
         KType curr;
 
         //1.1 The rehashed slot is free, return false
-        if (Intrinsics.isEmptyKey(curr = keys[slot = REHASH(strategy, key) & mask])) {
+        if (Intrinsics.isEmpty(curr = keys[slot = REHASH(strategy, key) & mask])) {
 
             return false;
         }
@@ -1028,14 +1028,14 @@ public class KTypeCustomHashSet<KType>
     //Test for existence in template
     /*! #if ($TemplateOptions.inlineKType("is_allocated",
     "(slot, keys)",
-    "!Intrinsics.isEmptyKey(keys[slot])")) !*/
+    "!Intrinsics.isEmpty(keys[slot])")) !*/
     /**
      *  template version
      * (actual method is inlined in generated code)
      */
     private boolean is_allocated(final int slot, final KType[] keys) {
 
-        return !Intrinsics.isEmptyKey(keys[slot]);
+        return !Intrinsics.isEmpty(keys[slot]);
     }
 
     /*! #end !*/
