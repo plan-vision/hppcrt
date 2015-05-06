@@ -152,7 +152,7 @@
                         </compilerArgs>
                     </configuration>
                 </plugin>
-
+				
                 <plugin>
                     <artifactId>maven-deploy-plugin</artifactId>
                     <version>${version.maven-deploy-plugin}</version>
