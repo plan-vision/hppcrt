@@ -64,7 +64,7 @@
 
         <version.randomizedtesting>2.1.14</version.randomizedtesting>
         <version.antlr>4.5</version.antlr>
-        <version.maven-assembly-plugin>2.5.4</version.maven-assembly-plugin>
+       
         <version.maven-clean-plugin>2.6.1</version.maven-clean-plugin>
         <version.maven-compiler-plugin>3.3</version.maven-compiler-plugin>
         <version.maven-dependency-plugin>2.10</version.maven-dependency-plugin>
@@ -80,6 +80,7 @@
         <version.maven-project-info-reports-plugin>2.8</version.maven-project-info-reports-plugin>
         
         <version.maven-enforcer-plugin>1.4</version.maven-enforcer-plugin>
+		<version.maven-javadoc-plugin>2.10.3</version.maven-javadoc-plugin>
         <version.maven-source-plugin>2.4</version.maven-source-plugin>
         <version.findbugs-maven-plugin>3.0.0</version.findbugs-maven-plugin> 
         <version.build-helper-maven-plugin>1.9.1</version.build-helper-maven-plugin>
@@ -133,12 +134,6 @@
                     <artifactId>antlr4-maven-plugin</artifactId>
                     <version>${version.antlr}</version>
                 </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-assembly-plugin</artifactId>
-                    <version>${version.maven-assembly-plugin}</version>
-                </plugin>
-
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-clean-plugin</artifactId>
@@ -197,6 +192,26 @@
                         </excludes>
                     </configuration>
                 </plugin>
+				
+				<plugin>
+				  <groupId>org.apache.maven.plugins</groupId>
+				  <artifactId>maven-javadoc-plugin</artifactId>
+				  <version>${version.maven-javadoc-plugin}</version>
+				  <configuration>
+					<detectJavaApiLink>false</detectJavaApiLink>
+					<detectLinks>false</detectLinks>
+					<detectOfflineLinks>false</detectOfflineLinks>
+					<quiet>false</quiet>
+					<show>protected</show>
+					<sourceFileExcludes>
+						<exclude>**/KType*</exclude>
+                        <exclude>**/*KType*</exclude>
+                        <exclude>**/VType*</exclude>
+                        <exclude>**/*VType*</exclude>
+                        <exclude>**/Intrinsics*</exclude>
+				  </sourceFileExcludes>
+				  </configuration>
+				</plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

@@ -13,22 +13,29 @@ mvn clean compile
 # Compile all, run all unit tests
 mvn clean test
 
-# Compile all, run all unit tests, package runtime JAR files, builds the benchmarks jar, install packages in a local repository.
+# Build sources jar.
+mvn source:jar
+
+# Compile all, run all unit tests, package all JAR files, builds the benchmarks jar, install packages in a local repository.
 mvn clean install
 
 # Package all JAR files, builds the benchmarks jar, skip the tests execution.
-mvn clean package source:jar -Pquick
+mvn clean package -Pquick
 
 # Package all JAR files, builds the benchmarks jar, skip the tests execution, install packages in a local repository.
-mvn clean install source:jar -Pquick
+mvn clean install -Pquick
+
+# List available benchmarks
+java -jar hppcrt-benchmarks/target/benchmarks.jar -l
 
 # Generate site, also running Findbugs in the process
 mvn site
 
-# Build sources jar.
-mvn source:jar
+
 
 # Try to resolve all dependencies to be able to work off the Net
 mvn dependency:go-offline
+
+
 
 
