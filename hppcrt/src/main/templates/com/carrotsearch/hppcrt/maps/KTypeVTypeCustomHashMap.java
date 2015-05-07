@@ -52,7 +52,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeCustomHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     protected VType defaultValue = Intrinsics.<VType> defaultVTypeValue();
 
@@ -1176,6 +1176,7 @@ public class KTypeVTypeCustomHashMap<KType, VType>
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("unchecked")
     @Override
     public boolean equals(final Object obj) {
         if (obj != null) {
@@ -1192,7 +1193,6 @@ public class KTypeVTypeCustomHashMap<KType, VType>
                 return false;
             }
 
-            @SuppressWarnings("unchecked")
             final KTypeVTypeCustomHashMap<KType, VType> other = (KTypeVTypeCustomHashMap<KType, VType>) obj;
 
             if (other.size() == this.size()) {

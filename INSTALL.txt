@@ -1,3 +1,17 @@
+Hacking HPPC-RT:
+----------------
+The project as a whole needs Java 7, although the final runtime jars are still Java 5 and Java 6 compatible. To assure such 
+antiquated compatibility, some restrictions must be enforced:
+
+* hppcrt-template-processor: No particular restriction, the processor classes used for building the runtime jars are Java 7 level.
+* hppcrt-benchmarks: No particular restriction, they are Java 7 level.
+
+* hppcrt: All the runtime sources either templates or generated must be Java 6 level with restrictions on the API. 
+You are indeed limlited to Java 5 API plus the following additions provided by the 'backport-util-concurrent' runtime (integrated in the build process) :   
+java.util.Deque, java.util.ArrayDeque, java.util.Collections.newSetFromMap, java.util.Arrays.copyOf, java.util.Arrays.copyOfRange.
+
+Thanks to these limitations, during the Jar generation the 'retrotranslator' tool is able to generate a Java 5 Jar together with the Java 6 one. 
+
 Maven shortcuts
 ---------------
 

@@ -8,17 +8,18 @@ HPPC-140: Indeed, keys() and values() already returned Collections from a long t
 Still, rename the retuned types from KeysContainer/ValuesContainer into KeysCollection/ValuesCollection to stress on that fact.
 
 HPPCRT-37: API changes and internal code refactorings from HPPC v0.7.0:
-- HPPC-109: Moved @author tags to NOTICE.txt.
 
 - HPPC-104 + HPPC-116: Ability to create a read-only view of a map. For that, lset/lget/lslot..., all l* methods from hash containers are removed.
 - HPPC-105: renamed hppcrt-core to hppcrt, and hppcrt-templateprocessor into hppcrt-template-processor
+- HPPC-109: Moved @author tags to NOTICE.txt.
 - HPPC-114: Buffer resizing and allocation should be throwing non-assertion mode exceptions.
 - HPPC-117: Static factory methods newInstanceXXX() renamed into newInstance() everywhere with proper overrides.
+- HPPC-120: Rework entry shifting routine to be less hairy
 - HPPC-121: Renamed methods:
           T.removeFirstOccurrences -> T.removeFirst
           T.removeLastOccurrences  -> T.removeLast
           T.removeAllOccurrences   -> T.removeAll(type)
-- HPPC-120: Rework entry shifting routine to be less hairy
+
 - HPPC-125: equals should not compare with subclasses of itself.
 - HPPC-130: removeAll(KTypeLookupContainer) had an incorrect 
           generic signature of:
@@ -47,7 +48,11 @@ HPPCRT-37: API changes and internal code refactorings from HPPC v0.7.0:
             public int removeAll(KTypeContainer<? super KType> container)
 
 - HPPC-141: Dropped mutable type wrappers (*Holder classes)
-- HPPC-145: Removed any "Open" infix from all Hash container classes. 
+- HPPC-145: Removed any "Open" infix from all Hash container classes:
+		  KTypeOpenHashSet -> KTypeHashSet
+          KTypeVTypeOpenHashMap -> KTypeVTypeHashMap
+- HPPC-149: Recognize tests.seed as the initialization seed for perturbation key mixing for hash containers. 
+- HPPC-152: Add a simpler RPRG: XorShift128+.
 
 ** Bug fixes
 

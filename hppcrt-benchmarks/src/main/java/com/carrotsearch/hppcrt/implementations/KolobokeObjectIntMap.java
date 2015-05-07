@@ -149,6 +149,7 @@ public class KolobokeObjectIntMap extends MapImplementation<HashObjIntMap<MapImp
     @Override
     public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
 
+        @SuppressWarnings("unchecked")
         final HashObjIntMap<MapImplementation.ComparableInt> sourceCopy = (HashObjIntMap<MapImplementation.ComparableInt>) (toCloneFrom.instance);
 
         //copy constructor

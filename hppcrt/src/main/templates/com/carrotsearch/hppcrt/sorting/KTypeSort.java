@@ -140,8 +140,8 @@ public final class KTypeSort
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
     /*! #else
-                                            KTypeComparator<? super KType>
-                                               #end !*/
+                                                            KTypeComparator<? super KType>
+                                                               #end !*/
     comp)
     {
         KTypeSort.quicksort(table, 0, table.length, comp);
@@ -179,9 +179,9 @@ public final class KTypeSort
     public static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void quicksort(final KTypeIndexedContainer<KType> table,
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
-    /*! #else
-                                            KTypeComparator<? super KType>
-                                            #end !*/
+            /*! #else
+                    KTypeComparator<? super KType>
+                    #end !*/
     comp)
     {
         KTypeSort.quicksort(table, 0, table.size(), comp);
@@ -193,6 +193,10 @@ public final class KTypeSort
      * @param left
      * @param right inclusive
      */
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    @SuppressWarnings("unchecked")
+    //because of Intrinsics.xxxUnchecked inlining for objects.
+    /*! #end !*/
     private static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void insertionsort(final KType[] a, final int left, final int right)
     {
         KType x;
@@ -215,6 +219,10 @@ public final class KTypeSort
      * @param left
      * @param right inclusive
      */
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    @SuppressWarnings("unchecked")
+    //because of Intrinsics.xxxUnchecked inlining for objects.
+    /*! #end !*/
     private static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void dualPivotQuicksort(final KType[] a, final int left, final int right)
     {
         final int len = right - left;
@@ -414,6 +422,10 @@ public final class KTypeSort
      * @param left
      * @param right inclusive
      */
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    @SuppressWarnings("unchecked")
+    //because of Intrinsics.xxxUnchecked inlining for objects.
+    /*! #end !*/
     private static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void insertionsort(final KTypeIndexedContainer<KType> a, final int left,
             final int right)
     {
@@ -437,6 +449,10 @@ public final class KTypeSort
      * @param left
      * @param right inclusive
      */
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    @SuppressWarnings("unchecked")
+    //because of Intrinsics.xxxUnchecked inlining for objects.
+    /*! #end !*/
     private static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void dualPivotQuicksort(final KTypeIndexedContainer<KType> a, final int left,
             final int right)
     {

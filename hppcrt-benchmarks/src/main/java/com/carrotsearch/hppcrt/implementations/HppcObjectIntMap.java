@@ -117,6 +117,7 @@ public class HppcObjectIntMap extends MapImplementation<ObjectIntHashMap<MapImpl
         return count;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
 

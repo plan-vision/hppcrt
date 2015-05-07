@@ -1,8 +1,8 @@
 ##HPPC-RT: High Performance Primitive Collections "RealTime"
 
-This is a fork of HPPC from CarrotSearch, see JavaDoc and documentation at: http://labs.carrotsearch.com/hppc.html for more info.
+This is a fork of HPPC from CarrotSearch, see JavaDoc and documentation at: https://github.com/carrotsearch/hppc/wiki for more info.
 
-IMPORTANT: Developers - read INSTALL file for proper Eclipse setup and requirements
+IMPORTANT: Developers - read INSTALL.txt file for proper Eclipse setup and requirements.
 
 ---------------------------------------
 

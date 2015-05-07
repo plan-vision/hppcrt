@@ -122,6 +122,7 @@ public class HppcIdentityIntMap extends MapImplementation<ObjectIntIdentityHashM
         return true;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
 

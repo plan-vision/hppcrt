@@ -119,6 +119,7 @@ public class GsObjectIntMap extends MapImplementation<ObjectIntHashMap<MapImplem
         return instance.size();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
 
