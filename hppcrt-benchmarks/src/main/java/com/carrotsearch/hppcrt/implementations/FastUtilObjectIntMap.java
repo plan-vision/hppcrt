@@ -119,6 +119,7 @@ public class FastUtilObjectIntMap extends MapImplementation<Object2IntOpenHashMa
         return count;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
 

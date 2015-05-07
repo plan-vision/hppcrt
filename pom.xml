@@ -32,6 +32,15 @@
         <system>GitHub</system>
         <url>https://github.com/vsonnier/hppcrt/issues</url>
     </issueManagement>
+	
+	<mailingLists>
+     <mailingList>
+       <name>Announcements and bug reports mailing list</name>
+       <subscribe>java-high-performance-primitive-collections+subscribe@googlegroups.com</subscribe>
+       <unsubscribe>java-high-performance-primitive-collections+unsubscribe@googlegroups.com</unsubscribe>
+       <post>java-high-performance-primitive-collections@googlegroups.com</post>
+     </mailingList>
+    </mailingLists>
 
     <scm>
         <url>git@github.com:vsonnier/hppcrt.git</url>

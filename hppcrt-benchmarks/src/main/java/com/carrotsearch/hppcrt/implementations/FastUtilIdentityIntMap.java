@@ -124,6 +124,7 @@ public class FastUtilIdentityIntMap extends MapImplementation<Reference2IntOpenH
         return true;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
 

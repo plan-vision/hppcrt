@@ -22,24 +22,24 @@ public class HppcObjectIntCustomMap extends MapImplementation<ObjectIntCustomHas
                 //A good behaved startegy that compensates bad hashCode() implementation.
                 new ObjectHashingStrategy<MapImplementation.ComparableInt>() {
 
-                    @Override
-                    public int computeHashCode(final MapImplementation.ComparableInt object) {
+            @Override
+            public int computeHashCode(final MapImplementation.ComparableInt object) {
 
-                        //eat some CPU to simulate method cost
-                        Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
+                //eat some CPU to simulate method cost
+                Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
 
-                        return object.value;
-                    }
+                return object.value;
+            }
 
-                    @Override
-                    public boolean equals(final MapImplementation.ComparableInt o1, final MapImplementation.ComparableInt o2) {
+            @Override
+            public boolean equals(final MapImplementation.ComparableInt o1, final MapImplementation.ComparableInt o2) {
 
-                        //eat some CPU to simulate method cost
-                        Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
+                //eat some CPU to simulate method cost
+                Blackhole.consumeCPU(MapImplementation.METHOD_CALL_CPU_COST);
 
-                        return o1.value == o2.value;
-                    }
-                }));
+                return o1.value == o2.value;
+            }
+        }));
     }
 
     /**
@@ -142,6 +142,7 @@ public class HppcObjectIntCustomMap extends MapImplementation<ObjectIntCustomHas
         return count;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
 

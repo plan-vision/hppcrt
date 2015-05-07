@@ -1,6 +1,5 @@
 package com.carrotsearch.hppcrt.implementations;
 
-
 import java.util.HashMap;
 import java.util.Random;
 
@@ -116,6 +115,7 @@ public class JavaIntIntMap extends MapImplementation<HashMap<Integer, Integer>>
         return count;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
 
