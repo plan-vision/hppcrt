@@ -1,6 +1,5 @@
 package com.carrotsearch.hppcrt.generator.parser;
 
-import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -304,8 +303,7 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
         if (bounds.isEmpty()) {
             replacements.add(new Replacement(ctx.typeParameters().getText(), ctx.typeParameters(), ""));
         } else {
-            replacements.add(new Replacement(ctx.typeParameters().getText(), ctx.typeParameters(), "<" + join(", ", bounds)
-                    + ">"));
+            replacements.add(new Replacement(ctx.typeParameters().getText(), ctx.typeParameters(), "<" + join(", ", bounds) + ">"));
         }
 
         log(Level.FINEST, "visitGenericMethodDeclaration", "Adding parent....");
@@ -378,15 +376,22 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
 
         final List<TypeBound> typeBounds = new ArrayList<>();
         final TypeArgumentsContext typeArguments = ctx.typeArgumentsOrDiamond().typeArguments();
+
         final Deque<Type> wildcards = getWildcards();
 
+        //enumerate typeArguments: they could be complex, (type within type...), so visit them recursively.
         for (final TypeArgumentContext c : typeArguments.typeArgument()) {
+
+            //TODO: Added :
+            replacements.addAll(super.visitTypeArgument(c));
+
             typeBounds.add(typeBoundOf(c, wildcards));
         }
 
-        replacements.add(new Replacement(typeArguments.getText(), typeArguments, toString(typeBounds)));
+        //TODO : Remove ?
+        //replacements.add(new Replacement(typeArguments.getText(), typeArguments, toString(typeBounds)));
 
-        log(Level.FINEST, "visitIdentifierTypeOrDiamondPair", "replacements after wildcards = "
+        log(Level.FINEST, "visitIdentifierTypeOrDiamondPair", "replacements after diamond pair = "
                 + Lists.newArrayList(replacements).toString());
 
         int typeBoundIndex = 0;
@@ -413,7 +418,7 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
         replacements.add(new Replacement(ctx.Identifier().getText(), ctx.Identifier(), identifier));
 
         log(Level.FINEST, "visitIdentifierTypeOrDiamondPair",
-                "replacements after replacing template identifiers = " + Lists.newArrayList(replacements).toString());
+                "replacements after enclosing identifier final replacement = " + Lists.newArrayList(replacements).toString());
 
         return replacements;
     }
@@ -436,9 +441,12 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
         if (isTemplateIdentifier(identifier)) {
 
             if (ctx.typeArguments() != null) {
+
                 final List<Replacement> replacements = new ArrayList<>();
                 final List<TypeBound> typeBounds = new ArrayList<>();
+
                 final Deque<Type> wildcards = getWildcards();
+
                 for (final TypeArgumentContext c : ctx.typeArguments().typeArgument()) {
                     typeBounds.add(typeBoundOf(c, wildcards));
                 }

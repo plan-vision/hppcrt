@@ -14,7 +14,7 @@ public class ObjectPartialSpecializationClass<KType> implements IntObjectMap<KTy
 
     public ObjectPartialSpecializationClass() {
 		
-        this.entryIteratorPool = new IteratorPool<IntKTypeCursor<KType>, EntryIterator>(
+        this.entryIteratorPool = new IteratorPool<IntObjectCursor<KType>, EntryIterator>(
                 new ObjectFactory<EntryIterator>() {
 
                     @Override

@@ -10,12 +10,10 @@ import java.util.logging.Level;
 
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.carrotsearch.hppcrt.generator.TemplateOptions;
-import com.carrotsearch.hppcrt.generator.TemplateProcessor;
 import com.carrotsearch.hppcrt.generator.Type;
 import com.carrotsearch.randomizedtesting.RandomizedRunner;
 import com.carrotsearch.randomizedtesting.annotations.ThreadLeakLingering;
@@ -154,6 +152,9 @@ public class TestSignatureProcessor
 
     @Test
     public void testNewClass() throws IOException {
+
+        this.displayParseTree = true;
+
         final SignatureProcessor sp = new SignatureProcessor(
                 "class KTypeVTypeFoo<KType, VType> { public void foo() { new KTypeVTypeFoo<KType, VType>(); } }");
 
@@ -289,14 +290,30 @@ public class TestSignatureProcessor
     }
 
     @Test
-    public void testIteratorPoolAlloc() throws IOException {
-
-        this.displayParseTree = true;
+    public void testIteratorPoolAllocFull() throws IOException {
 
         final String testedPath = TestSignatureProcessor.TEST_CASE_PATH + "IteratorPoolAlloc.test";
 
         final String expectedPathLong = TestSignatureProcessor.TEST_CASE_PATH + "IteratorPoolAllocLong.ok";
         final String expectedPathObject = TestSignatureProcessor.TEST_CASE_PATH + "IteratorPoolAllocGeneric.ok";
+
+        System.out.println(">>>> Converted to Object: \n\n");
+        compareWithReferenceFile(new TemplateOptions(Type.GENERIC, null), testedPath, expectedPathObject);
+
+        System.out.println("\n\n>>>> Converted to long : \n\n");
+        compareWithReferenceFile(new TemplateOptions(Type.LONG, null), testedPath, expectedPathLong);
+
+    }
+
+    @Test
+    public void testIteratorPool() throws IOException {
+
+        this.displayParseTree = true;
+
+        final String testedPath = TestSignatureProcessor.TEST_CASE_PATH + "IteratorPool.test";
+
+        final String expectedPathLong = TestSignatureProcessor.TEST_CASE_PATH + "IteratorPoolLong.ok";
+        final String expectedPathObject = TestSignatureProcessor.TEST_CASE_PATH + "IteratorPoolGeneric.ok";
 
         System.out.println(">>>> Converted to Object: \n\n");
         compareWithReferenceFile(new TemplateOptions(Type.GENERIC, null), testedPath, expectedPathObject);

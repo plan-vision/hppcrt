@@ -1,0 +1,11 @@
+public class KTypeFoo<KType>
+{
+    private IteratorPool<KTypeCursor<KType>, ValueIterator> valueIteratorPool;
+ 
+    public KTypeFoo()
+    {
+        this.valueIteratorPool = new IteratorPool<KTypeCursor<KType>, ValueIterator>() { 
+        };
+              
+    }   
+ }

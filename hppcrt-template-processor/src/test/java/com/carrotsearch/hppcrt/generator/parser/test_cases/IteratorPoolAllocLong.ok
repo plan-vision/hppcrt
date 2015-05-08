@@ -1,4 +1,4 @@
-public class LongHeapPriorityQueue extends AbstractLongCollection<KType>
+public class LongHeapPriorityQueue extends AbstractLongCollection
         implements LongPriorityQueue, Cloneable
 {
 
