@@ -1,6 +1,6 @@
-package com.carrotsearch.hppcrt.generator.parser;
+package com.carrotsearch.hppcrt.generator.parser.test_cases;
 
-import com.carrotsearch.hppcrt.generator.parser.subpackage.LongObjectInterfaceImported;
+import com.carrotsearch.hppcrt.generator.parser.test_cases.subpackage.LongObjectInterfaceImported;
 
 /**
  * A list of longs.

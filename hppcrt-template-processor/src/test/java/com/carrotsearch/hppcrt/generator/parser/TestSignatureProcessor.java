@@ -6,22 +6,34 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
+import java.util.logging.Level;
 
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.carrotsearch.hppcrt.generator.TemplateOptions;
+import com.carrotsearch.hppcrt.generator.TemplateProcessor;
 import com.carrotsearch.hppcrt.generator.Type;
 import com.carrotsearch.randomizedtesting.RandomizedRunner;
 import com.carrotsearch.randomizedtesting.annotations.ThreadLeakLingering;
 
 @RunWith(RandomizedRunner.class)
-//To be able to have Tree GUIs
+//To be able to display GUI
 @ThreadLeakLingering(linger = Integer.MAX_VALUE)
 public class TestSignatureProcessor
 {
     private static final String TEST_CASE_PATH = "src/test/java/com/carrotsearch/hppcrt/generator/parser/test_cases/";
+
+    private boolean displayParseTree = false;
+
+    @After
+    public void tearDown() {
+
+        this.displayParseTree = false;
+    }
 
     @Test
     public void testClassKV() throws IOException {
@@ -70,8 +82,8 @@ public class TestSignatureProcessor
     @Test
     public void testClassImplementsTemplate() throws IOException {
         final SignatureProcessor sp = new SignatureProcessor(
-                                                             "public class KTypeVTypeClass<KType, VType> " +
-                                                                     " extends     KTypeVTypeSuperClass<KType, VType>" +
+                "public class KTypeVTypeClass<KType, VType> " +
+                        " extends     KTypeVTypeSuperClass<KType, VType>" +
                 " implements  KTypeVTypeInterface<KType, VType> {}");
 
         check(Type.INT, Type.LONG, sp, "public class IntLongClass extends IntLongSuperClass implements IntLongInterface {}");
@@ -83,7 +95,7 @@ public class TestSignatureProcessor
     @Test
     public void testInterfaceKV() throws IOException {
         final SignatureProcessor sp = new SignatureProcessor(
-                                                             "public interface KTypeVTypeInterface<KType, VType> " +
+                "public interface KTypeVTypeInterface<KType, VType> " +
                 "         extends KTypeVTypeSuper<KType, VType> {}");
 
         check(Type.INT, Type.LONG, sp, "public interface IntLongInterface extends IntLongSuper {}");
@@ -228,10 +240,10 @@ public class TestSignatureProcessor
     @Test
     public void testUtilityClassStaticGenericMethods() throws IOException {
         final SignatureProcessor sp = new SignatureProcessor(
-                                                             "public final class KTypeArraysClass {  "
-                                                                     + "public static <KType> void utilityMethod(final KType[] objectArray, final int startIndex, final int endIndex) {"
-                                                                     + "} "
-                                                                     + "}");
+                "public final class KTypeArraysClass {  "
+                        + "public static <KType> void utilityMethod(final KType[] objectArray, final int startIndex, final int endIndex) {"
+                        + "} "
+                        + "}");
 
         System.out.println("\n" + sp.process(new TemplateOptions(Type.GENERIC, null)) + "\n");
         System.out.println("\n" + sp.process(new TemplateOptions(Type.INT, null)) + "\n");
@@ -279,6 +291,8 @@ public class TestSignatureProcessor
     @Test
     public void testIteratorPoolAlloc() throws IOException {
 
+        this.displayParseTree = true;
+
         final String testedPath = TestSignatureProcessor.TEST_CASE_PATH + "IteratorPoolAlloc.test";
 
         final String expectedPathLong = TestSignatureProcessor.TEST_CASE_PATH + "IteratorPoolAllocLong.ok";
@@ -301,15 +315,25 @@ public class TestSignatureProcessor
     }
 
     private void check(final TemplateOptions templateOptions, final SignatureProcessor processor, final String expected) throws IOException {
+
+        //we want all traces
+        templateOptions.verbose = Level.ALL;
+
         final String output = processor.process(templateOptions);
+
+        if (this.displayParseTree) {
+
+            processor.displayParseTreeGui();
+        }
 
         final String expectedNormalized = expected.trim().replaceAll("\\s+", " ");
         final String outputNormalized = output.trim().replaceAll("\\s+", " ");
 
         if (!outputNormalized.equals(expectedNormalized)) {
+
             System.out.println(String.format(Locale.ROOT,
-                                             "Output:\n'%s'\n" +
-                                                     "Expected:\n'%s'\n", output, expected));
+                    "Output:\n'%s'\n" +
+                            "Expected:\n'%s'\n", output, expected));
 
             //this is always false, so trigger the comparison with the original outputs
             //so that is easier to diff them because formatting is kept.
@@ -325,6 +349,11 @@ public class TestSignatureProcessor
 
         final SignatureProcessor processor = new SignatureProcessor(loadFile(testFileName));
 
+        if (this.displayParseTree) {
+
+            processor.displayParseTreeGui();
+        }
+
         //Compute :
         final String output = processor.process(templateOptions);
 
@@ -339,7 +368,7 @@ public class TestSignatureProcessor
         //Dump on sysout if not identical
         if (!outputNormalized.equals(expectedNormalized)) {
             System.out.println(String.format(Locale.ROOT,
-                                             "Wrong output:\n'%s'\n\n", output));
+                    "Wrong output:\n'%s'\n\n", output));
 
             //this is always false, so trigger the comparison with the original outputs
             //so that is easier to diff them because formatting is kept.

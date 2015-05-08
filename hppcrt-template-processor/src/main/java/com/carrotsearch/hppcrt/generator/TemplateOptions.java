@@ -4,15 +4,11 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.velocity.VelocityContext;
-import org.apache.velocity.exception.ParseErrorException;
-
-import com.carrotsearch.hppcrt.generator.TemplateProcessor.VerboseLevel;
 
 /**
  * Template options for velocity directives in templates.
@@ -33,7 +29,7 @@ public class TemplateOptions
     /**
      * Be default, print everything !
      */
-    public VerboseLevel verbose = VerboseLevel.full;
+    public Level verbose = Level.ALL;
 
     /**
      * Reference over the current Velocity context, so that
@@ -390,12 +386,9 @@ public class TemplateOptions
             inlineDefs.get(callName).setBody(InlinedMethodDef.reformatArguments(body, argsArray));
         }
 
-        if (isVerboseEnabled(VerboseLevel.full)) {
-
-            System.out.println("TemplateOptions : " + toString() + " captured the inlined function name '" +
-                    callName + "' of type '" + t + "' as '" +
-                    inlineDefs.get(callName) + "'");
-        }
+        log(Level.FINEST, "TemplateOptions : " + toString() + " captured the inlined function name '" +
+                callName + "' of type '" + t + "' as '" +
+                inlineDefs.get(callName) + "'");
 
         return false;
     }
@@ -428,16 +421,31 @@ public class TemplateOptions
         return "{KType=" + this.ktype + ", VType=" + this.vtype + "}";
     }
 
-    private boolean isVerboseEnabled(final VerboseLevel lvl) {
+    /**
+     * 
+     */
+    public void setVerbose(final Level verbose) {
+        this.verbose = verbose;
 
-        return lvl.ordinal() <= this.verbose.ordinal();
+        TemplateProcessor.setLoggerlevel(TemplateOptions.getLog(), this.verbose);
     }
 
     /**
-     * Set the verbose level for TemplateOptions
+     * Get an standard java.util.logger instance
+     * @return
      */
-    public void setVerbose(final VerboseLevel verbose)
-    {
-        this.verbose = verbose;
+    private static Logger getLog() {
+
+        return Logger.getLogger(TemplateOptions.class.getName());
+    }
+
+    /**
+     * log shortcut
+     * @param lvl
+     * @param message
+     */
+    private void log(final Level lvl, final String message) {
+
+        TemplateOptions.getLog().log(lvl, message);
     }
 }

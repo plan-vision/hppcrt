@@ -1,21 +1,28 @@
 package com.carrotsearch.hppcrt.generator;
 
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.UnknownFormatConversionException;
+import java.util.logging.Formatter;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.apache.commons.collections.ExtendedProperties;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -40,21 +47,14 @@ import com.carrotsearch.hppcrt.generator.parser.SignatureProcessor;
 /**
  * Template processor for HPPC-RT templates.
  */
-public final class TemplateProcessor {
-
+public final class TemplateProcessor
+{
     private static final Pattern COMMENTS_PATTERN = Pattern.compile("(/\\*!)|(!\\*/)", Pattern.MULTILINE | Pattern.DOTALL);
-
-    public enum VerboseLevel {
-        off,
-        min,
-        medium,
-        full;
-    }
 
     /**
      * Be default, print everything !
      */
-    private VerboseLevel verbose = VerboseLevel.full;
+    private Level verbose = Level.ALL;
 
     private boolean incremental = false;
 
@@ -68,7 +68,12 @@ public final class TemplateProcessor {
 
     private boolean isVelocityInitialized = false;
 
-    private class VelocityLogger implements LogChute {
+    /**
+     * Logger handler for Velocity
+     *
+     */
+    private class VelocityLogger implements LogChute
+    {
         @Override
         public void init(final RuntimeServices rs) throws Exception {
             // nothing strange here
@@ -79,7 +84,7 @@ public final class TemplateProcessor {
 
             if (level <= 2) {
 
-                System.out.println("[VELOCITY]-" + level + " : " + message);
+                logInfo("[VELOCITY]-" + level + " : " + message);
             }
         }
 
@@ -88,7 +93,7 @@ public final class TemplateProcessor {
 
             if (level <= 2) {
 
-                System.out.println("[VELOCITY]-" + level + "-!!EXCEPTION!! : " + message + " , exception msg: "
+                logInfo("[VELOCITY]-" + level + "-!!EXCEPTION!! : " + message + " , exception msg: "
                         + t.getMessage());
             }
         }
@@ -101,10 +106,35 @@ public final class TemplateProcessor {
     }
 
     /**
+     * Formatter for java.util.logger
+     */
+    private static class ProcessorLogsFormatter extends Formatter
+    {
+        @Override
+        public String format(final LogRecord record) {
+
+            String msg = "";
+
+            //We only want to log OUR messages, not every package around (especially Swing/Awt ...)
+            if (record.getSourceClassName().startsWith("com.carrotsearch.hppcrt")) {
+
+                if (record.getThrown() != null) {
+
+                    msg = String.format(Locale.ROOT, "[%1$s] %2$s with exception: %3$s%n", record.getLevel(), record.getMessage(), record.getThrown().getMessage());
+                } else {
+                    msg = String.format(Locale.ROOT, "[%1$s] %2$s%n", record.getLevel(), record.getMessage(), record.getThrown());
+                }
+            }
+
+            return msg;
+        }
+    }
+
+    /**
      * Initialize Velocity engine.
      */
     public TemplateProcessor() {
-        //do nothing here.
+        //nothing there
     }
 
     private void initVelocity() {
@@ -157,8 +187,10 @@ public final class TemplateProcessor {
     /**
      * 
      */
-    public void setVerbose(final VerboseLevel verbose) {
-        this.verbose = verbose;
+    public void setVerbose(final String verbose) {
+        this.verbose = Level.parse(verbose);
+
+        TemplateProcessor.setLoggerlevel(TemplateProcessor.getLog(), this.verbose);
     }
 
     /**
@@ -191,8 +223,8 @@ public final class TemplateProcessor {
      */
     public void execute() {
 
-        System.out.println("[INFO] Incremental compilation : " + this.incremental);
-        System.out.println("[INFO] Verbose level : " + this.verbose);
+        logInfo("Incremental compilation : " + this.incremental);
+        logInfo("Verbose level : " + this.verbose);
 
         initVelocity();
 
@@ -203,11 +235,11 @@ public final class TemplateProcessor {
         final List<TemplateFile> inputs = collectTemplateFiles(new ArrayList<TemplateFile>(), this.templatesDir);
 
         // Process templates
-        System.out.println("Processing " + inputs.size() + " templates to: '" + this.outputDir.getPath() + "'\n");
+        logInfo("Processing " + inputs.size() + " templates to: '" + this.outputDir.getPath() + "'\n");
         final long start = System.currentTimeMillis();
         processTemplates(inputs, outputs);
         final long end = System.currentTimeMillis();
-        System.out.println(String.format(Locale.ENGLISH, "\nProcessed in %.2f sec.\n", (end - start) * 1e-3));
+        logInfo(String.format(Locale.ROOT, "\nProcessed in %.2f sec.\n", (end - start) * 1e-3));
 
         // Remove non-marked files.
         int generated = 0;
@@ -216,9 +248,9 @@ public final class TemplateProcessor {
         for (final OutputFile f : outputs) {
             if (!f.generated) {
                 deleted++;
-                if (isVerboseEnabled(VerboseLevel.min)) {
-                    System.out.println("Deleted: " + f.file);
-                }
+
+                TemplateProcessor.getLog().fine("Deleted: " + f.file);
+
                 f.file.delete();
             }
 
@@ -228,13 +260,13 @@ public final class TemplateProcessor {
 
             if (f.updated) {
                 updated++;
-                if (isVerboseEnabled(VerboseLevel.min)) {
-                    System.out.println("Updated: " + relativePath(f.file, this.outputDir));
-                }
+
+                TemplateProcessor.getLog().fine("Updated: " + relativePath(f.file, this.outputDir));
+
             }
         }
 
-        System.out.println("Generated " + generated + " files (" + updated + " updated, " + deleted + " deleted).");
+        logInfo("Generated " + generated + " files (" + updated + " updated, " + deleted + " deleted).");
     }
 
     /**
@@ -245,7 +277,7 @@ public final class TemplateProcessor {
         final VelocityContext ctx = new VelocityContext();
 
         ctx.put("TemplateOptions", options);
-		ctx.put("true", true);
+        ctx.put("true", true);
         ctx.put("templateOnly", false);
         ctx.put("false", false);
 
@@ -300,10 +332,9 @@ public final class TemplateProcessor {
             }
         }
 
-        if (isVerboseEnabled(VerboseLevel.min)) {
-            System.out.println(String.format("\nVelocity: %.1f s\nInlines: %.1f s\nTypeClassRefs: %.1f s\nComments: %.1f s",
-                                             this.timeVelocity * 1e-3, this.timeInlines * 1e-3, this.timeTypeClassRefs * 1e-3, this.timeComments * 1e-3));
-        }
+        log(Level.FINE, String.format("\nVelocity: %.1f s\nInlines: %.1f s\nTypeClassRefs: %.1f s\nComments: %.1f s",
+                this.timeVelocity * 1e-3, this.timeInlines * 1e-3, this.timeTypeClassRefs * 1e-3, this.timeComments * 1e-3));
+
     }
 
     /**
@@ -353,15 +384,15 @@ public final class TemplateProcessor {
                 saveFile(output.file, template);
             } catch (final ParseErrorException e) {
 
-                System.out.println("[ERROR] : parsing template '" + input.fullPath + "' with " + templateOptions
-                                   + " with error: '" + e.getMessage() + "'");
+                log(Level.SEVERE, "Velocity parsing template '" + input.fullPath + "' with " + templateOptions
+                        + " with error: '" + e.getMessage() + "'");
 
                 //rethrow the beast to stop the thing dead.
                 throw e;
             } catch (final ResourceNotFoundException e) {
 
-                System.out.println("[ERROR] : resource not found for template '" + input.fullPath + "' with " + templateOptions
-                                   + " with error: '" + e.getMessage() + "'");
+                log(Level.SEVERE, "resource not found for template '" + input.fullPath + "' with " + templateOptions
+                        + " with error: '" + e.getMessage() + "'");
 
                 //rethrow the beast to stop the thing dead.
                 throw e;
@@ -374,22 +405,27 @@ public final class TemplateProcessor {
                     output.file.delete();
                     outputs.remove(output);
 
-                    if (isVerboseEnabled(VerboseLevel.medium)) {
+                    log(Level.FINEST, "output from template '" + input.fullPath + "' with KType = "
+                            + doNotGenException.currentKType + " and VType =  " + doNotGenException.currentVType
+                            + " was bypassed...");
 
-                        System.out.println("[INFO] : output from template '" + input.fullPath + "' with KType = "
-                                + doNotGenException.currentKType + " and VType =  " + doNotGenException.currentVType
-                                + " was bypassed...");
-                    }
                 } else {
 
-                    System.out.println("[ERROR] : method invocation from template '" + input.fullPath + "' with "
+                    log(Level.SEVERE, "method invocation from template '" + input.fullPath + "' with "
                             + templateOptions + " failed with error: '" + e.getMessage() + "'");
 
                     //rethrow the beast to stop the thing dead.
                     throw e;
                 }
 
-            } //end MethodInvocationException
+            } catch (final Exception e) {
+
+                log(Level.SEVERE, "Problem parsing template '" + input.fullPath + "' with "
+                        + templateOptions + " failed with exception: '" + e.getMessage() + "'");
+
+                //rethrow the beast to stop the thing dead.
+                throw e;
+            }
         }
     }
 
@@ -441,11 +477,8 @@ public final class TemplateProcessor {
                     if (m.find()) {
                         continueProcessing = true;
 
-                        if (isVerboseEnabled(VerboseLevel.full)) {
-
-                            System.out.println("[INFO] filterInlines(): found matching for '" + inlinedMethod.getKey()
-                                               + "' in file '" + f.fullPath + "' with " + inlinedMethod.getValue());
-                        }
+                        log(Level.FINEST, "filterInlines(): found matching for '" + inlinedMethod.getKey()
+                                + "' in file '" + f.fullPath + "' with " + inlinedMethod.getValue());
 
                         sb.append(currentInput, 0, m.start());
 
@@ -457,26 +490,26 @@ public final class TemplateProcessor {
                         //go back 1 character to capture the first parenthesis again
                         outer: for (int i = m.end() - 1; i < input.length(); i++) {
                             switch (currentInput.charAt(i)) {
-                                case '(':
-                                    bracketCount++;
-                                    break;
-                                case ')':
-                                    bracketCount--;
-                                    if (bracketCount == 0) {
-                                        params.add(currentInput.substring(last, i).trim());
+                            case '(':
+                                bracketCount++;
+                                break;
+                            case ')':
+                                bracketCount--;
+                                if (bracketCount == 0) {
+                                    params.add(currentInput.substring(last, i).trim());
 
-                                        currentInput.delete(0, i + 1);
-                                        break outer;
-                                    }
-                                    break;
-                                case ',':
-                                    if (bracketCount == 1) {
-                                        //add a parameter
-                                        params.add(currentInput.substring(last, i));
+                                    currentInput.delete(0, i + 1);
+                                    break outer;
+                                }
+                                break;
+                            case ',':
+                                if (bracketCount == 1) {
+                                    //add a parameter
+                                    params.add(currentInput.substring(last, i));
 
-                                        last = i + 1;
-                                    }
-                                    break;
+                                    last = i + 1;
+                                }
+                                break;
                             }
                         } //end for
 
@@ -491,25 +524,23 @@ public final class TemplateProcessor {
 
                                     sb.append(String.format("(" + bodyPattern + ")", params.toArray()));
 
-                                    if (isVerboseEnabled(VerboseLevel.full)) {
-                                        System.out.println("[INFO] filterInlines(): Applying inlined body '" + bodyPattern + "' to args: '"
-                                                + params.toString() + "'...");
-                                    }
+                                    log(Level.FINEST, "filterInlines(): Applying inlined body '" + bodyPattern + "' to args: '"
+                                            + params.toString() + "'...");
+
                                 } else {
                                     //the method has no arguments, simply pass the bodyPattern with no transform
                                     sb.append("(");
                                     sb.append(bodyPattern);
                                     sb.append(")");
 
-                                    if (isVerboseEnabled(VerboseLevel.full)) {
-                                        System.out.println("[INFO] filterInlines(): Applying inlined body '" + bodyPattern
-                                                           + "' with no args...");
-                                    }
+                                    log(Level.FINEST, "filterInlines(): Applying inlined body '" + bodyPattern
+                                            + "' with no args...");
+
                                 }
                             } catch (final UnknownFormatConversionException e) {
 
                                 throw new ParseErrorException("[ERROR] filterInlines(): unable to apply body '" + bodyPattern
-                                                              + "' with params '" + params.toString() + "'...");
+                                        + "' with params '" + params.toString() + "'...");
                             }
                         }
                     } //else m.find()
@@ -530,6 +561,11 @@ public final class TemplateProcessor {
         return currentInput.toString();
     }
 
+    /**
+     * Cleanup the remaining 'void comments' blocks that are a byproduct of Velocity processing.
+     * @param input
+     * @return
+     */
     private String filterComments(final String input) {
         return TemplateProcessor.COMMENTS_PATTERN.matcher(input).replaceAll("");
     }
@@ -543,38 +579,23 @@ public final class TemplateProcessor {
      */
     private String filterTypeClassRefs(final String input, final TemplateOptions options) {
         try {
+
             final SignatureProcessor signatureProcessor = new SignatureProcessor(input);
 
             return signatureProcessor.process(options);
-        } catch (final Exception e) {
 
-            System.out.println(String.format("[ERROR] Signature processor failure for template '%s' with exception '%s' ...",
-                                             options.getTemplateFile(), e.getMessage()));
+        } catch (final ParseCancellationException e) {
 
-            //force printing on console of the stack trace
-            e.printStackTrace(System.out);
+            TemplateProcessor.getLog().log(Level.SEVERE,
+                    "Signature processor parsing failure for template '" + options.getTemplateFile() + "' ", e);
 
-            throw new RuntimeException(e);
+            throw e;
         }
     }
 
     private String filterStaticTokens(final String template, final TemplateOptions templateOptions) {
 
         return template.replace(TemplateOptions.TEMPLATE_FILE_TOKEN, templateOptions.getTemplateFile());
-    }
-
-    private void saveFile(final File file, final String input) {
-        try {
-            if (!file.getParentFile().exists()) {
-                file.getParentFile().mkdirs();
-            }
-
-            final FileOutputStream fos = new FileOutputStream(file);
-            fos.write(input.getBytes("UTF-8"));
-            fos.close();
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     /**
@@ -594,22 +615,43 @@ public final class TemplateProcessor {
     }
 
     /**
-     * 
+     * Read the whole file contents into a UTF-8 string.
      */
     private String readFile(final File file) {
-        try {
-            final byte[] contents = new byte[(int) file.length()];
 
-            final DataInputStream dataInputStream = new DataInputStream(new FileInputStream(file));
-            dataInputStream.readFully(contents);
-            dataInputStream.close();
-            return new String(contents, "UTF-8");
+        try {
+
+            final Path path = Paths.get(file.getAbsolutePath());
+
+            return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+
         } catch (final Exception e) {
+
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Save the whole String input in File as UTF-8 (replacing the existing contents)
+     * @param file
+     * @param input
+     */
+    private void saveFile(final File file, final String input) {
+
+        try {
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+
+            Files.write(Paths.get(file.getAbsolutePath()), input.getBytes(StandardCharsets.UTF_8));
+
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     private OutputFile findOrCreate(final String targetFileName, final List<OutputFile> outputs) {
+
         final File candidate = TemplateProcessor.canonicalFile(new File(this.outputDir, targetFileName));
         for (final OutputFile o : outputs) {
             if (o.file.equals(candidate)) {
@@ -624,6 +666,7 @@ public final class TemplateProcessor {
     }
 
     private String targetFileName(String relativePath, final TemplateOptions templateOptions) {
+
         if (templateOptions.hasKType()) {
 
             relativePath = relativePath.replace("KType", templateOptions.getKType().getBoxedType());
@@ -641,6 +684,7 @@ public final class TemplateProcessor {
      * Relative path name.
      */
     private String relativePath(final File sub, final File parent) {
+
         try {
             return sub.getCanonicalPath().toString().substring(parent.getCanonicalPath().length());
         } catch (final IOException e) {
@@ -652,6 +696,7 @@ public final class TemplateProcessor {
      * Collect files present in the output.
      */
     private List<OutputFile> collectOutputFiles(final List<OutputFile> list, final File dir) {
+
         if (!dir.exists()) {
             return list;
         }
@@ -677,6 +722,7 @@ public final class TemplateProcessor {
      * Collect all template files from this and subdirectories.
      */
     private List<TemplateFile> collectTemplateFiles(final List<TemplateFile> list, final File dir) {
+
         for (final File file : dir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(final File dir, final String name) {
@@ -705,18 +751,41 @@ public final class TemplateProcessor {
         }
     }
 
-    private boolean isVerboseEnabled(final VerboseLevel lvl) {
+    /**
+     * Get an standard java.util.logger instance
+     * @return
+     */
+    private static Logger getLog() {
 
-        return lvl.ordinal() <= this.verbose.ordinal();
+        return Logger.getLogger(TemplateProcessor.class.getName());
+    }
+
+    /**
+     * log shortcut
+     * @param lvl
+     * @param message
+     */
+    private void log(final Level lvl, final String message) {
+
+        TemplateProcessor.getLog().log(lvl, message);
+    }
+
+    /**
+     * Log config messages
+     */
+    private void logInfo(final String message) {
+
+        log(Level.CONFIG, message);
     }
 
     /**
      * Command line entry point run: [template source dir] [output dir] (option:
      * [additional template deps]) Also read the properties:
-     * -Dincremental=[true|false], default false, -Dverbose=[off|min|medium|full],
+     * -Dincremental=[true|false], default false, -Dverbose=[OFF|SEVERE|CONFIG|INFO|FINE|FINEST],
      * default full
      */
     public static void main(final String[] args) {
+
         final TemplateProcessor processor = new TemplateProcessor();
         processor.setTemplatesDir(new File(args[0]));
         processor.setDestDir(new File(args[1]));
@@ -730,18 +799,37 @@ public final class TemplateProcessor {
         }
 
         //read properties
-        processor.incremental = false;
-        processor.verbose = VerboseLevel.full;
 
         try {
-            processor.incremental = Boolean.valueOf(System.getProperty("incremental", "false"));
-            processor.verbose = VerboseLevel.valueOf(System.getProperty("verbose", "full"));
+
+            processor.setIncremental(Boolean.valueOf(System.getProperty("incremental", "false")));
+            processor.setVerbose(System.getProperty("verbose", "ALL"));
 
         } catch (IllegalArgumentException | NullPointerException e) {
 
-            System.out.println("ERROR in properties parsing : " + e.getLocalizedMessage());
+            TemplateProcessor.getLog().severe("in properties parsing : " + e.getLocalizedMessage());
         }
 
         processor.execute();
+    }
+
+    /**
+     * Utility method to set the log levels of all handlers and force formatting
+     */
+    public static void setLoggerlevel(final Logger logger, final Level lvl) {
+
+        Logger tempLogger = logger;
+
+        while (tempLogger != null) {
+
+            tempLogger.setLevel(lvl);
+
+            for (final Handler handler : tempLogger.getHandlers()) {
+                handler.setLevel(lvl);
+                handler.setFormatter(new ProcessorLogsFormatter());
+            }
+
+            tempLogger = tempLogger.getParent();
+        }
     }
 }

@@ -10,5 +10,5 @@
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.carrotsearch.hppcrt.generator.TemplateProcessor"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="${project_loc:hppcrt}/src/main/templates  ${project_loc:hppcrt}/target/generated-sources/main/java ${project_loc:hppcrt}/src/main/templates"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="hppcrt-template-processor"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea -Xms256m -Xmx512m -Dincremental=false -Dverbose=off"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea -Xms256m -Xmx512m -Dincremental=false -Dverbose=CONFIG"/>
 </launchConfiguration>

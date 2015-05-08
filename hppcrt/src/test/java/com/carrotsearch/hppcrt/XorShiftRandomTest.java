@@ -45,11 +45,11 @@ public class XorShiftRandomTest
 
                 if (random instanceof XorShiftRandom) {
 
-                    val = ((long) ((XorShiftRandom) random).next(bits)) & 0xffffffffL;
+                    val = (((XorShiftRandom) random).next(bits)) & 0xffffffffL;
 
                 } else if (random instanceof XorShift128P) {
 
-                    val = ((long) ((XorShift128P) random).next(bits)) & 0xffffffffL;
+                    val = (((XorShift128P) random).next(bits)) & 0xffffffffL;
 
                 }
 

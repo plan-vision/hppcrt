@@ -1,5 +1,6 @@
 package com.carrotsearch.hppcrt.generator.parser;
 
+import java.awt.Dialog.ModalityType;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -22,7 +23,6 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 
 import com.carrotsearch.hppcrt.generator.TemplateOptions;
-import com.carrotsearch.hppcrt.generator.TemplateProcessor.VerboseLevel;
 import com.carrotsearch.hppcrt.generator.parser.Java7Parser.CompilationUnitContext;
 
 /** */
@@ -76,18 +76,19 @@ public class SignatureProcessor
      * Main processing entry point: call to apply source file (template) conversions according to the current provided templateOptions
      * @return
      */
-    public String process(final TemplateOptions templateOptions) throws IOException {
-
-        //Display the parsed source in a modeless GUI in VerboseLevel = full
-        //for debug an research purposes.
-        if (templateOptions.verbose == VerboseLevel.full) {
-
-            final String extractOfSource = this.source.substring(0, Math.min(this.source.length() - 1, SignatureProcessor.GUI_MAX_TITLE_SIZE));
-
-            displayParseTreeInGui(this.unitContext, "Parse tree of : '" + extractOfSource + "'...");
-        }
+    public String process(final TemplateOptions templateOptions) {
 
         return applyReplacements(findReplacements(templateOptions), templateOptions);
+    }
+
+    /**
+     * Display the parsed tree in a modeless GUI, useful for debugging.
+     */
+    public void displayParseTreeGui() {
+
+        final String extractOfSource = this.source.substring(0, Math.min(this.source.length() - 1, SignatureProcessor.GUI_MAX_TITLE_SIZE));
+
+        displayParseTree(this.unitContext, "Parse tree of : '" + extractOfSource + "'...");
     }
 
     /**
@@ -105,7 +106,7 @@ public class SignatureProcessor
     /**
      * Step 3 : Apply all computed replacements into the original source.
      */
-    private String applyReplacements(final List<Replacement> replacements, final TemplateOptions options) throws IOException {
+    private String applyReplacements(final List<Replacement> replacements, final TemplateOptions options) {
 
         final StringWriter sw = new StringWriter();
         reconstruct(sw, this.tokenStream, 0, this.tokenStream.size() - 1, replacements, options);
@@ -141,7 +142,7 @@ public class SignatureProcessor
             final BufferedTokenStream tokenStream,
             final int from, final int to,
             final Collection<Replacement> replacements,
-            final TemplateOptions templateOptions) throws IOException {
+            final TemplateOptions templateOptions) {
 
         final ArrayList<Replacement> sorted = new ArrayList<>(replacements);
 
@@ -169,29 +170,35 @@ public class SignatureProcessor
         //Initialize [left = from...
         int left = from;
 
-        //2) Start replacing
-        for (final Replacement r : sorted) {
+        try {
 
-            //2-1) We have [left ; right (beginning of a Replacement)[ a non-replaced range, copy the Tokens verbatim
-            //(with comments post-processing)
-            final int right = r.interval.a;
+            //2) Start replacing
+            for (final Replacement r : sorted) {
 
-            for (int i = left; i < right; i++) {
-                sw.append(tokenText(templateOptions, tokenStream.get(i)));
+                //2-1) We have [left ; right (beginning of a Replacement)[ a non-replaced range, copy the Tokens verbatim
+                //(with comments post-processing)
+                final int right = r.interval.a;
+
+                for (int i = left; i < right; i++) {
+                    sw.append(tokenText(templateOptions, tokenStream.get(i)));
+                }
+
+                //2-2) Replace the Replacement interval tokens by a computed Replacement string
+                //(so multiple tokens may be replaced by a single string)
+                //[left; right[ +  replacement
+                sw.append(r.replacement);
+
+                //2-3) Prepare the next turn: [left; right[ +  replacement +  [next left (= starting after previous replacement)... [
+                left = r.interval.b + 1;
             }
 
-            //2-2) Replace the Replacement interval tokens by a computed Replacement string
-            //(so multiple tokens may be replaced by a single string)
-            //[left; right[ +  replacement
-            sw.append(r.replacement);
+            //3) No more replacements, copy verbatim all the remaining tokens of the stream.
+            for (int i = left; i < to; i++) {
+                sw.append(tokenText(templateOptions, tokenStream.get(i)));
+            }
+        } catch (final IOException e) {
 
-            //2-3) Prepare the next turn: [left; right[ +  replacement +  [next left (= starting after previous replacement)... [
-            left = r.interval.b + 1;
-        }
-
-        //3) No more replacements, copy verbatim all the remaining tokens of the stream.
-        for (int i = left; i < to; i++) {
-            sw.append(tokenText(templateOptions, tokenStream.get(i)));
+            throw new RuntimeException(e);
         }
 
         return sw;
@@ -219,15 +226,18 @@ public class SignatureProcessor
      * @param ctx
      * @param title
      */
-    protected void displayParseTreeInGui(final ParserRuleContext ctx, final String title) {
+    private void displayParseTree(final ParserRuleContext ctx, final String title) {
 
         //show AST in GUI
         final Future<JDialog> dialog = ctx.inspect(this.parser);
 
         try {
+            dialog.get().setVisible(false);
+            dialog.get().setModalityType(ModalityType.MODELESS); //with refresh of Visibility in order to force modeless mode.
             dialog.get().setTitle(title);
-        }
-        catch (InterruptedException | ExecutionException e) {
+            dialog.get().setVisible(true);
+
+        } catch (InterruptedException | ExecutionException e) {
             //nothing
             e.printStackTrace();
         }

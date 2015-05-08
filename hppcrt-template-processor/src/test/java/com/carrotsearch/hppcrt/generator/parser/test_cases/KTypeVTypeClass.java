@@ -1,15 +1,15 @@
-package com.carrotsearch.hppcrt.generator.parser;
+package com.carrotsearch.hppcrt.generator.parser.test_cases;
 
-import com.carrotsearch.hppcrt.generator.parser.subpackage.KTypeVTypeInterfaceImported;
+import com.carrotsearch.hppcrt.generator.parser.test_cases.subpackage.KTypeVTypeInterfaceImported;
 
 /**
  * A list of KTypes.
  */
 public class KTypeVTypeClass<KType, VType>
-        extends KTypeVTypeSuper<KType, VType>
-        implements KTypeVTypeInterface<KType, VType>,
-        KTypeVTypeInterfaceImported<KType, VType>,
-        Cloneable
+extends KTypeVTypeSuper<KType, VType>
+implements KTypeVTypeInterface<KType, VType>,
+KTypeVTypeInterfaceImported<KType, VType>,
+Cloneable
 {
     KType[] keys;
 
