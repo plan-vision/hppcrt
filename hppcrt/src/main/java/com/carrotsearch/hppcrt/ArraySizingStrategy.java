@@ -17,6 +17,7 @@ public interface ArraySizingStrategy
      * 
      * @return Must return a new size at least as big as to hold
      *         <code>elementsCount + expectedAdditions</code>.
+     * @throws BufferAllocationException
      */
     int grow(int currentBufferLength, int elementsCount, int expectedAdditions) throws BufferAllocationException;
 }

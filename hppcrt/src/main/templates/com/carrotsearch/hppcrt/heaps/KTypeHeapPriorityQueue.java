@@ -38,19 +38,19 @@ implements KTypePriorityQueue<KType>, Cloneable
     public final static int DEFAULT_CAPACITY = 16;
 
     /**
-       * Internal array for storing the priority queue.
+     * Internal array for storing the priority queue.
       #if ($TemplateOptions.KTypeGeneric)
-       * <p><strong>Important!</strong>
-       * The actual value in this field is always an instance of <code>Object[]</code>.
-       * Be warned that <code>javac</code> emits additional casts when <code>buffer</code>
-       * is directly accessed; <strong>these casts
-       * may result in exceptions at runtime</strong>. A workaround is to cast directly to
-       * <code>Object[]</code> before accessing the buffer's elements (although it is highly
-       * recommended to use a {@link #iterator()} instead.
-       * </pre>
+     * <p><strong>Important!</strong>
+     * The actual value in this field is always an instance of <code>Object[]</code>.
+     * Be warned that <code>javac</code> emits additional casts when <code>buffer</code>
+     * is directly accessed; <strong>these casts
+     * may result in exceptions at runtime</strong>. A workaround is to cast directly to
+     * <code>Object[]</code> before accessing the buffer's elements (although it is highly
+     * recommended to use a {@link #iterator()} instead.
+     * </pre>
       #end
      * <p>
-       * Direct priority queue iteration: iterate buffer[i] for i in [1; size()] (included) but is out-of-order w.r.t {@link #popTop()}
+     * Direct priority queue iteration: iterate buffer[i] for i in [1; size()] (included) but is out-of-order w.r.t {@link #popTop()}
      * </p>
      */
     public KType[] buffer;
@@ -113,7 +113,7 @@ implements KTypePriorityQueue<KType>, Cloneable
     };
 
     /**
-       * Create with a Comparator, an initial capacity, and a custom buffer resizing strategy.
+     * Create with a Comparator, an initial capacity, and a custom buffer resizing strategy.
      */
     public KTypeHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp,
             /*! #else
@@ -160,20 +160,20 @@ implements KTypePriorityQueue<KType>, Cloneable
     public KTypeHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp
     /*! #else
     KTypeComparator<? super KType> comp
-      #end !*/)
+    #end !*/)
     {
         this(comp, KTypeHeapPriorityQueue.DEFAULT_CAPACITY);
     }
 
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     /**
-       * Create with an initial capacity,
-       * using the Comparable natural ordering
+     * Create with an initial capacity,
+     * using the Comparable natural ordering
      */
     /*! #else !*/
     /**
-       * Create with an initial capacity,
-       * using the natural ordering of <code>KType</code>s
+     * Create with an initial capacity,
+     * using the natural ordering of <code>KType</code>s
      */
     /*! #end !*/
     public KTypeHeapPriorityQueue(final int initialCapacity) {
@@ -181,8 +181,8 @@ implements KTypePriorityQueue<KType>, Cloneable
     }
 
     /**
-       * Create with a given initial capacity, using a
-       * Comparator for ordering.
+     * Create with a given initial capacity, using a
+     * Comparator for ordering.
      * 
      * @see BoundedProportionalArraySizingStrategy
      */
@@ -228,14 +228,14 @@ implements KTypePriorityQueue<KType>, Cloneable
 
     /**
      * {@inheritDoc}
-       * <p><b>Note : </b> The comparison criteria for
-       * identity test is based on
-       * #if ($TemplateOptions.KTypeGeneric)
-       * {@link Comparable} compareTo() if no
-       * #else
-       * natural ordering if no
-       * #end
-       * custom comparator is given, else it uses the {@link #comparator()} criteria.
+     * <p><b>Note : </b> The comparison criteria for
+     * identity test is based on
+     * #if ($TemplateOptions.KTypeGeneric)
+     * {@link Comparable} compareTo() if no
+     * #else
+     * natural ordering if no
+     * #end
+     * custom comparator is given, else it uses the {@link #comparator()} criteria.
      */
     @Override
     public int removeAll(final KType e1) {
@@ -302,8 +302,8 @@ implements KTypePriorityQueue<KType>, Cloneable
     }
 
     /**
-       * An iterator implementation for {@link HeapPriorityQueue#iterator}.
-       * Holds a KTypeCursor<KType> cursor returning (value, index) = (KType value, index the position in heap)
+     * An iterator implementation for {@link KTypeHeapPriorityQueue#iterator}.
+     * Holds a KTypeCursor<KType> cursor returning (value, index) = (KType value, index the position in heap)
      */
     public final class ValueIterator extends AbstractIterator<KTypeCursor<KType>>
     {
@@ -343,14 +343,14 @@ implements KTypePriorityQueue<KType>, Cloneable
 
     /**
      * {@inheritDoc}
-       * <p><b>Note : </b> The comparison criteria for
-       * identity test is based on
-       * #if ($TemplateOptions.KTypeGeneric)
-       * {@link Comparable} compareTo() if no
-       * #else
-       * natural ordering if no
-       * #end
-       * custom comparator is given, else it uses the {@link #comparator()} criteria.
+     * <p><b>Note : </b> The comparison criteria for
+     * identity test is based on
+     * #if ($TemplateOptions.KTypeGeneric)
+     * {@link Comparable} compareTo() if no
+     * #else
+     * natural ordering if no
+     * #end
+     * custom comparator is given, else it uses the {@link #comparator()} criteria.
      */
     @Override
     public boolean contains(final KType element) {
@@ -433,8 +433,8 @@ implements KTypePriorityQueue<KType>, Cloneable
     }
 
     /**
-       * Insert a KType into the queue.
-       * cost: O(log(N)) for a N sized queue
+     * Insert a KType into the queue.
+     * cost: O(log(N)) for a N sized queue
      */
     @Override
     public void add(final KType element) {
@@ -449,8 +449,8 @@ implements KTypePriorityQueue<KType>, Cloneable
     }
 
     /**
-       * {@inheritDoc}
-       * cost: O(1)
+     * {@inheritDoc}
+     * cost: O(1)
      */
     @Override
     public KType top() {
@@ -464,8 +464,8 @@ implements KTypePriorityQueue<KType>, Cloneable
     }
 
     /**
-       * {@inheritDoc}
-       * cost: O(log(N)) for a N sized queue
+     * {@inheritDoc}
+     * cost: O(log(N)) for a N sized queue
      */
     @Override
     public KType popTop() {
@@ -504,16 +504,16 @@ implements KTypePriorityQueue<KType>, Cloneable
     }
 
     /**
-       * Adds all elements from another container.
-       * cost: O(N*log(N)) for N elements
+     * Adds all elements from another container.
+     * cost: O(N*log(N)) for N elements
      */
     public int addAll(final KTypeContainer<? extends KType> container) {
         return addAll((Iterable<? extends KTypeCursor<? extends KType>>) container);
     }
 
     /**
-       * Adds all elements from another iterable.
-       * cost: O(N*log(N)) for N elements
+     * Adds all elements from another iterable.
+     * cost: O(N*log(N)) for N elements
      */
     public int addAll(final Iterable<? extends KTypeCursor<? extends KType>> iterable) {
         int size = 0;
@@ -555,8 +555,8 @@ implements KTypePriorityQueue<KType>, Cloneable
     }
 
     /**
-       * {@inheritDoc}
-       * cost: O(n*log(N))
+     * {@inheritDoc}
+     * cost: O(n*log(N))
      */
     @Override
     public void updatePriorities() {
@@ -572,8 +572,8 @@ implements KTypePriorityQueue<KType>, Cloneable
     }
 
     /**
-       * {@inheritDoc}
-       * cost: O(log(N))
+     * {@inheritDoc}
+     * cost: O(log(N))
      */
     @Override
     public void updateTopPriority() {
@@ -585,7 +585,7 @@ implements KTypePriorityQueue<KType>, Cloneable
     }
 
     /**
-       * Clone this object. The returned clone will use the same resizing strategy and comparator.
+     * Clone this object. The returned clone will use the same resizing strategy and comparator.
      */
     @Override
     public KTypeHeapPriorityQueue<KType> clone() {
@@ -603,12 +603,12 @@ implements KTypePriorityQueue<KType>, Cloneable
     }
 
     /**
-       * this instance and obj can only be equal to this if either: <pre>
+     * this instance and obj can only be equal to this if either: <pre>
      * (both don't have set comparators)
      * or
-       * (both have equal comparators defined by {@link #comparator}.equals(obj.comparator))</pre>
-       * then, both heaps are compared as follows: <pre>
-       * {@inheritDoc}</pre>
+     * (both have equal comparators defined by {@link #comparator()}.equals(obj.comparator))</pre>
+     * then, both heaps are compared as follows: <pre>
+     * {@inheritDoc}</pre>
      */
     @Override
     /* #if ($TemplateOptions.KTypeGeneric) */
@@ -717,16 +717,16 @@ implements KTypePriorityQueue<KType>, Cloneable
 
     /**
      * Get the custom comparator used for comparing elements
-       * @return null if no custom comparator was set, i.e natural ordering
-       * of <code>KType</code>s is used instead
-       * #if($TemplateOptions.KTypeGeneric) , which means objects in this case must be {@link Comparable}.
-       * #end
+     * @return null if no custom comparator was set, i.e natural ordering
+     * of <code>KType</code>s is used instead
+     * #if($TemplateOptions.KTypeGeneric) , which means objects in this case must be {@link Comparable}.
+     * #end
      */
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
             /*! #else
-                                                                                                                                                                                                    public KTypeComparator<? super KType>
-                                                                                                                                                                                                    #end !*/
+                                                                                                                                                                                                            public KTypeComparator<? super KType>
+                                                                                                                                                                                                            #end !*/
             comparator() {
 
         return this.comparator;

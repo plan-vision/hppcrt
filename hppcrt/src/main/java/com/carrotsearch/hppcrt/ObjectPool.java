@@ -7,7 +7,8 @@ package com.carrotsearch.hppcrt;
  *
  * @param <E>
  */
-public class ObjectPool<E> {
+public class ObjectPool<E>
+{
 
     /**
      * The {@link ObjectFactory} used for creating or re-initializing objects
@@ -68,7 +69,7 @@ public class ObjectPool<E> {
         //Construct
         this.arrayPool = (E[]) new Object[this.capacity];
         //allocate
-        for (int i = 0; i < arrayPool.length; i++) {
+        for (int i = 0; i < this.arrayPool.length; i++) {
 
             this.arrayPool[i] = this.factory.create();
         }
@@ -167,7 +168,6 @@ public class ObjectPool<E> {
 
     /**
      * get the current number of available (free) objects in the pool.
-     * @return
      */
     public int size() {
 

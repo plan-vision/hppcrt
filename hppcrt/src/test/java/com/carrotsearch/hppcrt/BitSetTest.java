@@ -45,6 +45,7 @@ public class BitSetTest extends RandomizedTest
 
     /**
      * Test random insertions into the bitset.
+     * @throws Exception
      */
     @Test
     public void testAgainstJREBitSet() throws Exception
@@ -93,8 +94,9 @@ public class BitSetTest extends RandomizedTest
         Assert.assertEquals(jre.isEmpty(), hppc.isEmpty());
 
         // Check bit-by-bit.
-        for (int i = 0; i < jre.size() - 1; i++)
+        for (int i = 0; i < jre.size() - 1; i++) {
             Assert.assertEquals(jre.get(i), hppc.get(i));
+        }
 
         // Check iterator indices.
         int i = jre.nextSetBit(0);
@@ -136,8 +138,7 @@ public class BitSetTest extends RandomizedTest
         {
             ilcCursor.next();
             Assert.fail();
-        }
-        catch (final NoSuchElementException e)
+        } catch (final NoSuchElementException e)
         {
             // expected.
         }
@@ -199,8 +200,7 @@ public class BitSetTest extends RandomizedTest
         {
             llcCursor.next();
             Assert.fail();
-        }
-        catch (final NoSuchElementException e)
+        } catch (final NoSuchElementException e)
         {
             // expected.
         }

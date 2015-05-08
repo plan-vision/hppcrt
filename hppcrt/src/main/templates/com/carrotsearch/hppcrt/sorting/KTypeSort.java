@@ -37,9 +37,6 @@ public final class KTypeSort
      #if ($TemplateOptions.KTypeGeneric)
      * @throws ClassCastException if the array contains elements that are not mutually Comparable.
      #end
-     * @param table
-     * @param beginIndex
-     * @param endIndex
      */
     public static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void quicksort(final KType[] table, final int beginIndex, final int endIndex)
     {
@@ -59,7 +56,6 @@ public final class KTypeSort
      #if ($TemplateOptions.KTypeGeneric)
      * @throws ClassCastException if the array contains elements that are not mutually Comparable.
      #end
-     * @param table
      */
     public static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void quicksort(final KType[] table)
     {
@@ -76,9 +72,6 @@ public final class KTypeSort
      #if ($TemplateOptions.KTypeGeneric)
      * @throws ClassCastException if the KTypeIndexedContainer contains elements that are not mutually Comparable.
      #end
-     * @param table
-     * @param beginIndex
-     * @param endIndex
      */
     public static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void quicksort(final KTypeIndexedContainer<KType> table, final int beginIndex,
             final int endIndex)
@@ -99,7 +92,6 @@ public final class KTypeSort
       #if ($TemplateOptions.KTypeGeneric)
      * @throws ClassCastException if the KTypeIndexedContainer contains elements that are not mutually Comparable.
      #end
-     * @param table
      */
     public static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void quicksort(final KTypeIndexedContainer<KType> table)
     {
@@ -140,8 +132,8 @@ public final class KTypeSort
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
     /*! #else
-                                                            KTypeComparator<? super KType>
-                                                               #end !*/
+                                                                            KTypeComparator<? super KType>
+                                                                               #end !*/
     comp)
     {
         KTypeSort.quicksort(table, 0, table.length, comp);
@@ -180,8 +172,8 @@ public final class KTypeSort
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
             /*! #else
-                    KTypeComparator<? super KType>
-                    #end !*/
+                                    KTypeComparator<? super KType>
+                                    #end !*/
     comp)
     {
         KTypeSort.quicksort(table, 0, table.size(), comp);

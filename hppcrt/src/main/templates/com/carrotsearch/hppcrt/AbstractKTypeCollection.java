@@ -164,7 +164,6 @@ public abstract class AbstractKTypeCollection<KType> implements KTypeCollection<
     /**
      * Returns the "default value" value used
      * in containers methods returning "default value"
-     * @return
      */
     public KType getDefaultValue()
     {
@@ -174,7 +173,6 @@ public abstract class AbstractKTypeCollection<KType> implements KTypeCollection<
     /**
      * Set the "default value" value to be used
      * in containers methods returning "default value"
-     * @return
      */
     public void setDefaultValue(final KType defaultValue)
     {

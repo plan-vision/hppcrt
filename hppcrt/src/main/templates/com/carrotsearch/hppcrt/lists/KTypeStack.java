@@ -123,7 +123,8 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
 
     /**
      * {@inheritDoc}
-     * @param index : counted from the top of the stack, i.e = 0 if top, bottom is index = size() - 1
+     * @param fromIndex : counted from the top of the stack, i.e = 0 if top, bottom is index = size() - 1
+     * @param toIndex : counted from the top of the stack, i.e = 0 if top, bottom is index = size() - 1
      */
     @Override
     public void removeRange(final int fromIndex, final int toIndex)
@@ -462,8 +463,6 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
      * <p><b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009]
      * </b></p>
-     * @param beginIndex
-     * @param endIndex
       #if ($TemplateOptions.KTypeGeneric)
      * @throws ClassCastException if the array contains elements that are not mutually Comparable.
      #end

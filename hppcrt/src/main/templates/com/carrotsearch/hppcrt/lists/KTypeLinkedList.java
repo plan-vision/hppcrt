@@ -993,7 +993,6 @@ public class KTypeLinkedList<KType>
          * True is iterator points to the "head", i.e such as gotoNext() point to the first
          * element, with respect to the forward iteration.
          * 
-         * @return
          */
         public boolean isHead() {
             return this.internalPos == KTypeLinkedList.HEAD_POSITION;
@@ -1003,7 +1002,6 @@ public class KTypeLinkedList<KType>
          * True is iterator points to the "tail", i.e such as gotoPrevious() point to the last
          * element, with respect to the forward iteration.
          * 
-         * @return
          */
         public boolean isTail() {
             return this.internalPos == KTypeLinkedList.TAIL_POSITION;
@@ -1746,8 +1744,8 @@ public class KTypeLinkedList<KType>
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
             /*! #else
-                                                      KTypeComparator<? super KType>
-                                                      #end !*/
+                                                              KTypeComparator<? super KType>
+                                                              #end !*/
             comp) {
         assert endIndex <= size();
 
@@ -1762,8 +1760,6 @@ public class KTypeLinkedList<KType>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009]
      * </b></p>
      * 
-     * @param beginIndex
-     * @param endIndex
      #if ($TemplateOptions.KTypeGeneric)
      * @throws ClassCastException if the array contains elements that are not mutually Comparable.
      #end

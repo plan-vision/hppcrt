@@ -757,8 +757,6 @@ public class KTypeArrayDeque<KType>
      *         + c.index + &quot; value=&quot; + c.value);
      * }
      * </pre>
-     * 
-     * @return
      */
     @Override
     public ValueIterator iterator() {
@@ -781,8 +779,7 @@ public class KTypeArrayDeque<KType>
      *         + c.index + &quot; value=&quot; + c.value);
      * }
      * </pre>
-     * 
-     * @return
+     *
      */
     @Override
     public DescendingValueIterator descendingIterator() {
@@ -1129,8 +1126,8 @@ public class KTypeArrayDeque<KType>
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
             /*! #else
-                            KTypeComparator<? super KType>
-                            #end !*/
+                                    KTypeComparator<? super KType>
+                                    #end !*/
             comp) {
         assert endIndex <= size();
 
@@ -1156,11 +1153,9 @@ public class KTypeArrayDeque<KType>
      * <p><b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009].
      * </b></p>
-     * @param beginIndex
-     * @param endIndex
-            #if ($TemplateOptions.KTypeGeneric)
+    #if ($TemplateOptions.KTypeGeneric)
      * @throws ClassCastException if the deque contains elements that are not mutually Comparable.
-           #end
+    #end
      */
     public void sort() {
         if (size() > 1) {

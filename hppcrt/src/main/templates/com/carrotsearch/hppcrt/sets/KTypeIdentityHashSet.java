@@ -21,13 +21,13 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeIdentityHashSet<KType>
-extends KTypeCustomHashSet<KType>
+        extends KTypeCustomHashSet<KType>
 {
     private static final KTypeIdentityHash<Object> IDENTITY_EQUALITY = new KTypeIdentityHash<Object>();
 
     /**
-     * Creates a hash set with the default capacity of {@value #DEFAULT_CAPACITY},
-     * load factor of {@value #DEFAULT_LOAD_FACTOR}.
+     * Creates a hash set with the default capacity of {@value Containers#DEFAULT_EXPECTED_ELEMENTS},
+     * load factor of {@value HashContainers#DEFAULT_LOAD_FACTOR}.
      */
     public KTypeIdentityHashSet()
     {
@@ -36,7 +36,7 @@ extends KTypeCustomHashSet<KType>
 
     /**
      * Creates a hash set with the given capacity,
-     * load factor of {@value #DEFAULT_LOAD_FACTOR}.
+     * load factor of {@value HashContainers#DEFAULT_LOAD_FACTOR}.
      */
     public KTypeIdentityHashSet(final int initialCapacity)
     {

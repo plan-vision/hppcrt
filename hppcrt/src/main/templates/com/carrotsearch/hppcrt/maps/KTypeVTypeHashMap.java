@@ -49,7 +49,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     protected VType defaultValue = Intrinsics.<VType> defaultVTypeValue();
 
@@ -134,8 +134,8 @@ public class KTypeVTypeHashMap<KType, VType>
     private final int perturbation = HashContainers.computeUniqueIdentifier(this);
 
     /**
-     * Creates a hash map with the default capacity of {@value #DEFAULT_CAPACITY},
-     * load factor of {@value #DEFAULT_LOAD_FACTOR}.
+     * Creates a hash map with the default capacity of {@value Containers#DEFAULT_EXPECTED_ELEMENTS},
+     * load factor of {@value HashContainers#DEFAULT_LOAD_FACTOR}.
      * 
      * <p>See class notes about hash distribution importance.</p>
      */
@@ -145,7 +145,7 @@ public class KTypeVTypeHashMap<KType, VType>
 
     /**
      * Creates a hash map with the given initial capacity, default load factor of
-     * {@value #DEFAULT_LOAD_FACTOR}.
+     * {@value HashContainers#DEFAULT_LOAD_FACTOR}.
      * 
      * <p>See class notes about hash distribution importance.</p>
      * 
@@ -1261,8 +1261,6 @@ public class KTypeVTypeHashMap<KType, VType>
 
     /**
      * {@inheritDoc}
-     * 
-     * @return
      */
     @Override
     public EntryIterator iterator() {
@@ -1898,8 +1896,6 @@ public class KTypeVTypeHashMap<KType, VType>
     /**
      * Returns the "default value" value used in containers methods returning
      * "default value"
-     * 
-     * @return
      */
     public VType getDefaultValue() {
         return this.defaultValue;

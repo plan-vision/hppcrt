@@ -5,7 +5,6 @@ import java.util.Comparator;
 /**
  * Interface to support custom comparisons of <code>KType</code>s,
  * as replacement of either natural ordering or Comparable objects.
- * @param <T>
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public interface KTypeComparator<KType> /*! #if ($TemplateOptions.KTypeGeneric) !*/extends Comparator<KType> /*! #end !*/
