@@ -153,8 +153,6 @@ public class TestSignatureProcessor
     @Test
     public void testNewClass() throws IOException {
 
-        this.displayParseTree = true;
-
         final SignatureProcessor sp = new SignatureProcessor(
                 "class KTypeVTypeFoo<KType, VType> { public void foo() { new KTypeVTypeFoo<KType, VType>(); } }");
 
@@ -320,8 +318,40 @@ public class TestSignatureProcessor
 
         System.out.println("\n\n>>>> Converted to long : \n\n");
         compareWithReferenceFile(new TemplateOptions(Type.LONG, null), testedPath, expectedPathLong);
+    }
+
+    @Test
+    public void testGenericWithinGenericWithinGeneric() throws IOException {
+
+        this.displayParseTree = true;
+
+        //generic within generic within generic
+        final SignatureProcessor sp = new SignatureProcessor(
+                "class Foo { public void foo() { new KTypeFoo<KTypeInner<KTypeProcecedure<KType>>, A>(); } }");
+
+        check(Type.FLOAT, null, sp, "class Foo { public void foo() { new FloatFoo<FloatInner<FloatProcecedure>, A>(); } }");
+        check(Type.GENERIC, null, sp, "class Foo { public void foo() { new ObjectFoo<ObjectInner<ObjectProcecedure<KType>>, A>(); } }");
+    }
+
+    @Test
+    public void testDoubleGenericWithinGenericWithinGeneric() throws IOException {
+
+        this.displayParseTree = true;
+
+        //generic within generic within generic
+        final SignatureProcessor sp = new SignatureProcessor(
+                "class Foo { public void foo() { new KTypeVTypeFoo<KTypeVTypeInner<KTypeVTypeProcecedure<KType, VType>>, A>(); } }");
+
+        check(Type.FLOAT, Type.INT, sp, "class Foo { public void foo() { new FloatIntFoo<FloatIntInner<FloatIntProcecedure>, A>(); } }");
+        check(Type.FLOAT, Type.GENERIC, sp, "class Foo { public void foo() { new FloatObjectFoo<FloatObjectInner<FloatObjectProcecedure<KType>>, A>(); } }");
+        check(Type.GENERIC, Type.INT, sp, "class Foo { public void foo() { new ObjectIntFoo<ObjectIntInner<ObjectIntProcecedure<KType>>, A>(); } }");
+        check(Type.GENERIC, Type.GENERIC, sp, "class Foo { public void foo() { new ObjectObjectFoo<ObjectObjectInner<ObjectObjectProcecedure<KType, VType>>, A>(); } }");
 
     }
+
+    ///////////////////////
+    // Utility methods
+    ///////////////////////
 
     private void check(final Type ktype, final SignatureProcessor processor, final String expected) throws IOException {
         check(new TemplateOptions(ktype, null), processor, expected);
@@ -336,12 +366,12 @@ public class TestSignatureProcessor
         //we want all traces
         templateOptions.verbose = Level.ALL;
 
-        final String output = processor.process(templateOptions);
-
         if (this.displayParseTree) {
 
             processor.displayParseTreeGui();
         }
+
+        final String output = processor.process(templateOptions);
 
         final String expectedNormalized = expected.trim().replaceAll("\\s+", " ");
         final String outputNormalized = output.trim().replaceAll("\\s+", " ");

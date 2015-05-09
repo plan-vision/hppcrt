@@ -1,144 +1,48 @@
 package com.carrotsearch.hppcrt.generator.parser;
 
 import java.io.StringWriter;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import com.carrotsearch.hppcrt.generator.TemplateOptions;
-import com.carrotsearch.hppcrt.generator.TemplateProcessor;
 import com.carrotsearch.hppcrt.generator.Type;
 import com.carrotsearch.hppcrt.generator.parser.Java7Parser.*;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacement>>
+public class SignatureReplacementVisitor extends ReplacementVisitorBase
 {
-    private final static List<Replacement> NONE = Collections.emptyList();
-
-    private final TemplateOptions templateOptions;
-    private final SignatureProcessor processor;
-
+    /**
+     * Constructor
+     * @param templateOptions
+     * @param processor
+     */
     public SignatureReplacementVisitor(final TemplateOptions templateOptions, final SignatureProcessor processor) {
-
-        this.templateOptions = templateOptions;
-        this.processor = processor;
-
-        TemplateProcessor.setLoggerlevel(Logger.getLogger(SignatureReplacementVisitor.class.getName()), this.templateOptions.verbose);
+        super(templateOptions, processor, Logger.getLogger(SignatureReplacementVisitor.class.getName()));
     }
 
-    private static class TypeBound
-    {
-        private final String originalBound;
-        private final Type targetType;
-
-        public TypeBound(final Type targetType, final String originalBound) {
-            this.targetType = targetType;
-            this.originalBound = originalBound;
-        }
-
-        public Type templateBound() {
-            Preconditions.checkNotNull(this.targetType, "Target not a template bound: " + this.originalBound);
-            return this.targetType;
-        }
-
-        public boolean isTemplateType() {
-            return this.targetType != null;
-        }
-
-        public String originalBound() {
-            return this.originalBound;
-        }
-
-        public String getBoxedType() {
-            return templateBound().getBoxedType();
-        }
-    } //end class TypeBound
-
-    private TypeBound typeBoundOf(final TypeParameterContext c) {
-
-        final String symbol = c.Identifier().toString();
-        switch (symbol) {
-        case "KType":
-            return new TypeBound(this.templateOptions.getKType(), c.getText());
-        case "VType":
-            return new TypeBound(this.templateOptions.getVType(), c.getText());
-        default:
-            return new TypeBound(null, c.getText());
-        }
-    }
-
-    private TypeBound typeBoundOf(final TypeArgumentContext c, final Deque<Type> wildcards) {
-
-        if (c.getText().equals("?")) {
-            return new TypeBound(wildcards.removeFirst(), c.getText());
-        }
-
-        final TypeBound t = typeBoundOf(c.type());
-
-        if (t.isTemplateType()) {
-            return new TypeBound(t.templateBound(), getSourceText(c));
-        }
-
-        return new TypeBound(null, getSourceText(c));
-    }
-
-    private String getSourceText(final ParserRuleContext c) {
-        return this.processor.tokenStream.getText(c.getSourceInterval());
-    }
-
-    private TypeBound typeBoundOf(final TypeContext c) {
-
-        if (c.primitiveType() != null) {
-            return new TypeBound(null, c.getText());
-        }
-
-        final TypeBound t = typeBoundOf(c.classOrInterfaceType());
-
-        if (t.isTemplateType()) {
-            return new TypeBound(t.templateBound(), c.getText());
-        }
-
-        return new TypeBound(null, c.getText());
-    }
-
-    private TypeBound typeBoundOf(final ClassOrInterfaceTypeContext c) {
-
-        Preconditions.checkArgument(c.identifierTypePair().size() == 1, "Unexpected typeBoundOf context: " + c.getText());
-
-        for (final IdentifierTypePairContext p : c.identifierTypePair()) {
-
-            switch (p.Identifier().getText()) {
-            case "KType":
-                return new TypeBound(this.templateOptions.getKType(), p.getText());
-            case "VType":
-                return new TypeBound(this.templateOptions.getVType(), p.getText());
-            }
-        }
-
-        return new TypeBound(null, c.getText());
-    }
-
+    /**
+     * Entering point: visit the class.
+     */
     @Override
     public List<Replacement> visitClassDeclaration(final ClassDeclarationContext ctx) {
 
+        //Excluding imports, the replacements starts here, so boot-up the process by running the base method
         final List<Replacement> result = new ArrayList<>(super.visitClassDeclaration(ctx));
 
-        log(Level.FINEST, "visitClassDeclaration", "calling parent, result = "
+        log(Level.FINEST, "visitClassDeclaration", "calling base, result = "
                 + Lists.newArrayList(result).toString());
 
         String className = ctx.Identifier().getText();
 
-        log(Level.FINE, "visitClassDeclaration", "className = " + className);
+        log(Level.FINEST, "visitClassDeclaration", "className = " + className);
 
         if (isTemplateIdentifier(className) || true) {
 
@@ -190,7 +94,7 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
 
         List<Replacement> result = super.visitInterfaceDeclaration(ctx);
 
-        log(Level.FINEST, "visitInterfaceDeclaration", "calling parent, result = "
+        log(Level.FINEST, "visitInterfaceDeclaration", "calling base, result = "
                 + Lists.newArrayList(result).toString());
 
         String className = ctx.Identifier().getText();
@@ -250,7 +154,7 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
 
             log(Level.FINEST, "visitPrimary", "identifier (template) text = " + identifier.getText());
 
-            return processIdentifier(identifier, SignatureReplacementVisitor.NONE);
+            return processIdentifier(identifier, ReplacementVisitorBase.NONE);
         }
 
         log(Level.FINEST, "visitPrimary", "identifier (NON template) text = " + ctx.Identifier());
@@ -324,7 +228,7 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
         if (ctx.type() != null) {
             replacements.addAll(visitType(ctx.type()));
         }
-        replacements.addAll(processIdentifier(ctx.Identifier(), SignatureReplacementVisitor.NONE));
+        replacements.addAll(processIdentifier(ctx.Identifier(), ReplacementVisitorBase.NONE));
 
         log(Level.FINEST, "visitMethodDeclaration", "replacements after processIdentifier = "
                 + Lists.newArrayList(replacements).toString());
@@ -353,13 +257,13 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
     public List<Replacement> visitIdentifierTypeOrDiamondPair(final IdentifierTypeOrDiamondPairContext ctx) {
 
         if (ctx.typeArgumentsOrDiamond() == null) {
-            return processIdentifier(ctx.Identifier(), SignatureReplacementVisitor.NONE);
+            return processIdentifier(ctx.Identifier(), ReplacementVisitorBase.NONE);
         }
 
-        final List<Replacement> replacements = new ArrayList<>();
-        String identifier = ctx.Identifier().getText();
+        List<Replacement> replacements = new ArrayList<>();
+        final String identifier = ctx.Identifier().getText();
 
-        log(Level.FINE, "visitIdentifierTypeOrDiamondPair", "identifier = " + identifier);
+        log(Level.FINEST, "visitIdentifierTypeOrDiamondPair", "identifier = " + identifier);
 
         if (ctx.typeArgumentsOrDiamond().getText().equals("<>")) {
 
@@ -394,28 +298,8 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
         log(Level.FINEST, "visitIdentifierTypeOrDiamondPair", "replacements after diamond pair = "
                 + Lists.newArrayList(replacements).toString());
 
-        int typeBoundIndex = 0;
-
-        if (identifier.contains("KType")) {
-
-            final TypeBound bb = typeBounds.get(typeBoundIndex++);
-            if (bb.isTemplateType()) {
-                identifier = identifier.replace("KType", bb.getBoxedType());
-            } else {
-                identifier = identifier.replace("KType", "Object");
-            }
-        }
-
-        if (identifier.contains("VType")) {
-            final TypeBound bb = typeBounds.get(typeBoundIndex++);
-            if (bb.isTemplateType()) {
-                identifier = identifier.replace("VType", bb.getBoxedType());
-            } else {
-                identifier = identifier.replace("VType", "Object");
-            }
-        }
-
-        replacements.add(new Replacement(ctx.Identifier().getText(), ctx.Identifier(), identifier));
+        //Process the leftmost terminal identifier
+        replacements = processIdentifierWithBounds(ctx.Identifier(), typeBounds, replacements);
 
         log(Level.FINEST, "visitIdentifierTypeOrDiamondPair",
                 "replacements after enclosing identifier final replacement = " + Lists.newArrayList(replacements).toString());
@@ -426,7 +310,7 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
     @Override
     public List<Replacement> visitCreatedName(final CreatedNameContext ctx) {
 
-        log(Level.FINEST, "visitCreatedName", "calling parent...");
+        log(Level.FINEST, "visitCreatedName", "calling base...");
 
         return super.visitCreatedName(ctx);
     }
@@ -434,15 +318,16 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
     @Override
     public List<Replacement> visitIdentifierTypePair(final IdentifierTypePairContext ctx) {
 
-        String identifier = ctx.Identifier().getText();
+        final String identifier = ctx.Identifier().getText();
 
-        log(Level.FINEST, "visitIdentifierTypePair", "identifier = " + identifier);
+        log(Level.FINEST, "visitIdentifierTypePair", "identifier or expression = " + identifier);
 
-        if (isTemplateIdentifier(identifier)) {
+        //TODO:
+        if (isTemplateIdentifier(identifier) && isTerminalTypeIdentifier(ctx)) {
 
             if (ctx.typeArguments() != null) {
 
-                final List<Replacement> replacements = new ArrayList<>();
+                List<Replacement> replacements = new ArrayList<>();
                 final List<TypeBound> typeBounds = new ArrayList<>();
 
                 final Deque<Type> wildcards = getWildcards();
@@ -452,45 +337,34 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
                 }
                 replacements.add(new Replacement(ctx.typeArguments().getText(), ctx.typeArguments(), toString(typeBounds)));
 
-                int typeBoundIndex = 0;
-                if (identifier.contains("KType")) {
-                    final TypeBound bb = typeBounds.get(typeBoundIndex++);
-                    if (bb.isTemplateType()) {
-                        identifier = identifier.replace("KType", bb.getBoxedType());
-                    } else {
-                        identifier = identifier.replace("KType", "Object");
-                    }
-                }
-                if (identifier.contains("VType")) {
-                    final TypeBound bb = typeBounds.get(typeBoundIndex++);
-                    if (bb.isTemplateType()) {
-                        identifier = identifier.replace("VType", bb.getBoxedType());
-                    } else {
-                        identifier = identifier.replace("VType", "Object");
-                    }
-                }
-                replacements.add(new Replacement(ctx.Identifier().getText(), ctx.Identifier(), identifier));
+                //Process the leftmost terminal identifier
+                replacements = processIdentifierWithBounds(ctx.Identifier(), typeBounds, replacements);
 
                 log(Level.FINEST, "visitIdentifierTypePair",
                         "non-null template replacements = " + Lists.newArrayList(replacements));
 
                 return replacements;
-            }
+            } //end if ctx.typeArguments() != null
 
-            return processIdentifier(ctx.Identifier(), SignatureReplacementVisitor.NONE);
+            //Translate the terminal symbols
+            return processIdentifier(ctx.Identifier(), ReplacementVisitorBase.NONE);
+
         }
-
+        //Explore the children
         return super.visitIdentifierTypePair(ctx);
     }
 
     @Override
     public List<Replacement> visitQualifiedName(final QualifiedNameContext ctx) {
 
-        List<Replacement> replacements = SignatureReplacementVisitor.NONE;
+        List<Replacement> replacements = ReplacementVisitorBase.NONE;
 
         for (final TerminalNode identifier : ctx.Identifier()) {
+
             String symbol = identifier.getText();
+
             if (isTemplateIdentifier(symbol)) {
+
                 if (symbol.contains("KType")) {
                     symbol = symbol.replace("KType", this.templateOptions.getKType().getBoxedType());
                 }
@@ -498,130 +372,15 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
                     symbol = symbol.replace("VType", this.templateOptions.getVType().getBoxedType());
                 }
 
-                if (replacements == SignatureReplacementVisitor.NONE) {
+                if (replacements == ReplacementVisitorBase.NONE) {
                     replacements = new ArrayList<>();
                 }
                 replacements.add(new Replacement(identifier.getText(), identifier, symbol));
             }
-
         }
+
         log(Level.FINEST, "visitQualifiedName", "replacements = " + Lists.newArrayList(replacements));
 
         return replacements;
     }
-
-    @Override
-    protected List<Replacement> defaultResult() {
-        return SignatureReplacementVisitor.NONE;
-    }
-
-    @Override
-    protected List<Replacement> aggregateResult(final List<Replacement> first, final List<Replacement> second) {
-
-        if (second.size() == 0) {
-            return first;
-        }
-
-        if (first.size() == 0) {
-            return second;
-        }
-
-        // Treat partial results as immutable.
-        final List<Replacement> result = new ArrayList<Replacement>();
-        result.addAll(first);
-        result.addAll(second);
-        return result;
-    }
-
-    private ArrayDeque<Type> getWildcards() {
-
-        final ArrayDeque<Type> deque = new ArrayDeque<>();
-
-        if (this.templateOptions.hasKType()) {
-            deque.addLast(this.templateOptions.getKType());
-        }
-
-        if (this.templateOptions.hasVType()) {
-            deque.addLast(this.templateOptions.getVType());
-        }
-
-        return deque;
-    }
-
-    private List<Replacement> processIdentifier(final TerminalNode ctx, List<Replacement> replacements) {
-
-        String identifier = ctx.getText();
-
-        if (isTemplateIdentifier(identifier)) {
-
-            replacements = new ArrayList<>(replacements);
-            switch (identifier) {
-            case "KType":
-                identifier = this.templateOptions.isKTypePrimitive() ? this.templateOptions.getKType().getType() : "KType";
-                break;
-            case "VType":
-                identifier = this.templateOptions.isVTypePrimitive() ? this.templateOptions.getVType().getType() : "VType";
-                break;
-            default:
-                if (identifier.contains("KType")) {
-                    identifier = identifier.replace("KType", this.templateOptions.getKType().getBoxedType());
-                }
-                if (identifier.contains("VType")) {
-                    identifier = identifier.replace("VType", this.templateOptions.getVType().getBoxedType());
-                }
-                break;
-            }
-            replacements.add(new Replacement(ctx.getText(), ctx, identifier));
-        } //end if isTemplateIdentifier
-
-        log(Level.FINEST, "processIdentifier", "input replacements = " + Lists.newArrayList(replacements));
-
-        return replacements;
-    }
-
-    private String toString(final List<TypeBound> typeBounds) {
-
-        final List<String> parts = new ArrayList<>();
-
-        for (final TypeBound tb : typeBounds) {
-
-            if (tb.isTemplateType()) {
-                if (!tb.templateBound().isGeneric()) {
-                    continue;
-                }
-            }
-            parts.add(tb.originalBound());
-        }
-        return parts.isEmpty() ? "" : "<" + join(", ", parts) + ">";
-    }
-
-    private String join(final String on, final Iterable<String> parts) {
-
-        final StringBuilder out = new StringBuilder();
-        boolean prependOn = false;
-        for (final String part : parts) {
-            if (prependOn) {
-                out.append(on);
-            } else {
-                prependOn = true;
-            }
-            out.append(part);
-        }
-        return out.toString();
-    }
-
-    private boolean isTemplateIdentifier(final String symbol) {
-        return symbol.contains("KType") || symbol.contains("VType");
-    }
-
-    /**
-     * log shortcut
-     * @param lvl
-     * @param message
-     */
-    private void log(final Level lvl, final String methodName, final String message) {
-
-        Logger.getLogger(SignatureReplacementVisitor.class.getName()).log(lvl, methodName + " - " + message);
-    }
-
 }

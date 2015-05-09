@@ -1,11 +1,10 @@
 package com.carrotsearch.hppcrt.generator.parser;
 
-import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.SyntaxTree;
 
 /** */
-final class Replacement
+public final class Replacement
 {
     public final Interval interval;
     public final String source;
@@ -26,6 +25,6 @@ final class Replacement
 
     @Override
     public String toString() {
-        return "'" + this.source + "'(" + this.interval + ") => '" + this.replacement + "'";
+        return "{'" + this.source + "'(" + this.interval + ") => '" + this.replacement + "'}";
     }
 }

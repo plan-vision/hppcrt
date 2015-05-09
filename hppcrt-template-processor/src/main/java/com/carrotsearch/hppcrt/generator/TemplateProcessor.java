@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -84,7 +83,7 @@ public final class TemplateProcessor
 
             if (level <= 2) {
 
-                logInfo("[VELOCITY]-" + level + " : " + message);
+                logConf("[VELOCITY]-" + level + " : " + message);
             }
         }
 
@@ -93,7 +92,7 @@ public final class TemplateProcessor
 
             if (level <= 2) {
 
-                logInfo("[VELOCITY]-" + level + "-!!EXCEPTION!! : " + message + " , exception msg: "
+                logConf("[VELOCITY]-" + level + "-!!EXCEPTION!! : " + message + " , exception msg: "
                         + t.getMessage());
             }
         }
@@ -187,8 +186,8 @@ public final class TemplateProcessor
     /**
      * 
      */
-    public void setVerbose(final String verbose) {
-        this.verbose = Level.parse(verbose);
+    public void setVerbose(final String verboseLevel) {
+        this.verbose = Level.parse(verboseLevel);
 
         TemplateProcessor.setLoggerlevel(TemplateProcessor.getLog(), this.verbose);
     }
@@ -223,8 +222,8 @@ public final class TemplateProcessor
      */
     public void execute() {
 
-        logInfo("Incremental compilation : " + this.incremental);
-        logInfo("Verbose level : " + this.verbose);
+        logConf("Incremental compilation : " + this.incremental);
+        logConf("Verbose level : " + this.verbose);
 
         initVelocity();
 
@@ -235,11 +234,11 @@ public final class TemplateProcessor
         final List<TemplateFile> inputs = collectTemplateFiles(new ArrayList<TemplateFile>(), this.templatesDir);
 
         // Process templates
-        logInfo("Processing " + inputs.size() + " templates to: '" + this.outputDir.getPath() + "'\n");
+        logConf("Processing " + inputs.size() + " templates to: '" + this.outputDir.getPath() + "'\n");
         final long start = System.currentTimeMillis();
         processTemplates(inputs, outputs);
         final long end = System.currentTimeMillis();
-        logInfo(String.format(Locale.ROOT, "\nProcessed in %.2f sec.\n", (end - start) * 1e-3));
+        logConf(String.format(Locale.ROOT, "\nProcessed in %.2f sec.\n", (end - start) * 1e-3));
 
         // Remove non-marked files.
         int generated = 0;
@@ -249,7 +248,7 @@ public final class TemplateProcessor
             if (!f.generated) {
                 deleted++;
 
-                TemplateProcessor.getLog().fine("Deleted: " + f.file);
+                log(Level.FINE, "Deleted: " + f.file);
 
                 f.file.delete();
             }
@@ -261,12 +260,12 @@ public final class TemplateProcessor
             if (f.updated) {
                 updated++;
 
-                TemplateProcessor.getLog().fine("Updated: " + relativePath(f.file, this.outputDir));
+                log(Level.FINE, "Updated: " + relativePath(f.file, this.outputDir));
 
             }
         }
 
-        logInfo("Generated " + generated + " files (" + updated + " updated, " + deleted + " deleted).");
+        logConf("Generated " + generated + " files (" + updated + " updated, " + deleted + " deleted).");
     }
 
     /**
@@ -277,9 +276,9 @@ public final class TemplateProcessor
         final VelocityContext ctx = new VelocityContext();
 
         ctx.put("TemplateOptions", options);
-        ctx.put("true", true);
-        ctx.put("templateOnly", false);
-        ctx.put("false", false);
+        ctx.put("true", Boolean.TRUE);
+        ctx.put("templateOnly", Boolean.FALSE);
+        ctx.put("false", Boolean.FALSE);
 
         //Attach some GenericTools that may be useful for code generation :
         ctx.put("esct", new EscapeTool());
@@ -621,9 +620,7 @@ public final class TemplateProcessor
 
         try {
 
-            final Path path = Paths.get(file.getAbsolutePath());
-
-            return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+            return new String(Files.readAllBytes(Paths.get(file.getAbsolutePath())), StandardCharsets.UTF_8);
 
         } catch (final Exception e) {
 
@@ -752,7 +749,7 @@ public final class TemplateProcessor
     }
 
     /**
-     * Get an standard java.util.logger instance
+     * Get a standard java.util.logger instance
      * @return
      */
     private static Logger getLog() {
@@ -773,20 +770,21 @@ public final class TemplateProcessor
     /**
      * Log config messages
      */
-    private void logInfo(final String message) {
+    private void logConf(final String message) {
 
         log(Level.CONFIG, message);
     }
 
     /**
-     * Command line entry point run: [template source dir] [output dir] (option:
+     * Command line entry point: [template source dir] [output dir] (option:
      * [additional template deps]) Also read the properties:
-     * -Dincremental=[true|false], default false, -Dverbose=[OFF|SEVERE|CONFIG|INFO|FINE|FINEST],
+     * -Dincremental=[true|false], default false, -Dverbose=[OFF|SEVERE|CONFIG|INFO|WARNING|FINE|FINEST],
      * default full
      */
     public static void main(final String[] args) {
 
         final TemplateProcessor processor = new TemplateProcessor();
+
         processor.setTemplatesDir(new File(args[0]));
         processor.setDestDir(new File(args[1]));
 
@@ -803,11 +801,11 @@ public final class TemplateProcessor
         try {
 
             processor.setIncremental(Boolean.valueOf(System.getProperty("incremental", "false")));
-            processor.setVerbose(System.getProperty("verbose", "ALL"));
+            processor.setVerbose(System.getProperty("verbose", Level.ALL.getName()));
 
         } catch (IllegalArgumentException | NullPointerException e) {
 
-            TemplateProcessor.getLog().severe("in properties parsing : " + e.getLocalizedMessage());
+            processor.log(Level.SEVERE, "in properties parsing : " + e.getLocalizedMessage());
         }
 
         processor.execute();
@@ -815,6 +813,8 @@ public final class TemplateProcessor
 
     /**
      * Utility method to set the log levels of all handlers and force formatting
+     * @param logger
+     * @param lvl
      */
     public static void setLoggerlevel(final Logger logger, final Level lvl) {
 
