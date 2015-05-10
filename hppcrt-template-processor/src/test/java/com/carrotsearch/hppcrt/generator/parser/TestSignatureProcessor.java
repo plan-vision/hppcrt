@@ -268,9 +268,14 @@ public class TestSignatureProcessor
     public void testFullClass() throws IOException {
 
         final String testedPath = TestSignatureProcessor.TEST_CASE_PATH + "KTypeVTypeClass.java";
+
         final String expectedLongObjectTest = TestSignatureProcessor.TEST_CASE_PATH + "LongObjectClass.ok";
+        final String expectedLongIntTest = TestSignatureProcessor.TEST_CASE_PATH + "LongIntClass.ok";
+        final String expectedObjectlongTest = TestSignatureProcessor.TEST_CASE_PATH + "ObjectlongClass.ok";
 
         compareWithReferenceFile(new TemplateOptions(Type.LONG, Type.GENERIC), testedPath, expectedLongObjectTest);
+        compareWithReferenceFile(new TemplateOptions(Type.LONG, Type.INT), testedPath, expectedLongIntTest);
+        compareWithReferenceFile(new TemplateOptions(Type.GENERIC, Type.LONG), testedPath, expectedObjectlongTest);
     }
 
     @Test

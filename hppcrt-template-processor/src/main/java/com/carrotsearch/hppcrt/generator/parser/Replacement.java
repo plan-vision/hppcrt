@@ -41,7 +41,7 @@ public final class Replacement
      * @param replacements
      * @return
      */
-    public static ArrayList<Replacement> sort(final Collection<Replacement> replacements) {
+    public static ArrayList<Replacement> sortList(final Collection<Replacement> replacements) {
 
         final ArrayList<Replacement> sorted = new ArrayList<Replacement>(replacements);
 
@@ -62,8 +62,9 @@ public final class Replacement
      */
     public static String toString(final Collection<Replacement> replacements) {
 
-        final ArrayList<Replacement> sorted = Replacement.sort(replacements);
+        final ArrayList<Replacement> sorted = Replacement.sortList(replacements);
 
         return sorted.toString();
     }
+
 }

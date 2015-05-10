@@ -146,7 +146,7 @@ public class SignatureProcessor
 
         //1) Be safe by first ordering the replacements by their intervals.
         //so that we can replace stream-like from beginning to end.
-        final ArrayList<Replacement> sorted = Replacement.sort(replacements);
+        final ArrayList<Replacement> sorted = Replacement.sortList(replacements);
 
         //1-2) Control that replacements are consistent, i.e no one must overlap with a neigbour, else something
         //has gone wrong, and either way we wouldn't know how to replace that.
@@ -225,10 +225,7 @@ public class SignatureProcessor
         final Future<JDialog> dialog = ctx.inspect(this.parser);
 
         try {
-            dialog.get().setVisible(false);
-            dialog.get().setModalityType(ModalityType.MODELESS); //with refresh of Visibility in order to force modeless mode.
             dialog.get().setTitle(title);
-            dialog.get().setVisible(true);
 
         } catch (InterruptedException | ExecutionException e) {
             //nothing
