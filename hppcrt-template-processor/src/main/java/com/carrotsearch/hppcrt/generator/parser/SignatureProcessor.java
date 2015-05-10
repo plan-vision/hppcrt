@@ -144,16 +144,9 @@ public class SignatureProcessor
             final Collection<Replacement> replacements,
             final TemplateOptions templateOptions) {
 
-        final ArrayList<Replacement> sorted = new ArrayList<>(replacements);
-
         //1) Be safe by first ordering the replacements by their intervals.
         //so that we can replace stream-like from beginning to end.
-        Collections.sort(sorted, new Comparator<Replacement>() {
-            @Override
-            public int compare(final Replacement a, final Replacement b) {
-                return Integer.compare(a.interval.a, b.interval.b);
-            }
-        });
+        final ArrayList<Replacement> sorted = Replacement.sort(replacements);
 
         //1-2) Control that replacements are consistent, i.e no one must overlap with a neigbour, else something
         //has gone wrong, and either way we wouldn't know how to replace that.

@@ -140,7 +140,7 @@ public class SignatureReplacementVisitor extends ReplacementVisitorBase
 
         final List<Replacement> results = processIdentifier(ctx.Identifier(), super.visitConstructorDeclaration(ctx));
 
-        log(Level.FINEST, "visitConstructorDeclaration", "results = " + Lists.newArrayList(results).toString());
+        log(Level.FINEST, "visitConstructorDeclaration", "results = " + Replacement.toString(results));
 
         return results;
     }
@@ -231,24 +231,24 @@ public class SignatureReplacementVisitor extends ReplacementVisitorBase
         replacements.addAll(processIdentifier(ctx.Identifier(), ReplacementVisitorBase.NONE));
 
         log(Level.FINEST, "visitMethodDeclaration", "replacements after processIdentifier = "
-                + Lists.newArrayList(replacements).toString());
+                + Replacement.toString(replacements));
 
         replacements.addAll(visitFormalParameters(ctx.formalParameters()));
 
         log(Level.FINEST, "visitMethodDeclaration", "replacements after visitFormalParameters = "
-                + Lists.newArrayList(replacements).toString());
+                + Replacement.toString(replacements));
 
         if (ctx.qualifiedNameList() != null) {
             replacements.addAll(visitQualifiedNameList(ctx.qualifiedNameList()));
         }
 
         log(Level.FINEST, "visitMethodDeclaration", "replacements after visitQualifiedNameList = "
-                + Lists.newArrayList(replacements).toString());
+                + Replacement.toString(replacements));
 
         replacements.addAll(visitMethodBody(ctx.methodBody()));
 
         log(Level.FINEST, "visitMethodDeclaration", "replacements after visitMethodBody = "
-                + Lists.newArrayList(replacements).toString());
+                + Replacement.toString(replacements));
 
         return replacements;
     }
@@ -269,40 +269,51 @@ public class SignatureReplacementVisitor extends ReplacementVisitorBase
 
             if (identifier.contains("KType") && this.templateOptions.isKTypePrimitive()
                     && (!identifier.contains("VType") || this.templateOptions.isVTypePrimitive())) {
+
                 replacements.add(new Replacement(identifier, ctx.typeArgumentsOrDiamond(), ""));
             }
 
             log(Level.FINEST, "visitIdentifierTypeOrDiamondPair", "replacements after '<>' = "
-                    + Lists.newArrayList(replacements).toString());
+                    + Replacement.toString(replacements));
 
+            //process left-most identifier.
             return processIdentifier(ctx.Identifier(), replacements);
         }
 
+        //There are complex types to the right of identifiers
         final List<TypeBound> typeBounds = new ArrayList<>();
         final TypeArgumentsContext typeArguments = ctx.typeArgumentsOrDiamond().typeArguments();
 
         final Deque<Type> wildcards = getWildcards();
 
         //enumerate typeArguments: they could be complex, (type within type...), so visit them recursively.
+        final boolean isTerminal = isTerminalTypeIdentifier(typeArguments);
+
         for (final TypeArgumentContext c : typeArguments.typeArgument()) {
 
-            //TODO: Added :
-            replacements.addAll(super.visitTypeArgument(c));
+            //TODO: VSO Added : visit subtypes ...
+            if (!isTerminal) {
+                replacements.addAll(new ArrayList<>(super.visitTypeArgument(c)));
 
-            typeBounds.add(typeBoundOf(c, wildcards));
+            } else {
+
+                typeBounds.add(typeBoundOf(c, wildcards));
+            }
         }
 
-        //TODO : Remove ?
-        //replacements.add(new Replacement(typeArguments.getText(), typeArguments, toString(typeBounds)));
+        //if args at the right of Identifier() are "terminal ones" (generics without sub-generics) do a replacement.
+        if (isTerminal) {
+            replacements.add(new Replacement(typeArguments.getText(), typeArguments, toString(typeBounds)));
+        }
 
-        log(Level.FINEST, "visitIdentifierTypeOrDiamondPair", "replacements after diamond pair = "
-                + Lists.newArrayList(replacements).toString());
+        log(Level.FINEST, "visitIdentifierTypeOrDiamondPair", "replacements after children typeArgument = "
+                + Replacement.toString(replacements));
 
         //Process the leftmost terminal identifier
-        replacements = processIdentifierWithBounds(ctx.Identifier(), typeBounds, replacements);
+        replacements = processIdentifier(ctx.Identifier(), replacements);
 
         log(Level.FINEST, "visitIdentifierTypeOrDiamondPair",
-                "replacements after enclosing identifier final replacement = " + Lists.newArrayList(replacements).toString());
+                "replacements after enclosing identifier final replacement = " + Replacement.toString(replacements));
 
         return replacements;
     }
@@ -319,20 +330,21 @@ public class SignatureReplacementVisitor extends ReplacementVisitorBase
     public List<Replacement> visitIdentifierTypePair(final IdentifierTypePairContext ctx) {
 
         final String identifier = ctx.Identifier().getText();
+        List<Replacement> replacements = new ArrayList<>();
 
         log(Level.FINEST, "visitIdentifierTypePair", "identifier or expression = " + identifier);
 
-        //TODO:
-        if (isTemplateIdentifier(identifier) && isTerminalTypeIdentifier(ctx)) {
+        //TODO: Only terminal ?
+        if (isTerminalTypeIdentifier(ctx.typeArguments()) || ctx.getChildCount() == 1) {
 
             if (ctx.typeArguments() != null) {
 
-                List<Replacement> replacements = new ArrayList<>();
                 final List<TypeBound> typeBounds = new ArrayList<>();
 
                 final Deque<Type> wildcards = getWildcards();
 
                 for (final TypeArgumentContext c : ctx.typeArguments().typeArgument()) {
+
                     typeBounds.add(typeBoundOf(c, wildcards));
                 }
                 replacements.add(new Replacement(ctx.typeArguments().getText(), ctx.typeArguments(), toString(typeBounds)));
@@ -341,17 +353,26 @@ public class SignatureReplacementVisitor extends ReplacementVisitorBase
                 replacements = processIdentifierWithBounds(ctx.Identifier(), typeBounds, replacements);
 
                 log(Level.FINEST, "visitIdentifierTypePair",
-                        "non-null template replacements = " + Lists.newArrayList(replacements));
+                        "non-null template replacements = " + Replacement.toString(replacements));
 
                 return replacements;
             } //end if ctx.typeArguments() != null
 
+            //TODO:
             //Translate the terminal symbols
-            return processIdentifier(ctx.Identifier(), ReplacementVisitorBase.NONE);
+            replacements = processIdentifier(ctx.Identifier(), ReplacementVisitorBase.NONE);
 
+        }  //end if isTerminal
+        else {
+
+            //TODO: Process the left-most identifier.
+            replacements = processIdentifier(ctx.Identifier(), ReplacementVisitorBase.NONE);
+
+            //else NOT terminal: Explore the children...
+            replacements.addAll(new ArrayList<>(super.visitIdentifierTypePair(ctx)));
         }
-        //Explore the children
-        return super.visitIdentifierTypePair(ctx);
+
+        return replacements;
     }
 
     @Override
@@ -379,7 +400,7 @@ public class SignatureReplacementVisitor extends ReplacementVisitorBase
             }
         }
 
-        log(Level.FINEST, "visitQualifiedName", "replacements = " + Lists.newArrayList(replacements));
+        log(Level.FINEST, "visitQualifiedName", "replacements = " + Replacement.toString(replacements));
 
         return replacements;
     }

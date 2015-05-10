@@ -2,6 +2,7 @@ package com.carrotsearch.hppcrt.generator.parser;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
@@ -9,7 +10,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.antlr.v4.runtime.tree.xpath.XPath;
 
 import com.carrotsearch.hppcrt.generator.TemplateOptions;
 import com.carrotsearch.hppcrt.generator.TemplateProcessor;
@@ -27,11 +30,15 @@ public class ReplacementVisitorBase extends Java7ParserBaseVisitor<List<Replacem
 
     private final Logger logger;
 
+    private final XPath terminalTypeIdentifierPath;
+
     public ReplacementVisitorBase(final TemplateOptions templateOptions, final SignatureProcessor processor, final Logger traceLogger) {
 
         this.templateOptions = templateOptions;
         this.processor = processor;
         this.logger = traceLogger;
+
+        this.terminalTypeIdentifierPath = new XPath(this.processor.parser, "/typeArgument/type/classOrInterfaceType/identifierTypePair/*");
 
         TemplateProcessor.setLoggerlevel(traceLogger, this.templateOptions.verbose);
     }
@@ -150,9 +157,11 @@ public class ReplacementVisitorBase extends Java7ParserBaseVisitor<List<Replacem
 
         String identifier = ctx.getText();
 
+        //always make an independent copy
+        replacements = new ArrayList<>(replacements);
+
         if (isTemplateIdentifier(identifier)) {
 
-            replacements = new ArrayList<>(replacements);
             switch (identifier) {
             case "KType":
                 identifier = this.templateOptions.isKTypePrimitive() ? this.templateOptions.getKType().getType() : "KType";
@@ -172,7 +181,7 @@ public class ReplacementVisitorBase extends Java7ParserBaseVisitor<List<Replacem
             replacements.add(new Replacement(ctx.getText(), ctx, identifier));
         } //end if isTemplateIdentifier
 
-        log(Level.FINEST, "processIdentifier", "input replacements = " + Lists.newArrayList(replacements));
+        log(Level.FINEST, "processIdentifier", "intput= '" + ctx.getText() + "', result= " + Replacement.toString(replacements));
 
         return replacements;
     }
@@ -180,13 +189,18 @@ public class ReplacementVisitorBase extends Java7ParserBaseVisitor<List<Replacem
     /**
      * Process the Terminal Node according to specified bounds. Append the resulting replacement
      * into existing replacements.
+     * @param ctxIdentifier
+     * @param typeBounds
      * @param ctx
      * @param replacements
      * @return
      */
-    protected List<Replacement> processIdentifierWithBounds(final TerminalNode ctxIdentifier, final List<TypeBound> typeBounds, final List<Replacement> replacements) {
+    protected List<Replacement> processIdentifierWithBounds(final TerminalNode ctxIdentifier, final List<TypeBound> typeBounds, List<Replacement> replacements) {
 
         String identifier = ctxIdentifier.getText();
+
+        //always make an independent copy
+        replacements = new ArrayList<>(replacements);
 
         if (identifier.contains("KType") && typeBounds.size() >= 1) {
 
@@ -206,6 +220,8 @@ public class ReplacementVisitorBase extends Java7ParserBaseVisitor<List<Replacem
                 identifier = identifier.replace("VType", "Object");
             }
         }
+
+        log(Level.FINEST, "processIdentifierWithBounds", "intput= '" + ctxIdentifier.getText() + "', result= '" + identifier + "'");
 
         replacements.add(new Replacement(ctxIdentifier.getText(), ctxIdentifier, identifier));
 
@@ -266,30 +282,38 @@ public class ReplacementVisitorBase extends Java7ParserBaseVisitor<List<Replacem
     }
 
     /**
-     * True if the string represents a "terminal" KType/VType parameters
-     * ex: {@code Foo<KType>, KTypeFoo<KType>, KTypeVTypeFoo<KType, VType>..... }
+     * True if the string represents a "terminal" TypeArguments generic parameters
+     * ex: {@code in Foo<KType>, KTypeFoo<KType, A>, KTypeVTypeFoo<KType, VType>..... }
      * <p>
      * but NOT: {@code KTypeFoo<KTypeInner<KType>> }
      * @param ctx
      * @return
      */
-    protected boolean isTerminalTypeIdentifier(final IdentifierTypePairContext ctx) {
+    protected boolean isTerminalTypeIdentifier(final TypeArgumentsContext ctx) {
 
         boolean isTerminal = false;
 
-        if (ctx.typeArguments() != null) {
+        if (ctx != null && ctx.typeArgument().size() > 0) {
 
             isTerminal = true;
 
-            for (final TypeArgumentContext c : ctx.typeArguments().typeArgument()) {
+            //enumerate all single typeArgument
+            for (final TypeArgumentContext typeArg : ctx.typeArgument()) {
 
-                if (!c.getText().equals("KType") && !c.getText().equals("VType")) {
+                if (typeArg.getChildCount() == 1 && typeArg.getChild(0) instanceof TerminalNode) {
+
+                    continue; //end immediately on a terminal symbol.
+                }
+
+                final Collection<ParseTree> testResult = this.terminalTypeIdentifierPath.evaluate(typeArg);
+
+                if (!(testResult.size() == 1 && testResult.iterator().next().getChildCount() == 0)) {
 
                     isTerminal = false;
                     break;
                 }
             }
-        } //end if have
+        } //endif ctx != null && ctx.typeArgument().size() > 0
 
         return isTerminal;
     }
