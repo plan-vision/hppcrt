@@ -5,7 +5,6 @@ package com.carrotsearch.hppcrt.strategies;
  * Interface to support custom hashing strategies in Hash containers using <code>KType</code>s
  * keys, as replacement of the original equals() and hashCode() methods.
  * 
- * @param <T>
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public interface KTypeHashingStrategy<KType>

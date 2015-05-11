@@ -99,7 +99,7 @@ public class KTypeArrayList<KType>
 
     /**
      * Create with default sizing strategy and initial capacity for storing
-     * {@value #DEFAULT_CAPACITY} elements.
+     * {@value Containers#DEFAULT_EXPECTED_ELEMENTS} elements.
      * 
      * @see BoundedProportionalArraySizingStrategy
      */
@@ -635,7 +635,6 @@ public class KTypeArrayList<KType>
     /**
      * {@inheritDoc}
      * 
-     * @return
      */
     @Override
     public ValueIterator iterator() {
@@ -830,8 +829,8 @@ public class KTypeArrayList<KType>
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
     /*! #else
-            KTypeComparator<? super KType>
-            #end !*/
+                    KTypeComparator<? super KType>
+                    #end !*/
     comp) {
         assert endIndex <= this.elementsCount;
 

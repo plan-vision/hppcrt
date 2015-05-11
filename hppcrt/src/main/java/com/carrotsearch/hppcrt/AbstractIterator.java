@@ -14,7 +14,7 @@ public abstract class AbstractIterator<E> implements Iterator<E>
     private final static int AT_END = 2;
 
     /** Current iterator state. */
-    private int state = NOT_CACHED;
+    private int state = AbstractIterator.NOT_CACHED;
 
     /**
      * true if the iterator is in the pool (i.e free)
@@ -28,7 +28,6 @@ public abstract class AbstractIterator<E> implements Iterator<E>
      */
     private E nextElement;
 
-
     /**
      * The {@link IteratorPool} the iterator comes from, if any. (if != null).
      */
@@ -40,22 +39,22 @@ public abstract class AbstractIterator<E> implements Iterator<E>
     @Override
     public boolean hasNext()
     {
-        if (state == NOT_CACHED)
+        if (this.state == AbstractIterator.NOT_CACHED)
         {
-            state = CACHED;
-            nextElement = fetch();
+            this.state = AbstractIterator.CACHED;
+            this.nextElement = fetch();
         }
 
         //if there is an attached pool, auto-release this object when there is no element left.
         //this is especially useful in case of the for-each construct, which release
         //the hidden iterator automatically when exiting the fully iterated for-each.
-        if (state == AT_END && this.iteratorPool != null && !this.isFree)
+        if (this.state == AbstractIterator.AT_END && this.iteratorPool != null && !this.isFree)
         {
             this.iteratorPool.release(this);
             this.isFree = true;
         }
 
-        return (state == CACHED);
+        return (this.state == AbstractIterator.CACHED);
     }
 
     /**
@@ -64,11 +63,12 @@ public abstract class AbstractIterator<E> implements Iterator<E>
     @Override
     public E next()
     {
-        if (!hasNext())
+        if (!hasNext()) {
             throw new NoSuchElementException();
+        }
 
-        state = NOT_CACHED;
-        return nextElement;
+        this.state = AbstractIterator.NOT_CACHED;
+        return this.nextElement;
     }
 
     /**
@@ -92,14 +92,14 @@ public abstract class AbstractIterator<E> implements Iterator<E>
      */
     protected final E done()
     {
-        state = AT_END;
+        this.state = AbstractIterator.AT_END;
         return null;
     }
 
     /**
      * Associate the pool the iterator instance came from.
      */
-    public final void setPool(IteratorPool<E, AbstractIterator<E>> pool)
+    public final void setPool(final IteratorPool<E, AbstractIterator<E>> pool)
     {
         this.iteratorPool = pool;
     }
@@ -110,7 +110,7 @@ public abstract class AbstractIterator<E> implements Iterator<E>
      */
     public final void resetState()
     {
-        state = NOT_CACHED;
+        this.state = AbstractIterator.NOT_CACHED;
     }
 
     /**
@@ -119,7 +119,7 @@ public abstract class AbstractIterator<E> implements Iterator<E>
      */
     public final void setBorrowed()
     {
-        isFree = false;
+        this.isFree = false;
     }
 
     /**
@@ -146,10 +146,9 @@ public abstract class AbstractIterator<E> implements Iterator<E>
     }
 
     /**
-     * returns the pool associated with this current instance of iterator, if any. (!= null)
-     * @return
+     * @return The pool associated with this current instance of iterator, if any. (!= null)
      */
-    public final  IteratorPool<E, AbstractIterator<E>> getPool() {
+    public final IteratorPool<E, AbstractIterator<E>> getPool() {
 
         return this.iteratorPool;
     }

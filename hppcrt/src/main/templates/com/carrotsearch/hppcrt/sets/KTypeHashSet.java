@@ -111,8 +111,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     private final int perturbation = HashContainers.computeUniqueIdentifier(this);
 
     /**
-     * Creates a hash set with the default capacity of {@value #DEFAULT_CAPACITY},
-     * load factor of {@value #DEFAULT_LOAD_FACTOR}.
+     * Creates a hash set with the default capacity of {@value Containers#DEFAULT_EXPECTED_ELEMENTS},
+     * load factor of {@value HashContainers#DEFAULT_LOAD_FACTOR}.
      */
     public KTypeHashSet() {
         this(Containers.DEFAULT_EXPECTED_ELEMENTS, HashContainers.DEFAULT_LOAD_FACTOR);
@@ -120,7 +120,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
     /**
      * Creates a hash set with the given capacity,
-     * load factor of {@value #DEFAULT_LOAD_FACTOR}.
+     * load factor of {@value HashContainers#DEFAULT_LOAD_FACTOR}.
      */
     public KTypeHashSet(final int initialCapacity) {
         this(initialCapacity, HashContainers.DEFAULT_LOAD_FACTOR);
@@ -814,7 +814,6 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     /**
      * {@inheritDoc}
      * 
-     * @return
      */
     @Override
     public EntryIterator iterator() {

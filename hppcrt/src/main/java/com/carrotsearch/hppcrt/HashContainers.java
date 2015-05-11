@@ -61,7 +61,6 @@ public final class HashContainers
      * 
      * @param elements
      * @param loadFactor
-     * @return
      */
     @SuppressWarnings("boxing")
     public static int minBufferSize(final int elements, final double loadFactor) {
@@ -95,7 +94,6 @@ public final class HashContainers
      * @param arraySize
      * @param elements
      * @param loadFactor
-     * @return
      */
     @SuppressWarnings("boxing")
     public static int nextBufferSize(final int arraySize, final int elements, final double loadFactor) {

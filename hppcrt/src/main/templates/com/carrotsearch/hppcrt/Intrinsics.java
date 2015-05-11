@@ -130,7 +130,7 @@ public final class Intrinsics
     }
 
     /**
-     * Identical as {@link equalsKType} except that
+     * Identical as {@link #equalsKType} except that
      *  e1 Objects are assumed to be not-null.
      */
     public static boolean equalsKTypeNotNull(final Object e1, final Object e2)
@@ -173,7 +173,7 @@ public final class Intrinsics
      * Compare two keys by Comparable<T>.
      * Primitive types comparison result is <code>e1 - e2</code>, except for floating-point types
      * where they're compared by their actual representation bits using the integrated comparison methods
-     * {@link Double#compare(e1 , e2)} and {@link Float#compare(e1, e2)}.
+     * {@link Double#compare} and {@link Float#compare}.
      */
     public static <T extends Comparable<? super T>> int compareKType(final T e1, final T e2)
     {
@@ -193,7 +193,7 @@ public final class Intrinsics
      * Compare two keys by Comparable<T>, unchecked without Comparable signature
      * Primitive types comparison result is <code>e1 - e2</code>, except for floating-point types
      * where they're compared by their actual representation bits using the integrated comparison methods
-     * {@link Double#compare(e1 , e2)} and {@link Float#compare(e1, e2)}.
+     * {@link Double#compare} and {@link Float#compare}.
      */
     @SuppressWarnings("unchecked")
     public static <T> int compareKTypeUnchecked(final T e1, final T e2)
@@ -214,7 +214,7 @@ public final class Intrinsics
      * Compare two keys by Comparable<T>, returns true if e1.compareTo(e2) > 0
      * Primitive types comparison result is <code>e1 > e2</code>, except for floating-point types
      * where they're compared by their actual representation bits using the integrated comparison methods
-     * {@link Double#compare(e1 , e2) > 0} and {@link Float#compare(e1, e2) > 0}.
+     * {@link Double#compare > 0} and {@link Float#compare > 0}.
      */
     public static <T extends Comparable<? super T>> boolean isCompSupKType(final T e1, final T e2)
     {
@@ -234,7 +234,7 @@ public final class Intrinsics
      * Compare two keys by Comparable<T>, unchecked without signature. returns true if e1.compareTo(e2) > 0
      * Primitive types comparison result is <code>e1 > e2</code>, except for floating-point types
      * where they're compared by their actual representation bits using the integrated comparison methods
-     * {@link Double#compare(e1 , e2) > 0} and {@link Float#compare(e1, e2) > 0}.
+     * {@link Double#compare > 0} and {@link Float#compare > 0}.
      */
     @SuppressWarnings("unchecked")
     public static <T> boolean isCompSupKTypeUnchecked(final T e1, final T e2)
@@ -255,7 +255,7 @@ public final class Intrinsics
      * Compare two keys by Comparable<T>, returns true if e1.compareTo(e2) < 0
      * Primitive types comparison result is <code>e1 < e2</code>, except for floating-point types
      * where they're compared by their actual representation bits using the integrated comparison methods
-     * {@link Double#compare(e1 , e2) < 0} and {@link Float#compare(e1, e2) < 0}.
+     * {@link Double#compare < 0} and {@link Float#compare < 0}.
      */
     public static <T extends Comparable<? super T>> boolean isCompInfKType(final T e1, final T e2)
     {
@@ -275,7 +275,7 @@ public final class Intrinsics
      * Compare two keys by Comparable<T>, unchecked without signature. returns true if e1.compareTo(e2) < 0
      * Primitive types comparison result is <code>e1 < e2</code>, except for floating-point types
      * where they're compared by their actual representation bits using the integrated comparison methods
-     * {@link Double#compare(e1 , e2) < 0} and {@link Float#compare(e1, e2) < 0}.
+     * {@link Double#compare < 0} and {@link Float#compare < 0}.
      */
     @SuppressWarnings("unchecked")
     public static <T> boolean isCompInfKTypeUnchecked(final T e1, final T e2)

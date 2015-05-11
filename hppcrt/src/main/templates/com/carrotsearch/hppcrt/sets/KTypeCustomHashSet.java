@@ -53,8 +53,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeCustomHashSet<KType>
-extends AbstractKTypeCollection<KType>
-implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+        extends AbstractKTypeCollection<KType>
+        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Hash-indexed array holding all set entries.
@@ -123,8 +123,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     protected final KTypeHashingStrategy<? super KType> hashStrategy;
 
     /**
-     * Creates a hash set with the default capacity of {@value #DEFAULT_CAPACITY},
-     * load factor of {@value #DEFAULT_LOAD_FACTOR}, using the hashStrategy as {@link KTypeHashingStrategy}
+     * Creates a hash set with the default capacity of {@value Containers#DEFAULT_EXPECTED_ELEMENTS},
+     * load factor of {@value HashContainers#DEFAULT_LOAD_FACTOR}, using the hashStrategy as {@link KTypeHashingStrategy}
      */
     public KTypeCustomHashSet(final KTypeHashingStrategy<? super KType> hashStrategy) {
         this(Containers.DEFAULT_EXPECTED_ELEMENTS, HashContainers.DEFAULT_LOAD_FACTOR, hashStrategy);
@@ -132,7 +132,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
     /**
      * Creates a hash set with the given capacity,
-     * load factor of {@value #DEFAULT_LOAD_FACTOR}, using the hashStrategy as {@link KTypeHashingStrategy}
+     * load factor of {@value HashContainers#DEFAULT_LOAD_FACTOR}, using the hashStrategy as {@link KTypeHashingStrategy}
      */
     public KTypeCustomHashSet(final int initialCapacity, final KTypeHashingStrategy<? super KType> hashStrategy) {
         this(initialCapacity, HashContainers.DEFAULT_LOAD_FACTOR, hashStrategy);
@@ -849,7 +849,6 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     /**
      * {@inheritDoc}
      * 
-     * @return
      */
     @Override
     public EntryIterator iterator() {
@@ -1019,9 +1018,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     }
 
     /**
-     * Return the current {@link HashingStrategy} in use.
-     * 
-     * @return
+     * Returns the current  hashing strategy in use.
      */
     public KTypeHashingStrategy<? super KType> strategy() {
         return this.hashStrategy;

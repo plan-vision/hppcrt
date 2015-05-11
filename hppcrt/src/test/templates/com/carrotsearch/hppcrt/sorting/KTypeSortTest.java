@@ -111,9 +111,9 @@ public class KTypeSortTest<KType> extends AbstractKTypeTest<KType>
     private void sortCertification(final Algorithm algorithm)
     {
         final int[] n_values =
-        {
+            {
                 100, 1023, 1024, 1025, 1024 * 32
-        };
+            };
 
         for (final int n : n_values)
         {
@@ -152,26 +152,26 @@ public class KTypeSortTest<KType> extends AbstractKTypeTest<KType>
         {
             switch (dist)
             {
-                case ORDERED:
-                    x[i] = castComparable(i);
-                    break;
-                case SAWTOOTH:
-                    x[i] = castComparable(i % m);
-                    break;
-                case RANDOM:
-                    x[i] = castComparable(rand.nextInt() % m);
-                    break;
-                case STAGGER:
-                    x[i] = castComparable((i * m + i) % n);
-                    break;
-                case PLATEAU:
-                    x[i] = castComparable(Math.min(i, m));
-                    break;
-                case SHUFFLE:
-                    x[i] = castComparable((rand.nextInt() % m) != 0 ? (j += 2) : (k += 2));
-                    break;
-                default:
-                    throw new RuntimeException();
+            case ORDERED:
+                x[i] = cast(i);
+                break;
+            case SAWTOOTH:
+                x[i] = cast(i % m);
+                break;
+            case RANDOM:
+                x[i] = cast(rand.nextInt() % m);
+                break;
+            case STAGGER:
+                x[i] = cast((i * m + i) % n);
+                break;
+            case PLATEAU:
+                x[i] = cast(Math.min(i, m));
+                break;
+            case SHUFFLE:
+                x[i] = cast((rand.nextInt() % m) != 0 ? (j += 2) : (k += 2));
+                break;
+            default:
+                throw new RuntimeException();
             }
         }
 
@@ -233,8 +233,9 @@ public class KTypeSortTest<KType> extends AbstractKTypeTest<KType>
     private KType[] dither(KType[] x)
     {
         x = copy(x);
-        for (int i = 0; i < x.length; i++)
-            x[i] = castComparable(castType(x[i]) + i % 5);
+        for (int i = 0; i < x.length; i++) {
+            x[i] = cast(castType(x[i]) + i % 5);
+        }
 
         return x;
     }
@@ -277,22 +278,22 @@ public class KTypeSortTest<KType> extends AbstractKTypeTest<KType>
 
         switch (algo)
         {
-            case QUICKSORT:
-                //the supplied KType[] are also Numbers in generics, so are
-                //Comparable
-                final KType[] orderComparable = newArray(order);
+        case QUICKSORT:
+            //the supplied KType[] are also Numbers in generics, so are
+            //Comparable
+            final KType[] orderComparable = newArray(order);
 
-                KTypeSort.quicksort(orderComparable);
-                assertOrder(orderComparable);
-                break;
+            KTypeSort.quicksort(orderComparable);
+            assertOrder(orderComparable);
+            break;
 
-            case QUICKSORT_COMPARATOR:
-                KTypeSort.quicksort(order, comp);
-                assertOrder(order);
-                break;
-            default:
-                Assert.fail();
-                throw new RuntimeException();
+        case QUICKSORT_COMPARATOR:
+            KTypeSort.quicksort(order, comp);
+            assertOrder(order);
+            break;
+        default:
+            Assert.fail();
+            throw new RuntimeException();
         }
     }
 }

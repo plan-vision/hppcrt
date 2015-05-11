@@ -29,7 +29,7 @@ import com.carrotsearch.hppcrt.strategies.*;
  * 
  *<p><b>Warning : This implementation uses direct indexing, meaning that a map
  * at any given time is only able to have <code>int</code> keys in
- * the [0 ; {@link #capacity()}[ range. So when a {@link #put(int, KType)} occurs, the map may be resized to be able hold a key exceeding the current capacity.</b>
+ * the [0 ; {@link #capacity()}[ range. So when a {@link #put} occurs, the map may be resized to be able hold a key exceeding the current capacity.</b>
  * </p>
  */
 /*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
@@ -38,38 +38,38 @@ import com.carrotsearch.hppcrt.strategies.*;
 public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>, Cloneable
 {
     /**
-       * Internal array for storing the priority queue
+     * Internal array for storing the priority queue
         #if ($TemplateOptions.KTypeGeneric)
-       * <p><strong>Important!</strong>
-       * The actual value in this field is always an instance of <code>Object[]</code>.
-       * Be warned that <code>javac</code> emits additional casts when <code>buffer</code>
-       * is directly accessed; <strong>these casts
-       * may result in exceptions at runtime</strong>. A workaround is to cast directly to
-       * <code>Object[]</code> before accessing the buffer's elements (although it is highly
-       * recommended to use a {@link #iterator()} instead.
-       * </pre>
+     * <p><strong>Important!</strong>
+     * The actual value in this field is always an instance of <code>Object[]</code>.
+     * Be warned that <code>javac</code> emits additional casts when <code>buffer</code>
+     * is directly accessed; <strong>these casts
+     * may result in exceptions at runtime</strong>. A workaround is to cast directly to
+     * <code>Object[]</code> before accessing the buffer's elements (although it is highly
+     * recommended to use a {@link #iterator()} instead.
+     * </pre>
       #end
      * <p>
-       * Direct indexed priority queue iteration: iterate pq[i] for i in [0; pq.length[
-       * and buffer[pq[i]] to get value where pq[i] > 0
+     * Direct indexed priority queue iteration: iterate pq[i] for i in [0; pq.length[
+     * and buffer[pq[i]] to get value where pq[i] > 0
      * </p>
      */
     public KType[] buffer;
 
     /**
-       * Internal array for storing index to buffer position matching
-       * i.e for an index i, pq[i] is the position of element in priority queue buffer.
+     * Internal array for storing index to buffer position matching
+     * i.e for an index i, pq[i] is the position of element in priority queue buffer.
      * <p>
-       * Direct iteration: iterate pq[i] for indices i in [0; pq.length[
-       * where pq[i] > 0, then buffer[pq[i]] is the value associated with index i.
+     * Direct iteration: iterate pq[i] for indices i in [0; pq.length[
+     * where pq[i] > 0, then buffer[pq[i]] is the value associated with index i.
      * </p>
      */
     public int[] pq;
 
     /**
-       * Internal array pq inversing :
-       * i.e for a priority buffer position pos, qp[pos] is the index of the value.,
-       * ie qp[pq|i]] = i
+     * Internal array pq inversing :
+     * i.e for a priority buffer position pos, qp[pos] is the index of the value.,
+     * ie qp[pq|i]] = i
      */
     public int[] qp;
 
@@ -79,8 +79,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     protected int elementsCount;
 
     /**
-       * Defines the Comparator ordering of the queue,
-       * If null, natural ordering is used.
+     * Defines the Comparator ordering of the queue,
+     * If null, natural ordering is used.
      */
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     protected Comparator<? super KType> comparator;
@@ -96,8 +96,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     protected final IteratorPool<IntKTypeCursor<KType>, EntryIterator> entryIteratorPool;
 
     /**
-       * Create with a given initial capacity, using a
-       * Comparator for ordering.
+     * Create with a given initial capacity, using a
+     * Comparator for ordering.
      */
     public KTypeIndexedHeapPriorityQueue(
             /*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp,
@@ -135,27 +135,27 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
     /**
      * Create with default sizing strategy and initial capacity for storing
-     * {@value #DEFAULT_CAPACITY} elements.
+     * {@value Containers#DEFAULT_EXPECTED_ELEMENTS} elements.
      * 
      * @see BoundedProportionalArraySizingStrategy
      */
     public KTypeIndexedHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp
     /*! #else
     KTypeComparator<? super KType> comp
-      #end !*/)
+    #end !*/)
     {
         this(comp, Containers.DEFAULT_EXPECTED_ELEMENTS);
     }
 
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     /**
-       * Create with an initial capacity,
-       * using the Comparable natural ordering
+     * Create with an initial capacity,
+     * using the Comparable natural ordering
      */
     /*! #else !*/
     /**
-       * Create with an initial capacity,
-       * using the natural ordering of <code>KType</code>s
+     * Create with an initial capacity,
+     * using the natural ordering of <code>KType</code>s
      */
     /*! #end !*/
     public KTypeIndexedHeapPriorityQueue(final int initialCapacity) {
@@ -171,7 +171,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     }
 
     /**
-       * Create a indexed heap from all key-value pairs of another container.. (constructor shortcut)
+     * Create a indexed heap from all key-value pairs of another container.. (constructor shortcut)
      */
     public static <KType> KTypeIndexedHeapPriorityQueue<KType> from(final IntKTypeAssociativeContainer<KType> container) {
         return new KTypeIndexedHeapPriorityQueue<KType>(container);
@@ -216,8 +216,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     }
 
     /**
-       * An iterator implementation for {@link KTypeIndexedHeapPriorityQueue#iterator} entries.
-       * Holds a IntKTypeCursor<KType> cursor returning (key, value, index) = (int key, KType value, index the position in heap)
+     * An iterator implementation for {@link KTypeIndexedHeapPriorityQueue#iterator} entries.
+     * Holds a IntKTypeCursor<KType> cursor returning (key, value, index) = (int key, KType value, index the position in heap)
      */
     public final class EntryIterator extends AbstractIterator<IntKTypeCursor<KType>>
     {
@@ -420,15 +420,15 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     }
 
     /**
-       * {@inheritDoc}
-       * cost: O(log(N)) for a N sized queue
-       * <p><b>Important: </b>
-       * Whenever a new (key, value) pair is inserted, or
-       * a value is updated with an already present key as specified by the  {@link IntKTypeMap#put()}
-       * contract, the inserted value priority is always consistent towards the comparison criteria.
-       * In other words, there is no need to call {@link #updatePriority(int)} after a {@link #put(int, KType)}.
-       * @param key the integer key, must be >= 0
-       * @param element the associated value
+     * {@inheritDoc}
+     * cost: O(log(N)) for a N sized queue
+     * <p><b>Important: </b>
+     * Whenever a new (key, value) pair is inserted, or
+     * a value is updated with an already present key as specified by the  {@link IntKTypeMap#put}
+     * contract, the inserted value priority is always consistent towards the comparison criteria.
+     * In other words, there is no need to call {@link #updatePriority(int)} after a {@link #put}.
+     * @param key the integer key, must be >= 0
+     * @param element the associated value
      */
     @Override
     public KType put(final int key, final KType element) {
@@ -476,26 +476,26 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
     /*! #if ($TemplateOptions.KTypeNumeric) !*/
     /**
-       * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. An equivalent
-       * of the following code:
+     * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. An equivalent
+     * of the following code:
      * <pre>
-       *  if (containsKey(key))
-       *  {
+     *  if (containsKey(key))
+     *  {
      *   KType v = get(key) + additionValue;
      *   put(key, v);
      *   return v;
-       *  }
-       *  else
-       *  {
+     *  }
+     *  else
+     *  {
      *   put(key, putValue);
      *   return putValue;
      * }
      * </pre>
      * 
-       * @param key The key of the value to adjust.
-       * @param putValue The value to put if <code>key</code> does not exist.
-       * @param additionValue The value to add to the existing value if <code>key</code> exists.
-       * @return Returns the current value associated with <code>key</code> (after changes).
+     * @param key The key of the value to adjust.
+     * @param putValue The value to put if <code>key</code> does not exist.
+     * @param additionValue The value to add to the existing value if <code>key</code> exists.
+     * @return Returns the current value associated with <code>key</code> (after changes).
      */
     /*! #end !*/
     /*! #if ($TemplateOptions.KTypeNumeric)
@@ -549,22 +549,22 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
      * An equivalent of calling
      * 
      * <pre>
-       *  if (containsKey(key))
-       *  {
+     *  if (containsKey(key))
+     *  {
      *   KType v = get(key) + additionValue;
      *   put(key, v);
      *   return v;
-       *  }
-       *  else
-       *  {
+     *  }
+     *  else
+     *  {
      *   put(key, additionValue);
      *   return additionValue;
      * }
      * </pre>
      * 
-       * @param key The key of the value to adjust.
-       * @param additionValue The value to put or add to the existing value if <code>key</code> exists.
-       * @return Returns the current value associated with <code>key</code> (after changes).
+     * @param key The key of the value to adjust.
+     * @param additionValue The value to put or add to the existing value if <code>key</code> exists.
+     * @return Returns the current value associated with <code>key</code> (after changes).
      */
     /*! #end !*/
     /*! #if ($TemplateOptions.KTypeNumeric)
@@ -576,10 +576,10 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     #end !*/
 
     /**
-       * Retrieve, but not remove, the top element of the queue,
-       * i.e. the min. element with respect to the comparison criteria
-       * of the queue. Returns the default value if empty.
-       * cost: O(1)
+     * Retrieve, but not remove, the top element of the queue,
+     * i.e. the min. element with respect to the comparison criteria
+     * of the queue. Returns the default value if empty.
+     * cost: O(1)
      */
     public KType top() {
         KType elem = this.defaultValue;
@@ -592,10 +592,10 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     }
 
     /**
-       * Retrieve the key corresponding to the top element of the queue,
-       * i.e. the min element with respect to the comparison criteria
-       * of the queue. Returns -1 if empty.
-       * cost: O(1)
+     * Retrieve the key corresponding to the top element of the queue,
+     * i.e. the min element with respect to the comparison criteria
+     * of the queue. Returns -1 if empty.
+     * cost: O(1)
      */
     public int topKey() {
         int key = -1;
@@ -608,10 +608,10 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     }
 
     /**
-       * Retrieve, and remove the top element of the queue,
-       * i.e. the min/max element with respect to the comparison criteria
-       * (implementation defined) Returns the default value if empty.
-       * cost: O(log(N)) for a N sized queue
+     * Retrieve, and remove the top element of the queue,
+     * i.e. the min/max element with respect to the comparison criteria
+     * (implementation defined) Returns the default value if empty.
+     * cost: O(log(N)) for a N sized queue
      */
     public KType popTop() {
         KType elem = this.defaultValue;
@@ -626,8 +626,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     }
 
     /**
-       * {@inheritDoc}
-       * cost: O(1)
+     * {@inheritDoc}
+     * cost: O(1)
      */
     @Override
     public KType get(final int key) {
@@ -648,6 +648,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     /**
      * {@inheritDoc} cost: O(log(N))
      */
+    @SuppressWarnings("boxing")
     @Override
     public KType remove(final int key) {
         KType deletedElement = this.defaultValue;
@@ -742,9 +743,9 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     }
 
     /**
-       * Update the priority of the value associated with key, to re-establish the value correct priority
-       * towards the comparison criteria.
-       * cost: O(log(N))
+     * Update the priority of the value associated with key, to re-establish the value correct priority
+     * towards the comparison criteria.
+     * cost: O(log(N))
      */
     public void updatePriority(final int key) {
         if (key < this.pq.length && this.pq[key] > 0) {
@@ -754,10 +755,10 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     }
 
     /**
-       * Update the priority of the {@link #top()} element, to re-establish its actual priority
-       * towards the comparison criteria when it may have changed such that it is no longer the
-       *  min element with respect to the comparison criteria.
-       * cost: O(log(N))
+     * Update the priority of the {@link #top()} element, to re-establish its actual priority
+     * towards the comparison criteria when it may have changed such that it is no longer the
+     *  min element with respect to the comparison criteria.
+     * cost: O(log(N))
      */
     public void updateTopPriority() {
         //only attempt to sink if there is at least 2 elements....
@@ -768,8 +769,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     }
 
     /**
-       * {@inheritDoc}
-       * cost: O(1)
+     * {@inheritDoc}
+     * cost: O(1)
      */
     @Override
     public boolean containsKey(final int key) {
@@ -805,12 +806,12 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     }
 
     /**
-       * this instance and obj can only be equal if either: <pre>
+     * this instance and obj can only be equal if either: <pre>
      * (both don't have set comparators)
      * or
-       * (both have equal comparators defined by {@link #comparator}.equals(obj.comparator))</pre>
-       * then, both heaps are compared as follows: <pre>
-       * {@inheritDoc}</pre>
+     * (both have equal comparators defined by {@link #comparator()}.equals(obj.comparator))</pre>
+     * then, both heaps are compared as follows: <pre>
+     * {@inheritDoc}</pre>
      */
     @Override
     /* #if ($TemplateOptions.KTypeGeneric) */
@@ -1084,8 +1085,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     };
 
     /**
-       * An iterator over the set of assigned keys.
-       * Holds a IntCursor cursor returning (value, index) = (int key, index the position in heap)
+     * An iterator over the set of assigned keys.
+     * Holds a IntCursor cursor returning (value, index) = (int key, index the position in heap)
      */
     public final class KeysIterator extends AbstractIterator<IntCursor>
     {
@@ -1189,14 +1190,14 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
         /**
          * {@inheritDoc}
-             * <p><b>Note : </b> The comparison criteria for
-             * identity test is based on
-             * #if ($TemplateOptions.KTypeGeneric)
-             * {@link Comparable} compareTo() if no
-             * #else
-             * natural ordering if no
-             * #end
-             * custom comparator is given, else it uses the {@link #comparator()} criteria.
+         * <p><b>Note : </b> The comparison criteria for
+         * identity test is based on
+         * #if ($TemplateOptions.KTypeGeneric)
+         * {@link Comparable} compareTo() if no
+         * #else
+         * natural ordering if no
+         * #end
+         * custom comparator is given, else it uses the {@link #comparator()} criteria.
          */
         @Override
         public boolean contains(final KType value) {
@@ -1264,17 +1265,17 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         }
 
         /**
-             * {@inheritDoc}
-             * Indeed removes all the (key,value) pairs matching
-             * (key ? ,  e) with the  same  e,  from  the map.
-             * <p><b>Note : </b> The comparison criteria for
-             * identity test is based on
-             * !#if ($TemplateOptions.KTypeGeneric)
-             * {@link Comparable} compareTo() if no
-             *  #else
-             * natural ordering if no
-             *  #end
-             * custom comparator is given, else it uses the {@link #comparator()} criteria.
+         * {@inheritDoc}
+         * Indeed removes all the (key,value) pairs matching
+         * (key ? ,  e) with the  same  e,  from  the map.
+         * <p><b>Note : </b> The comparison criteria for
+         * identity test is based on
+         * !#if ($TemplateOptions.KTypeGeneric)
+         * {@link Comparable} compareTo() if no
+         *  #else
+         * natural ordering if no
+         *  #end
+         * custom comparator is given, else it uses the {@link #comparator()} criteria.
          */
         @Override
         public int removeAll(final KType e) {
@@ -1283,9 +1284,9 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         }
 
         /**
-             * {@inheritDoc}
-             * Indeed removes all the (key,value) pairs matching
-             * the predicate for the values, from  the map.
+         * {@inheritDoc}
+         * Indeed removes all the (key,value) pairs matching
+         * the predicate for the values, from  the map.
          */
         @Override
         public int removeAll(final KTypePredicate<? super KType> predicate) {
@@ -1293,8 +1294,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         }
 
         /**
-             * {@inheritDoc}
-             *  Alias for clear() the whole map.
+         * {@inheritDoc}
+         *  Alias for clear() the whole map.
          */
         @Override
         public void clear() {
@@ -1336,8 +1337,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     }
 
     /**
-       * An iterator over the set of assigned values.
-       * Holds a KTypeCursor<KType> cursor returning (value, index) = (KType value, index the position in heap)
+     * An iterator over the set of assigned values.
+     * Holds a KTypeCursor<KType> cursor returning (value, index) = (KType value, index the position in heap)
      */
     public final class ValuesIterator extends AbstractIterator<KTypeCursor<KType>>
     {
@@ -1398,18 +1399,16 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     }
 
     /**
-       * Returns the "default value" value used
-       * in methods returning "default value"
-     * @return
+     * Returns the "default value" value used
+     * in methods returning "default value"
      */
     public KType getDefaultValue() {
         return this.defaultValue;
     }
 
     /**
-       * Set the "default value" value to be used
-       * in methods returning the "default value"
-     * @return
+     * Set the "default value" value to be used
+     * in methods returning the "default value"
      */
     public void setDefaultValue(final KType defaultValue) {
         this.defaultValue = defaultValue;
@@ -1417,15 +1416,15 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
     /**
      * Get the custom comparator used for comparing elements
-       * @return null if no custom comparator was set, i.e natural ordering
-       * of <code>KType</code>s is used instead
-       * #if ($TemplateOptions.KTypeGeneric) , which means objects in this case must be {@link Comparable}. #end
+     * @return null if no custom comparator was set, i.e natural ordering
+     * of <code>KType</code>s is used instead
+     * #if ($TemplateOptions.KTypeGeneric) , which means objects in this case must be {@link Comparable}. #end
      */
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
             /*! #else
-                                                                                                                                                                                                                                                    public KTypeComparator<? super KType>
-                                                                                                                                                                                                                                                    #end !*/
+                            public KTypeComparator<? super KType>
+                            #end !*/
             comparator() {
 
         return this.comparator;
@@ -1739,6 +1738,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     /**
      * method to test pq[]/qp[]/buffer[] consistency in assert expressions
      */
+    @SuppressWarnings("boxing")
     private boolean isConsistent() {
         if (this.elementsCount > 0) {
             //A) For each valid index, (in pq), there is match in position in qp

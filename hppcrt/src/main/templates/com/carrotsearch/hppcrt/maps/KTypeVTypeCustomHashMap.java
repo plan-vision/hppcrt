@@ -145,8 +145,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     protected final KTypeHashingStrategy<? super KType> hashStrategy;
 
     /**
-     * Creates a hash map with the default capacity of {@value #DEFAULT_CAPACITY},
-     * load factor of {@value #DEFAULT_LOAD_FACTOR}, using the hashStrategy as {@link KTypeHashingStrategy}
+     * Creates a hash map with the default capacity of {@value Containers#DEFAULT_EXPECTED_ELEMENTS},
+     * load factor of {@value HashContainers#DEFAULT_LOAD_FACTOR}, using the hashStrategy as {@link KTypeHashingStrategy}
      * 
      * <p>See class notes about hash distribution importance.</p>
      */
@@ -156,7 +156,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
     /**
      * Creates a hash map with the given initial capacity, default load factor of
-     * {@value #DEFAULT_LOAD_FACTOR}, using the hashStrategy as {@link KTypeHashingStrategy}
+     * {@value HashContainers#DEFAULT_LOAD_FACTOR}, using the hashStrategy as {@link KTypeHashingStrategy}
      * 
      * @param initialCapacity Initial capacity (greater than zero and automatically
      *            rounded to the next power of two).
@@ -1292,8 +1292,6 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
     /**
      * {@inheritDoc}
-     * 
-     * @return
      */
     @Override
     public EntryIterator iterator() {
@@ -1942,7 +1940,6 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     /**
      * Returns the "default value" value used
      * in containers methods returning "default value"
-     * @return
      */
     public VType getDefaultValue() {
         return this.defaultValue;

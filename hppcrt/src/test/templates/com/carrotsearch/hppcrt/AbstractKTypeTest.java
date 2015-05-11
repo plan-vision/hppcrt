@@ -51,6 +51,7 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
 
     /**
      * Convert int to target KType type.
+     * If KType is generic, KType is also a Number, so is Comparable.
      */
     public KType cast(final int v)
     {
@@ -61,29 +62,6 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
                 return  (v > 0);
              #end
          #else !*/
-        // @SuppressWarnings("unchecked")
-        final KType k = (KType) (Object) v;
-        return k;
-        /*! #end !*/
-    }
-
-    /**
-     * Convert to target type from an integer used to test stuff.
-     * return a Comparable object, indeed a number
-     */
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    public <KType extends Comparable<? super KType>> KType castComparable(final int v)
-    /*! #else
-    public KType castComparable(int v)
-    #end !*/
-    {
-        /*! #if ($TemplateOptions.KTypePrimitive)
-             #if ($TemplateOptions.KTypeNumeric)
-               return (KType) v;
-             #else
-              return  ( v > 0);
-            #end
-        #else !*/
         // @SuppressWarnings("unchecked")
         final KType k = (KType) (Object) v;
         return k;
@@ -179,7 +157,7 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             if (elements[i] != null)
             {
-                values[i] = castComparable(castType(elements[i]));
+                values[i] = elements[i];
             }
             else
             {

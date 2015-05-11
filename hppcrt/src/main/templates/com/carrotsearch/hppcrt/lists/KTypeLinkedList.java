@@ -656,9 +656,9 @@ public class KTypeLinkedList<KType>
      * {@inheritDoc}
      */
     @Override
-    /* #if ($TemplateOptions.KTypeGeneric) */
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
     @SuppressWarnings("unchecked")
-    /* #end */
+    /*! #end !*/
     public boolean equals(final Object obj) {
         if (obj != null) {
             if (obj == this) {
@@ -694,7 +694,8 @@ public class KTypeLinkedList<KType>
 
                 return true;
             } else if (obj instanceof KTypeDeque<?>) {
-                final KTypeDeque<Object> other = (KTypeDeque<Object>) obj;
+
+                final KTypeDeque<KType> other = (KTypeDeque<KType>) obj;
 
                 if (other.size() != this.size()) {
                     return false;
@@ -704,17 +705,9 @@ public class KTypeLinkedList<KType>
                 int currentPos = KTypeLinkedList.getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
 
                 //request a pooled iterator
-                /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                final Iterator<KTypeCursor<Object>> it = other.iterator();
-                /*! #else
-                 final Iterator<KTypeCursor> it = other.iterator();
-                #end !*/
+                final Iterator<KTypeCursor<KType>> it = other.iterator();
 
-                /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                KTypeCursor<Object> c;
-                /*! #else
-                  KTypeCursor c;
-                #end !*/
+                KTypeCursor<KType> c;
 
                 //iterate over the linkedList
                 while (currentPos != KTypeLinkedList.TAIL_POSITION) {
@@ -740,7 +733,8 @@ public class KTypeLinkedList<KType>
 
                 return true;
             } else if (obj instanceof KTypeIndexedContainer<?>) {
-                final KTypeIndexedContainer<?> other = (KTypeIndexedContainer<?>) obj;
+
+                final KTypeIndexedContainer<KType> other = (KTypeIndexedContainer<KType>) obj;
 
                 if (other.size() != this.size()) {
                     return false;
@@ -993,7 +987,6 @@ public class KTypeLinkedList<KType>
          * True is iterator points to the "head", i.e such as gotoNext() point to the first
          * element, with respect to the forward iteration.
          * 
-         * @return
          */
         public boolean isHead() {
             return this.internalPos == KTypeLinkedList.HEAD_POSITION;
@@ -1003,7 +996,6 @@ public class KTypeLinkedList<KType>
          * True is iterator points to the "tail", i.e such as gotoPrevious() point to the last
          * element, with respect to the forward iteration.
          * 
-         * @return
          */
         public boolean isTail() {
             return this.internalPos == KTypeLinkedList.TAIL_POSITION;
@@ -1746,8 +1738,8 @@ public class KTypeLinkedList<KType>
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
             /*! #else
-                                                      KTypeComparator<? super KType>
-                                                      #end !*/
+                                                                      KTypeComparator<? super KType>
+                                                                      #end !*/
             comp) {
         assert endIndex <= size();
 
@@ -1762,8 +1754,6 @@ public class KTypeLinkedList<KType>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009]
      * </b></p>
      * 
-     * @param beginIndex
-     * @param endIndex
      #if ($TemplateOptions.KTypeGeneric)
      * @throws ClassCastException if the array contains elements that are not mutually Comparable.
      #end
