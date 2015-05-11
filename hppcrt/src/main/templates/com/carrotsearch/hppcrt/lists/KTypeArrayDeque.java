@@ -971,9 +971,9 @@ public class KTypeArrayDeque<KType>
      * {@inheritDoc}
      */
     @Override
-    /* #if ($TemplateOptions.KTypeGeneric) */
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
     @SuppressWarnings("unchecked")
-    /* #end */
+    /*! #end !*/
     public boolean equals(final Object obj) {
         if (obj != null) {
             if (obj == this) {
@@ -981,7 +981,8 @@ public class KTypeArrayDeque<KType>
             }
 
             if (obj instanceof KTypeDeque<?>) {
-                final KTypeDeque<Object> other = (KTypeDeque<Object>) obj;
+
+                final KTypeDeque<KType> other = (KTypeDeque<KType>) obj;
 
                 if (other.size() != this.size()) {
 
@@ -993,17 +994,9 @@ public class KTypeArrayDeque<KType>
                 int i = fromIndex;
 
                 //request a pooled iterator
-                /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                final Iterator<KTypeCursor<Object>> it = other.iterator();
-                /*! #else
-                    final Iterator<KTypeCursor> it = other.iterator();
-                    #end !*/
+                final Iterator<KTypeCursor<KType>> it = other.iterator();
 
-                /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                KTypeCursor<Object> c;
-                /*! #else
-                    KTypeCursor c;
-                    #end !*/
+                KTypeCursor<KType> c;
 
                 while (it.hasNext()) {
                     c = it.next();
@@ -1126,8 +1119,8 @@ public class KTypeArrayDeque<KType>
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
             /*! #else
-                                    KTypeComparator<? super KType>
-                                    #end !*/
+                                            KTypeComparator<? super KType>
+                                            #end !*/
             comp) {
         assert endIndex <= size();
 

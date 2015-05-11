@@ -38,7 +38,7 @@ public class SignatureReplacementVisitor extends ReplacementVisitorBase
         final List<Replacement> result = new ArrayList<>(super.visitClassDeclaration(ctx));
 
         log(Level.FINEST, "visitClassDeclaration", "calling base, result = "
-                + Lists.newArrayList(result).toString());
+                + Replacement.toString(result));
 
         String className = ctx.Identifier().getText();
 
@@ -95,7 +95,7 @@ public class SignatureReplacementVisitor extends ReplacementVisitorBase
         List<Replacement> result = super.visitInterfaceDeclaration(ctx);
 
         log(Level.FINEST, "visitInterfaceDeclaration", "calling base, result = "
-                + Lists.newArrayList(result).toString());
+                + Replacement.toString(result));
 
         String className = ctx.Identifier().getText();
 
@@ -167,9 +167,11 @@ public class SignatureReplacementVisitor extends ReplacementVisitorBase
 
         final ArrayList<String> bounds = new ArrayList<>();
 
+        //for all typeParameters
         for (final TypeParameterContext c : ctx.typeParameters().typeParameter()) {
 
             switch (c.Identifier().getText()) {
+
             case "KType":
                 Preconditions.checkArgument(c.typeBound() == null, "Unexpected type bound on template type: " + c.getText());
                 if (this.templateOptions.isKTypeGeneric()) {
@@ -188,11 +190,13 @@ public class SignatureReplacementVisitor extends ReplacementVisitorBase
                 final TypeBoundContext tbc = c.typeBound();
                 if (tbc != null) {
                     Preconditions.checkArgument(tbc.type().size() == 1, "Expected exactly one type bound: " + c.getText());
+
                     final TypeContext tctx = tbc.type().get(0);
                     final Interval sourceInterval = tbc.getSourceInterval();
 
                     final StringWriter sw = this.processor.reconstruct(new StringWriter(), this.processor.tokenStream,
                             sourceInterval.a, sourceInterval.b, visitType(tctx), this.templateOptions);
+
                     bounds.add(c.Identifier() + " extends " + sw.toString());
 
                 } else {
@@ -200,7 +204,7 @@ public class SignatureReplacementVisitor extends ReplacementVisitorBase
                 }
                 break;
             } //end switch
-        }
+        } //end for
 
         final List<Replacement> replacements = new ArrayList<>();
 
@@ -304,16 +308,20 @@ public class SignatureReplacementVisitor extends ReplacementVisitorBase
         //if args at the right of Identifier() are "terminal ones" (generics without sub-generics) do a replacement.
         if (isTerminal) {
             replacements.add(new Replacement(typeArguments.getText(), typeArguments, toString(typeBounds)));
+
+            //Process the leftmost terminal identifier, with bounds since they are available
+            replacements = processIdentifierWithBounds(ctx.Identifier(), typeBounds, replacements);
+
+            log(Level.FINEST, "visitIdentifierTypeOrDiamondPair", "replacements after terminal-bounded replacements = "
+                    + Replacement.toString(replacements));
+        } else {
+            //We are not terminal , so blindly replace the identifier: We have no bound info, so we replace
+            //based on the naming only, so be it. (so testBug_ErasesUntemplated() would not work if the generic was inclosed in another generic)
+            replacements = processIdentifier(ctx.Identifier(), replacements);
+
+            log(Level.FINEST, "visitIdentifierTypeOrDiamondPair",
+                    "replacements after boundless identifier replacements = " + Replacement.toString(replacements));
         }
-
-        log(Level.FINEST, "visitIdentifierTypeOrDiamondPair", "replacements after children typeArgument = "
-                + Replacement.toString(replacements));
-
-        //Process the leftmost terminal identifier
-        replacements = processIdentifier(ctx.Identifier(), replacements);
-
-        log(Level.FINEST, "visitIdentifierTypeOrDiamondPair",
-                "replacements after enclosing identifier final replacement = " + Replacement.toString(replacements));
 
         return replacements;
     }
@@ -365,7 +373,7 @@ public class SignatureReplacementVisitor extends ReplacementVisitorBase
         }  //end if isTerminal
         else {
 
-            //TODO: Process the left-most identifier.
+            //Not terminal: Process the left-most identifier.
             replacements = processIdentifier(ctx.Identifier(), ReplacementVisitorBase.NONE);
 
             //else NOT terminal: Explore the children...

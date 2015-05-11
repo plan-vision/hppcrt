@@ -16,11 +16,16 @@ import javax.swing.JDialog;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BailErrorStrategy;
+import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.BufferedTokenStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 
 import com.carrotsearch.hppcrt.generator.TemplateOptions;
 import com.carrotsearch.hppcrt.generator.parser.Java7Parser.CompilationUnitContext;
@@ -50,6 +55,18 @@ public class SignatureProcessor
      */
     public final CompilationUnitContext unitContext;
 
+    public static class ThrowingErrorListener extends BaseErrorListener
+    {
+        public static final ThrowingErrorListener INSTANCE = new ThrowingErrorListener();
+
+        @Override
+        public void syntaxError(final Recognizer<?, ?> recognizer, final Object offendingSymbol, final int line, final int charPositionInLine,
+                final String msg, final RecognitionException e) throws ParseCancellationException {
+
+            throw new ParseCancellationException("line " + line + ":" + charPositionInLine + " " + msg);
+        }
+    }
+
     /**
      * constructor from input, create the parser and parse the source.
      * @param input
@@ -66,7 +83,8 @@ public class SignatureProcessor
         //3) Parse the tokens
         this.parser = new Java7Parser(this.tokenStream);
 
-        this.parser.setErrorHandler(new BailErrorStrategy());
+        //Richer than BailError
+        this.parser.setErrorHandler(new DefaultErrorStrategy());
 
         //4) Make the parse result available through a CompilationUnit Context.
         this.unitContext = this.parser.compilationUnit();
@@ -144,50 +162,61 @@ public class SignatureProcessor
             final Collection<Replacement> replacements,
             final TemplateOptions templateOptions) {
 
-        //1) Be safe by first ordering the replacements by their intervals.
-        //so that we can replace stream-like from beginning to end.
-        final ArrayList<Replacement> sorted = Replacement.sortList(replacements);
-
-        //1-2) Control that replacements are consistent, i.e no one must overlap with a neigbour, else something
-        //has gone wrong, and either way we wouldn't know how to replace that.
-        for (int i = 1; i < sorted.size(); i++) {
-
-            final Replacement previous = sorted.get(i - 1);
-            final Replacement current = sorted.get(i);
-
-            if (!previous.interval.startsBeforeDisjoint(current.interval)) {
-                throw new RuntimeException("Overlapping intervals: {" + previous + "} is ovelapping the next {" + current + "}");
-            }
-        }
-
-        //Initialize [left = from...
-        int left = from;
-
         try {
 
-            //2) Start replacing
-            for (final Replacement r : sorted) {
+            if (replacements.size() > 0) {
 
-                //2-1) We have [left ; right (beginning of a Replacement)[ a non-replaced range, copy the Tokens verbatim
-                //(with comments post-processing)
-                final int right = r.interval.a;
+                //1) Be safe by first ordering the replacements by their intervals.
+                //so that we can replace stream-like from beginning to end.
+                final ArrayList<Replacement> sorted = Replacement.sortList(replacements);
 
-                for (int i = left; i < right; i++) {
-                    sw.append(tokenText(templateOptions, tokenStream.get(i)));
+                //1-2) Control that replacements are consistent, i.e no one must overlap with a neigbour, else something
+                //has gone wrong, and either way we wouldn't know how to replace that.
+                for (int i = 1; i < sorted.size(); i++) {
+
+                    final Replacement previous = sorted.get(i - 1);
+                    final Replacement current = sorted.get(i);
+
+                    if (!previous.interval.startsBeforeDisjoint(current.interval)) {
+                        throw new RuntimeException("Overlapping intervals: {" + previous + "} is ovelapping the next {" + current + "}");
+                    }
                 }
 
-                //2-2) Replace the Replacement interval tokens by a computed Replacement string
-                //(so multiple tokens may be replaced by a single string)
-                //[left; right[ +  replacement
-                sw.append(r.replacement);
+                //Initialize [left = from...
+                int left = from;
 
-                //2-3) Prepare the next turn: [left; right[ +  replacement +  [next left (= starting after previous replacement)... [
-                left = r.interval.b + 1;
-            }
+                //2) Start replacing
+                for (final Replacement r : sorted) {
 
-            //3) No more replacements, copy verbatim all the remaining tokens of the stream.
-            for (int i = left; i < to; i++) {
-                sw.append(tokenText(templateOptions, tokenStream.get(i)));
+                    //2-1) We have [left ; right (beginning of a Replacement)[ a non-replaced range, copy the Tokens verbatim
+                    //(with comments post-processing)
+                    final int right = r.interval.a;
+
+                    for (int i = left; i < right; i++) {
+                        sw.append(tokenText(templateOptions, tokenStream.get(i)));
+                    }
+
+                    //2-2) Replace the Replacement interval tokens by a computed Replacement string
+                    //(so multiple tokens may be replaced by a single string)
+                    //[left; right[ +  replacement
+                    sw.append(r.replacement);
+
+                    //2-3) Prepare the next turn: [left; right[ +  replacement +  [next left (= starting after previous replacement)... [
+                    left = r.interval.b + 1;
+                }
+
+                //3) No more replacements, copy verbatim all the remaining tokens of the stream.
+                for (int i = left; i < to; i++) {
+                    sw.append(tokenText(templateOptions, tokenStream.get(i)));
+                }
+            } else if (from >= to) {
+                //1 token only
+                sw.append(tokenText(templateOptions, tokenStream.get(from)));
+            } else {
+                //Null sized replacement, several tokens, copy verbatim [from; to[
+                for (int i = from; i < to; i++) {
+                    sw.append(tokenText(templateOptions, tokenStream.get(i)));
+                }
             }
         } catch (final IOException e) {
 

@@ -28,7 +28,7 @@ public class TestSignatureProcessor
     private boolean displayParseTree = false;
 
     @Before
-    public void setTup() {
+    public void setUp() {
 
         this.displayParseTree = false;
     }
@@ -125,9 +125,6 @@ public class TestSignatureProcessor
     @Test
     public void testClassConstructor() throws IOException {
 
-        //TODO
-        //this.displayParseTree = true;
-
         final SignatureProcessor sp = new SignatureProcessor(
                 "class KTypeVTypeFoo<KType, VType> { public KTypeVTypeFoo(KType k, VType v) {} }");
 
@@ -158,9 +155,6 @@ public class TestSignatureProcessor
     @Test
     public void testNewClass() throws IOException {
 
-        //TODO
-        // this.displayParseTree = true;
-
         final SignatureProcessor sp = new SignatureProcessor(
                 "class KTypeVTypeFoo<KType, VType> { public void foo() { new KTypeVTypeFoo<KType, VType>(); } }");
 
@@ -180,9 +174,6 @@ public class TestSignatureProcessor
     @Test
     public void testWildcardBound() throws IOException {
 
-        //TODO
-        //this.displayParseTree = true;
-
         final SignatureProcessor sp = new SignatureProcessor(
                 "class KTypeFoo<KType> { void bar(KTypeFoo<?> other) {} }");
 
@@ -200,6 +191,19 @@ public class TestSignatureProcessor
     }
 
     @Test
+    public void testNotGenericNamedTypeBound() throws IOException {
+
+        //TODO
+        // this.displayParseTree = true;
+
+        final SignatureProcessor sp = new SignatureProcessor(
+                "class KTypeFoo<KType> { public <T extends IntProcedure> T forEach(T v) { } }");
+
+        check(Type.FLOAT, sp, "class FloatFoo { public <T extends IntProcedure> T forEach(T v) { } }");
+        check(Type.GENERIC, sp, "class ObjectFoo<KType> { public <T extends IntProcedure> T forEach(T v) { } }");
+    }
+
+    @Test
     public void testBug_ErasesObjectConstructor() throws IOException {
         final SignatureProcessor sp = new SignatureProcessor(
                 "class KTypeVTypeFoo<KType, VType> { static { HashSet<Object> values = new HashSet<Object>(); }}");
@@ -210,9 +214,6 @@ public class TestSignatureProcessor
 
     @Test
     public void testBug_ErasesUntemplated() throws IOException {
-
-        //TODO
-        this.displayParseTree = true;
 
         final SignatureProcessor sp = new SignatureProcessor(
                 "class KTypeFoo<KType> { void foo() { KTypeBar<B> x = new KTypeBar<B>(); } }");
@@ -296,6 +297,8 @@ public class TestSignatureProcessor
     @Test
     public void testFullClassPartialTemplateSpecialization() throws IOException {
 
+        //TODO
+
         final String testedPath = TestSignatureProcessor.TEST_CASE_PATH + "KTypePartialSpecializationClass.test";
 
         final String expectedPathLong = TestSignatureProcessor.TEST_CASE_PATH + "LongPartialSpecializationClass.ok";
@@ -327,9 +330,6 @@ public class TestSignatureProcessor
     @Test
     public void testIteratorPool() throws IOException {
 
-        //TODO
-        //this.displayParseTree = true;
-
         final String testedPath = TestSignatureProcessor.TEST_CASE_PATH + "IteratorPool.test";
 
         final String expectedPathLong = TestSignatureProcessor.TEST_CASE_PATH + "IteratorPoolLong.ok";
@@ -342,11 +342,22 @@ public class TestSignatureProcessor
         compareWithReferenceFile(new TemplateOptions(Type.LONG, null), testedPath, expectedPathLong);
     }
 
+    /**
+     * Not really a test, used for debugging crashs of the parser itself.
+     * @throws IOException
+     */
+    @Test
+    public void testCrashParsing() throws IOException {
+
+        final String testedPath = TestSignatureProcessor.TEST_CASE_PATH + "CrashParser.txt";
+        final String expectedPathLong = TestSignatureProcessor.TEST_CASE_PATH + "CrashParser.txt";
+
+        System.out.println("\n\n>>>> Converted to long : \n\n");
+        compareWithReferenceFile(new TemplateOptions(Type.LONG, null), testedPath, expectedPathLong);
+    }
+
     @Test
     public void testGenericWithinGenericWithinGeneric() throws IOException {
-
-        //TODO
-        // this.displayParseTree = true;
 
         //generic within generic within generic
         final SignatureProcessor sp = new SignatureProcessor(
@@ -358,9 +369,6 @@ public class TestSignatureProcessor
 
     @Test
     public void testDoubleGenericWithinGenericWithinGeneric() throws IOException {
-
-        //TODO
-        //this.displayParseTree = true;
 
         //generic within generic within generic
         final SignatureProcessor sp = new SignatureProcessor(

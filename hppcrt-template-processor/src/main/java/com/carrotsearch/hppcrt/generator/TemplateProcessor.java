@@ -583,7 +583,7 @@ public final class TemplateProcessor
 
             return signatureProcessor.process(options);
 
-        } catch (final ParseCancellationException e) {
+        } catch (final ParseCancellationException | IllegalArgumentException e) {
 
             TemplateProcessor.getLog().log(Level.SEVERE,
                     "Signature processor parsing failure for template '" + options.getTemplateFile() + "' ", e);

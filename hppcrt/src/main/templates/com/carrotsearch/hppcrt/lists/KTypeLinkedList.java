@@ -656,9 +656,9 @@ public class KTypeLinkedList<KType>
      * {@inheritDoc}
      */
     @Override
-    /* #if ($TemplateOptions.KTypeGeneric) */
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
     @SuppressWarnings("unchecked")
-    /* #end */
+    /*! #end !*/
     public boolean equals(final Object obj) {
         if (obj != null) {
             if (obj == this) {
@@ -694,7 +694,8 @@ public class KTypeLinkedList<KType>
 
                 return true;
             } else if (obj instanceof KTypeDeque<?>) {
-                final KTypeDeque<Object> other = (KTypeDeque<Object>) obj;
+
+                final KTypeDeque<KType> other = (KTypeDeque<KType>) obj;
 
                 if (other.size() != this.size()) {
                     return false;
@@ -704,17 +705,9 @@ public class KTypeLinkedList<KType>
                 int currentPos = KTypeLinkedList.getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
 
                 //request a pooled iterator
-                /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                final Iterator<KTypeCursor<Object>> it = other.iterator();
-                /*! #else
-                 final Iterator<KTypeCursor> it = other.iterator();
-                #end !*/
+                final Iterator<KTypeCursor<KType>> it = other.iterator();
 
-                /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                KTypeCursor<Object> c;
-                /*! #else
-                  KTypeCursor c;
-                #end !*/
+                KTypeCursor<KType> c;
 
                 //iterate over the linkedList
                 while (currentPos != KTypeLinkedList.TAIL_POSITION) {
@@ -740,7 +733,8 @@ public class KTypeLinkedList<KType>
 
                 return true;
             } else if (obj instanceof KTypeIndexedContainer<?>) {
-                final KTypeIndexedContainer<?> other = (KTypeIndexedContainer<?>) obj;
+
+                final KTypeIndexedContainer<KType> other = (KTypeIndexedContainer<KType>) obj;
 
                 if (other.size() != this.size()) {
                     return false;
@@ -1744,8 +1738,8 @@ public class KTypeLinkedList<KType>
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
             /*! #else
-                                                              KTypeComparator<? super KType>
-                                                              #end !*/
+                                                                      KTypeComparator<? super KType>
+                                                                      #end !*/
             comp) {
         assert endIndex <= size();
 
