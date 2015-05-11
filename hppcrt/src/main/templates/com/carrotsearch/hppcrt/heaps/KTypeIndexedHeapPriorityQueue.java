@@ -140,7 +140,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
      * @see BoundedProportionalArraySizingStrategy
      */
     public KTypeIndexedHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp
-    /*! #else
+            /*! #else
     KTypeComparator<? super KType> comp
     #end !*/)
     {
@@ -217,7 +217,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
     /**
      * An iterator implementation for {@link KTypeIndexedHeapPriorityQueue#iterator} entries.
-     * Holds a IntKTypeCursor<KType> cursor returning (key, value, index) = (int key, KType value, index the position in heap)
+     * Holds a IntKTypeCursor cursor returning (key, value, index) = (int key, KType value, index the position in heap)
      */
     public final class EntryIterator extends AbstractIterator<IntKTypeCursor<KType>>
     {
@@ -1338,7 +1338,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
     /**
      * An iterator over the set of assigned values.
-     * Holds a KTypeCursor<KType> cursor returning (value, index) = (KType value, index the position in heap)
+     * Holds a KTypeCursor cursor returning (value, index) = (KType value, index the position in heap)
      */
     public final class ValuesIterator extends AbstractIterator<KTypeCursor<KType>>
     {
@@ -1422,10 +1422,10 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
      */
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
-            /*! #else
+    /*! #else
                             public KTypeComparator<? super KType>
                             #end !*/
-            comparator() {
+    comparator() {
 
         return this.comparator;
     }
@@ -1581,22 +1581,22 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
             //swap k and its parent
             parent = k >> 1;
 
-            //swap k and parent
-            tmp = buffer[k];
-            buffer[k] = buffer[parent];
-            buffer[parent] = tmp;
+        //swap k and parent
+        tmp = buffer[k];
+        buffer[k] = buffer[parent];
+        buffer[parent] = tmp;
 
-            //swap references
-            indexK = qp[k];
-            indexParent = qp[parent];
+        //swap references
+        indexK = qp[k];
+        indexParent = qp[parent];
 
-            pq[indexK] = parent;
-            pq[indexParent] = k;
+        pq[indexK] = parent;
+        pq[indexParent] = k;
 
-            qp[k] = indexParent;
-            qp[parent] = indexK;
+        qp[k] = indexParent;
+        qp[parent] = indexK;
 
-            k = parent;
+        k = parent;
         }
     }
 
@@ -1624,22 +1624,22 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
             //swap k and its parent
             parent = k >> 1;
 
-            //swap k and parent
-            tmp = buffer[k];
-            buffer[k] = buffer[parent];
-            buffer[parent] = tmp;
+        //swap k and parent
+        tmp = buffer[k];
+        buffer[k] = buffer[parent];
+        buffer[parent] = tmp;
 
-            //swap references
-            indexK = qp[k];
-            indexParent = qp[parent];
+        //swap references
+        indexK = qp[k];
+        indexParent = qp[parent];
 
-            pq[indexK] = parent;
-            pq[indexParent] = k;
+        pq[indexK] = parent;
+        pq[indexParent] = k;
 
-            qp[k] = indexParent;
-            qp[parent] = indexK;
+        qp[k] = indexParent;
+        qp[parent] = indexK;
 
-            k = parent;
+        k = parent;
         }
     }
 

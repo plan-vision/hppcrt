@@ -30,7 +30,7 @@ import com.carrotsearch.hppcrt.strategies.*;
 /*! #set( $DEBUG = false) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType>
-implements KTypePriorityQueue<KType>, Cloneable
+        implements KTypePriorityQueue<KType>, Cloneable
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -158,7 +158,7 @@ implements KTypePriorityQueue<KType>, Cloneable
      * @see BoundedProportionalArraySizingStrategy
      */
     public KTypeHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp
-    /*! #else
+            /*! #else
     KTypeComparator<? super KType> comp
     #end !*/)
     {
@@ -206,7 +206,7 @@ implements KTypePriorityQueue<KType>, Cloneable
      * Create a heap from elements of another container (constructor shortcut)
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeHeapPriorityQueue<KType> from(final KTypeContainer<KType> container) {
+    KTypeHeapPriorityQueue<KType> from(final KTypeContainer<KType> container) {
         return new KTypeHeapPriorityQueue<KType>(container);
     }
 
@@ -215,7 +215,7 @@ implements KTypePriorityQueue<KType>, Cloneable
      * <code>KType</code>.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeHeapPriorityQueue<KType> from(final KType... elements) {
+    KTypeHeapPriorityQueue<KType> from(final KType... elements) {
         final KTypeHeapPriorityQueue<KType> heap = new KTypeHeapPriorityQueue<KType>(elements.length);
 
         for (final KType elem : elements) {
@@ -303,7 +303,7 @@ implements KTypePriorityQueue<KType>, Cloneable
 
     /**
      * An iterator implementation for {@link KTypeHeapPriorityQueue#iterator}.
-     * Holds a KTypeCursor<KType> cursor returning (value, index) = (KType value, index the position in heap)
+     * Holds a KTypeCursor cursor returning (value, index) = (KType value, index the position in heap)
      */
     public final class ValueIterator extends AbstractIterator<KTypeCursor<KType>>
     {
@@ -337,7 +337,7 @@ implements KTypePriorityQueue<KType>, Cloneable
      */
     @Override
     public ValueIterator iterator() {
-        //return new ValueIterator<KType>(buffer, size());
+        //return new ValueIterator(buffer, size());
         return this.valueIteratorPool.borrow();
     }
 
@@ -724,10 +724,10 @@ implements KTypePriorityQueue<KType>, Cloneable
      */
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
-            /*! #else
-                                                                                                                                                                                                            public KTypeComparator<? super KType>
-                                                                                                                                                                                                            #end !*/
-            comparator() {
+    /*! #else
+                    public KTypeComparator<? super KType>
+            #end !*/
+    comparator() {
 
         return this.comparator;
     }
@@ -817,11 +817,11 @@ implements KTypePriorityQueue<KType>, Cloneable
             //swap k and its parent
             parent = k >> 1;
 
-            tmp = buffer[k];
-            buffer[k] = buffer[parent];
-            buffer[parent] = tmp;
+        tmp = buffer[k];
+        buffer[k] = buffer[parent];
+        buffer[parent] = tmp;
 
-            k = parent;
+        k = parent;
         }
     }
 
@@ -844,11 +844,11 @@ implements KTypePriorityQueue<KType>, Cloneable
         while (k > 1 && comp.compare(buffer[k >> 1], buffer[k]) > 0) {
             //swap k and its parent
             parent = k >> 1;
-            tmp = buffer[k];
-            buffer[k] = buffer[parent];
-            buffer[parent] = tmp;
+        tmp = buffer[k];
+        buffer[k] = buffer[parent];
+        buffer[parent] = tmp;
 
-            k = parent;
+        k = parent;
         }
     }
 

@@ -889,7 +889,7 @@ public class KTypeLinkedList<KType>
      * Iteration example:
      * </b></pre>
      * <pre>
-     *   KTypeLinkedList<KType>.ValueIterator it = null;
+     *   KTypeLinkedList.ValueIterator it = null;
      *   try
      *   {
      *       for (it = list.iterator().gotoNext(); !it.isTail(); it.gotoNext())
@@ -1266,7 +1266,7 @@ public class KTypeLinkedList<KType>
      * Iteration example:
      * </b>
      * <pre>
-     * KTypeLinkedList<KType>.ValueIterator it = null;
+     * KTypeLinkedList.ValueIterator it = null;
      * try
      * {
      * for (it = list.iterator().gotoNext(); !it.isTail(); it.gotoNext())
@@ -1484,7 +1484,7 @@ public class KTypeLinkedList<KType>
      * <b>
      * Important note: java.util.Iterator methods are error-prone, and only there for compatibility and enhanced for loop usage:
      * <pre>
-     * for (KTypeCursor<KType> c : container) {
+     * for (KTypeCursor c : container) {
      * System.out.println("index=" + c.index + " value=" + c.value);
      * }
      * </pre>
@@ -1510,7 +1510,7 @@ public class KTypeLinkedList<KType>
      */
     @Override
     public ValueIterator iterator() {
-        //return new ValueIterator<KType>();
+        //return new ValueIterator();
         return this.valueIteratorPool.borrow();
     }
 
@@ -1723,7 +1723,7 @@ public class KTypeLinkedList<KType>
 
     /**
      * In-place sort the list from [beginIndex, endIndex[
-     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
+     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator</code> #end
      * <p><b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
      * </b></p>
@@ -1738,8 +1738,8 @@ public class KTypeLinkedList<KType>
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
             /*! #else
-                                                                      KTypeComparator<? super KType>
-                                                                      #end !*/
+                    KTypeComparator<? super KType>
+                    #end !*/
             comp) {
         assert endIndex <= size();
 
@@ -1786,7 +1786,7 @@ public class KTypeLinkedList<KType>
 
     /**
      * In-place sort the whole list
-     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
+     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator</code> #end
      * <p><b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
      * </b></p>

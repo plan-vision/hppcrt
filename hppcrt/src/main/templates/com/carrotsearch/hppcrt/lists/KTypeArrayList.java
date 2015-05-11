@@ -638,7 +638,7 @@ public class KTypeArrayList<KType>
      */
     @Override
     public ValueIterator iterator() {
-        //return new ValueIterator<KType>(buffer, size());
+        //return new ValueIterator(buffer, size());
         return this.valueIteratorPool.borrow();
     }
 
@@ -818,7 +818,7 @@ public class KTypeArrayList<KType>
     ////////////////////////////
     /**
      * In-place sort the list from [beginIndex, endIndex[
-     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
+     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator</code> #end
      * <p><b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
      * </b></p>
@@ -829,8 +829,8 @@ public class KTypeArrayList<KType>
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
     /*! #else
-                    KTypeComparator<? super KType>
-                    #end !*/
+                            KTypeComparator<? super KType>
+                            #end !*/
     comp) {
         assert endIndex <= this.elementsCount;
 
@@ -841,7 +841,7 @@ public class KTypeArrayList<KType>
 
     /**
      * In-place sort the whole list
-     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
+     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator</code> #end
      * <p><b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
      * </b></p>

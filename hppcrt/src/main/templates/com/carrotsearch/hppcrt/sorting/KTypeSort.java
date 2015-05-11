@@ -101,7 +101,7 @@ public final class KTypeSort
     ////////////////////////////
     /**
      * In-place sort by  dual-pivot quicksort an array of <code>KType</code>s from [beginIndex, endIndex[
-     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
+     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator</code> #end
      * <p><b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
      * </b></p>
@@ -123,7 +123,7 @@ public final class KTypeSort
 
     /**
      * In-place sort by dual-pivot quicksort an entire array of <code>KType</code>s
-     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
+     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator</code> #end
      * <p><b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
      * </b></p>
@@ -132,8 +132,8 @@ public final class KTypeSort
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
     /*! #else
-                                                                            KTypeComparator<? super KType>
-                                                                               #end !*/
+                            KTypeComparator<? super KType>
+                    #end !*/
     comp)
     {
         KTypeSort.quicksort(table, 0, table.length, comp);
@@ -141,7 +141,7 @@ public final class KTypeSort
 
     /**
      * In-place sort by dual-pivot quicksort a generic {@link KTypeIndexedContainer} from [beginIndex, endIndex[
-     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
+     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator</code> #end
      * <p><b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
      * </b></p>
@@ -163,7 +163,7 @@ public final class KTypeSort
 
     /**
      * In-place sort by dual-pivot quicksort an entire generic {@link KTypeIndexedContainer}
-     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
+     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator</code> #end
      * <p><b>
      * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
      * </b></p>
@@ -172,8 +172,8 @@ public final class KTypeSort
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
             /*! #else
-                                    KTypeComparator<? super KType>
-                                    #end !*/
+                    KTypeComparator<? super KType>
+                    #end !*/
     comp)
     {
         KTypeSort.quicksort(table, 0, table.size(), comp);
@@ -920,7 +920,7 @@ public final class KTypeSort
     }
 
     /**
-     * Private recursive sort method for KTypeIndexedContainer<KType> a , [left, right] inclusive using KTypeComparator
+     * Private recursive sort method for KTypeIndexedContainer a , [left, right] inclusive using KTypeComparator
      * for comparison.
      * @param a
      * @param left
