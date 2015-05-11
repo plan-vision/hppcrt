@@ -193,9 +193,6 @@ public class TestSignatureProcessor
     @Test
     public void testNotGenericNamedTypeBound() throws IOException {
 
-        //TODO
-        // this.displayParseTree = true;
-
         final SignatureProcessor sp = new SignatureProcessor(
                 "class KTypeFoo<KType> { public <T extends IntProcedure> T forEach(T v) { } }");
 
@@ -220,6 +217,16 @@ public class TestSignatureProcessor
 
         check(Type.FLOAT, sp, "class FloatFoo { void foo() { ObjectBar<B> x = new ObjectBar<B>(); } }");
         check(Type.GENERIC, sp, "class ObjectFoo<KType> { void foo() { ObjectBar<B> x = new ObjectBar<B>(); } }");
+    }
+
+    @Test
+    public void testUnboundedUnknownWildcard() throws IOException {
+
+        final SignatureProcessor sp = new SignatureProcessor(
+                "class KTypeFoo<KType> { void foo() { boolean bTEST = Bar instanceof TestUnbounded<?>; }}");
+
+        check(Type.FLOAT, sp, "class FloatFoo { void foo() { boolean bTEST = Bar instanceof TestUnbounded<?>; }}");
+        check(Type.GENERIC, sp, "class ObjectFoo<KType> { void foo() { boolean bTEST = Bar instanceof TestUnbounded<?>; }}");
     }
 
     @Test
@@ -297,8 +304,6 @@ public class TestSignatureProcessor
     @Test
     public void testFullClassPartialTemplateSpecialization() throws IOException {
 
-        //TODO
-
         final String testedPath = TestSignatureProcessor.TEST_CASE_PATH + "KTypePartialSpecializationClass.test";
 
         final String expectedPathLong = TestSignatureProcessor.TEST_CASE_PATH + "LongPartialSpecializationClass.ok";
@@ -350,10 +355,16 @@ public class TestSignatureProcessor
     public void testCrashParsing() throws IOException {
 
         final String testedPath = TestSignatureProcessor.TEST_CASE_PATH + "CrashParser.txt";
-        final String expectedPathLong = TestSignatureProcessor.TEST_CASE_PATH + "CrashParser.txt";
 
-        System.out.println("\n\n>>>> Converted to long : \n\n");
-        compareWithReferenceFile(new TemplateOptions(Type.LONG, null), testedPath, expectedPathLong);
+        final SignatureProcessor processor = new SignatureProcessor(loadFile(testedPath));
+
+        if (this.displayParseTree) {
+
+            processor.displayParseTreeGui();
+        }
+
+        //Compute :
+        final String output = processor.process(new TemplateOptions(Type.LONG, null));
     }
 
     @Test

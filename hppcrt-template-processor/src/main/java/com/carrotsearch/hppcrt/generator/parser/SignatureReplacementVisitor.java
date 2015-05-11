@@ -295,7 +295,7 @@ public class SignatureReplacementVisitor extends ReplacementVisitorBase
 
         for (final TypeArgumentContext c : typeArguments.typeArgument()) {
 
-            //TODO: VSO Added : visit subtypes ...
+            //Visit subtypes ...
             if (!isTerminal) {
                 replacements.addAll(new ArrayList<>(super.visitTypeArgument(c)));
 
@@ -342,10 +342,10 @@ public class SignatureReplacementVisitor extends ReplacementVisitorBase
 
         log(Level.FINEST, "visitIdentifierTypePair", "identifier or expression = " + identifier);
 
-        //TODO: Only terminal ?
+        //Only terminal
         if (isTerminalTypeIdentifier(ctx.typeArguments()) || ctx.getChildCount() == 1) {
 
-            if (ctx.typeArguments() != null) {
+            if (ctx.typeArguments() != null && isTemplateIdentifier(identifier)) {
 
                 final List<TypeBound> typeBounds = new ArrayList<>();
 
@@ -366,7 +366,6 @@ public class SignatureReplacementVisitor extends ReplacementVisitorBase
                 return replacements;
             } //end if ctx.typeArguments() != null
 
-            //TODO:
             //Translate the terminal symbols
             replacements = processIdentifier(ctx.Identifier(), ReplacementVisitorBase.NONE);
 
