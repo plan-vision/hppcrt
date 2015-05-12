@@ -31,13 +31,8 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeLinkedList<KType>
-        extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, KTypeDeque<KType>, Cloneable
+extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, KTypeDeque<KType>, Cloneable
 {
-    /**
-     * Default capacity if no other capacity is given in the constructor.
-     */
-    public final static int DEFAULT_CAPACITY = 16;
-
     /**
      * Internal array for storing the list. The array may be larger than the current size
      * ({@link #size()}).
@@ -110,12 +105,12 @@ public class KTypeLinkedList<KType>
 
     /**
      * Create with default sizing strategy and initial capacity for storing
-     * {@value #DEFAULT_CAPACITY} elements.
+     * {@link Containers#DEFAULT_EXPECTED_ELEMENTS} elements.
      * 
      * @see BoundedProportionalArraySizingStrategy
      */
     public KTypeLinkedList() {
-        this(KTypeLinkedList.DEFAULT_CAPACITY);
+        this(Containers.DEFAULT_EXPECTED_ELEMENTS);
     }
 
     /**
@@ -222,11 +217,16 @@ public class KTypeLinkedList<KType>
     public void add(final KType e1, final KType e2) {
         ensureBufferSpace(2);
         insertAfterPosNoCheck(e1, KTypeLinkedList.getLinkBefore(this.beforeAfterPointers[KTypeLinkedList.TAIL_POSITION]));
-        ;
+
         insertAfterPosNoCheck(e2, KTypeLinkedList.getLinkBefore(this.beforeAfterPointers[KTypeLinkedList.TAIL_POSITION]));
-        ;
+
     }
 
+    /**
+     * Add all elements (var-args signature) to the list, equivalent of add(final KType... elements)
+     * @see #add(KType[])
+     * @param elements
+     */
     public void addLast(final KType... elements) {
         addLast(elements, 0, elements.length);
     }
@@ -348,7 +348,7 @@ public class KTypeLinkedList<KType>
     @Override
     public void removeRange(final int fromIndex, final int toIndex) {
         assert (fromIndex >= 0 && fromIndex <= size()) : "Index " + fromIndex + " out of bounds [" + 0 + ", " + size()
-                + ").";
+        + ").";
 
         assert (toIndex >= 0 && toIndex <= size()) : "Index " + toIndex + " out of bounds [" + 0 + ", " + size() + "].";
 
@@ -1668,7 +1668,7 @@ public class KTypeLinkedList<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> newInstance() {
+    KTypeLinkedList<KType> newInstance() {
         return new KTypeLinkedList<KType>();
     }
 
@@ -1677,7 +1677,7 @@ public class KTypeLinkedList<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> newInstance(final int initialCapacity) {
+    KTypeLinkedList<KType> newInstance(final int initialCapacity) {
         return new KTypeLinkedList<KType>(initialCapacity);
     }
 
@@ -1686,7 +1686,7 @@ public class KTypeLinkedList<KType>
      * The elements are copied from the argument to the internal buffer.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> from(final KType... elements) {
+    KTypeLinkedList<KType> from(final KType... elements) {
         final KTypeLinkedList<KType> list = new KTypeLinkedList<KType>(elements.length);
         list.add(elements);
         return list;
@@ -1696,7 +1696,7 @@ public class KTypeLinkedList<KType>
      * Create a list from elements of another container.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> from(final KTypeContainer<KType> container) {
+    KTypeLinkedList<KType> from(final KTypeContainer<KType> container) {
         return new KTypeLinkedList<KType>(container);
     }
 
@@ -1707,11 +1707,15 @@ public class KTypeLinkedList<KType>
      * WARNING: This method runs in O(n*n*log(n)). Consider yourself warned.
      * </b></p>
      * 
+    #if ($TemplateOptions.KTypeGeneric)
+     * <p><b>
+     * This sort is NOT stable.
+     * </b></p>
+     * @throws ClassCastException if the list contains elements that are not mutually Comparable.
+    #end
+     * 
      * @param beginIndex the start index to be sorted
      * @param endIndex the end index to be sorted (excluded)
-     #if ($TemplateOptions.KTypeGeneric)
-     * @throws ClassCastException if the list contains elements that are not mutually Comparable.
-     #end
      */
     public void sort(final int beginIndex, final int endIndex) {
         assert endIndex <= size();
@@ -1725,11 +1729,14 @@ public class KTypeLinkedList<KType>
      * In-place sort the list from [beginIndex, endIndex[
      * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator</code> #end
      * <p><b>
-     * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
-     * </b></p>
-     * <p><b>
      * WARNING: This method runs in O(n*n*log(n)). Consider yourself warned.
      * </b></p>
+     * 
+    #if ($TemplateOptions.KTypeGeneric)
+     * <p><b>
+     * This sort is NOT stable.
+     * </b></p>
+    #end
      * 
      * @param beginIndex the start index to be sorted
      * @param endIndex the end index to be sorted (excluded)
@@ -1737,10 +1744,10 @@ public class KTypeLinkedList<KType>
     public void sort(final int beginIndex, final int endIndex,
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
-            /*! #else
-                    KTypeComparator<? super KType>
-                    #end !*/
-            comp) {
+    /*! #else
+                                            KTypeComparator<? super KType>
+                                            #end !*/
+    comp) {
         assert endIndex <= size();
 
         if (endIndex - beginIndex > 1) {
@@ -1750,15 +1757,15 @@ public class KTypeLinkedList<KType>
 
     /**
      * In-place sort the whole list by natural ordering (smaller first)
+    #if ($TemplateOptions.KTypeGeneric)
      * <p><b>
-     * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009]
+     * This sort is NOT stable.
      * </b></p>
-     * 
-     #if ($TemplateOptions.KTypeGeneric)
-     * @throws ClassCastException if the array contains elements that are not mutually Comparable.
-     #end
+     * @throws ClassCastException if the list contains elements that are not mutually Comparable.
+    #end
      */
     public void sort() {
+
         if (this.elementsCount > 3) {
             final int elementsCount = this.elementsCount;
             final long[] pointers = this.beforeAfterPointers;
@@ -1787,9 +1794,11 @@ public class KTypeLinkedList<KType>
     /**
      * In-place sort the whole list
      * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator</code> #end
+    #if ($TemplateOptions.KTypeGeneric)
      * <p><b>
-     * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
+     * This sort is NOT stable.
      * </b></p>
+    #end
      */
     public void sort(
             /*! #if ($TemplateOptions.KTypeGeneric) !*/

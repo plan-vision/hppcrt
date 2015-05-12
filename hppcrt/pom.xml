@@ -1,247 +1,263 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-  <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>com.github.vsonnier</groupId>
-    <artifactId>hppcrt-parent</artifactId>
-    <version>0.7.0-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
-  </parent>
+	<parent>
+		<groupId>com.github.vsonnier</groupId>
+		<artifactId>hppcrt-parent</artifactId>
+		<version>0.7.0-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
 
-  <!-- Project info. -->
-  <groupId>com.github.vsonnier</groupId>
-  <artifactId>hppcrt</artifactId>
-  <version>0.7.0-SNAPSHOT</version>
-  <packaging>jar</packaging>
+	<!-- Project info. -->
+	<groupId>com.github.vsonnier</groupId>
+	<artifactId>hppcrt</artifactId>
+	<version>0.7.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
 
-  <name>HPPC-RT Collections</name>
-  <description>High Performance Primitive Collections Realtime
+	<name>HPPC-RT Collections</name>
+	<description>High Performance Primitive Collections Realtime
  (fork of HPPC of Carrotsearch)
   Fundamental data structures (maps, sets, lists, stacks, queues, heaps, sorts) generated for
   combinations of object and primitive types to conserve JVM memory and speed
   up execution. The Realtime fork intend of extending collections while tweaking and optimizations to remove any dynamic allocations at runtime,
   and low variance execution times. 
-</description>
-  
-  <!-- Dependencies. -->
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${version.junit}</version>
-      <scope>test</scope>
-    </dependency>
+	</description>
 
-    <dependency>
-      <groupId>com.carrotsearch.randomizedtesting</groupId>
-      <artifactId>randomizedtesting-runner</artifactId>
-      <version>${version.randomizedtesting}</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+	<!-- Dependencies. -->
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${version.junit}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.carrotsearch.randomizedtesting</groupId>
+			<artifactId>randomizedtesting-runner</artifactId>
+			<version>${version.randomizedtesting}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 
 
-  <properties>
-    <retrotranslator.version>1.2.9</retrotranslator.version>
-    <backport-util-concurrent.version>3.1</backport-util-concurrent.version>
-  </properties>
+	<properties>
+		<retrotranslator.version>1.2.9</retrotranslator.version>
+		<backport-util-concurrent.version>3.1</backport-util-concurrent.version>
+	</properties>
 
-  <!-- Build tuning. -->
-  <build>
-    <defaultGoal>install</defaultGoal>
-    <plugins>
-      <!-- Generate sources for primitives from template. -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>${version.maven-antrun-plugin}</version>
-        <executions>
-          <execution>
-            <id>generate.sources</id>
-            <phase>generate-sources</phase>
-            <configuration>
-                <fork>true</fork>
-                <meminitial>256m</meminitial>
-                <maxmem>512m</maxmem>
-              <target> 
-                <property name="classpath" refid="maven.plugin.classpath" />
-                <echo file="${project.basedir}/.builder.classpath">${classpath}</echo>
-                <ant antfile="${basedir}/build.xml" />
-              </target>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-          
-          <execution>
-            <id>antrun-retrotranslate-jdk15</id>
-            <phase>package</phase>
-            <configuration>
-              <target>
-                <taskdef name="retrotranslator"
+	<!-- Build tuning. -->
+	<build>
+		<defaultGoal>install</defaultGoal>
+		<plugins>
+			<!-- Generate sources for primitives from template. -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>${version.maven-antrun-plugin}</version>
+				<executions>
+					<execution>
+						<id>generate.sources</id>
+						<phase>generate-sources</phase>
+						<configuration>
+							<fork>true</fork>
+							<meminitial>256m</meminitial>
+							<maxmem>512m</maxmem>
+							<target> 
+								<property name="classpath" refid="maven.plugin.classpath" />
+								<echo file="${project.basedir}/.builder.classpath">${classpath}</echo>
+								<ant antfile="${basedir}/build.xml" />
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+
+					<execution>
+						<id>antrun-retrotranslate-jdk15</id>
+						<phase>package</phase>
+						<configuration>
+							<target>
+								<taskdef name="retrotranslator"
                   classname="net.sf.retrotranslator.transformer.RetrotranslatorTask"
                   classpathref="maven.plugin.classpath" />
 
-                <retrotranslator verbose="true" verify="false"
+								<retrotranslator verbose="true" verify="false"
                   failonwarning="true" target="1.5" embed="com.carrotsearch.hppcrt.backport"
                   destjar="${project.build.directory}/${project.build.finalName}-jdk15.jar">
 
-                  <jarfileset dir="${project.build.directory}"
+									<jarfileset dir="${project.build.directory}"
                     includes="${project.build.finalName}.jar" />
 
-                  <classpath>
-                    <pathelement location="${basedir}/src/main/retrotranslator" />
-                  </classpath>
-                  <classpath refid="maven.plugin.classpath" />
-                  <classpath refid="maven.compile.classpath" />
-                  <classpath>
-                    <fileset dir="${java.home}/lib" includes="rt.jar" />
-                  </classpath>
-                </retrotranslator>
+									<classpath>
+										<pathelement location="${basedir}/src/main/retrotranslator" />
+									</classpath>
+									<classpath refid="maven.plugin.classpath" />
+									<classpath refid="maven.compile.classpath" />
+									<classpath>
+										<fileset dir="${java.home}/lib" includes="rt.jar" />
+									</classpath>
+								</retrotranslator>
 
-                  <attachartifact file="${project.build.directory}/${project.build.finalName}-jdk15.jar"
+								<attachartifact file="${project.build.directory}/${project.build.finalName}-jdk15.jar"
                   classifier="jdk15" type="jar" />
-              </target>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
 
-        <dependencies>
-          <dependency>
-            <groupId>com.github.vsonnier</groupId>
-            <artifactId>hppcrt-template-processor</artifactId>
-            <version>${project.version}</version>
-          </dependency>
-          
-          <dependency>
-            <groupId>net.sf.retrotranslator</groupId>
-            <artifactId>retrotranslator-transformer</artifactId>
-            <version>${retrotranslator.version}</version>
-          </dependency>
+				<dependencies>
+					<dependency>
+						<groupId>com.github.vsonnier</groupId>
+						<artifactId>hppcrt-template-processor</artifactId>
+						<version>${project.version}</version>
+					</dependency>
 
-          <dependency>
-            <groupId>net.sf.retrotranslator</groupId>
-            <artifactId>retrotranslator-runtime</artifactId>
-            <version>${retrotranslator.version}</version>
-          </dependency>
+					<dependency>
+						<groupId>net.sf.retrotranslator</groupId>
+						<artifactId>retrotranslator-transformer</artifactId>
+						<version>${retrotranslator.version}</version>
+					</dependency>
 
-          <dependency>
-            <groupId>backport-util-concurrent</groupId>
-            <artifactId>backport-util-concurrent</artifactId>
-            <version>${backport-util-concurrent.version}</version>
-          </dependency>
-        </dependencies>
-      </plugin>
+					<dependency>
+						<groupId>net.sf.retrotranslator</groupId>
+						<artifactId>retrotranslator-runtime</artifactId>
+						<version>${retrotranslator.version}</version>
+					</dependency>
 
-      <!-- Add generated source locations. -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>add-source</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>add-source</goal>
-            </goals>
-            <configuration>
-              <sources>
-                <source>${project.basedir}/src/main/templates</source>
-                <source>${project.build.directory}/generated-sources/main/java</source>
-              </sources>
-            </configuration>
-          </execution>
+					<dependency>
+						<groupId>backport-util-concurrent</groupId>
+						<artifactId>backport-util-concurrent</artifactId>
+						<version>${backport-util-concurrent.version}</version>
+					</dependency>
+				</dependencies>
+			</plugin>
 
-          <execution>
-            <id>add-test-source</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>add-test-source</goal>
-            </goals>
-            <configuration>
-              <sources>
-                <source>${project.basedir}/src/test/templates</source>
-                <source>${project.build.directory}/generated-sources/test/java</source>
-              </sources>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-	  
-	  <plugin>
-		  <groupId>org.apache.maven.plugins</groupId>
-		  <artifactId>maven-source-plugin</artifactId>
-		  <executions>
-			<execution>
-			  <id>attach-sources</id>
-			  <goals>
-				<goal>jar</goal>
-			  </goals>
-			</execution>
-		  </executions>
-	   </plugin>
+			<!-- Add generated source locations. -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>add-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${project.basedir}/src/main/templates</source>
+								<source>${project.build.directory}/generated-sources/main/java</source>
+							</sources>
+						</configuration>
+					</execution>
 
-	   <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-javadocs</id>
-                <configuration>
-                  <encoding>${project.build.sourceEncoding}</encoding>
-                  <windowtitle>HPPC-RT v${project.version} API Documentation</windowtitle>
-                  <doctitle>HPPC-RT v${project.version} API Documentation</doctitle>
-                  <header><![CDATA[<div id='header'><a class='logo' target='_top' href='https://github.com/vsonnier/hppcrt'></a>High Performance Primitive Collections Realtime(HPPC-RT) v${project.version} <br>API Documentation</div>]]></header>
-                  <failOnError>false</failOnError>
-                  <docfilessubdirs>true</docfilessubdirs>
-                  <use>false</use>
-                  <noindex>true</noindex>
-                  <notree>true</notree>
-                  <groups>
-                    <group>
-                      <title>HPPC-RT</title>
-                      <packages>com.carrotsearch.hppcrt*</packages>
-                    </group>
-                  </groups>
-                </configuration>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
+					<execution>
+						<id>add-test-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-test-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${project.basedir}/src/test/templates</source>
+								<source>${project.build.directory}/generated-sources/test/java</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 
-      <!-- Run tests with JUnit4 instead. A simple configuration here. -->
-      <plugin>
-        <groupId>com.carrotsearch.randomizedtesting</groupId>
-        <artifactId>junit4-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>junit4-tests</id>
-            <goals>
-              <goal>junit4</goal>
-            </goals>
-            <configuration>
-              <includes>
-                <include>**/*Test.*</include>
-              </includes>
-              <excludes>
-                <exclude>**/*$*</exclude>
-                <exclude>**/Abstract*</exclude>
-              </excludes>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 
-              <parallelism>auto</parallelism>
-              <maxMemory>512m</maxMemory>
+			<!-- Lib tests themselves are Java 7 level while the final lib is still 1.6 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${version.maven-compiler-plugin}</version>
+				<configuration>
+					<source>${lib.hppcrt.source}</source>
+					<target>${lib.hppcrt.source}</target>
+					<testSource>${project.source}</testSource>
+					<testTarget>${project.source}</testTarget>
+					<compilerArgs>
+						<arg>-Xlint</arg>
+					</compilerArgs>
+				</configuration>
+			</plugin>
 
-              <!-- Attach a simple listener. -->
-              <listeners>
-                 <report-text  showThrowable="false" 
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<configuration>
+							<encoding>${project.build.sourceEncoding}</encoding>
+							<windowtitle>HPPC-RT v${project.version} API Documentation</windowtitle>
+							<doctitle>HPPC-RT v${project.version} API Documentation</doctitle>
+							<header><![CDATA[<div id='header'><a class='logo' target='_top' href='https://github.com/vsonnier/hppcrt'></a>High Performance Primitive Collections Realtime(HPPC-RT) v${project.version} <br>API Documentation</div>]]></header>
+							<failOnError>false</failOnError>
+							<docfilessubdirs>true</docfilessubdirs>
+							<use>false</use>
+							<noindex>true</noindex>
+							<notree>true</notree>
+							<groups>
+								<group>
+									<title>HPPC-RT</title>
+									<packages>com.carrotsearch.hppcrt*</packages>
+								</group>
+							</groups>
+						</configuration>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Run tests with JUnit4 instead. A simple configuration here. -->
+			<plugin>
+				<groupId>com.carrotsearch.randomizedtesting</groupId>
+				<artifactId>junit4-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>junit4-tests</id>
+						<goals>
+							<goal>junit4</goal>
+						</goals>
+						<configuration>
+							<includes>
+								<include>**/*Test.*</include>
+							</includes>
+							<excludes>
+								<exclude>**/*$*</exclude>
+								<exclude>**/Abstract*</exclude>
+							</excludes>
+
+							<parallelism>auto</parallelism>
+							<maxMemory>512m</maxMemory>
+
+							<!-- Attach a simple listener. -->
+							<listeners>
+								<report-text  showThrowable="false" 
                     showStackTraces="false" 
                     showOutput="onError"
 
@@ -252,74 +268,74 @@
 
                     showSuiteSummary="true" />
 
-                <report-json file="${project.build.directory}/surefire-reports/test-results.html" />
-                <report-ant-xml dir="${project.build.directory}/surefire-reports/" mavenExtensions="true" />
-              </listeners>
+								<report-json file="${project.build.directory}/surefire-reports/test-results.html" />
+								<report-ant-xml dir="${project.build.directory}/surefire-reports/" mavenExtensions="true" />
+							</listeners>
 
-              <assertions>
-                <enable package="com.carrotsearch"/>
-              </assertions>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-site-plugin</artifactId>
-        <configuration>
-          <reportPlugins>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-project-info-reports-plugin</artifactId>
-              <version>${version.maven-project-info-reports-plugin}</version>
-              <configuration>
-                <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
-                <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
-              </configuration>
-              <reports>
-                <report>dependencies</report>
-              </reports>
-            </plugin>
+							<assertions>
+								<enable package="com.carrotsearch"/>
+							</assertions>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-surefire-report-plugin</artifactId>
-              <version>${version.maven-surefire-report-plugin}</version>
-              <reportSets>
-                <reportSet>
-                  <id>main</id>
-                  <reports>
-                    <report>report-only</report>
-                  </reports>
-                </reportSet>
-              </reportSets>
-              <configuration>
-                <linkXRef>false</linkXRef>
-              </configuration>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<configuration>
+					<reportPlugins>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-project-info-reports-plugin</artifactId>
+							<version>${version.maven-project-info-reports-plugin}</version>
+							<configuration>
+								<dependencyDetailsEnabled>false</dependencyDetailsEnabled>
+								<dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+							</configuration>
+							<reports>
+								<report>dependencies</report>
+							</reports>
+						</plugin>
 
-            <plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>findbugs-maven-plugin</artifactId>
-              <version>${version.findbugs-maven-plugin}</version>
-              <configuration>
-                <excludeFilterFile>${basedir}/src/main/findbugs/excludes.xml</excludeFilterFile>
-                <findbugsXmlOutput>true</findbugsXmlOutput>
-                <includeTests>false</includeTests>
-              </configuration>
-            </plugin>
-          </reportPlugins>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-    <profiles>
-        <profile>
-            <id>quick</id>
-            <properties>
-                <skipTests>true</skipTests>
-            </properties>
-        </profile>
-    </profiles>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-surefire-report-plugin</artifactId>
+							<version>${version.maven-surefire-report-plugin}</version>
+							<reportSets>
+								<reportSet>
+									<id>main</id>
+									<reports>
+										<report>report-only</report>
+									</reports>
+								</reportSet>
+							</reportSets>
+							<configuration>
+								<linkXRef>false</linkXRef>
+							</configuration>
+						</plugin>
+
+						<plugin>
+							<groupId>org.codehaus.mojo</groupId>
+							<artifactId>findbugs-maven-plugin</artifactId>
+							<version>${version.findbugs-maven-plugin}</version>
+							<configuration>
+								<excludeFilterFile>${basedir}/src/main/findbugs/excludes.xml</excludeFilterFile>
+								<findbugsXmlOutput>true</findbugsXmlOutput>
+								<includeTests>false</includeTests>
+							</configuration>
+						</plugin>
+					</reportPlugins>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<profiles>
+		<profile>
+			<id>quick</id>
+			<properties>
+				<skipTests>true</skipTests>
+			</properties>
+		</profile>
+	</profiles>
 </project>
