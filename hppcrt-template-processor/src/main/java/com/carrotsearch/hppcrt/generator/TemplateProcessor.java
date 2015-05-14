@@ -105,7 +105,7 @@ public final class TemplateProcessor
     }
 
     /**
-     * Formatter for java.util.logger
+     * java.util.Logger formatter to be used throughout the whole template-processor tool.
      */
     private static class ProcessorLogsFormatter extends Formatter
     {
@@ -114,7 +114,7 @@ public final class TemplateProcessor
 
             String msg = "";
 
-            //We only want to log OUR messages, not every package around (especially Swing/Awt ...)
+            //We only want to log OUR messages, not every package around (especially NOT Swing/Awt FINE logs !)
             if (record.getSourceClassName().startsWith("com.carrotsearch.hppcrt")) {
 
                 if (record.getThrown() != null) {
@@ -184,7 +184,7 @@ public final class TemplateProcessor
     }
 
     /**
-     * 
+     * Also for Ant Task attribute 'verbose', MUST respect this naming.
      */
     public void setVerbose(final String verboseLevel) {
         this.verbose = Level.parse(verboseLevel);
@@ -193,7 +193,7 @@ public final class TemplateProcessor
     }
 
     /**
-     * 
+     * Also for Ant Task attribute 'incremental', MUST respect this naming.
      */
     public void setIncremental(final boolean incremental) {
         this.incremental = incremental;
@@ -218,7 +218,7 @@ public final class TemplateProcessor
     }
 
     /**
-     * 
+     * Ant Task main entry point. (also used in main)
      */
     public void execute() {
 
@@ -581,7 +581,7 @@ public final class TemplateProcessor
 
             final SignatureProcessor signatureProcessor = new SignatureProcessor(input);
 
-            return signatureProcessor.process(options);
+            return signatureProcessor.process(options, SignatureProcessor.ReplacementKind.CLASSREFS);
 
         } catch (final ParseCancellationException | IllegalArgumentException e) {
 

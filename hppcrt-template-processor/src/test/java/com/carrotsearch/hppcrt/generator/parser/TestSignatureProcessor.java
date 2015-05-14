@@ -82,7 +82,7 @@ public class TestSignatureProcessor
         final SignatureProcessor sp = new SignatureProcessor(
                 "public class KTypeVTypeClass<KType, VType> " +
                         " extends     KTypeVTypeSuperClass<KType, VType>" +
-                " implements  KTypeVTypeInterface<KType, VType> {}");
+                        " implements  KTypeVTypeInterface<KType, VType> {}");
 
         check(Type.INT, Type.LONG, sp, "public class IntLongClass extends IntLongSuperClass implements IntLongInterface {}");
         check(Type.INT, Type.GENERIC, sp, "public class IntObjectClass<VType> extends IntObjectSuperClass<VType> implements IntObjectInterface<VType> {}");
@@ -94,7 +94,7 @@ public class TestSignatureProcessor
     public void testInterfaceKV() throws IOException {
         final SignatureProcessor sp = new SignatureProcessor(
                 "public interface KTypeVTypeInterface<KType, VType> " +
-                "         extends KTypeVTypeSuper<KType, VType> {}");
+                        "         extends KTypeVTypeSuper<KType, VType> {}");
 
         check(Type.INT, Type.LONG, sp, "public interface IntLongInterface extends IntLongSuper {}");
         check(Type.INT, Type.GENERIC, sp, "public interface IntObjectInterface<VType> extends IntObjectSuper<VType> {}");
@@ -271,14 +271,45 @@ public class TestSignatureProcessor
      */
     @Test
     public void testUtilityClassStaticGenericMethods() throws IOException {
+
         final SignatureProcessor sp = new SignatureProcessor(
                 "public final class KTypeArraysClass {  "
                         + "public static <KType> void utilityMethod(final KType[] objectArray, final int startIndex, final int endIndex) {"
                         + "} "
                         + "}");
 
-        System.out.println("\n" + sp.process(new TemplateOptions(Type.GENERIC, null)) + "\n");
-        System.out.println("\n" + sp.process(new TemplateOptions(Type.INT, null)) + "\n");
+        check(Type.GENERIC, sp, "public final class ObjectArraysClass {  "
+                + "public static <KType> void utilityMethod(final KType[] objectArray, final int startIndex, final int endIndex) {"
+                + "} "
+                + "}");
+
+        check(Type.INT, sp, "public final class IntArraysClass {  "
+                + "public static void utilityMethod(final int[] objectArray, final int startIndex, final int endIndex) {"
+                + "} "
+                + "}");
+    }
+
+    @Test
+    public void testMethodCall() throws IOException {
+
+        final SignatureProcessor sp = new SignatureProcessor(
+                "public final class Foo {  "
+                        + "public static bar(int objectArray, final int startIndex, final int endIndex) {\n"
+                        + "// Static method call alone\n"
+                        + "AloneVoidClass.<KType>voidMethod(a,b); "
+                        + "//This\n"
+                        + "this.methodCalledWithThis(c,d);"
+                        + "// Not this\n"
+                        + "methodCallWithoutThis(c,d);"
+                        + "// call in expression\n"
+                        + "int expressionResult = this.methodCalledWithThis(a,b) + methodCallWithoutThis(c,d) /  VoidClass.<KType>returnMethod(e,f);"
+                        + "// Method call within method call\n"
+                        + "int expressionComplexResult = this.outerMethodCalledWithThis(methodCallWithoutThis( VoidClass.<KType>returnMethod(a,b),c), d);"
+                        + "} "
+                        + "}");
+
+        sp.displayParseTreeGui();
+
     }
 
     @Test
@@ -373,7 +404,7 @@ public class TestSignatureProcessor
         }
 
         //Compute :
-        final String output = processor.process(new TemplateOptions(Type.LONG, null));
+        final String output = processor.process(new TemplateOptions(Type.LONG, null), SignatureProcessor.ReplacementKind.CLASSREFS);
     }
 
     @Test
@@ -423,7 +454,7 @@ public class TestSignatureProcessor
             processor.displayParseTreeGui();
         }
 
-        final String output = processor.process(templateOptions);
+        final String output = processor.process(templateOptions, SignatureProcessor.ReplacementKind.CLASSREFS);
 
         final String expectedNormalized = expected.trim().replaceAll("\\s+", " ");
         final String outputNormalized = output.trim().replaceAll("\\s+", " ");
@@ -454,7 +485,7 @@ public class TestSignatureProcessor
         }
 
         //Compute :
-        final String output = processor.process(templateOptions);
+        final String output = processor.process(templateOptions, SignatureProcessor.ReplacementKind.CLASSREFS);
 
         //whitespace is not significant, normalize it
         final String outputNormalized = output.trim().replaceAll("\\s+", " ");

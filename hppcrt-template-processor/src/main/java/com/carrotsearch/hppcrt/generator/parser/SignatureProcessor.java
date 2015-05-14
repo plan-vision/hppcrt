@@ -1,13 +1,10 @@
 package com.carrotsearch.hppcrt.generator.parser;
 
-import java.awt.Dialog.ModalityType;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -15,7 +12,6 @@ import java.util.concurrent.Future;
 import javax.swing.JDialog;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.BufferedTokenStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -33,12 +29,17 @@ import com.carrotsearch.hppcrt.generator.parser.Java7Parser.CompilationUnitConte
 /** */
 public class SignatureProcessor
 {
+    public enum ReplacementKind {
+        CLASSREFS,
+        INLINES
+    }
+
     private static final int GUI_MAX_TITLE_SIZE = 150;
 
     /**
      * The input
      */
-    public final String source;
+    private final String source;
 
     /**
      * The Parser instance
@@ -53,19 +54,7 @@ public class SignatureProcessor
     /**
      * The result Context of the parsing of tokenStream by the Parser.
      */
-    public final CompilationUnitContext unitContext;
-
-    public static class ThrowingErrorListener extends BaseErrorListener
-    {
-        public static final ThrowingErrorListener INSTANCE = new ThrowingErrorListener();
-
-        @Override
-        public void syntaxError(final Recognizer<?, ?> recognizer, final Object offendingSymbol, final int line, final int charPositionInLine,
-                final String msg, final RecognitionException e) throws ParseCancellationException {
-
-            throw new ParseCancellationException("line " + line + ":" + charPositionInLine + " " + msg);
-        }
-    }
+    private final CompilationUnitContext unitContext;
 
     /**
      * constructor from input, create the parser and parse the source.
@@ -94,9 +83,9 @@ public class SignatureProcessor
      * Main processing entry point: call to apply source file (template) conversions according to the current provided templateOptions
      * @return
      */
-    public String process(final TemplateOptions templateOptions) {
+    public String process(final TemplateOptions templateOptions, final SignatureProcessor.ReplacementKind kind) {
 
-        return applyReplacements(findReplacements(templateOptions), templateOptions);
+        return applyReplacements(findReplacements(templateOptions, kind), templateOptions);
     }
 
     /**
@@ -112,10 +101,19 @@ public class SignatureProcessor
     /**
      * Step 2 : Compute the replacements using a Visitor-traversal of the parsed source using a SignatureReplacementVisitor.
      */
-    private List<Replacement> findReplacements(final TemplateOptions templateOptions) {
+    private List<Replacement> findReplacements(final TemplateOptions templateOptions, final SignatureProcessor.ReplacementKind kind) {
 
         //Plug the SignatureVisitor into the final CompilationUnit context and start the Visitor traversal and computing.
-        final List<Replacement> replacements = this.unitContext.accept(new SignatureReplacementVisitor(templateOptions, this));
+        List<Replacement> replacements = ReplacementVisitorBase.NONE;
+
+        if (kind == ReplacementKind.CLASSREFS) {
+
+            replacements = this.unitContext.accept(new SignatureReplacementVisitor(templateOptions, this));
+
+        } else if (kind == ReplacementKind.INLINES) {
+
+            replacements = this.unitContext.accept(new InlinesReplacementVisitor(templateOptions, this));
+        }
 
         //the result is a list of Replacement, i.e list of intervals of the original stream (in fact of the TokenStream), associated with a replacement string.
         return replacements;
@@ -124,7 +122,7 @@ public class SignatureProcessor
     /**
      * Step 3 : Apply all computed replacements into the original source.
      */
-    private String applyReplacements(final List<Replacement> replacements, final TemplateOptions options) {
+    protected String applyReplacements(final List<Replacement> replacements, final TemplateOptions options) {
 
         final StringWriter sw = new StringWriter();
         reconstruct(sw, this.tokenStream, 0, this.tokenStream.size() - 1, replacements, options);

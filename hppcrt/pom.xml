@@ -18,7 +18,7 @@
 
 	<name>HPPC-RT Collections</name>
 	<description>High Performance Primitive Collections Realtime
- (fork of HPPC of Carrotsearch)
+ (fork of HPPC from Carrotsearch)
   Fundamental data structures (maps, sets, lists, stacks, queues, heaps, sorts) generated for
   combinations of object and primitive types to conserve JVM memory and speed
   up execution. The Realtime fork intend of extending collections while tweaking and optimizations to remove any dynamic allocations at runtime,
@@ -81,16 +81,13 @@
 						<phase>package</phase>
 						<configuration>
 							<target>
-								<taskdef name="retrotranslator"
-                  classname="net.sf.retrotranslator.transformer.RetrotranslatorTask"
-                  classpathref="maven.plugin.classpath" />
+								<taskdef name="retrotranslator" classname="net.sf.retrotranslator.transformer.RetrotranslatorTask" classpathref="maven.plugin.classpath" />
 
 								<retrotranslator verbose="true" verify="false"
-                  failonwarning="true" target="1.5" embed="com.carrotsearch.hppcrt.backport"
-                  destjar="${project.build.directory}/${project.build.finalName}-jdk15.jar">
+												failonwarning="true" target="1.5" embed="com.carrotsearch.hppcrt.backport"
+												destjar="${project.build.directory}/${project.build.finalName}-jdk15.jar">
 
-									<jarfileset dir="${project.build.directory}"
-                    includes="${project.build.finalName}.jar" />
+									<jarfileset dir="${project.build.directory}" includes="${project.build.finalName}.jar" />
 
 									<classpath>
 										<pathelement location="${basedir}/src/main/retrotranslator" />
@@ -103,7 +100,7 @@
 								</retrotranslator>
 
 								<attachartifact file="${project.build.directory}/${project.build.finalName}-jdk15.jar"
-                  classifier="jdk15" type="jar" />
+												classifier="jdk15" type="jar" />
 							</target>
 						</configuration>
 						<goals>
@@ -258,15 +255,15 @@
 							<!-- Attach a simple listener. -->
 							<listeners>
 								<report-text  showThrowable="false" 
-                    showStackTraces="false" 
-                    showOutput="onError"
+											showStackTraces="false" 
+											showOutput="onError"
 
-                    showStatusOk="false"
-                    showStatusError="false"
-                    showStatusFailure="false"
-                    showStatusIgnored="false"
+											showStatusOk="false"
+											showStatusError="false"
+											showStatusFailure="false"
+											showStatusIgnored="false"
 
-                    showSuiteSummary="true" />
+											showSuiteSummary="true" />
 
 								<report-json file="${project.build.directory}/surefire-reports/test-results.html" />
 								<report-ant-xml dir="${project.build.directory}/surefire-reports/" mavenExtensions="true" />
