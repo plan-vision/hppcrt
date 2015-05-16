@@ -294,17 +294,19 @@ public class TestSignatureProcessor
 
         final SignatureProcessor sp = new SignatureProcessor(
                 "public final class Foo {  "
-                        + "public static bar(int objectArray, final int startIndex, final int endIndex) {\n"
+                        + "public static bar() {\n"
                         + "// Static method call alone\n"
                         + "AloneVoidClass.<KType>voidMethod(a,b); "
+                        + "AloneVoidClass.<KType>voidMethodOneArgument(a);"
+                        + "AloneVoidClass.<KType>voidMethodNoArgument();"
                         + "//This\n"
                         + "this.methodCalledWithThis(c,d);"
+                        + "this.methodCalledWithThisOneArgument(one);"
+                        + "this.methodCalledWithThisNoArgument();"
                         + "// Not this\n"
                         + "methodCallWithoutThis(c,d);"
-                        + "// call in expression\n"
-                        + "int expressionResult = this.methodCalledWithThis(a,b) + methodCallWithoutThis(c,d) /  VoidClass.<KType>returnMethod(e,f);"
-                        + "// Method call within method call\n"
-                        + "int expressionComplexResult = this.outerMethodCalledWithThis(methodCallWithoutThis( VoidClass.<KType>returnMethod(a,b),c), d);"
+                        + "methodCallWithoutThisOneArgument(one);"
+                        + "methodCallWithoutThisNoArgument();"
                         + "} "
                         + "}");
 

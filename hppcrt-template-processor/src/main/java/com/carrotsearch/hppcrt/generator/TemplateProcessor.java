@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,8 +65,6 @@ public final class TemplateProcessor
     private long timeVelocity, timeInlines, timeTypeClassRefs, timeComments;
 
     private VelocityEngine velocity;
-
-    private boolean isVelocityInitialized = false;
 
     /**
      * Logger handler for Velocity
@@ -138,49 +137,44 @@ public final class TemplateProcessor
 
     private void initVelocity() {
 
-        if (!this.isVelocityInitialized) {
+        final ExtendedProperties p = new ExtendedProperties();
 
-            final ExtendedProperties p = new ExtendedProperties();
+        //Velocity 2.0+ will have this option removed,
+        //with the equivalent of SET_NULL_ALLOWED = true set permanently,
+        //so better to get used to.
+        p.setProperty(RuntimeConstants.SET_NULL_ALLOWED, "true");
 
-            //Velocity 2.0+ will have this option removed,
-            //with the equivalent of SET_NULL_ALLOWED = true set permanently,
-            //so better to get used to.
-            p.setProperty(RuntimeConstants.SET_NULL_ALLOWED, "true");
+        //Attach a Velocity logger to see internal Velocity log messages on console
+        p.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new VelocityLogger());
 
-            //Attach a Velocity logger to see internal Velocity log messages on console
-            p.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new VelocityLogger());
+        //Set resource path to be templatesDir + dependenciesDir, using Resource Loader:
+        //log something when a resource is found
+        p.setProperty(RuntimeConstants.RESOURCE_MANAGER_LOGWHENFOUND, "true");
 
-            //Set resource path to be templatesDir + dependenciesDir, using Resource Loader:
-            //log something when a resource is found
-            p.setProperty(RuntimeConstants.RESOURCE_MANAGER_LOGWHENFOUND, "true");
+        p.setProperty(RuntimeConstants.INPUT_ENCODING, "UTF-8");
+        p.setProperty(RuntimeConstants.OUTPUT_ENCODING, "UTF-8");
 
-            p.setProperty(RuntimeConstants.INPUT_ENCODING, "UTF-8");
-            p.setProperty(RuntimeConstants.OUTPUT_ENCODING, "UTF-8");
+        //set the templatesDir to search for the '#import'ed  files....
+        p.setProperty("resource.loader", "file");
 
-            //set the templatesDir to search for the '#import'ed  files....
-            p.setProperty("resource.loader", "file");
-
-            //if the dependencies are not set, make them the same as the templates.
-            if (this.dependenciesDir == null) {
-                this.dependenciesDir = this.templatesDir;
-            }
-
-            p.setProperty("file.resource.loader.path", ". , " + new TemplateFile(this.templatesDir).fullPath + " , "
-                    + new TemplateFile(this.dependenciesDir).fullPath);
-
-            p.setProperty("file.resource.loader.cache", "true");
-            p.setProperty("file.resource.loader.modificationCheckInterval", "-1");
-
-            //declare "#import" as a user directive:
-            p.setProperty("userdirective", "com.carrotsearch.hppcrt.generator.ImportDirective");
-
-            this.velocity = new VelocityEngine();
-            this.velocity.setExtendedProperties(p);
-
-            this.velocity.init();
-
-            this.isVelocityInitialized = true;
+        //if the dependencies are not set, make them the same as the templates.
+        if (this.dependenciesDir == null) {
+            this.dependenciesDir = this.templatesDir;
         }
+
+        p.setProperty("file.resource.loader.path", ". , " + new TemplateFile(this.templatesDir).fullPath + " , "
+                + new TemplateFile(this.dependenciesDir).fullPath);
+
+        p.setProperty("file.resource.loader.cache", "true");
+        p.setProperty("file.resource.loader.modificationCheckInterval", "-1");
+
+        //declare "#import" as a user directive:
+        p.setProperty("userdirective", "com.carrotsearch.hppcrt.generator.ImportDirective");
+
+        this.velocity = new VelocityEngine();
+        this.velocity.setExtendedProperties(p);
+
+        this.velocity.init();
     }
 
     /**
@@ -601,6 +595,7 @@ public final class TemplateProcessor
      * Apply velocity to the input.
      */
     private String filterVelocity(final TemplateFile f, final String template, final TemplateOptions options) {
+
         //each Template file receives an independent Context,
         //so references don't leak from file to file....
         //(like in separate compilation idioms)
@@ -636,9 +631,8 @@ public final class TemplateProcessor
     private void saveFile(final File file, final String input) {
 
         try {
-            if (!file.getParentFile().exists()) {
-                file.getParentFile().mkdirs();
-            }
+
+            Files.createDirectories(Paths.get(file.getParent()));
 
             Files.write(Paths.get(file.getAbsolutePath()), input.getBytes(StandardCharsets.UTF_8));
 
@@ -678,7 +672,7 @@ public final class TemplateProcessor
     }
 
     /**
-     * Relative path name.
+     * Relative path name sub from a parent
      */
     private String relativePath(final File sub, final File parent) {
 

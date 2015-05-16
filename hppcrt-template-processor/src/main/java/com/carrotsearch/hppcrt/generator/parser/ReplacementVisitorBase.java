@@ -38,7 +38,7 @@ public class ReplacementVisitorBase extends Java7ParserBaseVisitor<List<Replacem
         this.processor = processor;
         this.logger = traceLogger;
 
-        this.terminalTypeIdentifierPath = new XPath(this.processor.parser, "/typeArgument/type/classOrInterfaceType/identifierTypePair/*");
+        this.terminalTypeIdentifierPath = new XPath(this.processor.parser, "//typeArgument/type/classOrInterfaceType/identifierTypePair/*");
 
         TemplateProcessor.setLoggerlevel(traceLogger, this.templateOptions.verbose);
     }
