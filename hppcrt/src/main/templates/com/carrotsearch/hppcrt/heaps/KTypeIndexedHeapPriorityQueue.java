@@ -217,7 +217,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
     /**
      * An iterator implementation for {@link KTypeIndexedHeapPriorityQueue#iterator} entries.
-     * Holds a IntKTypeCursor<KType> cursor returning (key, value, index) = (int key, KType value, index the position in heap)
+     * Holds a IntKTypeCursor cursor returning (key, value, index) = (int key, KType value, index the position in heap)
      */
     public final class EntryIterator extends AbstractIterator<IntKTypeCursor<KType>>
     {
@@ -1338,7 +1338,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
     /**
      * An iterator over the set of assigned values.
-     * Holds a KTypeCursor<KType> cursor returning (value, index) = (KType value, index the position in heap)
+     * Holds a KTypeCursor cursor returning (value, index) = (KType value, index the position in heap)
      */
     public final class ValuesIterator extends AbstractIterator<KTypeCursor<KType>>
     {

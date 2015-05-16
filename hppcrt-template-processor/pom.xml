@@ -66,16 +66,6 @@
   <!-- Build tuning, run ANTLRv4 to build from grammar -->
   <build>
         <plugins>  
-            <!-- Template processor itself is Java 7 level while the final lib is still 1.6 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${version.maven-compiler-plugin}</version>
-                <configuration>
-                    <source>${template-processor.source}</source>
-                    <target>${template-processor.source}</target>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr4-maven-plugin</artifactId>

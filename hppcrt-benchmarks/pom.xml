@@ -25,11 +25,11 @@
         <commons-lang.version>2.6</commons-lang.version>
         
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jmh.version>1.9.1</jmh.version>
+        <jmh.version>1.9.3</jmh.version>
         <javac.target>1.7</javac.target>
         <uberjar.name>benchmarks</uberjar.name>
         
-        <fastutil.version>7.0.3</fastutil.version>
+        <fastutil.version>7.0.4</fastutil.version>
         <gs.version>6.1.0</gs.version>
         <koloboke.version>0.6.7</koloboke.version>
         <javolution.version>6.0.0</javolution.version>
@@ -128,16 +128,6 @@
         <defaultGoal>install</defaultGoal>
 
         <plugins>
-            <!-- Benchmarks are Java 7 level while the final lib is still 1.6 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${version.maven-compiler-plugin}</version>
-                <configuration>
-                    <source>${javac.target}</source>
-                    <target>${javac.target}</target>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>

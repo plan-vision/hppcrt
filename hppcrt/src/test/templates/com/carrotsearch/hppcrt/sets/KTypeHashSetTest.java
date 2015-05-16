@@ -465,6 +465,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
     }
 
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
+
     @Test
     public void testNullKey()
     {
@@ -475,8 +476,6 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertEquals(0, this.set.size());
         Assert.assertFalse(this.set.contains(null));
     }
-
-    /*! #end !*/
 
     /**
      * Run some random insertions/ deletions and compare the results
@@ -514,6 +513,8 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
             }
         }
     }
+
+    /*! #end !*/
 
     /* */
     @Test

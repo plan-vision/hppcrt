@@ -411,8 +411,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
                 };
             }));
             Assert.fail();
-        }
-        catch (final RuntimeException e)
+        } catch (final RuntimeException e)
         {
             // Make sure it's really our exception...
             if (e != t) {
@@ -980,8 +979,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
                 Assert.assertEquals(startingPoolSize, testContainer.valueIteratorPool.size());
                 Assert.assertEquals(checksum, this.guard);
 
-            }
-            catch (final Exception e)
+            } catch (final Exception e)
             {
                 //iterator is NOT returned to its pool because of the exception
                 Assert.assertEquals(startingPoolSize - 1, testContainer.valueIteratorPool.size());
@@ -1062,8 +1060,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
 
                 //nothing has changed
                 Assert.assertEquals(startingTestPoolSize, testContainer.valueIteratorPool.size());
-            }
-            catch (final Exception e)
+            } catch (final Exception e)
             {
                 //iterator is NOT returned to its pool because of the exception
                 Assert.assertEquals(startingTestPoolSize - 1, testContainer.valueIteratorPool.size());
@@ -1162,7 +1159,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
 
     private KTypeLinkedList<KType> createArrayWithOrderedData(final int size)
     {
-        final KTypeLinkedList<KType> newArray = KTypeLinkedList.newInstance(KTypeLinkedList.DEFAULT_CAPACITY);
+        final KTypeLinkedList<KType> newArray = KTypeLinkedList.newInstance();
 
         for (int i = 0; i < size; i++)
         {
@@ -1176,7 +1173,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     {
         final Random prng = new Random(randomSeed);
 
-        final KTypeLinkedList<KType> newArray = KTypeLinkedList.newInstance(KTypeLinkedList.DEFAULT_CAPACITY);
+        final KTypeLinkedList<KType> newArray = KTypeLinkedList.newInstance();
 
         for (int i = 0; i < size; i++)
         {
@@ -2078,8 +2075,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
             }
 
             Assert.assertEquals(0, this.list.size());
-        }
-        finally
+        } finally
         {
             it.release();
         }
@@ -2131,8 +2127,7 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
             }
 
             Assert.assertEquals(0, this.list.size());
-        }
-        finally
+        } finally
         {
             it.release();
         }

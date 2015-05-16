@@ -638,7 +638,7 @@ public class KTypeArrayList<KType>
      */
     @Override
     public ValueIterator iterator() {
-        //return new ValueIterator<KType>(buffer, size());
+        //return new ValueIterator(buffer, size());
         return this.valueIteratorPool.borrow();
     }
 
@@ -790,9 +790,12 @@ public class KTypeArrayList<KType>
      * by natural ordering (smaller first)
      * @param beginIndex the start index to be sorted
      * @param endIndex the end index to be sorted (excluded)
-        #if ($TemplateOptions.KTypeGeneric)
-     * @throws ClassCastException if the array contains elements that are not mutually Comparable.
-       #end
+    #if ($TemplateOptions.KTypeGeneric)
+     * <p><b>
+     * This sort is NOT stable.
+     * </b></p>
+     * @throws ClassCastException if the list contains elements that are not mutually Comparable.
+    #end
      */
     public void sort(final int beginIndex, final int endIndex) {
         assert endIndex <= this.elementsCount;
@@ -804,12 +807,12 @@ public class KTypeArrayList<KType>
 
     /**
      * In-place sort the whole list by natural ordering (smaller first)
+     #if ($TemplateOptions.KTypeGeneric)
      * <p><b>
-     * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009]
+     * This sort is NOT stable.
      * </b></p>
-        #if ($TemplateOptions.KTypeGeneric)
-     * @throws ClassCastException if the array contains elements that are not mutually Comparable.
-       #end
+     * @throws ClassCastException if the list contains elements that are not mutually Comparable.
+    #end
      */
     public void sort() {
         sort(0, this.elementsCount);
@@ -818,10 +821,12 @@ public class KTypeArrayList<KType>
     ////////////////////////////
     /**
      * In-place sort the list from [beginIndex, endIndex[
-     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
+     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator</code> #end
+     #if ($TemplateOptions.KTypeGeneric)
      * <p><b>
-     * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
+     * This sort is NOT stable.
      * </b></p>
+    #end
      * @param beginIndex the start index to be sorted
      * @param endIndex the end index to be sorted (excluded)
      */
@@ -829,8 +834,8 @@ public class KTypeArrayList<KType>
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
     /*! #else
-                    KTypeComparator<? super KType>
-                    #end !*/
+            KTypeComparator<? super KType>
+            #end !*/
     comp) {
         assert endIndex <= this.elementsCount;
 
@@ -841,10 +846,12 @@ public class KTypeArrayList<KType>
 
     /**
      * In-place sort the whole list
-     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
+     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator</code> #end
+    #if ($TemplateOptions.KTypeGeneric)
      * <p><b>
-     * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
+     * This sort is NOT stable.
      * </b></p>
+    #end
      */
     public void sort(
             /*! #if ($TemplateOptions.KTypeGeneric) !*/

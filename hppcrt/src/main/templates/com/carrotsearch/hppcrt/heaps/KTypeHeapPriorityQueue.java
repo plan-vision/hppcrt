@@ -33,11 +33,6 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
 implements KTypePriorityQueue<KType>, Cloneable
 {
     /**
-     * Default capacity if no other capacity is given in the constructor.
-     */
-    public final static int DEFAULT_CAPACITY = 16;
-
-    /**
      * Internal array for storing the priority queue.
       #if ($TemplateOptions.KTypeGeneric)
      * <p><strong>Important!</strong>
@@ -153,7 +148,7 @@ implements KTypePriorityQueue<KType>, Cloneable
 
     /**
      * Create with default sizing strategy and initial capacity for storing
-     * {@value #DEFAULT_CAPACITY} elements.
+     * {@value Containers#DEFAULT_EXPECTED_ELEMENTS} elements.
      * 
      * @see BoundedProportionalArraySizingStrategy
      */
@@ -162,7 +157,7 @@ implements KTypePriorityQueue<KType>, Cloneable
     KTypeComparator<? super KType> comp
     #end !*/)
     {
-        this(comp, KTypeHeapPriorityQueue.DEFAULT_CAPACITY);
+        this(comp, Containers.DEFAULT_EXPECTED_ELEMENTS);
     }
 
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
@@ -303,7 +298,7 @@ implements KTypePriorityQueue<KType>, Cloneable
 
     /**
      * An iterator implementation for {@link KTypeHeapPriorityQueue#iterator}.
-     * Holds a KTypeCursor<KType> cursor returning (value, index) = (KType value, index the position in heap)
+     * Holds a KTypeCursor cursor returning (value, index) = (KType value, index the position in heap)
      */
     public final class ValueIterator extends AbstractIterator<KTypeCursor<KType>>
     {
@@ -337,7 +332,7 @@ implements KTypePriorityQueue<KType>, Cloneable
      */
     @Override
     public ValueIterator iterator() {
-        //return new ValueIterator<KType>(buffer, size());
+        //return new ValueIterator(buffer, size());
         return this.valueIteratorPool.borrow();
     }
 

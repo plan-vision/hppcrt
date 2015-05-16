@@ -18,7 +18,7 @@
 
   <name>HPPC-RT Collections</name>
   <description>High Performance Primitive Collections Realtime
- (fork of HPPC of Carrotsearch)
+ (fork of HPPC from Carrotsearch)
   Fundamental data structures (maps, sets, lists, stacks, queues, heaps, sorts) generated for
   combinations of object and primitive types to conserve JVM memory and speed
   up execution. The Realtime fork intend of extending collections while tweaking and optimizations to remove any dynamic allocations at runtime,
@@ -81,16 +81,13 @@
             <phase>package</phase>
             <configuration>
               <target>
-                <taskdef name="retrotranslator"
-                  classname="net.sf.retrotranslator.transformer.RetrotranslatorTask"
-                  classpathref="maven.plugin.classpath" />
+								<taskdef name="retrotranslator" classname="net.sf.retrotranslator.transformer.RetrotranslatorTask" classpathref="maven.plugin.classpath" />
 
                 <retrotranslator verbose="true" verify="false"
                   failonwarning="true" target="1.5" embed="com.carrotsearch.hppcrt.backport"
                   destjar="${project.build.directory}/${project.build.finalName}-jdk15.jar">
 
-                  <jarfileset dir="${project.build.directory}"
-                    includes="${project.build.finalName}.jar" />
+				  <jarfileset dir="${project.build.directory}" includes="${project.build.finalName}.jar" />
 
                   <classpath>
                     <pathelement location="${basedir}/src/main/retrotranslator" />
@@ -185,6 +182,22 @@
 			  </goals>
 			</execution>
 		  </executions>
+			</plugin>
+
+			<!-- Lib tests themselves are Java 7 level while the final lib is still 1.6 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${version.maven-compiler-plugin}</version>
+				<configuration>
+					<source>${lib.hppcrt.source}</source>
+					<target>${lib.hppcrt.source}</target>
+					<testSource>${project.source}</testSource>
+					<testTarget>${project.source}</testTarget>
+					<compilerArgs>
+						<arg>-Xlint</arg>
+					</compilerArgs>
+				</configuration>
 	   </plugin>
 
 	   <plugin>

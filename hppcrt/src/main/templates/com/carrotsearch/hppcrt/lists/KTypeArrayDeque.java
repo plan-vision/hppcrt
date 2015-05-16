@@ -51,7 +51,7 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayDeque<KType>
-        extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexedContainer<KType>, Cloneable
+extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexedContainer<KType>, Cloneable
 {
 
     /**
@@ -492,41 +492,41 @@ public class KTypeArrayDeque<KType>
                 : index >= this.head || index < this.tail) : "Index out of range (head="
                 + this.head + ", tail=" + this.tail + ", index=" + index + ").";
 
-        // Cache fields in locals (hopefully moved to registers).
-        final KType[] b = this.buffer;
-        final int bufLen = b.length;
-        final int lastIndex = bufLen - 1;
-        final int head = this.head;
-        final int tail = this.tail;
+                // Cache fields in locals (hopefully moved to registers).
+                final KType[] b = this.buffer;
+                final int bufLen = b.length;
+                final int lastIndex = bufLen - 1;
+                final int head = this.head;
+                final int tail = this.tail;
 
-        final int leftChunk = Math.abs(index - head) % bufLen;
-        final int rightChunk = Math.abs(tail - index) % bufLen;
+                final int leftChunk = Math.abs(index - head) % bufLen;
+                final int rightChunk = Math.abs(tail - index) % bufLen;
 
-        if (leftChunk < rightChunk) {
-            if (index >= head) {
-                System.arraycopy(b, head, b, head + 1, leftChunk);
-            } else {
-                System.arraycopy(b, 0, b, 1, index);
-                b[0] = b[lastIndex];
-                System.arraycopy(b, head, b, head + 1, lastIndex - head);
-            }
-            /*! #if ($TemplateOptions.KTypeGeneric) !*/
-            b[head] = Intrinsics.<KType> defaultKTypeValue();
-            /*! #end !*/
-            this.head = KTypeArrayDeque.oneRight(head, bufLen);
-        } else {
-            if (index < tail) {
-                System.arraycopy(b, index + 1, b, index, rightChunk);
-            } else {
-                System.arraycopy(b, index + 1, b, index, lastIndex - index);
-                b[lastIndex] = b[0];
-                System.arraycopy(b, 1, b, 0, tail);
-            }
-            /*! #if ($TemplateOptions.KTypeGeneric) !*/
-            b[tail] = Intrinsics.<KType> defaultKTypeValue();
-            /*! #end !*/
-            this.tail = KTypeArrayDeque.oneLeft(tail, bufLen);
-        }
+                if (leftChunk < rightChunk) {
+                    if (index >= head) {
+                        System.arraycopy(b, head, b, head + 1, leftChunk);
+                    } else {
+                        System.arraycopy(b, 0, b, 1, index);
+                        b[0] = b[lastIndex];
+                        System.arraycopy(b, head, b, head + 1, lastIndex - head);
+                    }
+                    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+                    b[head] = Intrinsics.<KType> defaultKTypeValue();
+                    /*! #end !*/
+                    this.head = KTypeArrayDeque.oneRight(head, bufLen);
+                } else {
+                    if (index < tail) {
+                        System.arraycopy(b, index + 1, b, index, rightChunk);
+                    } else {
+                        System.arraycopy(b, index + 1, b, index, lastIndex - index);
+                        b[lastIndex] = b[0];
+                        System.arraycopy(b, 1, b, 0, tail);
+                    }
+                    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+                    b[tail] = Intrinsics.<KType> defaultKTypeValue();
+                    /*! #end !*/
+                    this.tail = KTypeArrayDeque.oneLeft(tail, bufLen);
+                }
     }
 
     /**
@@ -1045,7 +1045,7 @@ public class KTypeArrayDeque<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayDeque<KType> newInstance() {
+    KTypeArrayDeque<KType> newInstance() {
         return new KTypeArrayDeque<KType>();
     }
 
@@ -1054,7 +1054,7 @@ public class KTypeArrayDeque<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayDeque<KType> newInstance(final int initialCapacity) {
+    KTypeArrayDeque<KType> newInstance(final int initialCapacity) {
         return new KTypeArrayDeque<KType>(initialCapacity);
     }
 
@@ -1062,7 +1062,7 @@ public class KTypeArrayDeque<KType>
      * Create a new deque by pushing a variable number of arguments to the end of it.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayDeque<KType> from(final KType... elements) {
+    KTypeArrayDeque<KType> from(final KType... elements) {
         final KTypeArrayDeque<KType> coll = new KTypeArrayDeque<KType>(elements.length);
         coll.addLast(elements);
         return coll;
@@ -1072,7 +1072,7 @@ public class KTypeArrayDeque<KType>
      * Create a new deque by pushing a variable number of arguments to the end of it.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayDeque<KType> from(final KTypeContainer<KType> container) {
+    KTypeArrayDeque<KType> from(final KTypeContainer<KType> container) {
         return new KTypeArrayDeque<KType>(container);
     }
 
@@ -1082,9 +1082,12 @@ public class KTypeArrayDeque<KType>
      * by natural ordering (smaller first)
      * @param beginIndex the start index to be sorted
      * @param endIndex the end index to be sorted (excluded)
-     #if ($TemplateOptions.KTypeGeneric)
+    #if ($TemplateOptions.KTypeGeneric)
+     * <p><b>
+     * This sort is NOT stable.
+     * </b></p>
      * @throws ClassCastException if the deque contains elements that are not mutually Comparable.
-     #end
+    #end
      */
     public void sort(final int beginIndex, final int endIndex) {
         assert endIndex <= size();
@@ -1108,20 +1111,22 @@ public class KTypeArrayDeque<KType>
 
     /**
      * In-place sort the dequeue from [beginIndex, endIndex[
-     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
+     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator</code> #end
+    #if ($TemplateOptions.KTypeGeneric)
      * <p><b>
-     * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
+     * This sort is NOT stable.
      * </b></p>
+    #end
      * @param beginIndex the start index to be sorted
      * @param endIndex the end index to be sorted (excluded)
      */
     public void sort(final int beginIndex, final int endIndex,
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
-            /*! #else
-                                            KTypeComparator<? super KType>
-                                            #end !*/
-            comp) {
+    /*! #else
+                                                                            KTypeComparator<? super KType>
+                                                                            #end !*/
+    comp) {
         assert endIndex <= size();
 
         if (endIndex - beginIndex > 1) {
@@ -1143,10 +1148,10 @@ public class KTypeArrayDeque<KType>
 
     /**
      * In-place sort the whole dequeue by natural ordering (smaller first)
-     * <p><b>
-     * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009].
-     * </b></p>
     #if ($TemplateOptions.KTypeGeneric)
+     * <p><b>
+     * This sort is NOT stable.
+     * </b></p>
      * @throws ClassCastException if the deque contains elements that are not mutually Comparable.
     #end
      */
@@ -1161,10 +1166,12 @@ public class KTypeArrayDeque<KType>
 
     /**
      * In-place sort the whole dequeue
-     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator<? super KType></code> #end
+     * using a #if ($TemplateOptions.KTypeGeneric) <code>Comparator</code> #else <code>KTypeComparator</code> #end
+    #if ($TemplateOptions.KTypeGeneric)
      * <p><b>
-     * This routine uses Dual-pivot Quicksort, from [Yaroslavskiy 2009] #if ($TemplateOptions.KTypeGeneric), so is NOT stable. #end
+     * This sort is NOT stable.
      * </b></p>
+    #end
      */
     public void sort(
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
@@ -1208,8 +1215,6 @@ public class KTypeArrayDeque<KType>
     @Override
     public KType set(final int index, final KType e1) {
 
-        assert (index >= 0 && index < size()) : "Index " + index + " out of bounds [" + 0 + ", " + size() + ").";
-
         final int indexInBuffer = indexToBufferPosition(index);
 
         final KType previous = this.buffer[indexInBuffer];
@@ -1227,8 +1232,6 @@ public class KTypeArrayDeque<KType>
     @Override
     public KType get(final int index) {
 
-        assert (index >= 0 && index < size()) : "Index " + index + " out of bounds [" + 0 + ", " + size() + ").";
-
         return this.buffer[indexToBufferPosition(index)];
     }
 
@@ -1239,8 +1242,6 @@ public class KTypeArrayDeque<KType>
      */
     @Override
     public KType remove(final int index) {
-
-        assert (index >= 0 && index < size()) : "Index " + index + " out of bounds [" + 0 + ", " + size() + ").";
 
         final int indexInBuffer = indexToBufferPosition(index);
 
@@ -1285,8 +1286,6 @@ public class KTypeArrayDeque<KType>
         return pos;
     }
 
-    /*! #if ($TemplateOptions.inlineKType("indexToBufferPosition",
-        "(index)", "(index + this.head < this.buffer.length) ? index + this.head : index + this.head - this.buffer.length")) !*/
     /**
      * Convert the {@link #KTypeIndexedContainer}
      * index to the internal position in buffer{@link #buffer}.
@@ -1298,8 +1297,8 @@ public class KTypeArrayDeque<KType>
 
         assert (index >= 0 && index < size()) : "Index " + index + " out of bounds [" + 0 + ", " + size() + ").";
 
-        //yes, this can overflow. I don't care for now.
-        int bufferPos = index + this.head;
+        //Convert to long to prevent overflow
+        long bufferPos = (long) index + this.head;
 
         if (bufferPos >= this.buffer.length) {
 
@@ -1307,10 +1306,8 @@ public class KTypeArrayDeque<KType>
             bufferPos -= this.buffer.length;
         }
 
-        return bufferPos;
+        return (int) bufferPos;
     }
-
-    /*! #end !*/
 
     /*! #if ($TemplateOptions.inlineKType("KTypeArrayDeque.oneLeft",
          "(index, modulus)", "(index >= 1) ? index - 1 : modulus - 1")) !*/
