@@ -17,7 +17,7 @@ public final class KTypeStandardComparator<KType> implements KTypeComparator<KTy
     @Override
     public int compare(final KType e1, final KType e2) {
 
-        return Intrinsics.compareKTypeUnchecked(e1, e2);
+        return Intrinsics.<KType> compareUnchecked(e1, e2);
     }
 
     @Override

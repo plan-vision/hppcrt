@@ -338,7 +338,7 @@ public class KTypeArraysTest<KType> extends AbstractKTypeTest<KType>
 
     private KType[] buildArray(final int size) {
 
-        final KType[] testArray = Intrinsics.<KType[]> newKTypeArray(size);
+        final KType[] testArray = Intrinsics.<KType> newArray(size);
 
         for (int i = 0; i < size; i++) {
 
@@ -356,7 +356,7 @@ public class KTypeArraysTest<KType> extends AbstractKTypeTest<KType>
             if ((i >= startBlankingIndex) && (i < endBlankingIndex)) {
 
                 //this is blanked
-                if (Intrinsics.defaultKTypeValue() != arrayToTest[i]) {
+                if (Intrinsics.<KType> empty() != arrayToTest[i]) {
                     Assert.assertTrue("value = " + castType(arrayToTest[i]), false);
                 }
             }

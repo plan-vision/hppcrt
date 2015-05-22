@@ -3,17 +3,21 @@ package com.carrotsearch.hppcrt.generator;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UnknownFormatConversionException;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -32,14 +36,6 @@ import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.RuntimeServices;
 import org.apache.velocity.runtime.log.LogChute;
-import org.apache.velocity.tools.generic.ClassTool;
-import org.apache.velocity.tools.generic.ContextTool;
-import org.apache.velocity.tools.generic.ConversionTool;
-import org.apache.velocity.tools.generic.DisplayTool;
-import org.apache.velocity.tools.generic.EscapeTool;
-import org.apache.velocity.tools.generic.MathTool;
-import org.apache.velocity.tools.generic.NumberTool;
-import org.apache.velocity.tools.generic.RenderTool;
 
 import com.carrotsearch.hppcrt.generator.TemplateOptions.DoNotGenerateTypeException;
 import com.carrotsearch.hppcrt.generator.parser.SignatureProcessor;
@@ -129,6 +125,25 @@ public final class TemplateProcessor
     }
 
     /**
+     * Hack to redirect ALWAYS to Std out !
+     * @author Vincent
+     *
+     */
+    private static class StdoutConsoleHandler extends ConsoleHandler
+    {
+        public StdoutConsoleHandler() {
+            super();
+            //nothing
+        }
+
+        @Override
+        protected synchronized void setOutputStream(final OutputStream out) throws SecurityException {
+            //Hack to log into System.out
+            super.setOutputStream(System.out);
+        }
+    }
+
+    /**
      * Initialize Velocity engine.
      */
     public TemplateProcessor() {
@@ -179,9 +194,11 @@ public final class TemplateProcessor
 
     /**
      * Also for Ant Task attribute 'verbose', MUST respect this naming.
+     * @param verboseLevel
      */
     public void setVerbose(final String verboseLevel) {
-        this.verbose = Level.parse(verboseLevel);
+
+        this.verbose = Level.parse(verboseLevel.toUpperCase());
 
         TemplateProcessor.setLoggerlevel(TemplateProcessor.getLog(), this.verbose);
     }
@@ -274,16 +291,6 @@ public final class TemplateProcessor
         ctx.put("templateOnly", Boolean.FALSE);
         ctx.put("false", Boolean.FALSE);
 
-        //Attach some GenericTools that may be useful for code generation :
-        ctx.put("esct", new EscapeTool());
-        ctx.put("classt", new ClassTool());
-        ctx.put("ctxt", new ContextTool());
-        ctx.put("convt", new ConversionTool());
-        ctx.put("matht", new MathTool());
-        ctx.put("numbert", new NumberTool());
-        ctx.put("rendert", new RenderTool());
-        ctx.put("dispt", new DisplayTool());
-
         //reference the context itself into the TemplateOptions object
         options.context = ctx;
     }
@@ -292,6 +299,7 @@ public final class TemplateProcessor
      * Apply templates to <code>.ktype</code> files (single-argument).
      */
     private void processTemplates(final List<TemplateFile> inputs, final List<OutputFile> outputs) {
+
         //For each template file
         for (final TemplateFile f : inputs) {
 
@@ -344,6 +352,9 @@ public final class TemplateProcessor
             long t1, t0 = System.currentTimeMillis();
 
             try {
+
+                log(Level.FINE, "[" + templateOptions.ktype + "," + templateOptions.vtype + "] generate(), processing '"
+                        + input.fullPath + "'...");
 
                 //0) set current file as source file.
                 templateOptions.templateFile = input.file;
@@ -398,7 +409,7 @@ public final class TemplateProcessor
                     output.file.delete();
                     outputs.remove(output);
 
-                    log(Level.FINEST, "output from template '" + input.fullPath + "' with KType = "
+                    log(Level.FINE, "output from template '" + input.fullPath + "' with KType = "
                             + doNotGenException.currentKType + " and VType =  " + doNotGenException.currentVType
                             + " was bypassed...");
 
@@ -422,134 +433,108 @@ public final class TemplateProcessor
         }
     }
 
-    private String filterInlines(final TemplateFile f, String input, final TemplateOptions templateOptions) {
-
-        if (templateOptions.hasKType() && !templateOptions.inlineKTypeDefinitions.isEmpty()) {
-
-            input = filterInlinesSet(f, input, templateOptions.inlineKTypeDefinitions);
-        }
-
-        if (templateOptions.hasVType() && !templateOptions.inlineVTypeDefinitions.isEmpty()) {
-
-            input = filterInlinesSet(f, input, templateOptions.inlineVTypeDefinitions);
-        }
-
-        return input;
-    }
-
-    private String filterInlinesSet(final TemplateFile f, final String input,
-
-            final HashMap<String, InlinedMethodDef> inlineTypeDefinitions) {
+    private String filterInlines(final TemplateFile f, final String input, final TemplateOptions templateOptions) {
 
         final StringBuilder sb = new StringBuilder();
         final StringBuilder currentInput = new StringBuilder(input);
 
-        //1) Execute in passes until no more inlining occurs
-        //(which means inlines defs can contain inlinable defs and so on)
-        boolean continueProcessing = true;
+        //Attempt on each of inlineDefinitions
+        for (final InlinedMethodDef inlinedMethod : templateOptions.inlineDefinitions) {
 
-        while (continueProcessing) {
+            //extract the method matcher pre-compiled Pattern
+            final Pattern p = inlinedMethod.getMethodNameCompiledPattern();
 
-            continueProcessing = false;
+            //flush
+            sb.setLength(0);
 
-            //Attempt on each of inlineDefinitions
-            for (final Entry<String, InlinedMethodDef> inlinedMethod : inlineTypeDefinitions.entrySet()) {
+            //1) Search for the pattern
+            while (true) {
 
-                String bodyPattern = "";
+                final Matcher m = p.matcher(currentInput);
 
-                final Pattern p = inlinedMethod.getValue().compiledCallName;
+                //end if found matcher
+                if (m.find()) {
 
-                //flush
-                sb.setLength(0);
+                    String[] genericArgs = new String[0];
 
-                //1) Search for the pattern
-                while (true) {
-                    final Matcher m = p.matcher(currentInput);
+                    if (inlinedMethod.getGenericParameters().size() > 0) {
 
-                    //end if found matcher
-                    if (m.find()) {
-                        continueProcessing = true;
+                        genericArgs = m.group("generic").split(",");
 
-                        log(Level.FINEST, "filterInlines(): found matching for '" + inlinedMethod.getKey()
-                                + "' in file '" + f.fullPath + "' with " + inlinedMethod.getValue());
-
-                        sb.append(currentInput, 0, m.start());
-
-                        int bracketCount = 0;
-                        int last = m.end();
-
-                        final ArrayList<String> params = new ArrayList<String>();
-
-                        //go back 1 character to capture the first parenthesis again
-                        outer: for (int i = m.end() - 1; i < input.length(); i++) {
-                            switch (currentInput.charAt(i)) {
-                            case '(':
-                                bracketCount++;
-                                break;
-                            case ')':
-                                bracketCount--;
-                                if (bracketCount == 0) {
-                                    params.add(currentInput.substring(last, i).trim());
-
-                                    currentInput.delete(0, i + 1);
-                                    break outer;
-                                }
-                                break;
-                            case ',':
-                                if (bracketCount == 1) {
-                                    //add a parameter
-                                    params.add(currentInput.substring(last, i));
-
-                                    last = i + 1;
-                                }
-                                break;
-                            }
-                        } //end for
-
-                        //fill-in the arguments depending of the type
-                        bodyPattern = inlinedMethod.getValue().getBody();
-
-                        //apply replacement, if not null
-                        if (!bodyPattern.isEmpty()) {
-
-                            try {
-                                if (params.size() > 0) {
-
-                                    sb.append(String.format("(" + bodyPattern + ")", params.toArray()));
-
-                                    log(Level.FINEST, "filterInlines(): Applying inlined body '" + bodyPattern + "' to args: '"
-                                            + params.toString() + "'...");
-
-                                } else {
-                                    //the method has no arguments, simply pass the bodyPattern with no transform
-                                    sb.append("(");
-                                    sb.append(bodyPattern);
-                                    sb.append(")");
-
-                                    log(Level.FINEST, "filterInlines(): Applying inlined body '" + bodyPattern
-                                            + "' with no args...");
-
-                                }
-                            } catch (final UnknownFormatConversionException e) {
-
-                                throw new ParseErrorException("[ERROR] filterInlines(): unable to apply body '" + bodyPattern
-                                        + "' with params '" + params.toString() + "'...");
-                            }
-                        }
-                    } //else m.find()
-                    else {
-                        //not found, append the contents directly
-                        sb.append(currentInput);
-                        break;
+                        log(Level.FINE, "filterInlines(): found matching with generics : " + Arrays.deepToString(genericArgs));
                     }
-                } //end while true
 
-                //re-process the same input for each method call
-                currentInput.setLength(0);
-                currentInput.append(sb);
+                    log(Level.FINE, "filterInlines(): found matching (" + m.start() + "," + m.end() + ") for '" + inlinedMethod.getMethodName()
+                            + "' in file '" + f.fullPath + "' as " + inlinedMethod.toString());
 
-            } //end for call names
-        } //end while
+                    sb.append(currentInput, 0, m.start());
+
+                    int bracketCount = 0;
+                    int last = m.end();
+
+                    final ArrayList<String> params = new ArrayList<String>();
+
+                    //go back 1 character to capture the first parenthesis again
+                    outer: for (int i = m.end() - 1; i < input.length(); i++) {
+                        switch (currentInput.charAt(i)) {
+                        case '(':
+                            bracketCount++;
+                            break;
+                        case ')':
+                            bracketCount--;
+                            if (bracketCount == 0) {
+                                params.add(currentInput.substring(last, i).trim());
+
+                                currentInput.delete(0, i + 1);
+                                break outer;
+                            }
+                            break;
+                        case ',':
+                            if (bracketCount == 1) {
+                                //add a parameter
+                                params.add(currentInput.substring(last, i));
+
+                                last = i + 1;
+                            }
+                            break;
+                        }
+                    } //end for
+
+                    if (params.size() == 1 && params.get(0).trim().isEmpty()) {
+                        //corner case
+                        params.clear();
+                    }
+
+                    log(Level.FINE,
+                            "filterInlines(), parsed arguments " + params.toString() +
+                            ", passed to inlinedMethod.computeInlinedForm(this.genericParameters = " + inlinedMethod.getGenericParameters() + ")...");
+
+                    //fill-in the arguments depending of the type
+                    final String result = inlinedMethod.computeInlinedForm(templateOptions, genericArgs, params);
+
+                    //Try to parse recursively the result:
+                    //this is OK because we parse from left to right, i.e from outer to inner functions
+                    log(Level.FINE, "filterInlines(), ENTER attempt to filterInlines() recursively on text '" + result + "'...");
+
+                    final String innerResult = filterInlines(f, result, templateOptions);
+
+                    log(Level.FINE, "filterInlines(), EXIT attempt to filterInlines() recursively on text '" + result +
+                            "' ==> '" + innerResult + "'");
+
+                    sb.append(innerResult);
+
+                } //else m.find()
+                else {
+                    //not found, append the contents directly
+                    sb.append(currentInput);
+                    break;
+                }
+            } //end while true
+
+            //re-process the same input for each method call
+            currentInput.setLength(0);
+            currentInput.append(sb);
+        } //end for call names
 
         return currentInput.toString();
     }
@@ -816,6 +801,18 @@ public final class TemplateProcessor
 
         while (tempLogger != null) {
 
+            //replace all ConsoleHandler thats goes to Std.err
+            //by ones that go to Std.out
+            for (final Handler handler : tempLogger.getHandlers()) {
+
+                if (handler.getClass() == ConsoleHandler.class) {
+
+                    tempLogger.removeHandler(handler);
+                    tempLogger.addHandler(new StdoutConsoleHandler());
+                }
+            }
+
+            //force log levels and formatters for everyone
             tempLogger.setLevel(lvl);
 
             for (final Handler handler : tempLogger.getHandlers()) {

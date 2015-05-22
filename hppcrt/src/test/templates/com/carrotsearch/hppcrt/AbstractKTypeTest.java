@@ -104,7 +104,7 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
 
     public KType[] asArray(final int... ints)
     {
-        final KType[] values = Intrinsics.newKTypeArray(ints.length);
+        final KType[] values = Intrinsics.<KType> newArray(ints.length);
 
         for (int i = 0; i < ints.length; i++)
         {
@@ -125,7 +125,7 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public KType[] asArrayObjects(final Object... objects)
     {
-        final KType[] values = Intrinsics.newKTypeArray(objects.length);
+        final KType[] values = Intrinsics.<KType> newArray(objects.length);
 
         for (int i = 0; i < objects.length; i++)
         {
@@ -150,7 +150,7 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
      */
     public KType[] newArray(final KType... elements)
     {
-        final KType[] values = Intrinsics.newKTypeArray(elements.length);
+        final KType[] values = Intrinsics.<KType> newArray(elements.length);
 
         for (int i = 0; i < elements.length; i++)
         {
@@ -307,7 +307,7 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
     {
         final Random prng = new Random(currentSeed);
 
-        final KType[] newArray = Intrinsics.newKTypeArray(size);
+        final KType[] newArray = Intrinsics.<KType> newArray(size);
 
         for (int i = 0; i < size; i++)
         {

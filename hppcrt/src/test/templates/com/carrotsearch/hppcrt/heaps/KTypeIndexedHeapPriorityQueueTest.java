@@ -57,7 +57,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
                 @SuppressWarnings("unchecked")
                 final TestHolder otherTh = (TestHolder) other;
 
-                return Intrinsics.equalsKType(this.value, otherTh.value);
+                return Intrinsics.<KType> equals(this.value, otherTh.value);
             }
 
             return false;
@@ -66,7 +66,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         @Override
         public int compareTo(final TestHolder o) {
 
-            return Intrinsics.compareKTypeUnchecked(this.value, o.value);
+            return Intrinsics.<KType> compareUnchecked(this.value, o.value);
         }
     }
 
@@ -77,7 +77,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         @Override
         public int compare(final KType e1, final KType e2) {
 
-            return Intrinsics.compareKTypeUnchecked(e1, e2);
+            return Intrinsics.<KType> compareUnchecked(e1, e2);
         }
     };
 
@@ -86,7 +86,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         @Override
         public int compare(final KType e1, final KType e2) {
 
-            return -Intrinsics.compareKTypeUnchecked(e1, e2);
+            return -Intrinsics.<KType> compareUnchecked(e1, e2);
         }
     };
 
@@ -119,7 +119,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
             //1-based indexing
             for (int i = prio.elementsCount + 1; i < prio.buffer.length; i++) {
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                Assert.assertTrue(Intrinsics.<KType> defaultKTypeValue() == prio.buffer[i]);
+                Assert.assertTrue(Intrinsics.<KType> empty() == prio.buffer[i]);
                 /*! #end !*/
             }
 
@@ -127,7 +127,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
             Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(prio));
 
             //Check that we can pop() all elements
-            final KType[] popedElements = Intrinsics.newKTypeArray(prio.size());
+            final KType[] popedElements = Intrinsics.<KType> newArray(prio.size());
 
             int ii = 0;
             while (prio.size() > 0) {
@@ -1546,7 +1546,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
             @Override
             public int compare(final TestHolder e1, final TestHolder e2) {
-                return (-1) * Intrinsics.compareKTypeUnchecked(e1.value, e2.value);
+                return (-1) * Intrinsics.<KType> compareUnchecked(e1.value, e2.value);
             }
         };
 
@@ -1608,7 +1608,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
             @Override
             public int compare(final TestHolder e1, final TestHolder e2) {
-                return (-1) * Intrinsics.compareKTypeUnchecked(e1.value, e2.value);
+                return (-1) * Intrinsics.<KType> compareUnchecked(e1.value, e2.value);
             }
         };
 
@@ -1683,7 +1683,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
             @Override
             public int compare(final TestHolder e1, final TestHolder e2) {
-                return (-1) * Intrinsics.compareKTypeUnchecked(e1.value, e2.value);
+                return (-1) * Intrinsics.<KType> compareUnchecked(e1.value, e2.value);
             }
         };
 
@@ -1787,7 +1787,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
 
         //fill reference array
-        final KType[] referenceArray = Intrinsics.newKTypeArray(reference.size());
+        final KType[] referenceArray = Intrinsics.<KType> newArray(reference.size());
 
         int ii = 0;
         for (final int value : reference.values()) {
@@ -2839,10 +2839,10 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         }
         final int left = 2 * k, right = 2 * k + 1;
 
-        if (left <= N && Intrinsics.isCompSupKTypeUnchecked(buffer[k], buffer[left])) {
+        if (left <= N && Intrinsics.<KType> isCompSupUnchecked(buffer[k], buffer[left])) {
             return false;
         }
-        if (right <= N && Intrinsics.isCompSupKTypeUnchecked(buffer[k], buffer[right])) {
+        if (right <= N && Intrinsics.<KType> isCompSupUnchecked(buffer[k], buffer[right])) {
             return false;
         }
         //recursively test

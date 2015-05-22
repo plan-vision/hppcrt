@@ -26,7 +26,7 @@ public final class KTypeStandardHash<KType> implements KTypeHashingStrategy<KTyp
     @Override
     public boolean equals(final KType o1, final KType o2) {
 
-        return Intrinsics.equalsKType(o1, o2);
+        return Intrinsics.<KType> equals(o1, o2);
     }
 
     @Override

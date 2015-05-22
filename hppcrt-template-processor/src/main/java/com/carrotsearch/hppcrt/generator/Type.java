@@ -12,6 +12,8 @@ public enum Type
     DOUBLE("0.0"),
     BOOLEAN("false");
 
+    private static final Type[] VALUES = Type.values();
+
     public final String defaultValue;
 
     private Type(final String defaultVal) {
@@ -19,10 +21,51 @@ public enum Type
         this.defaultValue = defaultVal;
     }
 
+    /**
+     * Convenience method replacing Enum.valueOf() that returns null on an unknown
+     * name for enum instead of throwing an exception.
+     * @param representation
+     * @return
+     */
+    public static Type valueOfOrNull(final String representation) {
+
+        Type res = null;
+
+        try {
+
+            res = Type.valueOf(representation.trim());
+
+        } catch (final IllegalArgumentException e) {
+            //not matching
+        }
+
+        return res;
+    }
+
+    /**
+     * Retreive Type from Type.toString() i.e. (Object, int float, ...etc) and returns null on an unknown
+     * representation.
+     * @param representation
+     * @return
+     */
+    public static Type fromString(final String representation) {
+
+        for (final Type current : Type.VALUES) {
+
+            if (current.getType().toLowerCase().equals(representation.trim().toLowerCase())) {
+
+                return current;
+            }
+        }
+
+        return null;
+    }
+
     public String getBoxedType()
     {
-        if (this == GENERIC)
+        if (this == GENERIC) {
             return "Object";
+        }
 
         final String boxed = name().toLowerCase();
         return Character.toUpperCase(boxed.charAt(0)) + boxed.substring(1);
@@ -30,8 +73,9 @@ public enum Type
 
     public String getType()
     {
-        if (this == GENERIC)
+        if (this == GENERIC) {
             return "Object";
+        }
 
         return name().toLowerCase();
     }

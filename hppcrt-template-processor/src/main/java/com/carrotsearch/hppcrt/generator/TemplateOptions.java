@@ -2,8 +2,10 @@ package com.carrotsearch.hppcrt.generator;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,8 +25,7 @@ public class TemplateOptions
     /**
      * Call names to InlinedMethodDef mappings
      */
-    public final HashMap<String, InlinedMethodDef> inlineKTypeDefinitions = new HashMap<String, InlinedMethodDef>();
-    public final HashMap<String, InlinedMethodDef> inlineVTypeDefinitions = new HashMap<String, InlinedMethodDef>();
+    public final ArrayList<InlinedMethodDef> inlineDefinitions = new ArrayList<InlinedMethodDef>();
 
     /**
      * Be default, print everything !
@@ -46,7 +47,6 @@ public class TemplateOptions
      */
     public static class DoNotGenerateTypeException extends RuntimeException
     {
-        //nothing
         private static final long serialVersionUID = 5770524405182569439L;
 
         public final Type currentKType;
@@ -196,7 +196,7 @@ public class TemplateOptions
                 notToBeGenerated = Type.GENERIC.name();
             }
 
-            if (notToBeGenerated.toUpperCase().equals("ALL") || this.ktype == Type.valueOf(notToBeGenerated.toUpperCase())) {
+            if (notToBeGenerated.toUpperCase().equals("ALL") || this.ktype == Type.valueOfOrNull(notToBeGenerated.toUpperCase())) {
 
                 doNotGenerate();
             }
@@ -221,7 +221,7 @@ public class TemplateOptions
                 notToBeGenerated = Type.GENERIC.name();
             }
 
-            if (notToBeGenerated.toUpperCase().equals("ALL") || this.vtype == Type.valueOf(notToBeGenerated.toUpperCase()))
+            if (notToBeGenerated.toUpperCase().equals("ALL") || this.vtype == Type.valueOfOrNull(notToBeGenerated.toUpperCase()))
             {
                 doNotGenerate();
             }
@@ -232,163 +232,33 @@ public class TemplateOptions
     //////////////// Inline management ////////
     ///////////////////////////////////////////
 
-    public boolean inlineKType(final String callName, final String args, final String universalCallBody) {
+    public boolean declareInline(final String callName, final String... specializations) {
 
-        return inlineKTypeWithFullSpecialization(callName, args,
-                universalCallBody,
-                universalCallBody,
-                universalCallBody,
-                universalCallBody,
-                universalCallBody,
-                universalCallBody);
-    }
+        final InlinedMethodDef inlined = new InlinedMethodDef(callName);
 
-    public boolean inlineVType(final String callName, final String args, final String universalCallBody) {
+        log(Level.FINE, "[" + this.ktype + "," + this.vtype + "] declareInline(): try adding a new '" + callName + "' ==> '" + inlined.toString() + "'");
 
-        return inlineVTypeWithFullSpecialization(callName, args,
-                universalCallBody,
-                universalCallBody,
-                universalCallBody,
-                universalCallBody,
-                universalCallBody,
-                universalCallBody);
-    }
+        //only create a new def if such one do not exist yet.
+        int foundIndex = this.inlineDefinitions.indexOf(inlined);
 
-    public boolean inlineKTypeGenericAndPrimitive(final String callName, final String args, final String genericCallBody, final String primitiveCallBody) {
+        if (foundIndex == -1) {
 
-        return inlineKTypeWithFullSpecialization(callName, args,
-                genericCallBody,
-                primitiveCallBody,
-                primitiveCallBody,
-                primitiveCallBody,
-                primitiveCallBody,
-                primitiveCallBody);
-    }
+            log(Level.FINE, "[" + this.ktype + "," + this.vtype + "] declareInline(): '" + callName + "' do not exist, add to the list...");
 
-    public boolean inlineVTypeGenericAndPrimitive(final String callName, final String args, final String genericCallBody, final String primitiveCallBody) {
+            this.inlineDefinitions.add(inlined);
+            foundIndex = this.inlineDefinitions.size() - 1;
 
-        return inlineVTypeWithFullSpecialization(callName, args,
-                genericCallBody,
-                primitiveCallBody,
-                primitiveCallBody,
-                primitiveCallBody,
-                primitiveCallBody,
-                primitiveCallBody);
-    }
-
-    public boolean inlineKTypeWithFullSpecialization(
-
-            final String callName, final String args,
-            final String genericCallBody,
-            final String integerCallBody,
-            final String longCallBody,
-            final String floatCallBody,
-            final String doubleCallBody,
-            final String booleanCallBody) {
-
-        return internalInlineWithFullSpecialization(this.ktype, this.inlineKTypeDefinitions,
-                callName, args,
-                genericCallBody,
-                integerCallBody,
-                longCallBody,
-                floatCallBody,
-                doubleCallBody,
-                booleanCallBody);
-    }
-
-    public boolean inlineVTypeWithFullSpecialization(
-            final String callName, final String args,
-            final String genericCallBody,
-            final String integerCallBody,
-            final String longCallBody,
-            final String floatCallBody,
-            final String doubleCallBody,
-            final String booleanCallBody) {
-
-        return internalInlineWithFullSpecialization(this.vtype, this.inlineVTypeDefinitions,
-                callName, args,
-                genericCallBody,
-                integerCallBody,
-                longCallBody,
-                floatCallBody,
-                doubleCallBody,
-                booleanCallBody);
-    }
-
-    private boolean internalInlineWithFullSpecialization(final Type t,
-            final HashMap<String, InlinedMethodDef> inlineDefs,
-            final String callName, String args,
-            final String genericCallBody,
-            final String integerCallBody,
-            final String longCallBody,
-            final String floatCallBody,
-            final String doubleCallBody,
-            final String booleanCallBody) {
-
-        //Rebuild the arguments with a pattern understandable by the matcher
-        args = args.replace("(", "").trim();
-        args = args.replace(")", "").trim();
-
-        //Pick the ones matching TemplateOptions current Type(s) :
-        String body = "";
-
-        if (t == Type.GENERIC) {
-            body = genericCallBody;
-
-        }
-        else if (t == Type.BYTE) {
-            body = integerCallBody;
-
-        }
-        else if (t == Type.CHAR) {
-            body = integerCallBody;
-
-        }
-        else if (t == Type.SHORT) {
-            body = integerCallBody;
-
-        }
-        else if (t == Type.INT) {
-            body = integerCallBody;
-
-        }
-        else if (t == Type.LONG) {
-            body = longCallBody;
-
-        }
-        else if (t == Type.FLOAT) {
-            body = floatCallBody;
-
-        }
-        else if (t == Type.DOUBLE) {
-            body = doubleCallBody;
-
-        }
-        else if (t == Type.BOOLEAN) {
-            body = booleanCallBody;
+        } else {
+            log(Level.FINE, "[" + this.ktype + "," + this.vtype + "] declareInline(): '" + callName + "' already exist, add to existing specializations...");
         }
 
-        //Update Pattern cache
-        if (!inlineDefs.containsKey(callName)) {
-            inlineDefs.put(callName, new InlinedMethodDef(callName));
+        for (final String singlespec : specializations) {
+
+            this.inlineDefinitions.get(foundIndex).addSpecialization(singlespec);
+
+            log(Level.FINE, "[" + this.ktype + "," + this.vtype + "] declareInline(): added specialization to '" + callName + "' ==> '"
+                    + this.inlineDefinitions.get(foundIndex).toString() + "'");
         }
-
-        //the method has no arguments
-        if (args.isEmpty()) {
-
-            inlineDefs.get(callName).setBody(body);
-
-        }
-        else {
-
-            final String[] argsArray = args.split(",");
-
-            inlineDefs.get(callName).setBody(InlinedMethodDef.reformatArguments(body, argsArray));
-        }
-
-        log(Level.FINEST, "TemplateOptions : " + toString() + " captured the inlined function name '" +
-                callName + "' of type '" + t + "' as '" +
-                inlineDefs.get(callName) + "'");
 
         return false;
     }
@@ -412,8 +282,8 @@ public class TemplateOptions
                 "@javax.annotation.Generated(\n" +
                         "    date = \"%s\",\n" +
                         "    value = \"%s\")",
-                getTimeNow(),
-                TemplateOptions.TEMPLATE_FILE_TOKEN);
+                        getTimeNow(),
+                        TemplateOptions.TEMPLATE_FILE_TOKEN);
     }
 
     @Override
@@ -444,7 +314,7 @@ public class TemplateOptions
      * @param lvl
      * @param message
      */
-    private void log(final Level lvl, final String message) {
+    public void log(final Level lvl, final String message) {
 
         TemplateOptions.getLog().log(lvl, message);
     }

@@ -7,7 +7,6 @@ package com.carrotsearch.hppcrt.procedures;
  * of KTypeVTypeProcedure
  */
 /*! ($TemplateOptions.doNotGenerate()) !*/
-/*! ${TemplateOptions.generatedAnnotation} !*/
 public interface IntKTypeProcedure<KType>
 {
     void apply(int key, KType value);

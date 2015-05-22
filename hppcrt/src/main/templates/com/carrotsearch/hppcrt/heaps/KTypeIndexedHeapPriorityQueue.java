@@ -88,7 +88,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     protected KTypeComparator<? super KType> comparator;
     #end !*/
 
-    protected KType defaultValue = Intrinsics.<KType> defaultKTypeValue();
+    protected KType defaultValue = Intrinsics.<KType> empty();
 
     /**
      * internal pool of EntryIterator (must be created in constructor)
@@ -667,7 +667,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
                 //for GC
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                buffer[deletedPos] = Intrinsics.<KType> defaultKTypeValue();
+                buffer[deletedPos] = Intrinsics.<KType> empty();
                 /*! #end !*/
 
                 //Not really needed, but usefull to catch inconsistencies
@@ -714,7 +714,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
                 //for GC
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                buffer[this.elementsCount] = Intrinsics.<KType> defaultKTypeValue();
+                buffer[this.elementsCount] = Intrinsics.<KType> empty();
                 /*! #end !*/
 
                 //diminuish size
@@ -869,7 +869,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
                         }
 
                         //compare both elements with Comparable, or natural ordering
-                        if (!Intrinsics.isCompEqualKTypeUnchecked(buffer[currentIndex], otherBuffer[otherIndex])) {
+                        if (!Intrinsics.<KType> isCompEqualUnchecked(buffer[currentIndex], otherBuffer[otherIndex])) {
                             return false;
                         }
                     }
@@ -1155,7 +1155,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
                 if (ValuesCollection.this.owner.comparator == null) {
 
-                    if (Intrinsics.isCompEqualKTypeUnchecked(value, ValuesCollection.this.currentOccurenceToBeRemoved)) {
+                    if (Intrinsics.<KType> isCompEqualUnchecked(value, ValuesCollection.this.currentOccurenceToBeRemoved)) {
 
                         return true;
                     }
@@ -1208,7 +1208,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
                 //iterate the heap buffer, use the natural comparison criteria
                 for (int pos = 1; pos <= size; pos++) {
-                    if (Intrinsics.isCompEqualKTypeUnchecked(buffer[pos], value)) {
+                    if (Intrinsics.<KType> isCompEqualUnchecked(buffer[pos], value)) {
                         return true;
                     }
                 }
@@ -1423,8 +1423,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
     /*! #else
-                            public KTypeComparator<? super KType>
-                            #end !*/
+                                            public KTypeComparator<? super KType>
+                                            #end !*/
     comparator() {
 
         return this.comparator;
@@ -1445,7 +1445,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
             try {
                 final int[] newPQIndex = new int[newPQSize];
-                final KType[] newBuffer = Intrinsics.newKTypeArray(newPQSize + 1);
+                final KType[] newBuffer = Intrinsics.<KType> newArray(newPQSize + 1);
                 final int[] newQPIndex = new int[newPQSize + 1];
 
                 if (pqLen > 0) {
@@ -1484,11 +1484,11 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
             //get the child of k
             child = k << 1;
 
-            if (child < N && Intrinsics.isCompSupKTypeUnchecked(buffer[child], buffer[child + 1])) {
+            if (child < N && Intrinsics.<KType> isCompSupUnchecked(buffer[child], buffer[child + 1])) {
                 child++;
             }
 
-            if (!Intrinsics.isCompSupKTypeUnchecked(buffer[k], buffer[child])) {
+            if (!Intrinsics.<KType> isCompSupUnchecked(buffer[k], buffer[child])) {
                 break;
             }
 
@@ -1577,7 +1577,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         final int[] pq = this.pq;
         final int[] qp = this.qp;
 
-        while (k > 1 && Intrinsics.isCompSupKTypeUnchecked(buffer[k >> 1], buffer[k])) {
+        while (k > 1 && Intrinsics.<KType> isCompSupUnchecked(buffer[k >> 1], buffer[k])) {
             //swap k and its parent
             parent = k >> 1;
 
@@ -1699,7 +1699,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
                     //for GC
                     /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                    buffer[elementsCount] = Intrinsics.<KType> defaultKTypeValue();
+                    buffer[elementsCount] = Intrinsics.<KType> empty();
                     /*! #end !*/
 
                     //Diminish size
@@ -1789,10 +1789,10 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         }
         final int left = 2 * k, right = 2 * k + 1;
 
-        if (left <= N && Intrinsics.isCompSupKTypeUnchecked(buffer[k], buffer[left])) {
+        if (left <= N && Intrinsics.<KType> isCompSupUnchecked(buffer[k], buffer[left])) {
             return false;
         }
-        if (right <= N && Intrinsics.isCompSupKTypeUnchecked(buffer[k], buffer[right])) {
+        if (right <= N && Intrinsics.<KType> isCompSupUnchecked(buffer[k], buffer[right])) {
             return false;
         }
         //recursively test

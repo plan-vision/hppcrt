@@ -51,7 +51,7 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayList<KType>
-        extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, Cloneable
+extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, Cloneable
 {
     /**
      * Internal array for storing the list. The array may be larger than the current size
@@ -264,7 +264,7 @@ public class KTypeArrayList<KType>
         }
         this.elementsCount--;
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        this.buffer[this.elementsCount] = Intrinsics.<KType> defaultKTypeValue();
+        this.buffer[this.elementsCount] = Intrinsics.<KType> empty();
         /*! #end !*/
         return v;
     }
@@ -275,7 +275,7 @@ public class KTypeArrayList<KType>
     @Override
     public void removeRange(final int fromIndex, final int toIndex) {
         assert (fromIndex >= 0 && fromIndex <= size()) : "Index " + fromIndex + " out of bounds [" + 0 + ", " + size()
-        + ").";
+                + ").";
 
         assert (toIndex >= 0 && toIndex <= size()) : "Index " + toIndex + " out of bounds [" + 0 + ", " + size() + "].";
 
@@ -324,9 +324,9 @@ public class KTypeArrayList<KType>
         final KType[] buffer = this.buffer;
 
         for (int from = 0; from < this.elementsCount; from++) {
-            if (Intrinsics.equalsKType(e1, buffer[from])) {
+            if (Intrinsics.<KType> equals(e1, buffer[from])) {
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                buffer[from] = Intrinsics.<KType> defaultKTypeValue();
+                buffer[from] = Intrinsics.<KType> empty();
                 /*! #end !*/
                 continue;
             }
@@ -334,7 +334,7 @@ public class KTypeArrayList<KType>
             if (to != from) {
                 buffer[to] = buffer[from];
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                buffer[from] = Intrinsics.<KType> defaultKTypeValue();
+                buffer[from] = Intrinsics.<KType> empty();
                 /*! #end !*/
             }
             to++;
@@ -361,7 +361,7 @@ public class KTypeArrayList<KType>
         final KType[] buffer = this.buffer;
 
         for (int i = 0; i < this.elementsCount; i++) {
-            if (Intrinsics.equalsKType(e1, buffer[i])) {
+            if (Intrinsics.<KType> equals(e1, buffer[i])) {
                 return i;
             }
         }
@@ -377,7 +377,7 @@ public class KTypeArrayList<KType>
         final KType[] buffer = this.buffer;
 
         for (int i = this.elementsCount - 1; i >= 0; i--) {
-            if (Intrinsics.equalsKType(e1, buffer[i])) {
+            if (Intrinsics.<KType> equals(e1, buffer[i])) {
                 return i;
             }
         }
@@ -408,7 +408,7 @@ public class KTypeArrayList<KType>
             final int newSize = this.resizer.grow(bufferLen, this.elementsCount, expectedAdditions);
 
             try {
-                final KType[] newBuffer = Intrinsics.newKTypeArray(newSize);
+                final KType[] newBuffer = Intrinsics.<KType> newArray(newSize);
                 if (bufferLen > 0) {
                     System.arraycopy(this.buffer, 0, newBuffer, 0, this.buffer.length);
                 }
@@ -443,7 +443,7 @@ public class KTypeArrayList<KType>
             } else {
                 //in all cases, the contract of resize if that new elements
                 //are set to default values.
-                Arrays.fill(this.buffer, this.elementsCount, newSize, Intrinsics.<KType> defaultKTypeValue());
+                Arrays.fill(this.buffer, this.elementsCount, newSize, Intrinsics.<KType> empty());
             }
         } else {
             ensureCapacity(newSize);
@@ -579,7 +579,7 @@ public class KTypeArrayList<KType>
     /*! #end !*/
     {
         for (int i = 0; i < length; i++) {
-            if (!Intrinsics.equalsKType(b1[i], b2[i])) {
+            if (!Intrinsics.<KType> equals(b1[i], b2[i])) {
                 return false;
             }
         }
@@ -596,7 +596,7 @@ public class KTypeArrayList<KType>
             final KType o1 = b1.get(i);
             final KType o2 = b2.get(i);
 
-            if (!Intrinsics.equalsKType(o1, o2)) {
+            if (!Intrinsics.<KType> equals(o1, o2)) {
                 return false;
             }
         }
@@ -656,7 +656,7 @@ public class KTypeArrayList<KType>
      */
     public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure, final int fromIndex, final int toIndex) {
         assert (fromIndex >= 0 && fromIndex <= size()) : "Index " + fromIndex + " out of bounds [" + 0 + ", " + size()
-        + ").";
+                + ").";
 
         assert (toIndex >= 0 && toIndex <= size()) : "Index " + toIndex + " out of bounds [" + 0 + ", " + size() + "].";
 
@@ -685,7 +685,7 @@ public class KTypeArrayList<KType>
             for (; from < elementsCount; from++) {
                 if (predicate.apply(buffer[from])) {
                     /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                    buffer[from] = Intrinsics.<KType> defaultKTypeValue();
+                    buffer[from] = Intrinsics.<KType> empty();
                     /*! #end !*/
                     continue;
                 }
@@ -693,7 +693,7 @@ public class KTypeArrayList<KType>
                 if (to != from) {
                     buffer[to] = buffer[from];
                     /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                    buffer[from] = Intrinsics.<KType> defaultKTypeValue();
+                    buffer[from] = Intrinsics.<KType> empty();
                     /*! #end !*/
                 }
                 to++;
@@ -704,7 +704,7 @@ public class KTypeArrayList<KType>
                 if (to != from) {
                     buffer[to] = buffer[from];
                     /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                    buffer[from] = Intrinsics.<KType> defaultKTypeValue();
+                    buffer[from] = Intrinsics.<KType> empty();
                     /*! #end !*/
                 }
                 to++;
@@ -731,7 +731,7 @@ public class KTypeArrayList<KType>
      */
     public <T extends KTypePredicate<? super KType>> T forEach(final T predicate, final int fromIndex, final int toIndex) {
         assert (fromIndex >= 0 && fromIndex <= size()) : "Index " + fromIndex + " out of bounds [" + 0 + ", " + size()
-        + ").";
+                + ").";
 
         assert (toIndex >= 0 && toIndex <= size()) : "Index " + toIndex + " out of bounds [" + 0 + ", " + size() + "].";
 
@@ -753,7 +753,7 @@ public class KTypeArrayList<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeArrayList<KType> newInstance() {
+            KTypeArrayList<KType> newInstance() {
         return new KTypeArrayList<KType>();
     }
 
@@ -762,7 +762,7 @@ public class KTypeArrayList<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeArrayList<KType> newInstance(final int initialCapacity) {
+            KTypeArrayList<KType> newInstance(final int initialCapacity) {
         return new KTypeArrayList<KType>(initialCapacity);
     }
 
@@ -771,7 +771,7 @@ public class KTypeArrayList<KType>
      * <code>KType</code>.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeArrayList<KType> from(final KType... elements) {
+            KTypeArrayList<KType> from(final KType... elements) {
         final KTypeArrayList<KType> list = new KTypeArrayList<KType>(elements.length);
         list.add(elements);
         return list;
@@ -781,7 +781,7 @@ public class KTypeArrayList<KType>
      * Create a list from elements of another container.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeArrayList<KType> from(final KTypeContainer<KType> container) {
+            KTypeArrayList<KType> from(final KTypeContainer<KType> container) {
         return new KTypeArrayList<KType>(container);
     }
 
@@ -833,10 +833,10 @@ public class KTypeArrayList<KType>
     public void sort(final int beginIndex, final int endIndex,
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
-    /*! #else
-            KTypeComparator<? super KType>
-            #end !*/
-    comp) {
+            /*! #else
+                            KTypeComparator<? super KType>
+                            #end !*/
+            comp) {
         assert endIndex <= this.elementsCount;
 
         if (endIndex - beginIndex > 1) {

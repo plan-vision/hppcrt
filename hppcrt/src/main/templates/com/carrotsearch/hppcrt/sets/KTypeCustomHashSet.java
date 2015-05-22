@@ -171,7 +171,7 @@ public class KTypeCustomHashSet<KType>
      */
     @Override
     public boolean add(KType e) {
-        if (Intrinsics.isEmpty(e)) {
+        if (Intrinsics.<KType> isEmpty(e)) {
 
             if (this.allocatedDefaultKey) {
 
@@ -194,7 +194,7 @@ public class KTypeCustomHashSet<KType>
         KType curr;
 
         //1.1 The rehashed key slot is occupied...
-        if (!Intrinsics.isEmpty(curr = keys[slot = REHASH(strategy, e) & mask])) {
+        if (!Intrinsics.<KType> isEmpty(curr = keys[slot = REHASH(strategy, e) & mask])) {
 
             //1.2 the occupied place is indeed key, return false
             if (strategy.equals(curr, e)) {
@@ -350,7 +350,7 @@ public class KTypeCustomHashSet<KType>
         assert this.assigned == this.resizeAt;
 
         //default sentinel value is never in the keys[] array, so never trigger reallocs
-        assert (!Intrinsics.isEmpty(pendingKey));
+        assert (!Intrinsics.<KType> isEmpty(pendingKey));
 
         // Try to allocate new buffers first. If we OOM, it'll be now without
         // leaving the data structure in an inconsistent state.
@@ -370,7 +370,7 @@ public class KTypeCustomHashSet<KType>
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
-        KType e = Intrinsics.<KType> defaultKTypeValue();
+        KType e = Intrinsics.<KType> empty();
         //adding phase
         int slot = -1;
 
@@ -381,7 +381,7 @@ public class KTypeCustomHashSet<KType>
         /*! #end !*/
 
         /*! #if ($RH) !*/
-        KType tmpKey = Intrinsics.<KType> defaultKTypeValue();
+        KType tmpKey = Intrinsics.<KType> empty();
         int tmpAllocated = -1;
         int initial_slot = -1;
         int dist = -1;
@@ -462,7 +462,7 @@ public class KTypeCustomHashSet<KType>
     private void allocateBuffers(final int capacity) {
         try {
 
-            final KType[] keys = Intrinsics.newKTypeArray(capacity);
+            final KType[] keys = Intrinsics.<KType> newArray(capacity);
 
             /*! #if ($RH) !*/
             final int[] allocated = new int[capacity];
@@ -497,7 +497,7 @@ public class KTypeCustomHashSet<KType>
      * if key was present in the set and has been successfully removed.
      */
     public boolean remove(final KType key) {
-        if (Intrinsics.isEmpty(key)) {
+        if (Intrinsics.<KType> isEmpty(key)) {
 
             if (this.allocatedDefaultKey) {
 
@@ -519,7 +519,7 @@ public class KTypeCustomHashSet<KType>
         KType curr;
 
         //1.1 The rehashed slot is free, nothing to remove, return false
-        if (Intrinsics.isEmpty(curr = keys[slot = REHASH(strategy, key) & mask])) {
+        if (Intrinsics.<KType> isEmpty(curr = keys[slot = REHASH(strategy, key) & mask])) {
 
             return false;
         }
@@ -581,7 +581,7 @@ public class KTypeCustomHashSet<KType>
 
             final KType existing = keys[slot];
 
-            if (Intrinsics.isEmpty(existing)) {
+            if (Intrinsics.<KType> isEmpty(existing)) {
                 break;
             }
 
@@ -618,7 +618,7 @@ public class KTypeCustomHashSet<KType>
         } //end while
 
         // Mark the last found gap slot without a conflict as empty.
-        keys[gapSlot] = Intrinsics.<KType> defaultKTypeValue();
+        keys[gapSlot] = Intrinsics.<KType> empty();
     }
 
     /**
@@ -626,7 +626,7 @@ public class KTypeCustomHashSet<KType>
      */
     @Override
     public boolean contains(final KType key) {
-        if (Intrinsics.isEmpty(key)) {
+        if (Intrinsics.<KType> isEmpty(key)) {
 
             return this.allocatedDefaultKey;
         }
@@ -642,7 +642,7 @@ public class KTypeCustomHashSet<KType>
         KType curr;
 
         //1.1 The rehashed slot is free, return false
-        if (Intrinsics.isEmpty(curr = keys[slot = REHASH(strategy, key) & mask])) {
+        if (Intrinsics.<KType> isEmpty(curr = keys[slot = REHASH(strategy, key) & mask])) {
 
             return false;
         }
@@ -798,7 +798,7 @@ public class KTypeCustomHashSet<KType>
                 if (KTypeCustomHashSet.this.allocatedDefaultKey) {
 
                     this.cursor.index = KTypeCustomHashSet.this.keys.length;
-                    this.cursor.value = Intrinsics.defaultKTypeValue();
+                    this.cursor.value = Intrinsics.<KType> empty();
 
                     return this.cursor;
 
@@ -863,7 +863,7 @@ public class KTypeCustomHashSet<KType>
     public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure) {
         if (this.allocatedDefaultKey) {
 
-            procedure.apply(Intrinsics.<KType> defaultKTypeValue());
+            procedure.apply(Intrinsics.<KType> empty());
         }
 
         final KType[] keys = this.keys;
@@ -888,7 +888,7 @@ public class KTypeCustomHashSet<KType>
 
         if (this.allocatedDefaultKey) {
 
-            target[count++] = Intrinsics.defaultKTypeValue();
+            target[count++] = Intrinsics.<KType> empty();
         }
 
         final KType[] keys = this.keys;
@@ -932,7 +932,7 @@ public class KTypeCustomHashSet<KType>
 
         if (this.allocatedDefaultKey) {
 
-            if (!predicate.apply(Intrinsics.<KType> defaultKTypeValue())) {
+            if (!predicate.apply(Intrinsics.<KType> empty())) {
 
                 return predicate;
             }
@@ -962,7 +962,7 @@ public class KTypeCustomHashSet<KType>
 
         if (this.allocatedDefaultKey) {
 
-            if (predicate.apply(Intrinsics.<KType> defaultKTypeValue())) {
+            if (predicate.apply(Intrinsics.<KType> empty())) {
                 this.allocatedDefaultKey = false;
             }
         }
@@ -1025,23 +1025,21 @@ public class KTypeCustomHashSet<KType>
     }
 
     //Test for existence in template
-    /*! #if ($TemplateOptions.inlineKType("is_allocated",
-    "(slot, keys)",
-    "!Intrinsics.isEmpty(keys[slot])")) !*/
+    /*! #if ($TemplateOptions.declareInline("is_allocated(slot, keys)",
+    "<*>==>!Intrinsics.<KType>isEmpty(keys[slot])")) !*/
     /**
      *  template version
      * (actual method is inlined in generated code)
      */
     private boolean is_allocated(final int slot, final KType[] keys) {
 
-        return !Intrinsics.isEmpty(keys[slot]);
+        return !Intrinsics.<KType> isEmpty(keys[slot]);
     }
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.inlineKType("probe_distance",
-        "(slot, cached)",
-        "slot < cached[slot] ? slot + cached.length - cached[slot] : slot - cached[slot]")) !*/
+    /*! #if ($TemplateOptions.declareInline("probe_distance(slot, cached)",
+        "<*>==>slot < cached[slot] ? slot + cached.length - cached[slot] : slot - cached[slot]")) !*/
     /**
      * (actual method is inlined in generated code)
      */
@@ -1065,9 +1063,8 @@ public class KTypeCustomHashSet<KType>
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.inlineKType("REHASH",
-    "(strategy, value)",
-    "MurmurHash3.mix(strategy.computeHashCode(value) , this.perturbation )")) !*/
+    /*! #if ($TemplateOptions.declareInline("REHASH(strategy, value)",
+    "<*>==>MurmurHash3.mix(strategy.computeHashCode(value) , this.perturbation )")) !*/
     /**
      * (actual method is inlined in generated code)
      */
@@ -1078,9 +1075,8 @@ public class KTypeCustomHashSet<KType>
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.inlineKType("REHASH2",
-    "(strategy, value, perturb)",
-    "MurmurHash3.mix(strategy.computeHashCode(value) , perturb)")) !*/
+    /*! #if ($TemplateOptions.declareInline("REHASH2(strategy, value, perturb)",
+    "<*>==>MurmurHash3.mix(strategy.computeHashCode(value) , perturb)")) !*/
     /**
      * REHASH2 method for rehashing the keys with perturbation seed as parameter
      * (inlined in generated code)

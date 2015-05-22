@@ -149,7 +149,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      */
     @Override
     public boolean add(KType e) {
-        if (Intrinsics.isEmpty(e)) {
+        if (Intrinsics.<KType> isEmpty(e)) {
 
             if (this.allocatedDefaultKey) {
 
@@ -170,10 +170,10 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         KType curr;
 
         //1.1 The rehashed key slot is occupied...
-        if (!Intrinsics.isEmpty(curr = keys[slot = REHASH(e) & mask])) {
+        if (!Intrinsics.<KType> isEmpty(curr = keys[slot = REHASH(e) & mask])) {
 
             //1.2 the occupied place is indeed key, return false
-            if (Intrinsics.equalsKTypeNotNull(curr, e)) {
+            if (Intrinsics.<KType> equalsNotNull(curr, e)) {
 
                 return false;
             }
@@ -203,7 +203,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         /*! #end !*/
 
         while (is_allocated(slot, keys)) {
-            if (Intrinsics.equalsKTypeNotNull(e, keys[slot])) {
+            if (Intrinsics.<KType> equalsNotNull(e, keys[slot])) {
                 return false;
             }
 
@@ -326,7 +326,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         assert this.assigned == this.resizeAt;
 
         //default sentinel value is never in the keys[] array, so never trigger reallocs
-        assert (!Intrinsics.isEmpty(pendingKey));
+        assert (!Intrinsics.<KType> isEmpty(pendingKey));
 
         // Try to allocate new buffers first. If we OOM, it'll be now without
         // leaving the data structure in an inconsistent state.
@@ -344,7 +344,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         //Variables for adding
         final int mask = this.keys.length - 1;
 
-        KType e = Intrinsics.<KType> defaultKTypeValue();
+        KType e = Intrinsics.<KType> empty();
         //adding phase
         int slot = -1;
 
@@ -355,7 +355,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         /*! #end !*/
 
         /*! #if ($RH) !*/
-        KType tmpKey = Intrinsics.<KType> defaultKTypeValue();
+        KType tmpKey = Intrinsics.<KType> empty();
         int tmpAllocated = -1;
         int initial_slot = -1;
         int dist = -1;
@@ -437,7 +437,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     private void allocateBuffers(final int capacity) {
         try {
 
-            final KType[] keys = Intrinsics.newKTypeArray(capacity);
+            final KType[] keys = Intrinsics.<KType> newArray(capacity);
 
             /*! #if ($RH) !*/
             final int[] allocated = new int[capacity];
@@ -475,7 +475,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      * if key was present in the set and has been successfully removed.
      */
     public boolean remove(final KType key) {
-        if (Intrinsics.isEmpty(key)) {
+        if (Intrinsics.<KType> isEmpty(key)) {
 
             if (this.allocatedDefaultKey) {
 
@@ -495,13 +495,13 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         KType curr;
 
         //1.1 The rehashed slot is free, nothing to remove, return false
-        if (Intrinsics.isEmpty(curr = keys[slot = REHASH(key) & mask])) {
+        if (Intrinsics.<KType> isEmpty(curr = keys[slot = REHASH(key) & mask])) {
 
             return false;
         }
 
         //1.2) The rehashed entry is occupied by the key, remove it, return true
-        if (Intrinsics.equalsKTypeNotNull(curr, key)) {
+        if (Intrinsics.<KType> equalsNotNull(curr, key)) {
 
             this.assigned--;
             shiftConflictingKeys(slot);
@@ -518,7 +518,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         while (is_allocated(slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/) {
-            if (Intrinsics.equalsKTypeNotNull(key, keys[slot])) {
+            if (Intrinsics.<KType> equalsNotNull(key, keys[slot])) {
                 this.assigned--;
                 shiftConflictingKeys(slot);
                 return true;
@@ -556,7 +556,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
             final KType existing = keys[slot];
 
-            if (Intrinsics.isEmpty(existing)) {
+            if (Intrinsics.<KType> isEmpty(existing)) {
                 break;
             }
 
@@ -593,7 +593,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         } //end while
 
         // Mark the last found gap slot without a conflict as empty.
-        keys[gapSlot] = Intrinsics.<KType> defaultKTypeValue();
+        keys[gapSlot] = Intrinsics.<KType> empty();
     }
 
     /**
@@ -601,7 +601,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      */
     @Override
     public boolean contains(final KType key) {
-        if (Intrinsics.isEmpty(key)) {
+        if (Intrinsics.<KType> isEmpty(key)) {
 
             return this.allocatedDefaultKey;
         }
@@ -615,13 +615,13 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         KType curr;
 
         //1.1 The rehashed slot is free, return false
-        if (Intrinsics.isEmpty(curr = keys[slot = REHASH(key) & mask])) {
+        if (Intrinsics.<KType> isEmpty(curr = keys[slot = REHASH(key) & mask])) {
 
             return false;
         }
 
         //1.2) The rehashed entry is occupied by the key, return true
-        if (Intrinsics.equalsKTypeNotNull(curr, key)) {
+        if (Intrinsics.<KType> equalsNotNull(curr, key)) {
 
             return true;
         }
@@ -636,7 +636,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         while (is_allocated(slot, keys)
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/) {
-            if (Intrinsics.equalsKTypeNotNull(key, keys[slot])) {
+            if (Intrinsics.<KType> equalsNotNull(key, keys[slot])) {
                 return true;
             }
             slot = (slot + 1) & mask;
@@ -762,7 +762,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
                 if (KTypeHashSet.this.allocatedDefaultKey) {
 
                     this.cursor.index = KTypeHashSet.this.keys.length;
-                    this.cursor.value = Intrinsics.defaultKTypeValue();
+                    this.cursor.value = Intrinsics.<KType> empty();
 
                     return this.cursor;
 
@@ -828,7 +828,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure) {
         if (this.allocatedDefaultKey) {
 
-            procedure.apply(Intrinsics.<KType> defaultKTypeValue());
+            procedure.apply(Intrinsics.<KType> empty());
         }
 
         final KType[] keys = this.keys;
@@ -853,7 +853,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         if (this.allocatedDefaultKey) {
 
-            target[count++] = Intrinsics.defaultKTypeValue();
+            target[count++] = Intrinsics.<KType> empty();
         }
 
         final KType[] keys = this.keys;
@@ -893,7 +893,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     public <T extends KTypePredicate<? super KType>> T forEach(final T predicate) {
         if (this.allocatedDefaultKey) {
 
-            if (!predicate.apply(Intrinsics.<KType> defaultKTypeValue())) {
+            if (!predicate.apply(Intrinsics.<KType> empty())) {
 
                 return predicate;
             }
@@ -923,7 +923,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         if (this.allocatedDefaultKey) {
 
-            if (predicate.apply(Intrinsics.<KType> defaultKTypeValue())) {
+            if (predicate.apply(Intrinsics.<KType> empty())) {
                 this.allocatedDefaultKey = false;
             }
         }
@@ -976,23 +976,21 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     }
 
     //Test for existence in template
-    /*! #if ($TemplateOptions.inlineKType("is_allocated",
-    "(slot, keys)",
-    "!Intrinsics.isEmpty(keys[slot])")) !*/
+    /*! #if ($TemplateOptions.declareInline("is_allocated(slot, keys)",
+    "<*>==>!Intrinsics.<KType>isEmpty(keys[slot])")) !*/
     /**
      *  template version
      * (actual method is inlined in generated code)
      */
     private boolean is_allocated(final int slot, final KType[] keys) {
 
-        return !Intrinsics.isEmpty(keys[slot]);
+        return !Intrinsics.<KType> isEmpty(keys[slot]);
     }
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.inlineKType("probe_distance",
-    "(slot, cached)",
-    "slot < cached[slot] ? slot + cached.length - cached[slot] : slot - cached[slot]")) !*/
+    /*! #if ($TemplateOptions.declareInline("probe_distance(slot, cached)",
+    "<*>==>slot < cached[slot] ? slot + cached.length - cached[slot] : slot - cached[slot]")) !*/
     /**
      * (actual method is inlined in generated code)
      */
@@ -1016,10 +1014,9 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.inlineKTypeGenericAndPrimitive("REHASH",
-    "(value)",
-    "MurmurHash3.mix(value.hashCode() , this.perturbation)",
-    "MurmurHash3.mix(value , this.perturbation)")) !*/
+    /*! #if ($TemplateOptions.declareInline("REHASH(value)",
+    "<Object>==>MurmurHash3.mix(value.hashCode() , this.perturbation)",
+    "<*>==>MurmurHash3.mix(value , this.perturbation)")) !*/
     /**
      * REHASH method for rehashing the keys.
      * (inlined in generated code)
@@ -1032,10 +1029,9 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.inlineKTypeGenericAndPrimitive("REHASH2",
-    "(value, perturb)",
-    "MurmurHash3.mix(value.hashCode() , perturb)",
-    "MurmurHash3.mix(value , perturb)")) !*/
+    /*! #if ($TemplateOptions.declareInline("REHASH2(value, perturb)",
+    "<Object>==>MurmurHash3.mix(value.hashCode() , perturb)",
+    "<*>==>MurmurHash3.mix(value , perturb)")) !*/
     /**
      * REHASH2 method for rehashing the keys with perturbation seed as parameter
      * (inlined in generated code)

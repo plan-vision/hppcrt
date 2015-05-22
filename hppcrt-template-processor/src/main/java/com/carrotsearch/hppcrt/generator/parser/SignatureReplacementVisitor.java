@@ -15,6 +15,7 @@ import com.carrotsearch.hppcrt.generator.TemplateOptions;
 import com.carrotsearch.hppcrt.generator.Type;
 import com.carrotsearch.hppcrt.generator.parser.Java7Parser.*;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 public class SignatureReplacementVisitor extends ReplacementVisitorBase
@@ -219,7 +220,7 @@ public class SignatureReplacementVisitor extends ReplacementVisitorBase
         replacements.addAll(super.visitMethodDeclaration(ctx.methodDeclaration()));
 
         log(Level.FINEST, "visitGenericMethodDeclaration", "replacements = "
-                + Lists.newArrayList(replacements).toString());
+                + ImmutableList.of(replacements).toString());
 
         return replacements;
     }

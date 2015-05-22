@@ -55,7 +55,7 @@ public class KTypeCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         @Override
         public boolean equals(final KType o1, final KType o2) {
 
-            return Intrinsics.equalsKType(cast(castType(o1) + KTypeCustomHashSetTest.STRIDE), cast(castType(o2)
+            return Intrinsics.<KType> equals(cast(castType(o1) + KTypeCustomHashSetTest.STRIDE), cast(castType(o2)
                     + KTypeCustomHashSetTest.STRIDE));
         }
 
@@ -1145,7 +1145,7 @@ public class KTypeCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
             @Override
             public boolean equals(final KType o1, final KType o2) {
 
-                return Intrinsics.equalsKType(o1, o2);
+                return Intrinsics.<KType> equals(o1, o2);
             }
         }, TEST_SEED);
 
@@ -1177,7 +1177,7 @@ public class KTypeCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
             @Override
             public boolean equals(final KType o1, final KType o2) {
 
-                return Intrinsics.equalsKType(o1, o2);
+                return Intrinsics.<KType> equals(o1, o2);
             }
         }, TEST_SEED);
 
@@ -1198,7 +1198,7 @@ public class KTypeCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
             @Override
             public boolean equals(final KType o1, final KType o2) {
 
-                return Intrinsics.equalsKType(o1, o2);
+                return Intrinsics.<KType> equals(o1, o2);
             }
         }, TEST_SEED);
 
@@ -1230,7 +1230,7 @@ public class KTypeCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
             @Override
             public boolean equals(final KType o1, final KType o2) {
 
-                return Intrinsics.equalsKType(o1, o2);
+                return Intrinsics.<KType> equals(o1, o2);
             }
         };
 
@@ -1269,7 +1269,7 @@ public class KTypeCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
                     @Override
                     public boolean equals(final KType o1, final KType o2) {
 
-                        return Intrinsics.equalsKType(o1, o2);
+                        return Intrinsics.<KType> equals(o1, o2);
                     }
                 });
 
@@ -1399,6 +1399,6 @@ public class KTypeCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
      */
     private boolean is_allocated(final int slot, final KType[] keys) {
 
-        return !Intrinsics.isEmpty(keys[slot]);
+        return !Intrinsics.<KType> isEmpty(keys[slot]);
     }
 }

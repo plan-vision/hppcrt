@@ -131,10 +131,10 @@ public final class KTypeSort
     public static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void quicksort(final KType[] table,
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
-            /*! #else
-                                    KTypeComparator<? super KType>
-                            #end !*/
-            comp)
+    /*! #else
+                                            KTypeComparator<? super KType>
+                                    #end !*/
+    comp)
     {
         KTypeSort.quicksort(table, 0, table.length, comp);
     }
@@ -171,10 +171,10 @@ public final class KTypeSort
     public static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void quicksort(final KTypeIndexedContainer<KType> table,
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
-    /*! #else
-                    KTypeComparator<? super KType>
-                    #end !*/
-            comp)
+            /*! #else
+                                    KTypeComparator<? super KType>
+                                    #end !*/
+    comp)
     {
         KTypeSort.quicksort(table, 0, table.size(), comp);
     }
@@ -195,7 +195,7 @@ public final class KTypeSort
         // insertion sort on tiny array
         for (int i = left + 1; i <= right; i++)
         {
-            for (int j = i; j > left && Intrinsics.isCompInfKTypeUnchecked(a[j], a[j - 1]); j--)
+            for (int j = i; j > left && Intrinsics.<KType> isCompInfUnchecked(a[j], a[j - 1]); j--)
             {
                 x = a[j - 1];
                 a[j - 1] = a[j];
@@ -239,55 +239,55 @@ public final class KTypeSort
         final int m5 = m4 + sixth;
 
         // 5-element sorting network
-        if (Intrinsics.isCompSupKTypeUnchecked(a[m1], a[m2]) /* a[m1] > a[m2]*/)
+        if (Intrinsics.<KType> isCompSupUnchecked(a[m1], a[m2]) /* a[m1] > a[m2]*/)
         {
             x = a[m1];
             a[m1] = a[m2];
             a[m2] = x;
         }
-        if (Intrinsics.isCompSupKTypeUnchecked(a[m4], a[m5]) /* a[m4] > a[m5]*/)
+        if (Intrinsics.<KType> isCompSupUnchecked(a[m4], a[m5]) /* a[m4] > a[m5]*/)
         {
             x = a[m4];
             a[m4] = a[m5];
             a[m5] = x;
         }
-        if (Intrinsics.isCompSupKTypeUnchecked(a[m1], a[m3]) /*a[m1] > a[m3]*/)
+        if (Intrinsics.<KType> isCompSupUnchecked(a[m1], a[m3]) /*a[m1] > a[m3]*/)
         {
             x = a[m1];
             a[m1] = a[m3];
             a[m3] = x;
         }
-        if (Intrinsics.isCompSupKTypeUnchecked(a[m2], a[m3]) /* a[m2] > a[m3]*/)
+        if (Intrinsics.<KType> isCompSupUnchecked(a[m2], a[m3]) /* a[m2] > a[m3]*/)
         {
             x = a[m2];
             a[m2] = a[m3];
             a[m3] = x;
         }
-        if (Intrinsics.isCompSupKTypeUnchecked(a[m1], a[m4]) /* a[m1] > a[m4]*/)
+        if (Intrinsics.<KType> isCompSupUnchecked(a[m1], a[m4]) /* a[m1] > a[m4]*/)
         {
             x = a[m1];
             a[m1] = a[m4];
             a[m4] = x;
         }
-        if (Intrinsics.isCompSupKTypeUnchecked(a[m3], a[m4]) /*a[m3] > a[m4]*/)
+        if (Intrinsics.<KType> isCompSupUnchecked(a[m3], a[m4]) /*a[m3] > a[m4]*/)
         {
             x = a[m3];
             a[m3] = a[m4];
             a[m4] = x;
         }
-        if (Intrinsics.isCompSupKTypeUnchecked(a[m2], a[m5]) /* a[m2] > a[m5]*/)
+        if (Intrinsics.<KType> isCompSupUnchecked(a[m2], a[m5]) /* a[m2] > a[m5]*/)
         {
             x = a[m2];
             a[m2] = a[m5];
             a[m5] = x;
         }
-        if (Intrinsics.isCompSupKTypeUnchecked(a[m2], a[m3]) /*a[m2] > a[m3]*/)
+        if (Intrinsics.<KType> isCompSupUnchecked(a[m2], a[m3]) /*a[m2] > a[m3]*/)
         {
             x = a[m2];
             a[m2] = a[m3];
             a[m3] = x;
         }
-        if (Intrinsics.isCompSupKTypeUnchecked(a[m4], a[m5]) /* a[m4] > a[m5]*/)
+        if (Intrinsics.<KType> isCompSupUnchecked(a[m4], a[m5]) /* a[m4] > a[m5]*/)
         {
             x = a[m4];
             a[m4] = a[m5];
@@ -298,7 +298,7 @@ public final class KTypeSort
         final KType pivot1 = a[m2];
         final KType pivot2 = a[m4];
 
-        final boolean diffPivots = !Intrinsics.isCompEqualKTypeUnchecked(pivot1, pivot2);
+        final boolean diffPivots = !Intrinsics.<KType> isCompEqualUnchecked(pivot1, pivot2);
 
         a[m2] = a[left];
         a[m4] = a[right];
@@ -312,14 +312,14 @@ public final class KTypeSort
             {
                 x = a[k];
 
-                if (Intrinsics.isCompInfKTypeUnchecked(x, pivot1)/* x < pivot1 */)
+                if (Intrinsics.<KType> isCompInfUnchecked(x, pivot1)/* x < pivot1 */)
                 {
                     a[k] = a[less];
                     a[less++] = x;
                 }
-                else if (Intrinsics.isCompSupKTypeUnchecked(x, pivot2) /* x > pivot2 */)
+                else if (Intrinsics.<KType> isCompSupUnchecked(x, pivot2) /* x > pivot2 */)
                 {
-                    while (Intrinsics.isCompSupKTypeUnchecked(a[great], pivot2) /* a[great] > pivot2 */&& k < great)
+                    while (Intrinsics.<KType> isCompSupUnchecked(a[great], pivot2) /* a[great] > pivot2 */&& k < great)
                     {
                         great--;
                     }
@@ -327,7 +327,7 @@ public final class KTypeSort
                     a[great--] = x;
                     x = a[k];
 
-                    if (Intrinsics.isCompInfKTypeUnchecked(x, pivot1) /*x < pivot1*/)
+                    if (Intrinsics.<KType> isCompInfUnchecked(x, pivot1) /*x < pivot1*/)
                     {
                         a[k] = a[less];
                         a[less++] = x;
@@ -340,18 +340,18 @@ public final class KTypeSort
             for (int k = less; k <= great; k++)
             {
                 x = a[k];
-                if (Intrinsics.isCompEqualKTypeUnchecked(x, pivot1) /*x == pivot1*/)
+                if (Intrinsics.<KType> isCompEqualUnchecked(x, pivot1) /*x == pivot1*/)
                 {
                     continue;
                 }
-                if (Intrinsics.isCompInfKTypeUnchecked(x, pivot1) /* x < pivot1 */)
+                if (Intrinsics.<KType> isCompInfUnchecked(x, pivot1) /* x < pivot1 */)
                 {
                     a[k] = a[less];
                     a[less++] = x;
                 }
                 else
                 {
-                    while (Intrinsics.isCompSupKTypeUnchecked(a[great], pivot2) /* a[great] > pivot2*/&& k < great)
+                    while (Intrinsics.<KType> isCompSupUnchecked(a[great], pivot2) /* a[great] > pivot2*/&& k < great)
                     {
                         great--;
                     }
@@ -359,7 +359,7 @@ public final class KTypeSort
                     a[great--] = x;
                     x = a[k];
 
-                    if (Intrinsics.isCompInfKTypeUnchecked(x, pivot1) /*x < pivot1*/)
+                    if (Intrinsics.<KType> isCompInfUnchecked(x, pivot1) /*x < pivot1*/)
                     {
                         a[k] = a[less];
                         a[less++] = x;
@@ -382,18 +382,18 @@ public final class KTypeSort
             for (int k = less; k <= great; k++)
             {
                 x = a[k];
-                if (Intrinsics.isCompEqualKTypeUnchecked(x, pivot1) /*x == pivot1*/)
+                if (Intrinsics.<KType> isCompEqualUnchecked(x, pivot1) /*x == pivot1*/)
                 {
                     a[k] = a[less];
                     a[less++] = x;
                 }
-                else if (Intrinsics.isCompEqualKTypeUnchecked(x, pivot2) /*x == pivot2*/)
+                else if (Intrinsics.<KType> isCompEqualUnchecked(x, pivot2) /*x == pivot2*/)
                 {
                     a[k] = a[great];
                     a[great--] = x;
                     x = a[k];
 
-                    if (Intrinsics.isCompEqualKTypeUnchecked(x, pivot1) /*x == pivot1*/)
+                    if (Intrinsics.<KType> isCompEqualUnchecked(x, pivot1) /*x == pivot1*/)
                     {
                         a[k] = a[less];
                         a[less++] = x;
@@ -425,7 +425,7 @@ public final class KTypeSort
 
         for (int i = left + 1; i <= right; i++)
         {
-            for (int j = i; j > left && Intrinsics.isCompInfKTypeUnchecked(a.get(j), a.get(j - 1)); j--)
+            for (int j = i; j > left && Intrinsics.<KType> isCompInfUnchecked(a.get(j), a.get(j - 1)); j--)
             {
                 x = a.get(j - 1);
                 a.set(j - 1, a.get(j));
@@ -470,59 +470,59 @@ public final class KTypeSort
         final int m5 = m4 + sixth;
 
         // 5-element sorting network
-        if (Intrinsics.isCompSupKTypeUnchecked(a.get(m1), a.get(m2)) /* a[m1] > a[m2]*/)
+        if (Intrinsics.<KType> isCompSupUnchecked(a.get(m1), a.get(m2)) /* a[m1] > a[m2]*/)
         {
             x = a.get(m1);
             a.set(m1, a.get(m2));
             a.set(m2, x);
         }
-        if (Intrinsics.isCompSupKTypeUnchecked(a.get(m4), a.get(m5)) /* a[m4] > a[m5]*/)
+        if (Intrinsics.<KType> isCompSupUnchecked(a.get(m4), a.get(m5)) /* a[m4] > a[m5]*/)
         {
             x = a.get(m4);
             a.set(m4, a.get(m5));
             a.set(m5, x);
 
         }
-        if (Intrinsics.isCompSupKTypeUnchecked(a.get(m1), a.get(m3)) /*a[m1] > a[m3]*/)
+        if (Intrinsics.<KType> isCompSupUnchecked(a.get(m1), a.get(m3)) /*a[m1] > a[m3]*/)
         {
             x = a.get(m1);
             a.set(m1, a.get(m3));
             a.set(m3, x);
         }
-        if (Intrinsics.isCompSupKTypeUnchecked(a.get(m2), a.get(m3)) /* a[m2] > a[m3]*/)
+        if (Intrinsics.<KType> isCompSupUnchecked(a.get(m2), a.get(m3)) /* a[m2] > a[m3]*/)
         {
             x = a.get(m2);
             a.set(m2, a.get(m3));
             a.set(m3, x);
 
         }
-        if (Intrinsics.isCompSupKTypeUnchecked(a.get(m1), a.get(m4)) /* a[m1] > a[m4]*/)
+        if (Intrinsics.<KType> isCompSupUnchecked(a.get(m1), a.get(m4)) /* a[m1] > a[m4]*/)
         {
             x = a.get(m1);
             a.set(m1, a.get(m4));
             a.set(m4, x);
 
         }
-        if (Intrinsics.isCompSupKTypeUnchecked(a.get(m3), a.get(m4)) /*a[m3] > a[m4]*/)
+        if (Intrinsics.<KType> isCompSupUnchecked(a.get(m3), a.get(m4)) /*a[m3] > a[m4]*/)
         {
             x = a.get(m3);
             a.set(m3, a.get(m4));
             a.set(m4, x);
 
         }
-        if (Intrinsics.isCompSupKTypeUnchecked(a.get(m2), a.get(m5)) /* a[m2] > a[m5]*/)
+        if (Intrinsics.<KType> isCompSupUnchecked(a.get(m2), a.get(m5)) /* a[m2] > a[m5]*/)
         {
             x = a.get(m2);
             a.set(m2, a.get(m5));
             a.set(m5, x);
         }
-        if (Intrinsics.isCompSupKTypeUnchecked(a.get(m2), a.get(m3)) /*a[m2] > a[m3]*/)
+        if (Intrinsics.<KType> isCompSupUnchecked(a.get(m2), a.get(m3)) /*a[m2] > a[m3]*/)
         {
             x = a.get(m2);
             a.set(m2, a.get(m3));
             a.set(m3, x);
         }
-        if (Intrinsics.isCompSupKTypeUnchecked(a.get(m4), a.get(m5)) /* a[m4] > a[m5]*/)
+        if (Intrinsics.<KType> isCompSupUnchecked(a.get(m4), a.get(m5)) /* a[m4] > a[m5]*/)
         {
             x = a.get(m4);
             a.set(m4, a.get(m5));
@@ -533,7 +533,7 @@ public final class KTypeSort
         final KType pivot1 = a.get(m2);
         final KType pivot2 = a.get(m4);
 
-        final boolean diffPivots = !Intrinsics.isCompEqualKTypeUnchecked(pivot1, pivot2);
+        final boolean diffPivots = !Intrinsics.<KType> isCompEqualUnchecked(pivot1, pivot2);
 
         a.set(m2, a.get(left));
         a.set(m4, a.get(right));
@@ -547,15 +547,15 @@ public final class KTypeSort
             {
                 x = a.get(k);
 
-                if (Intrinsics.isCompInfKTypeUnchecked(x, pivot1)/* x < pivot1 */)
+                if (Intrinsics.<KType> isCompInfUnchecked(x, pivot1)/* x < pivot1 */)
                 {
                     a.set(k, a.get(less));
                     a.set(less, x);
                     less++;
                 }
-                else if (Intrinsics.isCompSupKTypeUnchecked(x, pivot2) /* x > pivot2 */)
+                else if (Intrinsics.<KType> isCompSupUnchecked(x, pivot2) /* x > pivot2 */)
                 {
-                    while (Intrinsics.isCompSupKTypeUnchecked(a.get(great), pivot2) /* a[great] > pivot2 */&& k < great)
+                    while (Intrinsics.<KType> isCompSupUnchecked(a.get(great), pivot2) /* a[great] > pivot2 */&& k < great)
                     {
                         great--;
                     }
@@ -564,7 +564,7 @@ public final class KTypeSort
                     great--;
                     x = a.get(k);
 
-                    if (Intrinsics.isCompInfKTypeUnchecked(x, pivot1) /*x < pivot1*/)
+                    if (Intrinsics.<KType> isCompInfUnchecked(x, pivot1) /*x < pivot1*/)
                     {
                         a.set(k, a.get(less));
                         a.set(less, x);
@@ -579,11 +579,11 @@ public final class KTypeSort
             {
                 x = a.get(k);
 
-                if (Intrinsics.isCompEqualKTypeUnchecked(x, pivot1) /*x == pivot1*/)
+                if (Intrinsics.<KType> isCompEqualUnchecked(x, pivot1) /*x == pivot1*/)
                 {
                     continue;
                 }
-                if (Intrinsics.isCompInfKTypeUnchecked(x, pivot1) /* x < pivot1 */)
+                if (Intrinsics.<KType> isCompInfUnchecked(x, pivot1) /* x < pivot1 */)
                 {
                     a.set(k, a.get(less));
                     a.set(less, x);
@@ -591,7 +591,7 @@ public final class KTypeSort
                 }
                 else
                 {
-                    while (Intrinsics.isCompSupKTypeUnchecked(a.get(great), pivot2) /* a[great] > pivot2*/&& k < great)
+                    while (Intrinsics.<KType> isCompSupUnchecked(a.get(great), pivot2) /* a[great] > pivot2*/&& k < great)
                     {
                         great--;
                     }
@@ -600,7 +600,7 @@ public final class KTypeSort
                     great--;
                     x = a.get(k);
 
-                    if (Intrinsics.isCompInfKTypeUnchecked(x, pivot1) /*x < pivot1*/)
+                    if (Intrinsics.<KType> isCompInfUnchecked(x, pivot1) /*x < pivot1*/)
                     {
                         a.set(k, a.get(less));
                         a.set(less, x);
@@ -624,20 +624,20 @@ public final class KTypeSort
             for (int k = less; k <= great; k++)
             {
                 x = a.get(k);
-                if (Intrinsics.isCompEqualKTypeUnchecked(x, pivot1) /*x == pivot1*/)
+                if (Intrinsics.<KType> isCompEqualUnchecked(x, pivot1) /*x == pivot1*/)
                 {
                     a.set(k, a.get(less));
                     a.set(less, x);
                     less++;
                 }
-                else if (Intrinsics.isCompEqualKTypeUnchecked(x, pivot2) /*x == pivot2*/)
+                else if (Intrinsics.<KType> isCompEqualUnchecked(x, pivot2) /*x == pivot2*/)
                 {
                     a.set(k, a.get(great));
                     a.set(great, x);
                     great--;
                     x = a.get(k);
 
-                    if (Intrinsics.isCompEqualKTypeUnchecked(x, pivot1) /*x == pivot1*/)
+                    if (Intrinsics.<KType> isCompEqualUnchecked(x, pivot1) /*x == pivot1*/)
                     {
                         a.set(k, a.get(less));
                         a.set(less, x);
