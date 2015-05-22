@@ -9,7 +9,7 @@ public class TestTemplateOptions
 
         final TemplateOptions testInstance = new TemplateOptions(Type.GENERIC, null);
 
-        //TODO
+        //nothing for now
     }
 
 }

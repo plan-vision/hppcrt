@@ -9,7 +9,6 @@ import com.carrotsearch.hppcrt.cursors.*;
  * of KTypeVTypeMap
  */
 /*! ($TemplateOptions.doNotGenerate()) !*/
-/*! ${TemplateOptions.generatedAnnotation} !*/
 public interface IntKTypeMap<T>
 extends IntKTypeAssociativeContainer<T>
 {

@@ -29,11 +29,6 @@ import com.carrotsearch.hppcrt.generator.parser.Java7Parser.CompilationUnitConte
 /** */
 public class SignatureProcessor
 {
-    public enum ReplacementKind {
-        CLASSREFS,
-        INLINES
-    }
-
     private static final int GUI_MAX_TITLE_SIZE = 150;
 
     /**
@@ -83,9 +78,9 @@ public class SignatureProcessor
      * Main processing entry point: call to apply source file (template) conversions according to the current provided templateOptions
      * @return
      */
-    public String process(final TemplateOptions templateOptions, final SignatureProcessor.ReplacementKind kind) {
+    public String process(final TemplateOptions templateOptions) {
 
-        return applyReplacements(findReplacements(templateOptions, kind), templateOptions);
+        return applyReplacements(findReplacements(templateOptions), templateOptions);
     }
 
     /**
@@ -101,19 +96,12 @@ public class SignatureProcessor
     /**
      * Step 2 : Compute the replacements using a Visitor-traversal of the parsed source using a SignatureReplacementVisitor.
      */
-    private List<Replacement> findReplacements(final TemplateOptions templateOptions, final SignatureProcessor.ReplacementKind kind) {
+    private List<Replacement> findReplacements(final TemplateOptions templateOptions) {
 
         //Plug the SignatureVisitor into the final CompilationUnit context and start the Visitor traversal and computing.
         List<Replacement> replacements = ReplacementVisitorBase.NONE;
 
-        if (kind == ReplacementKind.CLASSREFS) {
-
-            replacements = this.unitContext.accept(new SignatureReplacementVisitor(templateOptions, this));
-
-        } else if (kind == ReplacementKind.INLINES) {
-
-            replacements = this.unitContext.accept(new InlinesReplacementVisitor(templateOptions, this));
-        }
+        replacements = this.unitContext.accept(new SignatureReplacementVisitor(templateOptions, this));
 
         //the result is a list of Replacement, i.e list of intervals of the original stream (in fact of the TokenStream), associated with a replacement string.
         return replacements;

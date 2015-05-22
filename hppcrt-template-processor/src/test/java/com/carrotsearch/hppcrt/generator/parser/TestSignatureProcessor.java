@@ -82,7 +82,7 @@ public class TestSignatureProcessor
         final SignatureProcessor sp = new SignatureProcessor(
                 "public class KTypeVTypeClass<KType, VType> " +
                         " extends     KTypeVTypeSuperClass<KType, VType>" +
-                        " implements  KTypeVTypeInterface<KType, VType> {}");
+                " implements  KTypeVTypeInterface<KType, VType> {}");
 
         check(Type.INT, Type.LONG, sp, "public class IntLongClass extends IntLongSuperClass implements IntLongInterface {}");
         check(Type.INT, Type.GENERIC, sp, "public class IntObjectClass<VType> extends IntObjectSuperClass<VType> implements IntObjectInterface<VType> {}");
@@ -94,7 +94,7 @@ public class TestSignatureProcessor
     public void testInterfaceKV() throws IOException {
         final SignatureProcessor sp = new SignatureProcessor(
                 "public interface KTypeVTypeInterface<KType, VType> " +
-                        "         extends KTypeVTypeSuper<KType, VType> {}");
+                "         extends KTypeVTypeSuper<KType, VType> {}");
 
         check(Type.INT, Type.LONG, sp, "public interface IntLongInterface extends IntLongSuper {}");
         check(Type.INT, Type.GENERIC, sp, "public interface IntObjectInterface<VType> extends IntObjectSuper<VType> {}");
@@ -406,7 +406,7 @@ public class TestSignatureProcessor
         }
 
         //Compute :
-        final String output = processor.process(new TemplateOptions(Type.LONG, null), SignatureProcessor.ReplacementKind.CLASSREFS);
+        final String output = processor.process(new TemplateOptions(Type.LONG, null));
     }
 
     @Test
@@ -456,7 +456,7 @@ public class TestSignatureProcessor
             processor.displayParseTreeGui();
         }
 
-        final String output = processor.process(templateOptions, SignatureProcessor.ReplacementKind.CLASSREFS);
+        final String output = processor.process(templateOptions);
 
         final String expectedNormalized = expected.trim().replaceAll("\\s+", " ");
         final String outputNormalized = output.trim().replaceAll("\\s+", " ");
@@ -487,7 +487,7 @@ public class TestSignatureProcessor
         }
 
         //Compute :
-        final String output = processor.process(templateOptions, SignatureProcessor.ReplacementKind.CLASSREFS);
+        final String output = processor.process(templateOptions);
 
         //whitespace is not significant, normalize it
         final String outputNormalized = output.trim().replaceAll("\\s+", " ");

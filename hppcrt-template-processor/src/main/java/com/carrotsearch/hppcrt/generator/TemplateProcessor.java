@@ -507,7 +507,7 @@ public final class TemplateProcessor
 
                     log(Level.FINE,
                             "filterInlines(), parsed arguments " + params.toString() +
-                            ", passed to inlinedMethod.computeInlinedForm(this.genericParameters = " + inlinedMethod.getGenericParameters() + ")...");
+                                    ", passed to inlinedMethod.computeInlinedForm(this.genericParameters = " + inlinedMethod.getGenericParameters() + ")...");
 
                     //fill-in the arguments depending of the type
                     final String result = inlinedMethod.computeInlinedForm(templateOptions, genericArgs, params);
@@ -560,7 +560,7 @@ public final class TemplateProcessor
 
             final SignatureProcessor signatureProcessor = new SignatureProcessor(input);
 
-            return signatureProcessor.process(options, SignatureProcessor.ReplacementKind.CLASSREFS);
+            return signatureProcessor.process(options);
 
         } catch (final ParseCancellationException | IllegalArgumentException e) {
 
