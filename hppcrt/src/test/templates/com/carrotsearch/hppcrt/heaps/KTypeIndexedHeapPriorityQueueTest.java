@@ -207,23 +207,25 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         TestUtils.assertEquals2(this.key1, this.prioq.get(1));
     }
 
-    /*! #if ($TemplateOptions.KTypeNumeric)
+    /*! #if ($TemplateOptions.KTypeNumeric) !*/
     @Test
     public void testPutOrAdd()
     {
-        assertEquals2(key1, prioq.putOrAdd(1, key1, key2));
-        assertEquals2(key1 + key2, prioq.putOrAdd(1, key1, key2));
+        TestUtils.assertEquals2(this.key1, this.prioq.putOrAdd(1, this.key1, this.key2));
+        TestUtils.assertEquals2(cast(1 + 2), this.prioq.putOrAdd(1, this.key1, this.key2));
     }
-    #end !*/
 
-    /*! #if ($TemplateOptions.KTypeNumeric)
+    /*! #end !*/
+
+    /*! #if ($TemplateOptions.KTypeNumeric) !*/
     @Test
     public void testAddTo()
     {
-        assertEquals2(key1, prioq.addTo(1, key1));
-        assertEquals2(key1 + key2, prioq.addTo(1, key2));
+        TestUtils.assertEquals2(this.key1, this.prioq.addTo(1, this.key1));
+        TestUtils.assertEquals2(cast(1 + 2), this.prioq.addTo(1, this.key2));
     }
-    #end !*/
+
+    /*! #end !*/
 
     /* */
     @Test

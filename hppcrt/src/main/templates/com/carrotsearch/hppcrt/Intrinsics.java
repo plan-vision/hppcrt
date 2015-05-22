@@ -263,6 +263,47 @@ public final class Intrinsics
         return ((Comparable<? super T>) e1).compareTo(e2) == 0;
     }
 
+    /**
+     * An intrinsic that is replaced with plain addition of arguments for
+     * primitive template types. Invalid for non-number generic types.
+     */
+    @SuppressWarnings({ "unchecked", "boxing" })
+    public static <T> T add(final T op1, final T op2) {
+
+        /*! ($TemplateOptions.declareInline("Intrinsics.<T>add(e1 , e2)",
+        "<Object>==>@INVALID_REPLACEMENT_ADD_FORBIDDEN_FOR_OBJECTS@",
+        "<boolean>==>@INVALID_REPLACEMENT_ADD_FORBIDDEN_FOR_BOOLEANS@",
+        "<*>==>e1 + e2")) !*/
+
+        if (op1.getClass() != op2.getClass()) {
+            throw new RuntimeException("Arguments of different classes: " + op1 + " " + op2);
+        }
+
+        if (Byte.class.isInstance(op1)) {
+            return (T) (Byte) (byte) (((Byte) op1).byteValue() + ((Byte) op2).byteValue());
+        }
+        if (Short.class.isInstance(op1)) {
+            return (T) (Short) (short) (((Short) op1).shortValue() + ((Short) op2).shortValue());
+        }
+        if (Character.class.isInstance(op1)) {
+            return (T) (Character) (char) (((Character) op1).charValue() + ((Character) op2).charValue());
+        }
+        if (Integer.class.isInstance(op1)) {
+            return (T) (Integer) (((Integer) op1).intValue() + ((Integer) op2).intValue());
+        }
+        if (Float.class.isInstance(op1)) {
+            return (T) (Float) (((Float) op1).floatValue() + ((Float) op2).floatValue());
+        }
+        if (Long.class.isInstance(op1)) {
+            return (T) (Long) (((Long) op1).longValue() + ((Long) op2).longValue());
+        }
+        if (Double.class.isInstance(op1)) {
+            return (T) (Double) (((Double) op1).doubleValue() + ((Double) op2).doubleValue());
+        }
+
+        throw new UnsupportedOperationException("Invalid for arbitrary types: " + op1 + " " + op2);
+    }
+
 }
 
 //Never attempt to generate anything from this file, but parse it so put this at the end !

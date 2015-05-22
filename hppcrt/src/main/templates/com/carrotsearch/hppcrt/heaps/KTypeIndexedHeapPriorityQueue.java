@@ -476,104 +476,49 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
     /*! #if ($TemplateOptions.KTypeNumeric) !*/
     /**
-     * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. An equivalent
-     * of the following code:
-     * <pre>
-     *  if (containsKey(key))
-     *  {
-     *   KType v = get(key) + additionValue;
-     *   put(key, v);
-     *   return v;
-     *  }
-     *  else
-     *  {
-     *   put(key, putValue);
-     *   return putValue;
-     * }
-     * </pre>
+     * If <code>key</code> exists, <code>putValue</code> is inserted into the map,
+     * otherwise any existing value is incremented by <code>additionValue</code>.
      * 
-     * @param key The key of the value to adjust.
-     * @param putValue The value to put if <code>key</code> does not exist.
-     * @param additionValue The value to add to the existing value if <code>key</code> exists.
-     * @return Returns the current value associated with <code>key</code> (after changes).
+     * @param key
+     *          The key of the value to adjust.
+     * @param putValue
+     *          The value to put if <code>key</code> does not exist.
+     * @param incrementValue
+     *          The value to add to the existing value if <code>key</code> exists.
+     * @return Returns the current value associated with <code>key</code> (after
+     *         changes).
      */
-    /*! #end !*/
-    /*! #if ($TemplateOptions.KTypeNumeric)
     @Override
-    public KType putOrAdd(int key, KType putValue, KType additionValue)
-    {
-       assert key >= 0;
+    public KType putOrAdd(final int key, KType putValue, final KType incrementValue) {
 
-        //1) Key already present, add additionValue to the existing one
-        if (key < this.pq.length && this.pq[key] > 0)
-        {
-            //element already exists : insert brutally at the same position in buffer and refresh the priorities to reestablish heap
-            this.buffer[this.pq[key]] += additionValue;
+        if (containsKey(key)) {
+            putValue = get(key);
 
-            //re-establish heap
-            sink(this.pq[key]);
-            swim(this.pq[key]);
-
-            #if($DEBUG)
-            assert isMinHeap();
-            assert isConsistent();
-            #end
-
-            return this.buffer[this.pq[key]];
+            putValue = (KType) (Intrinsics.<KType> add(putValue, incrementValue));
         }
 
-        //2) not present, add at the end
-        // 2-1) pq must be sufficient to receive index by direct indexing,
-        //resize if needed.
-        ensureBufferSpace(key);
-
-        //2-2) Add
-        this.elementsCount++;
-        final int count = this.elementsCount;
-
-        this.buffer[count] = putValue;
-
-        //initial position
-        this.pq[key] = count;
-        this.qp[count] = key;
-
-        //swim last element
-        swim(count);
-
+        put(key, putValue);
         return putValue;
     }
-    #end !*/
+
+    /*! #end !*/
 
     /*! #if ($TemplateOptions.KTypeNumeric) !*/
     /**
-     * An equivalent of calling
-     * 
-     * <pre>
-     *  if (containsKey(key))
-     *  {
-     *   KType v = get(key) + additionValue;
-     *   put(key, v);
-     *   return v;
-     *  }
-     *  else
-     *  {
-     *   put(key, additionValue);
-     *   return additionValue;
-     * }
-     * </pre>
+     * Adds <code>incrementValue</code> to any existing value for the given <code>key</code>
+     * or inserts <code>incrementValue</code> if <code>key</code> did not previously exist.
      * 
      * @param key The key of the value to adjust.
-     * @param additionValue The value to put or add to the existing value if <code>key</code> exists.
+     * @param incrementValue The value to put or add to the existing value if <code>key</code> exists.
      * @return Returns the current value associated with <code>key</code> (after changes).
      */
-    /*! #end !*/
-    /*! #if ($TemplateOptions.KTypeNumeric)
     @Override
-    public KType addTo(int key, KType additionValue)
+    public KType addTo(final int key, final KType incrementValue)
     {
-        return putOrAdd(key, additionValue, additionValue);
+        return putOrAdd(key, incrementValue, incrementValue);
     }
-    #end !*/
+
+    /*! #end !*/
 
     /**
      * Retrieve, but not remove, the top element of the queue,
@@ -1423,8 +1368,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
     /*! #else
-                                            public KTypeComparator<? super KType>
-                                            #end !*/
+                                                            public KTypeComparator<? super KType>
+                                                            #end !*/
     comparator() {
 
         return this.comparator;

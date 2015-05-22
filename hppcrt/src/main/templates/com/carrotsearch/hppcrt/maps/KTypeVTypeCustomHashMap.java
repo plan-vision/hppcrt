@@ -52,7 +52,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeCustomHashMap<KType, VType>
-implements KTypeVTypeMap<KType, VType>, Cloneable
+        implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     protected VType defaultValue = Intrinsics.<VType> empty();
 
@@ -371,182 +371,49 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
     /*! #if ($TemplateOptions.VTypeNumeric) !*/
     /**
-     * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. An equivalent
-     * of the following code:
-     * <pre>
-     *  if (containsKey(key))
-     *  {
-     *   VType v = (VType) (lget() + additionValue);
-     *   lset(v);
-     *   return v;
-     *  }
-     *  else
-     *  {
-     *   put(key, putValue);
-     *   return putValue;
-     * }
-     * </pre>
+     * If <code>key</code> exists, <code>putValue</code> is inserted into the map,
+     * otherwise any existing value is incremented by <code>additionValue</code>.
      * 
-     * @param key The key of the value to adjust.
-     * @param putValue The value to put if <code>key</code> does not exist.
-     * @param additionValue The value to add to the existing value if <code>key</code> exists.
-     * @return Returns the current value associated with <code>key</code> (after changes).
+     * @param key
+     *          The key of the value to adjust.
+     * @param putValue
+     *          The value to put if <code>key</code> does not exist.
+     * @param incrementValue
+     *          The value to add to the existing value if <code>key</code> exists.
+     * @return Returns the current value associated with <code>key</code> (after
+     *         changes).
      */
-    /*! #end !*/
-    /*! #if ($TemplateOptions.VTypeNumeric)
     @Override
-    public VType putOrAdd(KType key, VType putValue, VType additionValue)
-    {
-        if (Intrinsics.<KType>isEmpty(key)) {
+    public VType putOrAdd(final KType key, VType putValue, final VType incrementValue) {
 
-            if (this.allocatedDefaultKey) {
+        if (containsKey(key)) {
+            putValue = get(key);
 
-                this.allocatedDefaultKeyValue += additionValue;
-
-                return this.allocatedDefaultKeyValue;
-            }
-
-            this.allocatedDefaultKeyValue = putValue;
-
-            this.allocatedDefaultKey = true;
-
-            return putValue;
+            putValue = (VType) (Intrinsics.<VType> add(putValue, incrementValue));
         }
 
-         final int mask = this.keys.length - 1;
-
-        final KType[] keys = this.keys;
-        final VType[] values = this.values;
-
-        final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
-
-         VType value =  putValue;
-
-         //copied straight from  fastutil "fast-path"
-        int slot;
-        KType curr;
-
-        //1.1 The rehashed key slot is occupied...
-        if (!Intrinsics.<KType>isEmpty(curr = keys[slot = REHASH(strategy, key) & mask])) {
-
-            //1.2 the occupied place is indeed key, so only increments the value and nothing else.
-            if (strategy.equals(curr, key)) {
-
-                values[slot] += additionValue;
-                return values[slot];
-            }
-
-            //1.3 key is colliding, manage below :
-        }
-        else if (this.assigned < this.resizeAt) {
-
-            //1.4 key is not colliding, without resize, so insert, return defaultValue.
-            keys[slot] = key;
-            values[slot] = value;
-            this.assigned++;
-
-            #if ($RH)
-            this.hash_cache[slot] = slot;
-            #end
-
-            return putValue;
-        }
-
-        #if ($RH)
-        final int[] cached = this.hash_cache;
-        KType tmpKey;
-        VType tmpValue;
-        int tmpAllocated;
-        int initial_slot = slot;
-        int dist = 0;
-        int existing_distance = 0;
-        #end
-
-
-        while (is_allocated(slot, keys))
-        {
-            #if ($RH)
-            existing_distance = probe_distance(slot, cached);
-            #end
-
-            if (strategy.equals(key, keys[slot]))
-            {
-                values[slot] += additionValue;
-                return values[slot];
-            }
-            #if ($RH)
-            else if (dist > existing_distance)
-            {
-                //swap current (key, value, initial_slot) with slot places
-                tmpKey = keys[slot];
-                keys[slot] = key;
-                key =  tmpKey;
-
-                tmpValue = values[slot];
-                values[slot] = value;
-                value =  tmpValue;
-
-    			tmpAllocated = cached[slot];
-    			cached[slot] = initial_slot;
-                initial_slot = tmpAllocated;
-
-                dist = existing_distance;
-            }
-            #end
-
-            slot = (slot + 1) & mask;
-
-            #if ($RH)
-            dist++;
-            #end
-        }
-
-        if (assigned == resizeAt) {
-            expandAndPut(key, value, slot);
-        } else {
-
-            assigned++;
-            #if ($RH)
-            cached[slot] = initial_slot;
-            #end
-
-            keys[slot] = key;
-            values[slot] = value;
-        }
+        put(key, putValue);
         return putValue;
     }
-    #end !*/
+
+    /*! #end !*/
 
     /*! #if ($TemplateOptions.VTypeNumeric) !*/
     /**
-     * An equivalent of calling
-     * 
-     * <pre>
-     *  if (containsKey(key))
-     *  {
-     *   VType v = (VType) (lget() + additionValue);
-     *   lset(v);
-     *   return v;
-     *  }
-     *  else
-     *  {
-     *   put(key, additionValue);
-     *   return additionValue;
-     * }
-     * </pre>
+     * Adds <code>incrementValue</code> to any existing value for the given <code>key</code>
+     * or inserts <code>incrementValue</code> if <code>key</code> did not previously exist.
      * 
      * @param key The key of the value to adjust.
-     * @param additionValue The value to put or add to the existing value if <code>key</code> exists.
+     * @param incrementValue The value to put or add to the existing value if <code>key</code> exists.
      * @return Returns the current value associated with <code>key</code> (after changes).
      */
-    /*! #end !*/
-    /*! #if ($TemplateOptions.VTypeNumeric)
     @Override
-    public VType addTo(KType key, VType additionValue)
+    public VType addTo(final KType key, final VType incrementValue)
     {
-        return putOrAdd(key, additionValue, additionValue);
+        return putOrAdd(key, incrementValue, incrementValue);
     }
-    #end !*/
+
+    /*! #end !*/
 
     /**
      * Expand the internal storage buffers (capacity) and rehash.

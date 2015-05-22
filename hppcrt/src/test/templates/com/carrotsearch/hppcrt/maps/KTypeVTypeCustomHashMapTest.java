@@ -233,38 +233,40 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
         TestUtils.assertEquals2(this.value0, this.map.get(this.keyE));
     }
 
-    /*! #if ($TemplateOptions.VTypeNumeric)
+    /*! #if ($TemplateOptions.VTypeNumeric) !*/
     @Test
     public void testPutOrAdd()
     {
-        assertEquals2(value3, map.putOrAdd(key1, value3, value2));
-        assertEquals2(value3 + value2, map.putOrAdd(key1, value7, value2));
+        TestUtils.assertEquals2(this.value3, this.map.putOrAdd(this.key1, this.value3, this.value2));
+        TestUtils.assertEquals2(vcast(3 + 2), this.map.putOrAdd(this.key1, this.value7, this.value2));
 
-        assertEquals2(value4, map.putOrAdd(keyE, value4, value2));
-        assertEquals2(value4 + value2, map.putOrAdd(keyE, value5, value2));
+        TestUtils.assertEquals2(this.value4, this.map.putOrAdd(this.keyE, this.value4, this.value2));
+        TestUtils.assertEquals2(vcast(4 + 2), this.map.putOrAdd(this.keyE, this.value5, this.value2));
 
         //trigger reallocs
-        for (int i = 2 ; i < 126; i++) {
+        for (int i = 2; i < 126; i++) {
 
-            KType keyRef = cast(i);
+            final KType keyRef = cast(i);
 
             //force to reference the same key because of identity tests
-            assertEquals2("i = " + i, value3, map.putOrAdd(keyRef, value3, value6));
-            assertEquals2("i = " + i, value3 + value5, map.putOrAdd(keyRef, value7, value5));
+            TestUtils.assertEquals2("i = " + i, this.value3, this.map.putOrAdd(keyRef, this.value3, this.value6));
+            TestUtils.assertEquals2("i = " + i, vcast(3 + 5), this.map.putOrAdd(keyRef, this.value7, this.value5));
         }
     }
-    #end !*/
 
-    /*! #if ($TemplateOptions.VTypeNumeric)
+    /*! #end !*/
+
+    /*! #if ($TemplateOptions.VTypeNumeric) !*/
     @Test
     public void testAddTo()
     {
-        assertEquals2(value3, map.addTo(key1, value3));
-        assertEquals2(value3 + value2, map.addTo(key1, value2));
-        assertEquals2(value3, map.addTo(keyE, value3));
-        assertEquals2(value3 + value2, map.addTo(keyE, value2));
+        TestUtils.assertEquals2(this.value3, this.map.addTo(this.key1, this.value3));
+        TestUtils.assertEquals2(vcast(3 + 2), this.map.addTo(this.key1, this.value2));
+        TestUtils.assertEquals2(this.value3, this.map.addTo(this.keyE, this.value3));
+        TestUtils.assertEquals2(vcast(3 + 2), this.map.addTo(this.keyE, this.value2));
     }
-    #end !*/
+
+    /*! #end !*/
 
     /* */
     @Test

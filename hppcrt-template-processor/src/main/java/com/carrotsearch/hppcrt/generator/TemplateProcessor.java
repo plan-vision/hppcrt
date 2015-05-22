@@ -342,6 +342,7 @@ public final class TemplateProcessor
      * Apply templates.
      */
     private void generate(final TemplateFile input, final List<OutputFile> outputs, final TemplateOptions templateOptions) {
+
         final String targetFileName = targetFileName(relativePath(input.file, this.templatesDir), templateOptions);
 
         final OutputFile output = findOrCreate(targetFileName, outputs);
@@ -500,14 +501,15 @@ public final class TemplateProcessor
                         }
                     } //end for
 
+                    //corner case
                     if (params.size() == 1 && params.get(0).trim().isEmpty()) {
-                        //corner case
+
                         params.clear();
                     }
 
                     log(Level.FINE,
                             "filterInlines(), parsed arguments " + params.toString() +
-                                    ", passed to inlinedMethod.computeInlinedForm(this.genericParameters = " + inlinedMethod.getGenericParameters() + ")...");
+                            ", passed to inlinedMethod.computeInlinedForm(this.genericParameters = " + inlinedMethod.getGenericParameters() + ")...");
 
                     //fill-in the arguments depending of the type
                     final String result = inlinedMethod.computeInlinedForm(templateOptions, genericArgs, params);
@@ -616,7 +618,6 @@ public final class TemplateProcessor
     private void saveFile(final File file, final String input) {
 
         try {
-
             Files.createDirectories(Paths.get(file.getParent()));
 
             Files.write(Paths.get(file.getAbsolutePath()), input.getBytes(StandardCharsets.UTF_8));
@@ -757,8 +758,8 @@ public final class TemplateProcessor
     /**
      * Command line entry point: [template source dir] [output dir] (option:
      * [additional template deps]) Also read the properties:
-     * -Dincremental=[true|false], default false, -Dverbose=[OFF|SEVERE|CONFIG|INFO|WARNING|FINE|FINEST],
-     * default full
+     * -Dincremental=[true|false], default false, -Dverbose=[off|severe|info|config|warning|fine|finer|finest],
+     * default config
      */
     public static void main(final String[] args) {
 
@@ -776,11 +777,9 @@ public final class TemplateProcessor
         }
 
         //read properties
-
         try {
-
             processor.setIncremental(Boolean.valueOf(System.getProperty("incremental", "false")));
-            processor.setVerbose(System.getProperty("verbose", Level.ALL.getName()));
+            processor.setVerbose(System.getProperty("verbose", Level.CONFIG.getName()));
 
         } catch (IllegalArgumentException | NullPointerException e) {
 

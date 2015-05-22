@@ -33,49 +33,43 @@ public interface KTypeVTypeMap<KType, VType>
      */
     boolean putIfAbsent(final KType key, final VType value);
 
+    /*! #if ($TemplateOptions.VTypeNumeric)!*/
+    /**
+     * If <code>key</code> exists, <code>putValue</code> is inserted into the map,
+     * otherwise any existing value is incremented by <code>additionValue</code>.
+     * 
+     * @param key
+     *          The key of the value to adjust.
+     * @param putValue
+     *          The value to put if <code>key</code> does not exist.
+     * @param incrementValue
+     *          The value to add to the existing value if <code>key</code> exists.
+     * @return Returns the current value associated with <code>key</code> (after
+     *         changes).
+     */
+    VType putOrAdd(KType key, VType putValue, VType additionValue);
+
+    /*! #end !*/
+
     /*! #if ($TemplateOptions.VTypeNumeric) !*/
     /**
      * An equivalent of calling
+     * 
      * <pre>
-     *  putOrAdd(key, additionValue, additionValue);
+     * putOrAdd(key, additionValue, additionValue);
      * </pre>
      * 
-     * @param key The key of the value to adjust.
-     * @param additionValue The value to put or add to the existing value if <code>key</code> exists.
-     * @return Returns the current value associated with <code>key</code> (after changes).
+     * @param key
+     *          The key of the value to adjust.
+     * @param additionValue
+     *          The value to put or add to the existing value if <code>key</code>
+     *          exists.
+     * @return Returns the current value associated with <code>key</code> (after
+     *         changes).
      */
-    /*! #end !*/
-    /*! #if ($TemplateOptions.VTypeNumeric)
-     VType addTo(KType key, VType additionValue);
-    #end !*/
+    VType addTo(KType key, VType additionValue);
 
-    /*! #if ($TemplateOptions.VTypeNumeric)!*/
-    /**
-     * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. A logical
-     * equivalent of the following code (but does not update {@link #lastSlot):
-     * <pre>
-     *  if (containsKey(key))
-     *  {
-     *      VType v = (VType) (lget() + additionValue);
-     *      lset(v);
-     *      return v;
-     *  }
-     *  else
-     *  {
-     *     put(key, putValue);
-     *     return putValue;
-     *  }
-     * </pre>
-     * 
-     * @param key The key of the value to adjust.
-     * @param putValue The value to put if <code>key</code> does not exist.
-     * @param additionValue The value to add to the existing value if <code>key</code> exists.
-     * @return Returns the current value associated with <code>key</code> (after changes).
-     */
     /*! #end !*/
-    /*!#if ($TemplateOptions.VTypeNumeric)
-     VType putOrAdd(KType key, VType putValue, VType additionValue);
-    #end !*/
 
     /**
      * @return Returns the value associated with the given key or the default value

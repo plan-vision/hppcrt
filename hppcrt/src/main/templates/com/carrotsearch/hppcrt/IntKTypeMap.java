@@ -17,6 +17,10 @@ extends IntKTypeAssociativeContainer<T>
 
     boolean putIfAbsent(final int key, final T value);
 
+    T putOrAdd(int key, T putValue, T additionValue);
+
+    T addTo(int key, T additionValue);
+
     T get(int key);
 
     int putAll(IntKTypeAssociativeContainer<? extends T> container);
