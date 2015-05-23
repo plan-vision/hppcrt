@@ -19,7 +19,6 @@
   <description>Template Processor and Code Generation for HPPC-RT.</description>
 
   <properties>
-    <skip.deployment>true</skip.deployment>
     <version.velocity>1.7</version.velocity>
   </properties>
 

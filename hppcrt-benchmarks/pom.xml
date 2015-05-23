@@ -18,7 +18,6 @@
     <description>HPPC-RT benchmarks and comparison against other primitive collections.</description>
 
     <properties>
-        <skip.deployment>true</skip.deployment>
         <libs>${basedir}/lib</libs>
         
         <commons-io.version>2.4</commons-io.version>
@@ -29,7 +28,7 @@
         <javac.target>1.7</javac.target>
         <uberjar.name>benchmarks</uberjar.name>
         
-        <fastutil.version>7.0.4</fastutil.version>
+        <fastutil.version>7.0.6</fastutil.version>
         <gs.version>6.1.0</gs.version>
         <koloboke.version>0.6.7</koloboke.version>
         <javolution.version>6.0.0</javolution.version>

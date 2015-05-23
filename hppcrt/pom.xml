@@ -42,7 +42,6 @@
 		</dependency>
 	</dependencies>
 
-
 	<properties>
 		<retrotranslator.version>1.2.9</retrotranslator.version>
 		<backport-util-concurrent.version>3.1</backport-util-concurrent.version>
@@ -183,7 +182,7 @@
 					</execution>
 				</executions>
 			</plugin>
-
+            
 			<!-- Lib tests themselves are Java 7 level while the final lib is still 1.6 -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -230,7 +229,7 @@
 				</executions>
 			</plugin>
 
-			<!-- Run tests with JUnit4 instead. A simple configuration here. -->
+			<!-- Run tests with Randomizedtesting, instead of Surefire, but create a similar output -->
 			<plugin>
 				<groupId>com.carrotsearch.randomizedtesting</groupId>
 				<artifactId>junit4-maven-plugin</artifactId>
@@ -257,7 +256,6 @@
 								<report-text  showThrowable="false" 
 											showStackTraces="false" 
 											showOutput="onError"
-
 											showStatusOk="false"
 											showStatusError="false"
 											showStatusFailure="false"
@@ -293,23 +291,6 @@
 							<reports>
 								<report>dependencies</report>
 							</reports>
-						</plugin>
-
-						<plugin>
-							<groupId>org.apache.maven.plugins</groupId>
-							<artifactId>maven-surefire-report-plugin</artifactId>
-							<version>${version.maven-surefire-report-plugin}</version>
-							<reportSets>
-								<reportSet>
-									<id>main</id>
-									<reports>
-										<report>report-only</report>
-									</reports>
-								</reportSet>
-							</reportSets>
-							<configuration>
-								<linkXRef>false</linkXRef>
-							</configuration>
 						</plugin>
 
 						<plugin>

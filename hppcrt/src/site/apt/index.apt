@@ -14,7 +14,4 @@ HPPC-RT, High Performance Primitive Collections Realtime, fork of CarrotSearch'H
 
 * Reports
 
-   * {{{./findbugs.html}Static Bug Analysis, FindBugs}} (<<<findbugs>>>).
-    
-   * {{{./surefire-report.html}JUnit Tests}} (<<<junit>>>).
-   
+   * {{{./findbugs.html}Static Bug Analysis, FindBugs}} (<<<findbugs>>>).  
