@@ -19,7 +19,7 @@ public class InlinedMethodDef
     private static final Pattern JAVA_IDENTIFIER_PATTERN = Pattern.compile("\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*",
             Pattern.MULTILINE | Pattern.DOTALL);
 
-    private static final Pattern TEMPLATESPECS_PATTERN = Pattern.compile("<(?<generic>[\\w\\s,\\*]+\\s*)>\\s*=\\s*=\\s*>\\s*(?<specialization>.+)");
+    private static final Pattern TEMPLATESPECS_PATTERN = Pattern.compile("<(?<generic>[\\w\\s,\\[\\]\\*]+\\s*)>\\s*=\\s*=\\s*>\\s*(?<specialization>.+)");
 
     /**
      * Can be empty, 'this' (option), or a class name for static method calls
@@ -447,12 +447,11 @@ public class InlinedMethodDef
             //A) Simply check that specializedGenerics names strings are among Type
             for (String singleSpecialization : specializedGenerics) {
 
-                //Strip down any "[" or "]" for arrays
-                singleSpecialization = singleSpecialization.replace("[", "");
-                singleSpecialization = singleSpecialization.replace("]", "").trim();
+                //Strip down any whitespace
+                singleSpecialization = singleSpecialization.replaceAll("\\s*", "");
 
-                //thows exception if ungnown managed
-                if (Type.fromString(singleSpecialization) == null && !singleSpecialization.equals("*")) {
+                //thows exception if unknown managed (strip down array brackets before testing !)
+                if (Type.fromString(singleSpecialization.replaceAll("[\\[\\]]*", "")) == null && !singleSpecialization.equals("*")) {
 
                     //not managed
                     throw new ParseErrorException("[ERROR] : Not able to recognize valid Types in this specialization form: '" + specString + "' for this call form: '" + toString() + "'");

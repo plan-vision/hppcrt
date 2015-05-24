@@ -273,4 +273,160 @@ public class TestInlinedMethodDef
         Assert.assertEquals("(Float.floatToIntBits(((KK)[(SS)])) == 0)".replaceAll("\\s*", ""), objReplacement.replaceAll("\\s*", ""));
 
     }
+
+    @Test
+    public void testCastSimpleReplacement() {
+
+        ///////////
+        /// Intrinsics.<T>cast(e) with type = KType
+        ///////////
+
+        //A) Create
+        final InlinedMethodDef testClass = new InlinedMethodDef("Intrinsics.<T>cast(obj)");
+
+        System.out.println(testClass);
+
+        //B) add specializations
+        testClass.addSpecialization("<Object>==> (T)obj");
+        testClass.addSpecialization("<Object[]>==> (T)obj");
+        testClass.addSpecialization("<*>==> obj");
+
+        //C) try to match it as TemplateProcessor is supposed to:
+        Pattern p = testClass.getMethodNameCompiledPattern();
+
+        Matcher m = p.matcher("Intrinsics.<KType> cast(AA)");
+
+        boolean result = m.find();
+
+        Assert.assertTrue(result);
+
+        Assert.assertEquals("Intrinsics", m.group("className"));
+        Assert.assertEquals("cast(", m.group("method")); //the first parenthesis is matched also on purspose
+        Assert.assertEquals("KType", m.group("generic"));
+
+        //D) Compute inlined replacements
+        //= Object
+        String replacement = testClass.computeInlinedForm(new TemplateOptions(Type.GENERIC, null),
+                m.group("generic").split(","),
+                Arrays.asList("AA"));
+
+        Assert.assertEquals("((KType)(AA))".replaceAll("\\s*", ""), replacement.replaceAll("\\s*", ""));
+
+        //= int
+        replacement = testClass.computeInlinedForm(new TemplateOptions(Type.INT, null),
+                m.group("generic").split(","),
+                Arrays.asList("AA"));
+
+        Assert.assertEquals("((AA))".replaceAll("\\s*", ""), replacement.replaceAll("\\s*", ""));
+
+        ///////////
+        /// Intrinsics.<T>cast(e) with T = VType
+        ///////////
+
+        //C) try to match it as TemplateProcessor is supposed to:
+        p = testClass.getMethodNameCompiledPattern();
+
+        m = p.matcher("Intrinsics.<VType> cast(AA)");
+
+        result = m.find();
+
+        Assert.assertTrue(result);
+
+        Assert.assertEquals("Intrinsics", m.group("className"));
+        Assert.assertEquals("cast(", m.group("method")); //the first parenthesis is matched also on purspose
+        Assert.assertEquals("VType", m.group("generic"));
+
+        //D) Compute inlined replacements
+        //= Object = VType
+        replacement = testClass.computeInlinedForm(new TemplateOptions(Type.BOOLEAN, Type.GENERIC),
+                m.group("generic").split(","),
+                Arrays.asList("AA"));
+
+        Assert.assertEquals("((VType)(AA))".replaceAll("\\s*", ""), replacement.replaceAll("\\s*", ""));
+
+        //= float = VType
+        replacement = testClass.computeInlinedForm(new TemplateOptions(Type.GENERIC, Type.FLOAT),
+                m.group("generic").split(","),
+                Arrays.asList("AA"));
+
+        Assert.assertEquals("((AA))".replaceAll("\\s*", ""), replacement.replaceAll("\\s*", ""));
+    }
+
+    @Test
+    public void testCastArrayReplacement() {
+
+        ///////////
+        /// Intrinsics.<T>cast(e) with T = KType[]
+        ///////////
+
+        //A) Create
+        final InlinedMethodDef testClass = new InlinedMethodDef("Intrinsics.<T>cast(obj)");
+
+        System.out.println(testClass);
+
+        //B) add specializations
+        testClass.addSpecialization("<Object>==> (T)obj");
+        testClass.addSpecialization("<Object[]>==> (T)obj");
+        testClass.addSpecialization("<*>==> obj");
+
+        //C) try to match it as TemplateProcessor is supposed to:
+        Pattern p = testClass.getMethodNameCompiledPattern();
+
+        Matcher m = p.matcher("Intrinsics.<KType[]> cast(this.keys)");
+
+        boolean result = m.find();
+
+        Assert.assertTrue(result);
+
+        Assert.assertEquals("Intrinsics", m.group("className"));
+        Assert.assertEquals("cast(", m.group("method")); //the first parenthesis is matched also on purspose
+        Assert.assertEquals("KType[]", m.group("generic"));
+
+        //D) Compute inlined replacements
+        //= Object
+        String replacement = testClass.computeInlinedForm(new TemplateOptions(Type.GENERIC, null),
+                m.group("generic").split(","),
+                Arrays.asList("this.keys"));
+
+        Assert.assertEquals("((KType[])(this.keys))".replaceAll("\\s*", ""), replacement.replaceAll("\\s*", ""));
+
+        //= float
+        replacement = testClass.computeInlinedForm(new TemplateOptions(Type.FLOAT, null),
+                m.group("generic").split(","),
+                Arrays.asList("this.keys"));
+
+        Assert.assertEquals("((this.keys))".replaceAll("\\s*", ""), replacement.replaceAll("\\s*", ""));
+
+        ///////////
+        /// Intrinsics.<T>cast(e) with T = VType[]
+        ///////////
+
+        //C) try to match it as TemplateProcessor is supposed to:
+        p = testClass.getMethodNameCompiledPattern();
+
+        m = p.matcher("Intrinsics.<VType[]> cast(this.values)");
+
+        result = m.find();
+
+        Assert.assertTrue(result);
+
+        Assert.assertEquals("Intrinsics", m.group("className"));
+        Assert.assertEquals("cast(", m.group("method")); //the first parenthesis is matched also on purspose
+        Assert.assertEquals("VType[]", m.group("generic"));
+
+        //D) Compute inlined replacements
+        //= Object = VType
+        replacement = testClass.computeInlinedForm(new TemplateOptions(Type.INT, Type.GENERIC),
+                m.group("generic").split(","),
+                Arrays.asList("this.values"));
+
+        Assert.assertEquals("((VType[])(this.values))".replaceAll("\\s*", ""), replacement.replaceAll("\\s*", ""));
+
+        //= float = VType
+        replacement = testClass.computeInlinedForm(new TemplateOptions(Type.BOOLEAN, Type.FLOAT),
+                m.group("generic").split(","),
+                Arrays.asList("this.values"));
+
+        Assert.assertEquals("((this.values))".replaceAll("\\s*", ""), replacement.replaceAll("\\s*", ""));
+    }
 }

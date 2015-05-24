@@ -17,27 +17,28 @@ public final class Intrinsics
     }
 
     /**
-     * Create and return an array of template objects (<code>Object</code>s in the generic
-     * version, corresponding key-primitive type in the generated version).
-     * @param <T>
+     * Returns <code>true</code> if the provided key is an "empty slot"
+     * marker. For generic types the empty slot is <code>null</code>,
+     * for any other type it is an equivalent of zero.
      * 
-     * @param arraySize The size of the array to return.
+     * For floating-point types {@link Float#floatToIntBits(float)} and
+     * {@link Double#doubleToLongBits(double)} is invoked to normalize different
+     * representations of zero.
+     * 
+     * Testing for zeros should be compiled into fast machine code.
+     * @param <T>
+     * @param key
      * @return
      */
-    @SuppressWarnings("unchecked")
-    public static <T> T[] newArray(final int arraySize)
-    {
-        /*! #if($TemplateOptions.VType)
-            ($TemplateOptions.declareInline("Intrinsics.<T>newArray(arraySize)",
-            "<Object> ==> (T[])new Object[arraySize]",
-            "<${TemplateOptions.VType}> ==> new ${TemplateOptions.VType}[arraySize]"))
-         #end  !*/
+    public static <T> boolean isEmpty(final Object key) {
 
-        /*! ($TemplateOptions.declareInline("Intrinsics.<T>newArray(arraySize)",
-        "<Object> ==> (T[])new Object[arraySize]",
-        "<${TemplateOptions.KType}> ==> new ${TemplateOptions.KType}[arraySize]")) !*/
+        /*! ($TemplateOptions.declareInline("Intrinsics.<T>isEmpty(key)",
+        "<float>==>Float.floatToIntBits(key) == 0",
+        "<double>==>Double.doubleToLongBits(key) == 0L",
+        "<boolean>==>!key",
+        "<*> ==> key == ${TemplateOptions.getKType().getDefaultValue()}")) !*/
 
-        return (T[]) new Object[arraySize];
+        return key == null;
     }
 
     /**
@@ -61,28 +62,43 @@ public final class Intrinsics
     }
 
     /**
-     * Returns <code>true</code> if the provided key is an "empty slot"
-     * marker. For generic types the empty slot is <code>null</code>,
-     * for any other type it is an equivalent of zero.
-     * 
-     * For floating-point types {@link Float#floatToIntBits(float)} and
-     * {@link Double#doubleToLongBits(double)} is invoked to normalize different
-     * representations of zero.
-     * 
-     * Testing for zeros should be compiled into fast machine code.
+     * A template cast to the given type T. With type erasure it should work
+     * internally just fine and it simplifies code. The cast will be erased for
+     * primitive types.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T cast(final Object value) {
+
+        /*! ($TemplateOptions.declareInline("Intrinsics.<T>cast(obj)",
+        "<Object>==>(T)obj",
+        "<Object[]>==>(T)obj",
+        "<*>==>obj")) !*/
+
+        return (T) value;
+    }
+
+    /**
+     * Create and return an array of template objects (<code>Object</code>s in the generic
+     * version, corresponding key-primitive type in the generated version).
      * @param <T>
-     * @param key
+     * 
+     * @param arraySize The size of the array to return.
      * @return
      */
-    public static <T> boolean isEmpty(final Object key) {
+    @SuppressWarnings("unchecked")
+    public static <T> T[] newArray(final int arraySize)
+    {
+        /*! #if($TemplateOptions.VType)
+            ($TemplateOptions.declareInline("Intrinsics.<T>newArray(arraySize)",
+            "<Object> ==> (T[])new Object[arraySize]",
+            "<${TemplateOptions.VType}> ==> new ${TemplateOptions.VType}[arraySize]"))
+         #end  !*/
 
-        /*! ($TemplateOptions.declareInline("Intrinsics.<T>isEmpty(key)",
-        "<float>==>Float.floatToIntBits(key) == 0",
-        "<double>==>Double.doubleToLongBits(key) == 0L",
-        "<boolean>==>!key",
-        "<*> ==> key == ${TemplateOptions.getKType().getDefaultValue()}")) !*/
+        /*! ($TemplateOptions.declareInline("Intrinsics.<T>newArray(arraySize)",
+        "<Object> ==> (T[])new Object[arraySize]",
+        "<${TemplateOptions.KType}> ==> new ${TemplateOptions.KType}[arraySize]")) !*/
 
-        return key == null;
+        return (T[]) new Object[arraySize];
     }
 
     /**
@@ -115,6 +131,47 @@ public final class Intrinsics
         "<*>==>e1 == e2")) !*/
 
         return e1.equals(e2);
+    }
+
+    /**
+     * An intrinsic that is replaced with plain addition of arguments for
+     * primitive template types. Invalid for non-number generic types.
+     */
+    @SuppressWarnings({ "unchecked", "boxing" })
+    public static <T> T add(final T op1, final T op2) {
+
+        /*! ($TemplateOptions.declareInline("Intrinsics.<T>add(e1 , e2)",
+        "<Object>==>@INVALID_REPLACEMENT_ADD_FORBIDDEN_FOR_OBJECTS@",
+        "<boolean>==>@INVALID_REPLACEMENT_ADD_FORBIDDEN_FOR_BOOLEANS@",
+        "<*>==>e1 + e2")) !*/
+
+        if (op1.getClass() != op2.getClass()) {
+            throw new RuntimeException("Arguments of different classes: " + op1 + " " + op2);
+        }
+
+        if (Byte.class.isInstance(op1)) {
+            return (T) (Byte) (byte) (((Byte) op1).byteValue() + ((Byte) op2).byteValue());
+        }
+        if (Short.class.isInstance(op1)) {
+            return (T) (Short) (short) (((Short) op1).shortValue() + ((Short) op2).shortValue());
+        }
+        if (Character.class.isInstance(op1)) {
+            return (T) (Character) (char) (((Character) op1).charValue() + ((Character) op2).charValue());
+        }
+        if (Integer.class.isInstance(op1)) {
+            return (T) (Integer) (((Integer) op1).intValue() + ((Integer) op2).intValue());
+        }
+        if (Float.class.isInstance(op1)) {
+            return (T) (Float) (((Float) op1).floatValue() + ((Float) op2).floatValue());
+        }
+        if (Long.class.isInstance(op1)) {
+            return (T) (Long) (((Long) op1).longValue() + ((Long) op2).longValue());
+        }
+        if (Double.class.isInstance(op1)) {
+            return (T) (Double) (((Double) op1).doubleValue() + ((Double) op2).doubleValue());
+        }
+
+        throw new UnsupportedOperationException("Invalid for arbitrary types: " + op1 + " " + op2);
     }
 
     /**
@@ -262,48 +319,6 @@ public final class Intrinsics
 
         return ((Comparable<? super T>) e1).compareTo(e2) == 0;
     }
-
-    /**
-     * An intrinsic that is replaced with plain addition of arguments for
-     * primitive template types. Invalid for non-number generic types.
-     */
-    @SuppressWarnings({ "unchecked", "boxing" })
-    public static <T> T add(final T op1, final T op2) {
-
-        /*! ($TemplateOptions.declareInline("Intrinsics.<T>add(e1 , e2)",
-        "<Object>==>@INVALID_REPLACEMENT_ADD_FORBIDDEN_FOR_OBJECTS@",
-        "<boolean>==>@INVALID_REPLACEMENT_ADD_FORBIDDEN_FOR_BOOLEANS@",
-        "<*>==>e1 + e2")) !*/
-
-        if (op1.getClass() != op2.getClass()) {
-            throw new RuntimeException("Arguments of different classes: " + op1 + " " + op2);
-        }
-
-        if (Byte.class.isInstance(op1)) {
-            return (T) (Byte) (byte) (((Byte) op1).byteValue() + ((Byte) op2).byteValue());
-        }
-        if (Short.class.isInstance(op1)) {
-            return (T) (Short) (short) (((Short) op1).shortValue() + ((Short) op2).shortValue());
-        }
-        if (Character.class.isInstance(op1)) {
-            return (T) (Character) (char) (((Character) op1).charValue() + ((Character) op2).charValue());
-        }
-        if (Integer.class.isInstance(op1)) {
-            return (T) (Integer) (((Integer) op1).intValue() + ((Integer) op2).intValue());
-        }
-        if (Float.class.isInstance(op1)) {
-            return (T) (Float) (((Float) op1).floatValue() + ((Float) op2).floatValue());
-        }
-        if (Long.class.isInstance(op1)) {
-            return (T) (Long) (((Long) op1).longValue() + ((Long) op2).longValue());
-        }
-        if (Double.class.isInstance(op1)) {
-            return (T) (Double) (((Double) op1).doubleValue() + ((Double) op2).doubleValue());
-        }
-
-        throw new UnsupportedOperationException("Invalid for arbitrary types: " + op1 + " " + op2);
-    }
-
 }
 
 //Never attempt to generate anything from this file, but parse it so put this at the end !

@@ -28,7 +28,7 @@ public class TemplateOptions
     public final ArrayList<InlinedMethodDef> inlineDefinitions = new ArrayList<InlinedMethodDef>();
 
     /**
-     * Be default, print everything !
+     * By default, print everything (in unit tests !)
      */
     public Level verbose = Level.ALL;
 
@@ -63,6 +63,9 @@ public class TemplateOptions
     {
         this.ktype = ktype;
         this.vtype = vtype;
+
+        //By default, print everything (for unit tests)
+        setVerbose(Level.ALL);
     }
 
     public boolean isKTypePrimitive()
@@ -282,8 +285,8 @@ public class TemplateOptions
                 "@javax.annotation.Generated(\n" +
                         "    date = \"%s\",\n" +
                         "    value = \"%s\")",
-                        getTimeNow(),
-                        TemplateOptions.TEMPLATE_FILE_TOKEN);
+                getTimeNow(),
+                TemplateOptions.TEMPLATE_FILE_TOKEN);
     }
 
     @Override
