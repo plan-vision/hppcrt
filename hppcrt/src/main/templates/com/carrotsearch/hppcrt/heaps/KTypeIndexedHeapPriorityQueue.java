@@ -38,23 +38,18 @@ import com.carrotsearch.hppcrt.strategies.*;
 public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>, Cloneable
 {
     /**
-     * Internal array for storing the priority queue
-        #if ($TemplateOptions.KTypeGeneric)
-     * <p><strong>Important!</strong>
-     * The actual value in this field is always an instance of <code>Object[]</code>.
-     * Be warned that <code>javac</code> emits additional casts when <code>buffer</code>
-     * is directly accessed; <strong>these casts
-     * may result in exceptions at runtime</strong>. A workaround is to cast directly to
-     * <code>Object[]</code> before accessing the buffer's elements (although it is highly
-     * recommended to use a {@link #iterator()} instead.
-     * </pre>
-      #end
+     * Internal array for storing the priority queue.
      * <p>
      * Direct indexed priority queue iteration: iterate pq[i] for i in [0; pq.length[
      * and buffer[pq[i]] to get value where pq[i] > 0
      * </p>
      */
-    public KType[] buffer;
+    public/*! #if ($TemplateOptions.KTypePrimitive)
+          KType []
+          #else !*/
+    Object[]
+            /*! #end !*/
+            buffer;
 
     /**
      * Internal array for storing index to buffer position matching
@@ -119,7 +114,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
             @Override
             public void initialize(final EntryIterator obj) {
                 obj.cursor.index = 0;
-                obj.buffer = KTypeIndexedHeapPriorityQueue.this.buffer;
+                obj.buffer = Intrinsics.<KType[]> cast(KTypeIndexedHeapPriorityQueue.this.buffer);
                 obj.size = KTypeIndexedHeapPriorityQueue.this.elementsCount;
                 obj.qp = KTypeIndexedHeapPriorityQueue.this.qp;
             }
@@ -231,7 +226,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
             this.cursor = new IntKTypeCursor<KType>();
             //index 0 is not used in Priority queue
             this.cursor.index = 0;
-            this.buffer = KTypeIndexedHeapPriorityQueue.this.buffer;
+            this.buffer = Intrinsics.<KType[]> cast(KTypeIndexedHeapPriorityQueue.this.buffer);
             this.size = KTypeIndexedHeapPriorityQueue.this.size();
             this.qp = KTypeIndexedHeapPriorityQueue.this.qp;
         }
@@ -281,7 +276,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
      */
     @Override
     public <T extends IntKTypeProcedure<? super KType>> T forEach(final T procedure) {
-        final KType[] buffer = this.buffer;
+        final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
         final int[] qp = this.qp;
         final int size = this.elementsCount;
 
@@ -297,7 +292,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
      */
     @Override
     public <T extends IntKTypePredicate<? super KType>> T forEach(final T predicate) {
-        final KType[] buffer = this.buffer;
+        final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
         final int[] qp = this.qp;
         final int size = this.elementsCount;
 
@@ -361,7 +356,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     @Override
     public int removeAll(final IntKTypePredicate<? super KType> predicate) {
 
-        final KType[] buffer = this.buffer;
+        final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
         final int[] pq = this.pq;
         final int size = this.elementsCount;
 
@@ -437,7 +432,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         //1) Key already present, insert new value
         if (key < this.pq.length && this.pq[key] > 0) {
             //element already exists : insert brutally at the same position in buffer and refresh the priorities to reestablish heap
-            final KType previousValue = this.buffer[this.pq[key]];
+            final KType previousValue = Intrinsics.<KType> cast(this.buffer[this.pq[key]]);
 
             this.buffer[this.pq[key]] = element;
 
@@ -530,7 +525,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         KType elem = this.defaultValue;
 
         if (this.elementsCount > 0) {
-            elem = this.buffer[1];
+            elem = Intrinsics.<KType> cast(this.buffer[1]);
         }
 
         return elem;
@@ -562,7 +557,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         KType elem = this.defaultValue;
 
         if (this.elementsCount > 0) {
-            elem = this.buffer[1];
+            elem = Intrinsics.<KType> cast(this.buffer[1]);
 
             remove(this.qp[1]);
         }
@@ -584,7 +579,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         KType elem = this.defaultValue;
 
         if (key < this.pq.length && this.pq[key] > 0) {
-            elem = this.buffer[this.pq[key]];
+            elem = Intrinsics.<KType> cast(this.buffer[this.pq[key]]);
         }
 
         return elem;
@@ -600,7 +595,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
         final int[] qp = this.qp;
         final int[] pq = this.pq;
-        final KType[] buffer = this.buffer;
+        final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
 
         if (key < pq.length && pq[key] > 0) {
             final int deletedPos = pq[key];
@@ -733,7 +728,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     public int hashCode() {
         int h = 1;
         final int size = this.pq.length;
-        final KType[] buffer = this.buffer;
+        final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
         final int[] pq = this.pq;
 
         //iterate by (ordered) index to have a reproducible hash and
@@ -787,13 +782,13 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
             if (this.pq.length < other.pq.length) {
                 pqBuffer = this.pq;
                 otherPqBuffer = other.pq;
-                buffer = this.buffer;
-                otherBuffer = other.buffer;
+                buffer = Intrinsics.<KType[]> cast(this.buffer);
+                otherBuffer = Intrinsics.<KType[]> cast(other.buffer);
             } else {
                 pqBuffer = other.pq;
                 otherPqBuffer = this.pq;
-                buffer = other.buffer;
-                otherBuffer = this.buffer;
+                buffer = Intrinsics.<KType[]> cast(other.buffer);
+                otherBuffer = Intrinsics.<KType[]> cast(this.buffer);
             }
 
             final int pqBufferSize = pqBuffer.length;
@@ -1146,7 +1141,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
          */
         @Override
         public boolean contains(final KType value) {
-            final KType[] buffer = this.owner.buffer;
+            final KType[] buffer = Intrinsics.<KType[]> cast(this.owner.buffer);
             final int size = this.owner.elementsCount;
 
             if (this.owner.comparator == null) {
@@ -1166,7 +1161,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
                         KTypeComparator<? super KType> comp = this.owner.comparator;
                         #end !*/
                 for (int pos = 1; pos <= size; pos++) {
-                    if (comp.compare(KTypeIndexedHeapPriorityQueue.this.buffer[pos], value) == 0) {
+                    if (comp.compare(Intrinsics.<KType> cast(KTypeIndexedHeapPriorityQueue.this.buffer[pos]), value) == 0) {
                         return true;
                     }
                 }
@@ -1177,7 +1172,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
         @Override
         public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure) {
-            final KType[] buffer = this.owner.buffer;
+            final KType[] buffer = Intrinsics.<KType[]> cast(this.owner.buffer);
             final int size = this.owner.elementsCount;
 
             //iterate the heap buffer, use the natural comparison criteria
@@ -1190,7 +1185,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
         @Override
         public <T extends KTypePredicate<? super KType>> T forEach(final T predicate) {
-            final KType[] buffer = this.owner.buffer;
+            final KType[] buffer = Intrinsics.<KType[]> cast(this.owner.buffer);
             final int size = this.owner.elementsCount;
 
             //iterate the heap buffer, use the natural comparison criteria
@@ -1269,7 +1264,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
                     @Override
                     public void initialize(final ValuesIterator obj) {
                         obj.cursor.index = 0;
-                        obj.buffer = KTypeIndexedHeapPriorityQueue.this.buffer;
+                        obj.buffer = Intrinsics.<KType[]> cast(KTypeIndexedHeapPriorityQueue.this.buffer);
                         obj.size = KTypeIndexedHeapPriorityQueue.this.size();
                     }
 
@@ -1297,7 +1292,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
             //index 0 is not used in Priority queue
             this.cursor.index = 0;
-            this.buffer = KTypeIndexedHeapPriorityQueue.this.buffer;
+            this.buffer = Intrinsics.<KType[]> cast(KTypeIndexedHeapPriorityQueue.this.buffer);
             this.size = size();
         }
 
@@ -1317,7 +1312,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
     @Override
     public String toString() {
-        final KType[] buffer = this.buffer;
+        final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
         final int[] pq = this.pq;
 
         final StringBuilder buff = new StringBuilder();
@@ -1368,8 +1363,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
     /*! #else
-                                                            public KTypeComparator<? super KType>
-                                                            #end !*/
+                                                                    public KTypeComparator<? super KType>
+                                                                    #end !*/
     comparator() {
 
         return this.comparator;
@@ -1421,7 +1416,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         int child;
         int indexK, indexChild;
 
-        final KType[] buffer = this.buffer;
+        final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
         final int[] pq = this.pq;
         final int[] qp = this.qp;
 
@@ -1467,7 +1462,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         int child;
         int indexK, indexChild;
 
-        final KType[] buffer = this.buffer;
+        final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
         final int[] pq = this.pq;
         final int[] qp = this.qp;
 
@@ -1518,7 +1513,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         int parent;
         int indexK, indexParent;
 
-        final KType[] buffer = this.buffer;
+        final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
         final int[] pq = this.pq;
         final int[] qp = this.qp;
 
@@ -1555,7 +1550,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         int parent;
         int indexK, indexParent;
 
-        final KType[] buffer = this.buffer;
+        final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
         final int[] pq = this.pq;
         final int[] qp = this.qp;
 
@@ -1607,7 +1602,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     private int removeAllInternal(final KTypePredicate<? super KType> predicate) {
         //remove by position
         int deleted = 0;
-        final KType[] buffer = this.buffer;
+        final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
 
         final int[] qp = this.qp;
         final int[] pq = this.pq;
@@ -1727,7 +1722,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     // is subtree of pq[1..N] rooted at k a min heap?
     private boolean isMinHeapComparable(final int k) {
         final int N = this.elementsCount;
-        final KType[] buffer = this.buffer;
+        final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
 
         if (k > N) {
             return true;
@@ -1747,7 +1742,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     // is subtree of pq[1..N] rooted at k a min heap?
     private boolean isMinHeapComparator(final int k) {
         final int N = this.elementsCount;
-        final KType[] buffer = this.buffer;
+        final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         final Comparator<? super KType> comp = this.comparator;

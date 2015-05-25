@@ -2834,7 +2834,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
     // is subtree of pq[1..N] rooted at k a min heap?
     private static <KType> boolean isMinHeapComparable(final KTypeIndexedHeapPriorityQueue<KType> prio, final int k) {
         final int N = prio.elementsCount;
-        final KType[] buffer = prio.buffer;
+        final KType[] buffer = Intrinsics.<KType[]> cast(prio.buffer);
 
         if (k > N) {
             return true;
@@ -2854,8 +2854,9 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
     // is subtree of pq[1..N] rooted at k a min heap?
     private static <KType> boolean isMinHeapComparator(final KTypeIndexedHeapPriorityQueue<KType> prio, final int k) {
+
         final int N = prio.elementsCount;
-        final KType[] buffer = prio.buffer;
+        final KType[] buffer = Intrinsics.<KType[]> cast(prio.buffer);
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         final Comparator<? super KType> comp = prio.comparator;

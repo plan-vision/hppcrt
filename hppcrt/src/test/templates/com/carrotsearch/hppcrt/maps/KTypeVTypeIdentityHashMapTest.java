@@ -78,10 +78,11 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
                 else
                 {
                     //try to reach the key by contains()
-                    Assert.assertTrue(this.map.containsKey(this.map.keys[i]));
+                    Assert.assertTrue(this.map.containsKey(Intrinsics.<KType> cast(this.map.keys[i])));
 
                     //get() test
-                    Assert.assertEquals(vcastType(this.map.values[i]), vcastType(this.map.get(this.map.keys[i])));
+                    Assert.assertEquals(vcastType(Intrinsics.<VType> cast(this.map.values[i])),
+                            vcastType(this.map.get(Intrinsics.<KType> cast(this.map.keys[i]))));
 
                     occupied++;
                 }
@@ -344,7 +345,7 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
         Assume.assumeTrue(Object[].class.isInstance(this.map.keys) &&
                 (!float[].class.isInstance(this.map.values) &&
                         !double[].class.isInstance(this.map.values) &&
-                        !char[].class.isInstance(this.map.values)));
+                !char[].class.isInstance(this.map.values)));
 
         this.map.put(this.key1, this.value1);
         this.map.put(this.key2, this.value2);
@@ -424,7 +425,7 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
             if (is_allocated(k, newMap.keys)) {
 
                 keyList.add(newMap.keys[k]);
-                valueList.add(vcastType(newMap.values[k]));
+                valueList.add(vcastType(Intrinsics.<VType> cast(newMap.values[k])));
             }
         }
 
@@ -450,7 +451,7 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
                 if (is_allocated(k, newMap.keys)) {
 
                     keyList.add(newMap.keys[k]);
-                    valueList.add(vcastType(newMap.values[k]));
+                    valueList.add(vcastType(Intrinsics.<VType> cast(newMap.values[k])));
                 }
             }
 
@@ -561,7 +562,7 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
                 if (is_allocated(k, newMap.keys)) {
 
                     keyList.add(newMap.keys[k]);
-                    valueList.add(vcastType(newMap.values[k]));
+                    valueList.add(vcastType(Intrinsics.<VType> cast(newMap.values[k])));
                 }
             }
 
@@ -653,7 +654,7 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
             if (is_allocated(i, newMap.keys)) {
 
                 keyList.add(newMap.keys[i]);
-                valueList.add(vcastType(newMap.values[i]));
+                valueList.add(vcastType(Intrinsics.<VType> cast(newMap.values[i])));
             }
         }
 
@@ -731,7 +732,7 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
             if (is_allocated(k, newMap.keys)) {
 
                 keyList.add(newMap.keys[k]);
-                valueList.add(vcastType(newMap.values[k]));
+                valueList.add(vcastType(Intrinsics.<VType> cast(newMap.values[k])));
             }
         }
 
@@ -800,7 +801,7 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
             if (is_allocated(k, newMap.keys)) {
 
                 keyList.add(newMap.keys[k]);
-                valueList.add(vcastType(newMap.values[k]));
+                valueList.add(vcastType(Intrinsics.<VType> cast(newMap.values[k])));
             }
         }
 
@@ -826,7 +827,7 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
                 if (is_allocated(k, newMap.keys)) {
 
                     keyList.add(newMap.keys[k]);
-                    valueList.add(vcastType(newMap.values[k]));
+                    valueList.add(vcastType(Intrinsics.<VType> cast((newMap.values[k]))));
                 }
             }
 
@@ -921,7 +922,7 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
                 if (is_allocated(k, newMap.keys)) {
 
                     keyList.add(newMap.keys[k]);
-                    valueList.add(vcastType(newMap.values[k]));
+                    valueList.add(vcastType(Intrinsics.<VType> cast(newMap.values[k])));
                 }
             }
 

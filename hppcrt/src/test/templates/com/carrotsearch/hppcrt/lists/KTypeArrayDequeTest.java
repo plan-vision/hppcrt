@@ -115,7 +115,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     {
         for (int i = 0; i < this.sequence.size(); i++)
         {
-            this.deque.addFirst(this.sequence.buffer[i]);
+            this.deque.addFirst(Intrinsics.<KType> cast(this.sequence.buffer[i]));
         }
 
         TestUtils.assertListEquals(TestUtils.reverse(this.sequence.toArray()), this.deque.toArray());
@@ -126,7 +126,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     public void testAddLastWithGrowth()
     {
         for (int i = 0; i < this.sequence.size(); i++) {
-            this.deque.addLast(this.sequence.buffer[i]);
+            this.deque.addLast(Intrinsics.<KType> cast(this.sequence.buffer[i]));
         }
 
         TestUtils.assertListEquals(this.sequence.toArray(), this.deque.toArray());
@@ -564,13 +564,13 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
         this.deque.addLast(newArray(this.k0, this.k1, this.k2, this.k1, this.k4));
 
         Assert.assertEquals(3, this.deque.removeAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeArrayDequeTest.this.key1 || v == KTypeArrayDequeTest.this.key2;
             };
-                }));
+        }));
 
         TestUtils.assertListEquals(this.deque.toArray(), 0, 4);
     }
@@ -588,7 +588,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size
             Assert.assertEquals(5, this.deque.removeAll(new KTypePredicate<KType>()
-                    {
+            {
                 @Override
                 public boolean apply(final KType v)
                 {
@@ -597,7 +597,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
                     }
                     return v == KTypeArrayDequeTest.this.key1;
                 };
-                    }));
+            }));
             Assert.fail();
         } catch (final RuntimeException e)
         {

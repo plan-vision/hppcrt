@@ -19,7 +19,7 @@ public class InlinedMethodDef
     private static final Pattern JAVA_IDENTIFIER_PATTERN = Pattern.compile("\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*",
             Pattern.MULTILINE | Pattern.DOTALL);
 
-    private static final Pattern TEMPLATESPECS_PATTERN = Pattern.compile("<(?<generic>[\\w\\s,\\[\\]\\*]+\\s*)>\\s*=\\s*=\\s*>\\s*(?<specialization>.+)");
+    private static final Pattern TEMPLATESPECS_PATTERN = Pattern.compile("<(?<generic>[\\w\\s,\\[\\]\\*_]+\\s*)>\\s*=\\s*=\\s*>\\s*(?<specialization>.+)");
 
     /**
      * Can be empty, 'this' (option), or a class name for static method calls
@@ -298,7 +298,7 @@ public class InlinedMethodDef
             //NOT qualified, form a 2 group regex with an (optional) "this"-qualified pattern, ex:
             //"this.REHASH(...)" ==> "(this\.\s*)?([\w]+\s*)\("
 
-            final String parsePattern = "(?<this>this\\s*\\.\\s*)?(?<method>[\\w]+\\s*)\\((?<args>[^\\)]*)\\)";
+            final String parsePattern = "(?<this>this\\s*\\.\\s*)?(?<method>[\\w_]+\\s*)\\((?<args>[^\\)]*)\\)";
 
             final Pattern p = Pattern.compile(parsePattern, Pattern.MULTILINE | Pattern.DOTALL);
 
@@ -349,7 +349,7 @@ public class InlinedMethodDef
             //"Intrinsics.<KType[]>newArray" ==> "(Intrinsics.\\s*)(<[^>]+>\\s*)?(newArray)"
             //also captures arguments considered as everything between the final parenthesis.
 
-            final String parsePattern = "(?<className>[\\w]+\\s*\\.\\s*)(?<generic><[^>]+>\\s*)?(?<method>[\\w]+\\s*)\\((?<args>[^\\)]*)\\)";
+            final String parsePattern = "(?<className>[\\w_]+\\s*\\.\\s*)(?<generic><[^>]+>\\s*)?(?<method>[\\w_]+\\s*)\\((?<args>[^\\)]*)\\)";
 
             final Pattern p = Pattern.compile(parsePattern, Pattern.MULTILINE | Pattern.DOTALL);
 
@@ -630,10 +630,6 @@ public class InlinedMethodDef
         return currentBody.toString();
     }
 
-    public String getQualifiedClassName() {
-        return this.qualifiedClassName;
-    }
-
     public ArrayList<String> getGenericParameters() {
         return this.genericParameters;
     }
@@ -642,15 +638,7 @@ public class InlinedMethodDef
         return this.methodName;
     }
 
-    public ArrayList<String> getArguments() {
-        return this.arguments;
-    }
-
     public Pattern getMethodNameCompiledPattern() {
         return this.methodNameCompiledPattern;
-    }
-
-    public String getMethodNamePattern() {
-        return this.methodNamePattern;
     }
 }

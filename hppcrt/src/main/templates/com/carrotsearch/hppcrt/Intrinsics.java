@@ -119,7 +119,7 @@ public final class Intrinsics
     }
 
     /**
-     * Identical as {@link #equalsKType} except that
+     * Identical as {@link #equals} except that
      *  e1 Objects are assumed to be not-null.
      */
     public static <T> boolean equalsNotNull(final Object e1, final Object e2)

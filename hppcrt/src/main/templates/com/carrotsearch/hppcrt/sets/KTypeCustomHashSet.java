@@ -53,27 +53,22 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeCustomHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Hash-indexed array holding all set entries.
-      #if ($TemplateOptions.KTypeGeneric)
-     * <p><strong>Important!</strong>
-     * The actual value in this field is always an instance of <code>Object[]</code>.
-     * Be warned that <code>javac</code> emits additional casts when <code>keys</code>
-     * are directly accessed; <strong>these casts
-     * may result in exceptions at runtime</strong>. A workaround is to cast directly to
-     * <code>Object[]</code> before accessing the buffer's elements (although it is highly
-     * recommended to use a {@link #iterator()} instead.
-     * </pre>
-      #end
      * <p>
      * Direct set iteration: iterate  {keys[i]} for i in [0; keys.length[ where keys[i] != 0/null, then also
      * {0/null} is in the set if {@link #allocatedDefaultKey} = true.
      * </p>
      */
-    public KType[] keys;
+    public/*! #if ($TemplateOptions.KTypePrimitive)
+          KType []
+          #else !*/
+    Object[]
+    /*! #end !*/
+    keys;
 
     /*! #if ($RH) !*/
     /**
@@ -187,7 +182,7 @@ public class KTypeCustomHashSet<KType>
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
-        final KType[] keys = this.keys;
+        final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
 
         //copied straight from  fastutil "fast-path"
         int slot;
@@ -354,7 +349,7 @@ public class KTypeCustomHashSet<KType>
 
         // Try to allocate new buffers first. If we OOM, it'll be now without
         // leaving the data structure in an inconsistent state.
-        final KType[] oldKeys = this.keys;
+        final KType[] oldKeys = Intrinsics.<KType[]> cast(this.keys);
 
         allocateBuffers(HashContainers.nextBufferSize(this.keys.length, this.assigned, this.loadFactor));
 
@@ -374,7 +369,7 @@ public class KTypeCustomHashSet<KType>
         //adding phase
         int slot = -1;
 
-        final KType[] keys = this.keys;
+        final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
 
         /*! #if ($RH) !*/
         final int[] cached = this.hash_cache;
@@ -476,7 +471,7 @@ public class KTypeCustomHashSet<KType>
 
             //allocate so that there is at least one slot that remains allocated = false
             //this is compulsory to guarantee proper stop in searching loops
-            this.resizeAt = Math.max(3, (int) (capacity * this.loadFactor)) - 2;
+            this.resizeAt = Math.min(capacity - 1, (int) (capacity * this.loadFactor));
         } catch (final OutOfMemoryError e) {
 
             throw new BufferAllocationException("Not enough memory to allocate buffers to grow from %d -> %d elements", e,
@@ -512,7 +507,7 @@ public class KTypeCustomHashSet<KType>
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
-        final KType[] keys = this.keys;
+        final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
 
         //copied straight from  fastutil "fast-path"
         int slot;
@@ -565,7 +560,7 @@ public class KTypeCustomHashSet<KType>
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
-        final KType[] keys = this.keys;
+        final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
 
         /*! #if ($RH) !*/
         final int[] cached = this.hash_cache;
@@ -635,7 +630,7 @@ public class KTypeCustomHashSet<KType>
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
-        final KType[] keys = this.keys;
+        final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
 
         //copied straight from  fastutil "fast-path"
         int slot;
@@ -708,7 +703,7 @@ public class KTypeCustomHashSet<KType>
     @Override
     public int capacity() {
 
-        return this.resizeAt - 1;
+        return this.resizeAt;
     }
 
     /**
@@ -724,7 +719,7 @@ public class KTypeCustomHashSet<KType>
             h += 0;
         }
 
-        final KType[] keys = this.keys;
+        final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
 
         for (int i = keys.length; --i >= 0;) {
             if (is_allocated(i, keys)) {
@@ -809,7 +804,7 @@ public class KTypeCustomHashSet<KType>
 
             int i = this.cursor.index - 1;
 
-            while (i >= 0 && !is_allocated(i, KTypeCustomHashSet.this.keys)) {
+            while (i >= 0 && !is_allocated(i, Intrinsics.<KType[]> cast(KTypeCustomHashSet.this.keys))) {
                 i--;
             }
 
@@ -818,7 +813,7 @@ public class KTypeCustomHashSet<KType>
             }
 
             this.cursor.index = i;
-            this.cursor.value = KTypeCustomHashSet.this.keys[i];
+            this.cursor.value = Intrinsics.<KType> cast(KTypeCustomHashSet.this.keys[i]);
             return this.cursor;
         }
     }
@@ -866,7 +861,7 @@ public class KTypeCustomHashSet<KType>
             procedure.apply(Intrinsics.<KType> empty());
         }
 
-        final KType[] keys = this.keys;
+        final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
 
         //Iterate in reverse for side-stepping the longest conflict chain
         //in another hash, in case apply() is actually used to fill another hash container.
@@ -891,7 +886,7 @@ public class KTypeCustomHashSet<KType>
             target[count++] = Intrinsics.<KType> empty();
         }
 
-        final KType[] keys = this.keys;
+        final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
 
         for (int i = 0; i < keys.length; i++) {
             if (is_allocated(i, keys)) {
@@ -938,7 +933,7 @@ public class KTypeCustomHashSet<KType>
             }
         }
 
-        final KType[] keys = this.keys;
+        final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
 
         //Iterate in reverse for side-stepping the longest conflict chain
         //in another hash, in case apply() is actually used to fill another hash container.
@@ -967,7 +962,7 @@ public class KTypeCustomHashSet<KType>
             }
         }
 
-        final KType[] keys = this.keys;
+        final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
 
         for (int i = 0; i < keys.length;) {
             if (is_allocated(i, keys) && predicate.apply(keys[i])) {
@@ -1050,7 +1045,7 @@ public class KTypeCustomHashSet<KType>
         /*! #if($DEBUG) !*/
         //Check : cached hashed slot is == computed value
         final int mask = cached.length - 1;
-        assert rh == (REHASH(this.hashStrategy, this.keys[slot]) & mask);
+        assert rh == (REHASH(this.hashStrategy, Intrinsics.<KType> cast(this.keys[slot])) & mask);
         /*! #end !*/
 
         if (slot < rh) {

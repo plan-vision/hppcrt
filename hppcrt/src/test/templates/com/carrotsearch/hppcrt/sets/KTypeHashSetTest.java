@@ -67,7 +67,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
 
             for (int i = 0; i < this.set.keys.length; i++)
             {
-                if (!is_allocated(i, this.set.keys))
+                if (!is_allocated(i, Intrinsics.<KType[]> cast(this.set.keys)))
                 {
                     //if not allocated, generic version if patched to null for GC sake
                     /*! #if ($TemplateOptions.KTypeGeneric) !*/
@@ -77,7 +77,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
                 else
                 {
                     //try to reach the key by contains()
-                    Assert.assertTrue(this.set.contains(this.set.keys[i]));
+                    Assert.assertTrue(this.set.contains(Intrinsics.<KType> cast(this.set.keys[i])));
 
                     occupied++;
                 }
@@ -103,8 +103,8 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
         // This test is only applicable to selected key types.
         Assume.assumeTrue(
                 int[].class.isInstance(this.set.keys) ||
-                        long[].class.isInstance(this.set.keys) ||
-                        Object[].class.isInstance(this.set.keys));
+                long[].class.isInstance(this.set.keys) ||
+                Object[].class.isInstance(this.set.keys));
 
         final IntArrayList hashChain = TestUtils.generateMurmurHash3CollisionChain(0x1fff, 0x7e, 0x1fff / 3);
 
@@ -287,13 +287,13 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
         this.set.add(newArray(this.k0, this.k1, this.k2));
 
         Assert.assertEquals(1, this.set.removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeHashSetTest.this.k1;
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.k0, this.k2);
     }
@@ -305,13 +305,13 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
         this.set.add(this.keyE, this.key1, this.key2, this.key4);
 
         Assert.assertEquals(2, this.set.removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return (v == KTypeHashSetTest.this.key1) || (v == KTypeHashSetTest.this.keyE);
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.key2, this.key4);
     }
@@ -328,7 +328,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size + 1
             Assert.assertEquals(10, this.set.removeAll(new KTypePredicate<KType>()
-            {
+                    {
                 @Override
                 public boolean apply(final KType v)
                 {
@@ -337,7 +337,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
                     }
                     return v == KTypeHashSetTest.this.key2 || v == KTypeHashSetTest.this.key9 || v == KTypeHashSetTest.this.key5;
                 };
-            }));
+                    }));
 
             Assert.fail();
         } catch (final RuntimeException e)
@@ -362,13 +362,13 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
         this.set.add(newArray(this.k0, this.k1, this.k2, this.k3, this.k4, this.k5));
 
         Assert.assertEquals(4, this.set.retainAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeHashSetTest.this.key1 || v == KTypeHashSetTest.this.key2;
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.key1, this.key2);
     }
@@ -380,13 +380,13 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
         this.set.add(newArray(this.keyE, this.k1, this.k2, this.k3, this.k4, this.k5));
 
         Assert.assertEquals(4, this.set.retainAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeHashSetTest.this.keyE || v == KTypeHashSetTest.this.k3;
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.keyE, this.k3);
     }
@@ -578,10 +578,10 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
     {
         Assume.assumeTrue(
                 int[].class.isInstance(this.set.keys) ||
-                        short[].class.isInstance(this.set.keys) ||
-                        byte[].class.isInstance(this.set.keys) ||
-                        long[].class.isInstance(this.set.keys) ||
-                        Object[].class.isInstance(this.set.keys));
+                short[].class.isInstance(this.set.keys) ||
+                byte[].class.isInstance(this.set.keys) ||
+                long[].class.isInstance(this.set.keys) ||
+                Object[].class.isInstance(this.set.keys));
 
         this.set.add(this.key1, this.key2);
         String asString = this.set.toString();
@@ -945,9 +945,9 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
 
         for (int k = newSet.keys.length - 1; k >= 0; k--) {
 
-            if (is_allocated(k, newSet.keys)) {
+            if (is_allocated(k, Intrinsics.<KType[]> cast(newSet.keys))) {
 
-                keyList.add(newSet.keys[k]);
+                keyList.add(Intrinsics.<KType> cast(newSet.keys[k]));
             }
         }
 
@@ -968,9 +968,9 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
 
             for (int k = newSet.keys.length - 1; k >= 0; k--) {
 
-                if (is_allocated(k, newSet.keys)) {
+                if (is_allocated(k, Intrinsics.<KType[]> cast(newSet.keys))) {
 
-                    keyList.add(newSet.keys[k]);
+                    keyList.add(Intrinsics.<KType> cast(newSet.keys[k]));
                 }
             }
 
@@ -1053,9 +1053,9 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
 
         for (int i = newSet.keys.length - 1; i >= 0; i--) {
 
-            if (is_allocated(i, newSet.keys)) {
+            if (is_allocated(i, Intrinsics.<KType[]> cast(newSet.keys))) {
 
-                keyList.add(newSet.keys[i]);
+                keyList.add(Intrinsics.<KType> cast(newSet.keys[i]));
             }
         }
 
@@ -1121,9 +1121,9 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
 
         for (int k = newSet.keys.length - 1; k >= 0; k--) {
 
-            if (is_allocated(k, newSet.keys)) {
+            if (is_allocated(k, Intrinsics.<KType[]> cast(newSet.keys))) {
 
-                keyList.add(newSet.keys[k]);
+                keyList.add(Intrinsics.<KType> cast(newSet.keys[k]));
             }
         }
 
@@ -1143,9 +1143,9 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
 
             for (int k = newSet.keys.length - 1; k >= 0; k--) {
 
-                if (is_allocated(k, newSet.keys)) {
+                if (is_allocated(k, Intrinsics.<KType[]> cast(newSet.keys))) {
 
-                    keyList.add(newSet.keys[k]);
+                    keyList.add(Intrinsics.<KType> cast(newSet.keys[k]));
                 }
             }
 
@@ -1182,7 +1182,8 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
         } //end for each index
     }
 
-    @Repeat(iterations = 10)
+    @Seed("88DC7A1093FD66C5")
+    @Repeat(iterations = 25)
     @Test
     public void testNoOverallocation() {
 

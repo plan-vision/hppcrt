@@ -81,7 +81,7 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
             final int mask = this.map.keys.length - 1;
 
             for (int i = 0; i < this.map.keys.length; i++) {
-                if (!is_allocated(i, this.map.keys)) {
+                if (!is_allocated(i, Intrinsics.<KType[]> cast(this.map.keys))) {
                     //if not allocated, generic version if patched to null for GC sake
 
                     /*! #if ($TemplateOptions.KTypeGeneric) !*/
@@ -92,10 +92,11 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
                     /*! #end !*/
                 } else {
                     //try to reach the key by contains()
-                    Assert.assertTrue(this.map.containsKey(this.map.keys[i]));
+                    Assert.assertTrue(this.map.containsKey(Intrinsics.<KType> cast(this.map.keys[i])));
 
                     //get() test
-                    Assert.assertEquals(vcastType(this.map.values[i]), vcastType(this.map.get(this.map.keys[i])));
+                    Assert.assertEquals(vcastType(Intrinsics.<VType> cast(this.map.values[i])),
+                            vcastType(this.map.get(Intrinsics.<KType> cast(this.map.keys[i]))));
 
                     occupied++;
                 }
@@ -847,28 +848,6 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
 
         this.map.clear();
         Assert.assertFalse(this.map.iterator().hasNext());
-    }
-
-    /* */
-    @Test
-    public void testHalfLoadFactor() {
-        this.map = new KTypeVTypeCustomHashMap<KType, VType>(1, 0.5f, this.TEST_STRATEGY);
-
-        final int capacity = 0x80;
-        final int max = capacity - 2;
-        for (int i = 1; i <= max; i++) {
-            this.map.put(cast(i), this.value1);
-        }
-
-        Assert.assertEquals(max, this.map.size());
-        // Still not expanded.
-        Assert.assertEquals(2 * capacity, this.map.keys.length);
-        // Won't expand (existing key);
-        this.map.put(cast(1), this.value2);
-        Assert.assertEquals(2 * capacity, this.map.keys.length);
-        // Expanded.
-        this.map.put(cast(0xff), this.value1);
-        Assert.assertEquals(4 * capacity, this.map.keys.length);
     }
 
     /*! #if ($TemplateOptions.VTypeGeneric) !*/
@@ -1706,10 +1685,10 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
 
         for (int k = newMap.keys.length - 1; k >= 0; k--) {
 
-            if (is_allocated(k, newMap.keys)) {
+            if (is_allocated(k, Intrinsics.<KType[]> cast(newMap.keys))) {
 
-                keyList.add(newMap.keys[k]);
-                valueList.add(vcastType(newMap.values[k]));
+                keyList.add(Intrinsics.<KType> cast(newMap.keys[k]));
+                valueList.add(vcastType(Intrinsics.<VType> cast(newMap.values[k])));
             }
         }
 
@@ -1731,10 +1710,10 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
 
             for (int k = newMap.keys.length - 1; k >= 0; k--) {
 
-                if (is_allocated(k, newMap.keys)) {
+                if (is_allocated(k, Intrinsics.<KType[]> cast(newMap.keys))) {
 
-                    keyList.add(newMap.keys[k]);
-                    valueList.add(vcastType(newMap.values[k]));
+                    keyList.add(Intrinsics.<KType> cast(newMap.keys[k]));
+                    valueList.add(vcastType(Intrinsics.<VType> cast(newMap.values[k])));
                 }
             }
 
@@ -1824,10 +1803,10 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
 
             for (int k = 0; k < newMap.keys.length; k++) {
 
-                if (is_allocated(k, newMap.keys)) {
+                if (is_allocated(k, Intrinsics.<KType[]> cast(newMap.keys))) {
 
-                    keyList.add(newMap.keys[k]);
-                    valueList.add(vcastType(newMap.values[k]));
+                    keyList.add(Intrinsics.<KType> cast(newMap.keys[k]));
+                    valueList.add(vcastType(Intrinsics.<VType> cast(newMap.values[k])));
                 }
             }
 
@@ -1905,10 +1884,10 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
 
         for (int i = newMap.keys.length - 1; i >= 0; i--) {
 
-            if (is_allocated(i, newMap.keys)) {
+            if (is_allocated(i, Intrinsics.<KType[]> cast(newMap.keys))) {
 
-                keyList.add(newMap.keys[i]);
-                valueList.add(vcastType(newMap.values[i]));
+                keyList.add(Intrinsics.<KType> cast(newMap.keys[i]));
+                valueList.add(vcastType(Intrinsics.<VType> cast(newMap.values[i])));
             }
         }
 
@@ -1967,10 +1946,10 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
 
         for (int k = 0; k < newMap.keys.length; k++) {
 
-            if (is_allocated(k, newMap.keys)) {
+            if (is_allocated(k, Intrinsics.<KType[]> cast(newMap.keys))) {
 
-                keyList.add(newMap.keys[k]);
-                valueList.add(vcastType(newMap.values[k]));
+                keyList.add(Intrinsics.<KType> cast(newMap.keys[k]));
+                valueList.add(vcastType(Intrinsics.<VType> cast(newMap.values[k])));
             }
         }
 
@@ -2031,10 +2010,10 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
 
         for (int k = newMap.keys.length - 1; k >= 0; k--) {
 
-            if (is_allocated(k, newMap.keys)) {
+            if (is_allocated(k, Intrinsics.<KType[]> cast(newMap.keys))) {
 
-                keyList.add(newMap.keys[k]);
-                valueList.add(vcastType(newMap.values[k]));
+                keyList.add(Intrinsics.<KType> cast(newMap.keys[k]));
+                valueList.add(vcastType(Intrinsics.<VType> cast(newMap.values[k])));
             }
         }
 
@@ -2056,10 +2035,10 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
 
             for (int k = newMap.keys.length - 1; k >= 0; k--) {
 
-                if (is_allocated(k, newMap.keys)) {
+                if (is_allocated(k, Intrinsics.<KType[]> cast(newMap.keys))) {
 
-                    keyList.add(newMap.keys[k]);
-                    valueList.add(vcastType(newMap.values[k]));
+                    keyList.add(Intrinsics.<KType> cast(newMap.keys[k]));
+                    valueList.add(vcastType(Intrinsics.<VType> cast(newMap.values[k])));
                 }
             }
 
@@ -2143,10 +2122,10 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
 
             for (int k = 0; k < newMap.keys.length; k++) {
 
-                if (is_allocated(k, newMap.keys)) {
+                if (is_allocated(k, Intrinsics.<KType[]> cast(newMap.keys))) {
 
-                    keyList.add(newMap.keys[k]);
-                    valueList.add(vcastType(newMap.values[k]));
+                    keyList.add(Intrinsics.<KType> cast(newMap.keys[k]));
+                    valueList.add(vcastType(Intrinsics.<VType> cast(newMap.values[k])));
                 }
             }
 
@@ -2389,7 +2368,8 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
         }
     }
 
-    @Repeat(iterations = 10)
+    @Seed("88DC7A1093FD66C5")
+    @Repeat(iterations = 25)
     @Test
     public void testNoOverallocation() {
 

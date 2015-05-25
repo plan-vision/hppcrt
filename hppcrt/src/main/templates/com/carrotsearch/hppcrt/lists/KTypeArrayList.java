@@ -51,36 +51,22 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayList<KType>
-extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, Cloneable
+        extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, Cloneable
 {
     /**
      * Internal array for storing the list. The array may be larger than the current size
      * ({@link #size()}).
      * 
-      #if ($TemplateOptions.KTypeGeneric)
-     * <p><strong>Important!</strong>
-     * The actual value in this field is always an instance of <code>Object[]</code>,
-     * regardless of the generic type used. The JDK is inconsistent here too:
-     * {@link ArrayList} declares internal <code>Object[]</code> buffer, but
-     * {@link ArrayDeque} declares an array of generic type objects like we do. The
-     * tradeoff is probably minimal, but you should be aware of additional casts generated
-     * by <code>javac</code> when <code>buffer</code> is directly accessed; <strong>these casts
-     * may also result in exceptions at runtime</strong>. A workaround is to cast directly to
-     * <code>Object[]</code> before accessing the buffer's elements, as shown
-     * in the following code snippet.</p>
-     * 
-     * <pre>
-     * Object[] buf = list.buffer;
-     * for (int i = list.size(); --i >= 0;) {
-     *   doSomething(buf[i]);
-     * }
-     * </pre>
-      #end
      * <p>
      * Direct list iteration: iterate buffer[i] for i in [0; size()[
      * </p>
      */
-    public KType[] buffer;
+    public/*! #if ($TemplateOptions.KTypePrimitive)
+          KType []
+          #else !*/
+    Object[]
+    /*! #end !*/
+    buffer;
 
     /**
      * Current number of elements stored in {@link #buffer}.
@@ -138,7 +124,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
             public void initialize(final ValueIterator obj) {
                 obj.cursor.index = -1;
                 obj.size = KTypeArrayList.this.size();
-                obj.buffer = KTypeArrayList.this.buffer;
+                obj.buffer = Intrinsics.<KType[]> cast(KTypeArrayList.this.buffer);
             }
 
             @Override
@@ -236,7 +222,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     public KType get(final int index) {
         assert (index >= 0 && index < size()) : "Index " + index + " out of bounds [" + 0 + ", " + size() + ").";
 
-        return this.buffer[index];
+        return Intrinsics.<KType> cast(this.buffer[index]);
     }
 
     /**
@@ -246,7 +232,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     public KType set(final int index, final KType e1) {
         assert (index >= 0 && index < size()) : "Index " + index + " out of bounds [" + 0 + ", " + size() + ").";
 
-        final KType v = this.buffer[index];
+        final KType v = Intrinsics.<KType> cast(this.buffer[index]);
         this.buffer[index] = e1;
         return v;
     }
@@ -258,7 +244,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     public KType remove(final int index) {
         assert (index >= 0 && index < size()) : "Index " + index + " out of bounds [" + 0 + ", " + size() + ").";
 
-        final KType v = this.buffer[index];
+        final KType v = Intrinsics.<KType> cast(this.buffer[index]);
         if (index + 1 < this.elementsCount) {
             System.arraycopy(this.buffer, index + 1, this.buffer, index, this.elementsCount - index - 1);
         }
@@ -275,7 +261,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     @Override
     public void removeRange(final int fromIndex, final int toIndex) {
         assert (fromIndex >= 0 && fromIndex <= size()) : "Index " + fromIndex + " out of bounds [" + 0 + ", " + size()
-                + ").";
+        + ").";
 
         assert (toIndex >= 0 && toIndex <= size()) : "Index " + toIndex + " out of bounds [" + 0 + ", " + size() + "].";
 
@@ -321,7 +307,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     @Override
     public int removeAll(final KType e1) {
         int to = 0;
-        final KType[] buffer = this.buffer;
+        final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
 
         for (int from = 0; from < this.elementsCount; from++) {
             if (Intrinsics.<KType> equals(e1, buffer[from])) {
@@ -358,7 +344,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      */
     @Override
     public int indexOf(final KType e1) {
-        final KType[] buffer = this.buffer;
+        final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
 
         for (int i = 0; i < this.elementsCount; i++) {
             if (Intrinsics.<KType> equals(e1, buffer[i])) {
@@ -374,7 +360,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      */
     @Override
     public int lastIndexOf(final KType e1) {
-        final KType[] buffer = this.buffer;
+        final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
 
         for (int i = this.elementsCount - 1; i >= 0; i--) {
             if (Intrinsics.<KType> equals(e1, buffer[i])) {
@@ -537,7 +523,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     public int hashCode() {
         int h = 1;
         final int max = this.elementsCount;
-        final KType[] buffer = this.buffer;
+        final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
 
         for (int i = 0; i < max; i++) {
             h = 31 * h + BitMixer.mix(buffer[i]);
@@ -618,7 +604,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
             this.cursor = new KTypeCursor<KType>();
             this.cursor.index = -1;
             this.size = KTypeArrayList.this.size();
-            this.buffer = KTypeArrayList.this.buffer;
+            this.buffer = Intrinsics.<KType[]> cast(KTypeArrayList.this.buffer);
         }
 
         @Override
@@ -656,13 +642,13 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      */
     public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure, final int fromIndex, final int toIndex) {
         assert (fromIndex >= 0 && fromIndex <= size()) : "Index " + fromIndex + " out of bounds [" + 0 + ", " + size()
-                + ").";
+        + ").";
 
         assert (toIndex >= 0 && toIndex <= size()) : "Index " + toIndex + " out of bounds [" + 0 + ", " + size() + "].";
 
         assert fromIndex <= toIndex : "fromIndex must be <= toIndex: " + fromIndex + ", " + toIndex;
 
-        final KType[] buffer = this.buffer;
+        final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
 
         for (int i = fromIndex; i < toIndex; i++) {
             procedure.apply(buffer[i]);
@@ -677,7 +663,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     @Override
     public int removeAll(final KTypePredicate<? super KType> predicate) {
         final int elementsCount = this.elementsCount;
-        final KType[] buffer = this.buffer;
+        final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
 
         int to = 0;
         int from = 0;
@@ -731,13 +717,13 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      */
     public <T extends KTypePredicate<? super KType>> T forEach(final T predicate, final int fromIndex, final int toIndex) {
         assert (fromIndex >= 0 && fromIndex <= size()) : "Index " + fromIndex + " out of bounds [" + 0 + ", " + size()
-                + ").";
+        + ").";
 
         assert (toIndex >= 0 && toIndex <= size()) : "Index " + toIndex + " out of bounds [" + 0 + ", " + size() + "].";
 
         assert fromIndex <= toIndex : "fromIndex must be <= toIndex: " + fromIndex + ", " + toIndex;
 
-        final KType[] buffer = this.buffer;
+        final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
 
         for (int i = fromIndex; i < toIndex; i++) {
             if (!predicate.apply(buffer[i])) {
@@ -753,7 +739,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayList<KType> newInstance() {
+    KTypeArrayList<KType> newInstance() {
         return new KTypeArrayList<KType>();
     }
 
@@ -762,7 +748,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayList<KType> newInstance(final int initialCapacity) {
+    KTypeArrayList<KType> newInstance(final int initialCapacity) {
         return new KTypeArrayList<KType>(initialCapacity);
     }
 
@@ -771,7 +757,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * <code>KType</code>.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayList<KType> from(final KType... elements) {
+    KTypeArrayList<KType> from(final KType... elements) {
         final KTypeArrayList<KType> list = new KTypeArrayList<KType>(elements.length);
         list.add(elements);
         return list;
@@ -781,7 +767,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * Create a list from elements of another container.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayList<KType> from(final KTypeContainer<KType> container) {
+    KTypeArrayList<KType> from(final KTypeContainer<KType> container) {
         return new KTypeArrayList<KType>(container);
     }
 
@@ -833,14 +819,14 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     public void sort(final int beginIndex, final int endIndex,
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
-            /*! #else
-                            KTypeComparator<? super KType>
-                            #end !*/
-            comp) {
+    /*! #else
+                                    KTypeComparator<? super KType>
+                                    #end !*/
+    comp) {
         assert endIndex <= this.elementsCount;
 
         if (endIndex - beginIndex > 1) {
-            KTypeSort.quicksort(this.buffer, beginIndex, endIndex, comp);
+            KTypeSort.quicksort(Intrinsics.<KType[]> cast(this.buffer), beginIndex, endIndex, comp);
         }
     }
 

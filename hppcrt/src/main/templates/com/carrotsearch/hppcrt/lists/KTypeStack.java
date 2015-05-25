@@ -10,6 +10,7 @@ import com.carrotsearch.hppcrt.procedures.*;
 import com.carrotsearch.hppcrt.sorting.*;
 import com.carrotsearch.hppcrt.strategies.*;
 
+/*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
 /**
  * An extension to {@link KTypeArrayList} adding stack-related utility methods. The top of
  * the stack is at the <code>{@link #size()} - 1</code> buffer position.
@@ -203,7 +204,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
         //copy the buffer backwards.
         for (int i = 0; i < size; i++)
         {
-            target[i] = this.buffer[size - i - 1];
+            target[i] = Intrinsics.<KType> cast(this.buffer[size - i - 1]);
         }
 
         return target;
@@ -340,7 +341,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
     {
         assert this.elementsCount > 0;
 
-        final KType v = this.buffer[--this.elementsCount];
+        final KType v = Intrinsics.<KType> cast(this.buffer[--this.elementsCount]);
         /* #if ($TemplateOptions.KTypeGeneric) */
         this.buffer[this.elementsCount] = null;
         /* #end */
@@ -354,7 +355,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
     {
         assert this.elementsCount > 0;
 
-        return this.buffer[this.elementsCount - 1];
+        return Intrinsics.<KType> cast(this.buffer[this.elementsCount - 1]);
     }
 
     /**
@@ -503,7 +504,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
             final int startSortingRange = size - endIndex;
             final int endSortingRange = size - beginIndex;
 
-            KTypeSort.quicksort(this.buffer, startSortingRange, endSortingRange, comp);
+            KTypeSort.quicksort(Intrinsics.<KType[]> cast(this.buffer), startSortingRange, endSortingRange, comp);
 
             //reverse [startSortingRange, endSortingRange [
             KTypeArrays.reverse(this.buffer, startSortingRange, endSortingRange);

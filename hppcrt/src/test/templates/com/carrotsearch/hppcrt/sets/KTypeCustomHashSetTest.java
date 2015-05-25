@@ -81,14 +81,14 @@ public class KTypeCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
             final int mask = this.set.keys.length - 1;
 
             for (int i = 0; i < this.set.keys.length; i++) {
-                if (!is_allocated(i, this.set.keys)) {
+                if (!is_allocated(i, Intrinsics.<KType[]> cast(this.set.keys))) {
                     //if not allocated, generic version if patched to null for GC sake
                     /*! #if ($TemplateOptions.KTypeGeneric) !*/
                     TestUtils.assertEquals2(this.keyE, this.set.keys[i]);
                     /*! #end !*/
                 } else {
                     //try to reach the key by contains()
-                    Assert.assertTrue(this.set.contains(this.set.keys[i]));
+                    Assert.assertTrue(this.set.contains(Intrinsics.<KType> cast(this.set.keys[i])));
 
                     occupied++;
                 }
@@ -875,9 +875,9 @@ public class KTypeCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
 
         for (int k = newSet.keys.length - 1; k >= 0; k--) {
 
-            if (is_allocated(k, newSet.keys)) {
+            if (is_allocated(k, Intrinsics.<KType[]> cast(newSet.keys))) {
 
-                keyList.add(newSet.keys[k]);
+                keyList.add(Intrinsics.<KType> cast(newSet.keys[k]));
             }
         }
 
@@ -897,9 +897,9 @@ public class KTypeCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
 
             for (int k = newSet.keys.length - 1; k >= 0; k--) {
 
-                if (is_allocated(k, newSet.keys)) {
+                if (is_allocated(k, Intrinsics.<KType[]> cast(newSet.keys))) {
 
-                    keyList.add(newSet.keys[k]);
+                    keyList.add(Intrinsics.<KType> cast(newSet.keys[k]));
                 }
             }
 
@@ -974,9 +974,9 @@ public class KTypeCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
 
         for (int i = newSet.keys.length - 1; i >= 0; i--) {
 
-            if (is_allocated(i, newSet.keys)) {
+            if (is_allocated(i, Intrinsics.<KType[]> cast(newSet.keys))) {
 
-                keyList.add(newSet.keys[i]);
+                keyList.add(Intrinsics.<KType> cast(newSet.keys[i]));
             }
         }
 
@@ -1040,9 +1040,9 @@ public class KTypeCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
 
         for (int k = newSet.keys.length - 1; k >= 0; k--) {
 
-            if (is_allocated(k, newSet.keys)) {
+            if (is_allocated(k, Intrinsics.<KType[]> cast(newSet.keys))) {
 
-                keyList.add(newSet.keys[k]);
+                keyList.add(Intrinsics.<KType> cast(newSet.keys[k]));
             }
         }
 
@@ -1061,9 +1061,9 @@ public class KTypeCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
 
             for (int k = newSet.keys.length - 1; k >= 0; k--) {
 
-                if (is_allocated(k, newSet.keys)) {
+                if (is_allocated(k, Intrinsics.<KType[]> cast(newSet.keys))) {
 
-                    keyList.add(newSet.keys[k]);
+                    keyList.add(Intrinsics.<KType> cast(newSet.keys[k]));
                 }
             }
 
@@ -1303,7 +1303,8 @@ public class KTypeCustomHashSetTest<KType> extends AbstractKTypeTest<KType>
         }
     }
 
-    @Repeat(iterations = 10)
+    @Seed("88DC7A1093FD66C5")
+    @Repeat(iterations = 25)
     @Test
     public void testNoOverallocation() {
 
