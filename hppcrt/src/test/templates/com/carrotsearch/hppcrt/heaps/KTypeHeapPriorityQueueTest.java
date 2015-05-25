@@ -33,7 +33,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         @Override
         public int compare(final KType e1, final KType e2) {
 
-            return Intrinsics.compareKTypeUnchecked(e1, e2);
+            return Intrinsics.<KType> compareUnchecked(e1, e2);
         }
     };
 
@@ -42,7 +42,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         @Override
         public int compare(final KType e1, final KType e2) {
 
-            return -Intrinsics.compareKTypeUnchecked(e1, e2);
+            return -Intrinsics.<KType> compareUnchecked(e1, e2);
         }
     };
 
@@ -80,7 +80,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
             for (int i = prio.elementsCount + 1; i < prio.buffer.length; i++)
             {
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                Assert.assertTrue(Intrinsics.<KType> defaultKTypeValue() == prio.buffer[i]);
+                Assert.assertTrue(Intrinsics.<KType> empty() == prio.buffer[i]);
                 /*! #end !*/
             }
 
@@ -88,7 +88,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
             Assert.assertTrue(isMinHeap(prio));
 
             //Check that we can pop() all elements
-            final KType[] popedElements = Intrinsics.newKTypeArray(prio.size());
+            final KType[] popedElements = Intrinsics.<KType> newArray(prio.size());
 
             int ii = 0;
             while (prio.size() > 0) {
@@ -281,13 +281,13 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         insertElements(this.prioq, 0, 1, 2, 1, 4);
 
         Assert.assertEquals(3, this.prioq.removeAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeHeapPriorityQueueTest.this.key1 || v == KTypeHeapPriorityQueueTest.this.key2;
             };
-                }));
+        }));
 
         assertPrioQueueEquals(this.prioq, 0, 4);
     }
@@ -299,13 +299,13 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         insertElements(this.prioq, 0, 1, 2, 1, 0);
 
         Assert.assertEquals(2, this.prioq.retainAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeHeapPriorityQueueTest.this.key1 || v == KTypeHeapPriorityQueueTest.this.key2;
             };
-                }));
+        }));
 
         assertPrioQueueEquals(this.prioq, 1, 1, 2);
     }
@@ -322,7 +322,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size
             Assert.assertEquals(5, this.prioq.removeAll(new KTypePredicate<KType>()
-                    {
+            {
                 @Override
                 public boolean apply(final KType v)
                 {
@@ -331,11 +331,10 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
                     }
                     return v == KTypeHeapPriorityQueueTest.this.key1;
                 };
-                    }));
+            }));
 
             Assert.fail();
-        }
-        catch (final RuntimeException e)
+        } catch (final RuntimeException e)
         {
             // Make sure it's really our exception...
             if (e != t) {
@@ -1146,7 +1145,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
 
         //A) fill COUNT random values in prio-queue
         final KTypeHeapPriorityQueue<KType> testPQ = new KTypeHeapPriorityQueue<KType>(comp, 10);
-        final KType[] referenceArray = Intrinsics.newKTypeArray(COUNT);
+        final KType[] referenceArray = Intrinsics.<KType> newArray(COUNT);
 
         for (int i = 0; i < COUNT; i++)
         {
@@ -1484,8 +1483,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
                 Assert.assertEquals(startingPoolSize, testContainer.valueIteratorPool.size());
                 Assert.assertEquals(checksum, this.guard);
 
-            }
-            catch (final Exception e)
+            } catch (final Exception e)
             {
                 //iterator is NOT returned to its pool because of the exception
                 Assert.assertEquals(startingPoolSize - 1, testContainer.valueIteratorPool.size());
@@ -1574,8 +1572,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
 
                 //nothing has changed
                 Assert.assertEquals(startingTestPoolSize, testContainer.valueIteratorPool.size());
-            }
-            catch (final Exception e)
+            } catch (final Exception e)
             {
                 //iterator is NOT returned to its pool because of the exception
                 Assert.assertEquals(startingTestPoolSize - 1, testContainer.valueIteratorPool.size());
@@ -1719,15 +1716,13 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
                         }
                     }
                 });
-            }
-            catch (final RuntimeException e)
+            } catch (final RuntimeException e)
             {
                 if (!e.getMessage().equals("Interrupted treatment by test"))
                 {
                     throw e;
                 }
-            }
-            finally
+            } finally
             {
                 //despite the exception, the procedure terminates cleanly
 
@@ -1950,7 +1945,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertEquals(elements.length, obj.size());
 
         //0-1) Convert elements into KType[]
-        final KType[] internalElements = Intrinsics.newKTypeArray(elements.length);
+        final KType[] internalElements = Intrinsics.<KType> newArray(elements.length);
 
         for (int i = 0; i < internalElements.length; i++) {
 
@@ -1986,7 +1981,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
     /**
      * method to test invariant in assert
      */
-// is pq[1..N] a min heap?
+    // is pq[1..N] a min heap?
     private boolean isMinHeap(final KTypeHeapPriorityQueue<KType> q)
     {
         if (q.comparator == null)
@@ -1997,30 +1992,32 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         return isMinHeapComparator(q, 1);
     }
 
-// is subtree of pq[1..N] rooted at k a min heap?
+    // is subtree of pq[1..N] rooted at k a min heap?
     private boolean isMinHeapComparable(final KTypeHeapPriorityQueue<KType> q, final int k)
     {
         final int N = q.elementsCount;
+        final KType[] buffer = Intrinsics.<KType[]> cast(q.buffer);
 
         if (k > N) {
             return true;
         }
         final int left = 2 * k, right = 2 * k + 1;
 
-        if (left <= N && Intrinsics.isCompSupKTypeUnchecked(q.buffer[k], q.buffer[left])) {
+        if (left <= N && Intrinsics.<KType> isCompSupUnchecked(buffer[k], buffer[left])) {
             return false;
         }
-        if (right <= N && Intrinsics.isCompSupKTypeUnchecked(q.buffer[k], q.buffer[right])) {
+        if (right <= N && Intrinsics.<KType> isCompSupUnchecked(buffer[k], buffer[right])) {
             return false;
         }
         //recursively test
         return isMinHeapComparable(q, left) && isMinHeapComparable(q, right);
     }
 
-// is subtree of pq[1..N] rooted at k a min heap?
+    // is subtree of pq[1..N] rooted at k a min heap?
     private boolean isMinHeapComparator(final KTypeHeapPriorityQueue<KType> q, final int k)
     {
         final int N = q.elementsCount;
+        final KType[] buffer = Intrinsics.<KType[]> cast(q.buffer);
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         final Comparator<? super KType> comp = q.comparator;
@@ -2033,10 +2030,10 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         }
         final int left = 2 * k, right = 2 * k + 1;
 
-        if (left <= N && comp.compare(q.buffer[k], q.buffer[left]) > 0) {
+        if (left <= N && comp.compare(buffer[k], buffer[left]) > 0) {
             return false;
         }
-        if (right <= N && comp.compare(q.buffer[k], q.buffer[right]) > 0) {
+        if (right <= N && comp.compare(buffer[k], buffer[right]) > 0) {
             return false;
         }
         //recursively test

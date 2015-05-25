@@ -45,8 +45,6 @@ java -jar hppcrt-benchmarks/target/benchmarks.jar -l
 # Generate site, also running Findbugs in the process
 mvn site
 
-
-
 # Try to resolve all dependencies to be able to work off the Net
 mvn dependency:go-offline
 

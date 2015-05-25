@@ -33,7 +33,7 @@ public class KTypeBufferVisualizer<KType>
                 int slots = 0;
                 for (int slot = start + 1; slot <= end; slot++, slots++) {
 
-                    if (!Intrinsics.isEmpty(buffer[slot])) {
+                    if (!Intrinsics.<KType> isEmpty(buffer[slot])) {
                         taken++;
                     }
                 }

@@ -16,7 +16,7 @@ public final class KTypeArrays
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public final static Object[] EMPTY = new Object[0];
     /*! #else
-    public final static KType[] EMPTY =  Intrinsics.<KType[]>newKTypeArray(0);
+    public final static KType[] EMPTY =  Intrinsics.<KType>newArray(0);
     #end  !*/
 
     final private static int BLANK_ARRAY_SIZE_IN_BIT_SHIFT = 10;
@@ -33,7 +33,7 @@ public final class KTypeArrays
     final private static Object[] BLANKING_OBJECT_ARRAY = new Object[KTypeArrays.BLANK_ARRAY_SIZE];
 
     /*! #else
-    final private static KType[] BLANKING_OBJECT_ARRAY = Intrinsics.<KType[]>newKTypeArray(KTypeArrays.BLANK_ARRAY_SIZE);
+    final private static KType[] BLANKING_OBJECT_ARRAY = Intrinsics.<KType>newArray(KTypeArrays.BLANK_ARRAY_SIZE);
     #end  !*/
 
     private KTypeArrays() {
@@ -134,7 +134,7 @@ public final class KTypeArrays
         //fill the reminder
         if (rem > 0) {
             Arrays.fill(objectArray, startIndex + (nbChunks << KTypeArrays.BLANK_ARRAY_SIZE_IN_BIT_SHIFT),
-                    startIndex + (nbChunks << KTypeArrays.BLANK_ARRAY_SIZE_IN_BIT_SHIFT) + rem, Intrinsics.defaultKTypeValue());
+                    startIndex + (nbChunks << KTypeArrays.BLANK_ARRAY_SIZE_IN_BIT_SHIFT) + rem, Intrinsics.<KType> empty());
         }
     }
 

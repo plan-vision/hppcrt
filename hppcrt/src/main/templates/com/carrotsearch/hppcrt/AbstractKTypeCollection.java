@@ -18,7 +18,7 @@ public abstract class AbstractKTypeCollection<KType> implements KTypeCollection<
     protected KTypeLookupContainer<? super KType> testContainer;
     protected KTypePredicate<? super KType> testPredicate;
 
-    protected KType defaultValue = Intrinsics.<KType> defaultKTypeValue();
+    protected KType defaultValue = Intrinsics.<KType> empty();
 
     protected KTypePredicate<KType> containsTestPredicate = new KTypePredicate<KType>() {
 
@@ -135,7 +135,7 @@ public abstract class AbstractKTypeCollection<KType> implements KTypeCollection<
     {
         try {
 
-            return toArray(Intrinsics.<KType[]> newKTypeArray(size()));
+            return toArray(Intrinsics.<KType> newArray(size()));
         } catch (final OutOfMemoryError e) {
 
             throw new BufferAllocationException(

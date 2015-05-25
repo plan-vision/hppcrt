@@ -1,0 +1,3 @@
+﻿/*
+Cut-n-paste here code causing a Parser crash, for investigation.
+*/

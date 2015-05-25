@@ -1,0 +1,11 @@
+public class ObjectFoo<KType>
+{
+    private IteratorPool<ObjectCursor<KType>, ValueIterator> valueIteratorPool;
+ 
+    public ObjectFoo()
+    {
+        this.valueIteratorPool = new IteratorPool<ObjectCursor<KType>, ValueIterator>() { 
+        };
+              
+    }   
+ }

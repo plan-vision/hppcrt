@@ -1,0 +1,307 @@
+package com.carrotsearch.hppcrt.generator.parser;
+
+import java.util.Comparator;
+
+/**
+ * Test for partial template specialization, i.e KTypeIndexedHeapPriorityQueue
+ * @author Vincent
+ *
+ * @param <KType>
+ */
+public class KTypePartialSpecializationClass<KType> implements IntKTypeMap<KType>, Cloneable
+{	
+	protected final IteratorPool<IntKTypeCursor<KType>, EntryIterator> entryIteratorPool;
+
+    public KTypePartialSpecializationClass() {
+		
+        this.entryIteratorPool = new IteratorPool<IntKTypeCursor<KType>, EntryIterator>(
+                new ObjectFactory<EntryIterator>() {
+
+                    @Override
+                    public EntryIterator create()
+                    {
+                        return new EntryIterator();
+                    }
+
+                    @Override
+                    public void initialize(final EntryIterator obj)
+                    {
+                        obj.cursor.index = 0;
+                        obj.buffer = KTypeIndexedHeapPriorityQueue.this.buffer;
+                        obj.size = KTypeIndexedHeapPriorityQueue.this.elementsCount;
+                        obj.qp = KTypeIndexedHeapPriorityQueue.this.qp;
+                    }
+
+                    @Override
+                    public void reset(final EntryIterator obj)
+                    {
+                        // for GC sake
+                        obj.qp = null;
+                        obj.buffer = null;
+                    }
+                });
+    }
+
+	 public final class EntryIterator extends AbstractIterator<IntKTypeCursor<KType>>
+    {
+        public final IntKTypeCursor<KType> cursor;
+
+        private KType[] buffer;
+        private int size;
+        private int[] qp;
+
+        public EntryIterator()
+        {
+          
+        }
+
+        @Override
+        protected IntKTypeCursor<KType> fetch()
+        {
+            
+        }
+    }
+	
+    @Override
+    public <T extends IntKTypeProcedure<? super KType>> T forEach(final T procedure)
+    {
+
+    }
+
+    @Override
+    public <T extends IntKTypePredicate<? super KType>> T forEach(final T predicate)
+    {
+
+    }
+
+    @Override
+    public int removeAll(final IntContainer container)
+    {
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int removeAll(final IntPredicate predicate)
+    {
+
+    }
+
+	@Override
+    public boolean putIfAbsent(final int key, final KType value)
+    {
+   
+    }
+	
+	 @Override
+    public int putAll(final IntKTypeAssociativeContainer<? extends KType> container)
+    {
+        return putAll((Iterable<? extends IntKTypeCursor<? extends KType>>) container);
+    }
+
+    /**
+     * A view of the keys inside this hash map.
+     */
+    public final class KeysContainer extends AbstractIntCollection implements IntLookupContainer
+    {
+        private final KTypeIndexedHeapPriorityQueue<KType> owner =
+                KTypeIndexedHeapPriorityQueue.this;
+
+        @Override
+        public boolean contains(final int e)
+        {
+          
+        }
+
+        @Override
+        public <T extends IntProcedure> T forEach(final T procedure)
+        {
+          
+        }
+
+        @Override
+        public <T extends IntPredicate> T forEach(final T predicate)
+        {
+           
+        }
+
+        @Override
+        public int removeAll(final IntPredicate predicate)
+        {
+           
+        }
+
+  
+        @Override
+        public int[] toArray(final int[] target)
+        {
+           
+        }
+
+        /**
+         * internal pool of KeysIterator
+         */
+        protected final IteratorPool<IntCursor, KeysIterator> keyIteratorPool = new IteratorPool<IntCursor, KeysIterator>(
+                new ObjectFactory<KeysIterator>() {
+
+                    @Override
+                    public KeysIterator create()
+                    {
+                       
+                    }
+
+                    @Override
+                    public void initialize(final KeysIterator obj)
+                    {
+                      
+                    }
+
+                    @Override
+                    public void reset(final KeysIterator obj)
+                    {
+                        
+                    }
+                });
+
+    };
+
+    /**
+     * An iterator over the set of assigned keys.
+     * Holds a IntCursor cursor returning (value, index) = (int key, index the position in heap)
+     */
+    public final class KeysIterator extends AbstractIterator<IntCursor>
+    {
+        public final IntCursor cursor;
+
+        private int[] pq;
+
+        public KeysIterator()
+        {
+            
+        }
+
+        /**
+         * 
+         */
+        @Override
+        protected IntCursor fetch()
+        {
+            
+        }
+    }
+
+   
+    /**
+     * A view over the set of values of this map.
+     */
+    public final class ValuesContainer extends AbstractKTypeCollection<KType>
+    {
+        private final KTypeIndexedHeapPriorityQueue<KType> owner =
+                KTypeIndexedHeapPriorityQueue.this;
+
+        private KType currentOccurenceToBeRemoved;
+
+        private final KTypePredicate<? super KType> removeAllOccurencesPredicate = new KTypePredicate<KType>() {
+
+            @Override
+            public final boolean apply(final KType value) {
+
+               
+            }
+        };
+
+  
+        @Override
+        public boolean contains(final KType value)
+        {
+        
+        }
+
+        @Override
+        public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure)
+        {
+           
+        }
+
+        @Override
+        public <T extends KTypePredicate<? super KType>> T forEach(final T predicate)
+        {
+           
+        }
+
+      
+      
+        @Override
+        public int removeAll(final KType e)
+        {
+           
+        }
+
+        /**
+         * {@inheritDoc}
+         * Indeed removes all the (key,value) pairs matching
+         * the predicate for the values, from  the map.
+         */
+        @Override
+        public int removeAll(final KTypePredicate<? super KType> predicate)
+        {
+           
+        }
+
+       
+
+        @Override
+        public KType[] toArray(final KType[] target)
+        {
+          
+        }
+
+        /**
+         * internal pool of ValuesIterator
+         */
+        protected final IteratorPool<KTypeCursor<KType>, ValuesIterator> valuesIteratorPool = new IteratorPool<KTypeCursor<KType>, ValuesIterator>(
+                new ObjectFactory<ValuesIterator>() {
+
+                    @Override
+                    public ValuesIterator create()
+                    {
+                      
+                    }
+
+                    @Override
+                    public void initialize(final ValuesIterator obj)
+                    {
+                        
+                    }
+
+                    @Override
+                    public void reset(final ValuesIterator obj)
+                    {
+                        
+                    }
+                });
+
+    }
+
+ 
+    public final class ValuesIterator extends AbstractIterator<KTypeCursor<KType>>
+    {
+        public final KTypeCursor<KType> cursor;
+
+        private KType[] buffer;
+        private int size;
+
+        public ValuesIterator()
+        {
+           
+        }
+
+        @Override
+        protected KTypeCursor<KType> fetch()
+        {
+          
+        }
+    }
+}

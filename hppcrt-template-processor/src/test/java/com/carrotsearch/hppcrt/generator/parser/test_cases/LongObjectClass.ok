@@ -1,0 +1,46 @@
+package com.carrotsearch.hppcrt.generator.parser.test_cases;
+
+import com.carrotsearch.hppcrt.generator.parser.test_cases.subpackage.LongObjectInterfaceImported;
+
+/**
+ * A map of (longs, Objects) pairs. 
+ */
+public class LongObjectClass<VType>
+        extends LongObjectSuper<VType>
+        implements LongObjectInterface<VType>,
+        LongObjectInterfaceImported<VType>,
+        Cloneable
+{
+    long[] keys;
+    VType[] values;
+
+    public LongObjectClass() {
+    }
+
+    public LongObjectClass(final long[] foo, final VType[] booArray, final VType boo) {
+
+        final long[] foo2 = (long[]) foo;
+        final VType[] booArray2 = (VType[]) booArray;
+
+        final VType boo2 = (VType) boo;
+    }
+
+    public LongObjectClass(final LongObjectSuper<VType> foo) {
+    }
+
+    public VType foo(final long key, final VType value) {
+
+        throw new RuntimeException();
+    }
+
+    public void foo(final LongObjectSuper<? extends VType> foo) {
+    }
+}
+
+class LongObjectSuper<VType>
+{
+}
+
+interface LongObjectInterface<VType>
+{
+}

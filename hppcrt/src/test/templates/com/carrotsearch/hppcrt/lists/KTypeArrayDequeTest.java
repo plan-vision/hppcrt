@@ -74,7 +74,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
             for (int i = this.deque.tail; i < this.deque.head; i = oneRight(i, this.deque.buffer.length))
             {
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                Assert.assertTrue(Intrinsics.<KType> defaultKTypeValue() == this.deque.buffer[i]);
+                Assert.assertTrue(Intrinsics.<KType> empty() == this.deque.buffer[i]);
                 /*! #end !*/
             }
         }
@@ -115,7 +115,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     {
         for (int i = 0; i < this.sequence.size(); i++)
         {
-            this.deque.addFirst(this.sequence.buffer[i]);
+            this.deque.addFirst(Intrinsics.<KType> cast(this.sequence.buffer[i]));
         }
 
         TestUtils.assertListEquals(TestUtils.reverse(this.sequence.toArray()), this.deque.toArray());
@@ -126,7 +126,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     public void testAddLastWithGrowth()
     {
         for (int i = 0; i < this.sequence.size(); i++) {
-            this.deque.addLast(this.sequence.buffer[i]);
+            this.deque.addLast(Intrinsics.<KType> cast(this.sequence.buffer[i]));
         }
 
         TestUtils.assertListEquals(this.sequence.toArray(), this.deque.toArray());

@@ -7,7 +7,6 @@ package com.carrotsearch.hppcrt.predicates;
  * of KTypeVTypePredicate
  */
 /*! ($TemplateOptions.doNotGenerate()) !*/
-/*! ${TemplateOptions.generatedAnnotation} !*/
 public interface IntKTypePredicate<KType>
 {
     boolean apply(int key, KType value);

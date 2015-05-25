@@ -69,13 +69,13 @@ public class KTypeIdentityHashSetTest<KType> extends AbstractKTypeTest<KType>
                 {
                     //if not allocated, generic version if patched to null for GC sake
                     /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                    TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), this.set.keys[i]);
+                    TestUtils.assertEquals2(Intrinsics.<KType> empty(), this.set.keys[i]);
                     /*! #end !*/
                 }
                 else
                 {
                     //try to reach the key by contains()
-                    Assert.assertTrue(this.set.contains(this.set.keys[i]));
+                    Assert.assertTrue(this.set.contains(Intrinsics.<KType> cast(this.set.keys[i])));
 
                     occupied++;
                 }
@@ -84,7 +84,7 @@ public class KTypeIdentityHashSetTest<KType> extends AbstractKTypeTest<KType>
             if (this.set.allocatedDefaultKey) {
 
                 //try to reach the key by contains()
-                Assert.assertTrue(this.set.contains(Intrinsics.<KType> defaultKTypeValue()));
+                Assert.assertTrue(this.set.contains(Intrinsics.<KType> empty()));
 
                 occupied++;
             }
@@ -204,8 +204,7 @@ public class KTypeIdentityHashSetTest<KType> extends AbstractKTypeTest<KType>
             }));
 
             Assert.fail();
-        }
-        catch (final RuntimeException e)
+        } catch (final RuntimeException e)
         {
             // Make sure it's really our exception...
             if (e != t) {
@@ -284,7 +283,7 @@ public class KTypeIdentityHashSetTest<KType> extends AbstractKTypeTest<KType>
         {
             if (cursor.index == this.set.keys.length) {
 
-                TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), cursor.value);
+                TestUtils.assertEquals2(Intrinsics.<KType> empty(), cursor.value);
                 counted++;
                 continue;
             }
@@ -312,7 +311,7 @@ public class KTypeIdentityHashSetTest<KType> extends AbstractKTypeTest<KType>
         {
             if (cursor.index == this.set.keys.length) {
 
-                TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), cursor.value);
+                TestUtils.assertEquals2(Intrinsics.<KType> empty(), cursor.value);
                 counted++;
                 continue;
             }
@@ -392,7 +391,7 @@ public class KTypeIdentityHashSetTest<KType> extends AbstractKTypeTest<KType>
 
         if (newSet.allocatedDefaultKey) {
 
-            keyList.add(Intrinsics.defaultKTypeValue());
+            keyList.add(Intrinsics.<KType> empty());
         }
 
         //Test forEach predicate and stop at each key in turn.
@@ -418,7 +417,7 @@ public class KTypeIdentityHashSetTest<KType> extends AbstractKTypeTest<KType>
 
             if (newSet.allocatedDefaultKey) {
 
-                keyList.add(Intrinsics.defaultKTypeValue());
+                keyList.add(Intrinsics.<KType> empty());
             }
 
             for (int k = newSet.keys.length - 1; k >= 0; k--) {
@@ -447,15 +446,13 @@ public class KTypeIdentityHashSetTest<KType> extends AbstractKTypeTest<KType>
                         }
                     }
                 });
-            }
-            catch (final RuntimeException e)
+            } catch (final RuntimeException e)
             {
                 if (!e.getMessage().equals("Interrupted treatment by test"))
                 {
                     throw e;
                 }
-            }
-            finally
+            } finally
             {
                 //despite the exception, the procedure terminates cleanly
 
@@ -509,7 +506,7 @@ public class KTypeIdentityHashSetTest<KType> extends AbstractKTypeTest<KType>
 
         if (newSet.allocatedDefaultKey) {
 
-            keyList.add(Intrinsics.defaultKTypeValue());
+            keyList.add(Intrinsics.<KType> empty());
         }
 
         for (int i = newSet.keys.length - 1; i >= 0; i--) {
@@ -584,7 +581,7 @@ public class KTypeIdentityHashSetTest<KType> extends AbstractKTypeTest<KType>
         /*! #if ($SA)
         if (newSet.allocatedDefaultKey) {
 
-            keyList.add(Intrinsics.defaultKTypeValue());
+            keyList.add(Intrinsics.<KType> empty());
         }
         #end !*/
 
@@ -610,7 +607,7 @@ public class KTypeIdentityHashSetTest<KType> extends AbstractKTypeTest<KType>
 
             if (newSet.allocatedDefaultKey) {
 
-                keyList.add(Intrinsics.defaultKTypeValue());
+                keyList.add(Intrinsics.<KType> empty());
             }
 
             for (int k = newSet.keys.length - 1; k >= 0; k--) {
@@ -708,6 +705,6 @@ public class KTypeIdentityHashSetTest<KType> extends AbstractKTypeTest<KType>
 
     private boolean is_allocated(final int slot, final Object[] keys) {
 
-        return !Intrinsics.isEmpty(keys[slot]);
+        return !Intrinsics.<KType> isEmpty(keys[slot]);
     }
 }

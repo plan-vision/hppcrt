@@ -35,7 +35,7 @@ public abstract class AbstractKTypeVTypeTest<KType, VType> extends AbstractKType
     public volatile long guard;
 
     /**
-     * Convert to target type from an integer used to test stuff.
+     * Convert to VType type from an integer used to test stuff.
      */
     protected VType vcast(final int value)
     {
@@ -96,13 +96,13 @@ public abstract class AbstractKTypeVTypeTest<KType, VType> extends AbstractKType
         Assert.assertEquals(c1.size(), c2.size());
 
         c1.forEach(new KTypeVTypeProcedure<KType, VType>()
-                {
+        {
             @Override
             public void apply(final KType key, final VType value)
             {
                 Assert.assertTrue(c2.containsKey(key));
                 TestUtils.assertEquals2(value, c2.get(key));
             }
-                });
+        });
     }
 }

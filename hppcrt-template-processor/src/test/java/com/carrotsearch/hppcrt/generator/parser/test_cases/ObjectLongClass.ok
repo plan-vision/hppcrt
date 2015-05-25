@@ -1,0 +1,46 @@
+package com.carrotsearch.hppcrt.generator.parser.test_cases;
+
+import com.carrotsearch.hppcrt.generator.parser.test_cases.subpackage.ObjectLongInterfaceImported;
+
+/**
+ * A map of (Objects, longs) pairs. 
+ */
+public class ObjectLongClass<KType>
+        extends ObjectLongSuper<KType>
+        implements ObjectLongInterface<KType>,
+        ObjectLongInterfaceImported<KType>,
+        Cloneable
+{
+    KType[] keys;
+    long[] values;
+
+    public ObjectLongClass() {
+    }
+
+    public ObjectLongClass(final KType[] foo, final long[] booArray, final long boo) {
+
+        final KType[] foo2 = (KType[]) foo;
+        final long[] booArray2 = (long[]) booArray;
+
+        final long boo2 = (long) boo;
+    }
+
+    public ObjectLongClass(final ObjectLongSuper<KType> foo) {
+    }
+
+    public long foo(final KType key, final long value) {
+
+        throw new RuntimeException();
+    }
+
+    public void foo(final ObjectLongSuper<? extends KType> foo) {
+    }
+}
+
+class ObjectLongSuper<KType>
+{
+}
+
+interface ObjectLongInterface<KType>
+{
+}

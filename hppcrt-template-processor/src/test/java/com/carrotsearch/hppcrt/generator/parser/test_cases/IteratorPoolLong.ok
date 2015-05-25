@@ -1,0 +1,11 @@
+public class LongFoo
+{
+    private IteratorPool<LongCursor, ValueIterator> valueIteratorPool;
+ 
+    public LongFoo()
+    {
+        this.valueIteratorPool = new IteratorPool<LongCursor, ValueIterator>() { 
+        };
+              
+    }   
+ }

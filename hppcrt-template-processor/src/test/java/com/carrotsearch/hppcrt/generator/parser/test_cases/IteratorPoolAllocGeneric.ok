@@ -1,0 +1,38 @@
+public class ObjectHeapPriorityQueue<KType> extends AbstractObjectCollection<KType>
+        implements ObjectPriorityQueue<KType>, Cloneable
+{
+
+    protected final IteratorPool<ObjectCursor<KType>, ValueIterator> valueIteratorPool;
+ 
+
+    public ObjectHeapPriorityQueue()
+    {
+        this.valueIteratorPool = new IteratorPool<ObjectCursor<KType>, ValueIterator>(
+                new ObjectFactory<ValueIterator>() {
+
+                    @Override
+                    public ValueIterator create()
+                    {
+                        return new ValueIterator();
+                    }
+
+                    @Override
+                    public void initialize(final ValueIterator obj)
+                    {
+                        obj.cursor.index = 0;
+                        obj.size = ObjectHeapPriorityQueue.this.size();
+                        obj.buffer = ObjectHeapPriorityQueue.this.buffer;
+                    }
+
+                    @Override
+                    public void reset(final ValueIterator obj) {
+                        // for GC sake
+                        obj.buffer = null;
+
+                    }
+                });
+    }   
+ 
+ }
+
+

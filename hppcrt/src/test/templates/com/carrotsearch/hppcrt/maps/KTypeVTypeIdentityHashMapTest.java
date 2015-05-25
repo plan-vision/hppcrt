@@ -69,19 +69,20 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
                     //if not allocated, generic version if patched to null for GC sake
 
                     /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                    TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), this.map.keys[i]);
+                    TestUtils.assertEquals2(Intrinsics.<KType> empty(), this.map.keys[i]);
                     /*! #end !*/
                     /*! #if ($TemplateOptions.VTypeGeneric) !*/
-                    TestUtils.assertEquals2(Intrinsics.defaultVTypeValue(), this.map.values[i]);
+                    TestUtils.assertEquals2(Intrinsics.<VType> empty(), this.map.values[i]);
                     /*! #end !*/
                 }
                 else
                 {
                     //try to reach the key by contains()
-                    Assert.assertTrue(this.map.containsKey(this.map.keys[i]));
+                    Assert.assertTrue(this.map.containsKey(Intrinsics.<KType> cast(this.map.keys[i])));
 
                     //get() test
-                    Assert.assertEquals(vcastType(this.map.values[i]), vcastType(this.map.get(this.map.keys[i])));
+                    Assert.assertEquals(vcastType(Intrinsics.<VType> cast(this.map.values[i])),
+                            vcastType(this.map.get(Intrinsics.<KType> cast(this.map.keys[i]))));
 
                     occupied++;
                 }
@@ -90,10 +91,10 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
             if (this.map.allocatedDefaultKey) {
 
                 //try to reach the key by contains()
-                Assert.assertTrue(this.map.containsKey(Intrinsics.<KType> defaultKTypeValue()));
+                Assert.assertTrue(this.map.containsKey(Intrinsics.<KType> empty()));
 
                 //get() test
-                TestUtils.assertEquals2(vcastType(this.map.allocatedDefaultKeyValue), vcastType(this.map.get(Intrinsics.<KType> defaultKTypeValue())));
+                TestUtils.assertEquals2(vcastType(this.map.allocatedDefaultKeyValue), vcastType(this.map.get(Intrinsics.<KType> empty())));
 
                 occupied++;
             }
@@ -189,7 +190,7 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
         {
             if (cursor.index == this.map.keys.length) {
 
-                TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), cursor.value);
+                TestUtils.assertEquals2(Intrinsics.<KType> empty(), cursor.value);
                 counted++;
                 continue;
             }
@@ -210,7 +211,7 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
         {
             if (cursor.index == this.map.keys.length) {
 
-                TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), cursor.value);
+                TestUtils.assertEquals2(Intrinsics.<KType> empty(), cursor.value);
                 counted++;
                 continue;
             }
@@ -235,7 +236,7 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
         {
             if (cursor.index == this.map.keys.length) {
 
-                TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), cursor.key);
+                TestUtils.assertEquals2(Intrinsics.<KType> empty(), cursor.key);
                 TestUtils.assertEquals2(this.map.allocatedDefaultKeyValue, cursor.value);
                 count++;
                 continue;
@@ -263,7 +264,7 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
         {
             if (cursor.index == this.map.keys.length) {
 
-                TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), cursor.key);
+                TestUtils.assertEquals2(Intrinsics.<KType> empty(), cursor.key);
                 TestUtils.assertEquals2(this.map.allocatedDefaultKeyValue, cursor.value);
                 count++;
                 continue;
@@ -424,7 +425,7 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
             if (is_allocated(k, newMap.keys)) {
 
                 keyList.add(newMap.keys[k]);
-                valueList.add(vcastType(newMap.values[k]));
+                valueList.add(vcastType(Intrinsics.<VType> cast(newMap.values[k])));
             }
         }
 
@@ -450,7 +451,7 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
                 if (is_allocated(k, newMap.keys)) {
 
                     keyList.add(newMap.keys[k]);
-                    valueList.add(vcastType(newMap.values[k]));
+                    valueList.add(vcastType(Intrinsics.<VType> cast(newMap.values[k])));
                 }
             }
 
@@ -473,15 +474,13 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
                         }
                     }
                 });
-            }
-            catch (final RuntimeException e)
+            } catch (final RuntimeException e)
             {
                 if (!e.getMessage().equals("Interrupted treatment by test"))
                 {
                     throw e;
                 }
-            }
-            finally
+            } finally
             {
 
                 //despite the exception, the procedure terminates cleanly
@@ -522,15 +521,13 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
                         }
                     }
                 });
-            }
-            catch (final RuntimeException e)
+            } catch (final RuntimeException e)
             {
                 if (!e.getMessage().equals("Interrupted treatment by test"))
                 {
                     throw e;
                 }
-            }
-            finally
+            } finally
             {
 
                 //despite the exception, the procedure terminates cleanly
@@ -565,7 +562,7 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
                 if (is_allocated(k, newMap.keys)) {
 
                     keyList.add(newMap.keys[k]);
-                    valueList.add(vcastType(newMap.values[k]));
+                    valueList.add(vcastType(Intrinsics.<VType> cast(newMap.values[k])));
                 }
             }
 
@@ -586,15 +583,13 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
                         }
                     }
                 });
-            }
-            catch (final RuntimeException e)
+            } catch (final RuntimeException e)
             {
                 if (!e.getMessage().equals("Interrupted treatment by test"))
                 {
                     throw e;
                 }
-            }
-            finally
+            } finally
             {
                 //despite the exception, the procedure terminates cleanly
 
@@ -659,7 +654,7 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
             if (is_allocated(i, newMap.keys)) {
 
                 keyList.add(newMap.keys[i]);
-                valueList.add(vcastType(newMap.values[i]));
+                valueList.add(vcastType(Intrinsics.<VType> cast(newMap.values[i])));
             }
         }
 
@@ -737,7 +732,7 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
             if (is_allocated(k, newMap.keys)) {
 
                 keyList.add(newMap.keys[k]);
-                valueList.add(vcastType(newMap.values[k]));
+                valueList.add(vcastType(Intrinsics.<VType> cast(newMap.values[k])));
             }
         }
 
@@ -806,7 +801,7 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
             if (is_allocated(k, newMap.keys)) {
 
                 keyList.add(newMap.keys[k]);
-                valueList.add(vcastType(newMap.values[k]));
+                valueList.add(vcastType(Intrinsics.<VType> cast(newMap.values[k])));
             }
         }
 
@@ -832,7 +827,7 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
                 if (is_allocated(k, newMap.keys)) {
 
                     keyList.add(newMap.keys[k]);
-                    valueList.add(vcastType(newMap.values[k]));
+                    valueList.add(vcastType(Intrinsics.<VType> cast((newMap.values[k]))));
                 }
             }
 
@@ -927,7 +922,7 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
                 if (is_allocated(k, newMap.keys)) {
 
                     keyList.add(newMap.keys[k]);
-                    valueList.add(vcastType(newMap.values[k]));
+                    valueList.add(vcastType(Intrinsics.<VType> cast(newMap.values[k])));
                 }
             }
 
@@ -987,11 +982,11 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
 
             final Object newObject = new IntHolder(0xAF);
 
-            Assert.assertTrue(Intrinsics.<VType> defaultVTypeValue() == newMap.put(newObject, vcast(i)));
+            Assert.assertTrue(Intrinsics.<VType> empty() == newMap.put(newObject, vcast(i)));
 
             //Equals key, but not the same object
             Assert.assertFalse(newMap.containsKey(new IntHolder(0xAF)));
-            Assert.assertTrue(newMap.get(new IntHolder(0xAF)) == Intrinsics.<VType> defaultVTypeValue());
+            Assert.assertTrue(newMap.get(new IntHolder(0xAF)) == Intrinsics.<VType> empty());
 
             //Really the same object
             Assert.assertEquals(i, vcastType(newMap.get(newObject)));
@@ -1019,6 +1014,6 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
 
     private boolean is_allocated(final int slot, final Object[] keys) {
 
-        return !Intrinsics.isEmpty(keys[slot]);
+        return !Intrinsics.<KType> isEmpty(keys[slot]);
     }
 }

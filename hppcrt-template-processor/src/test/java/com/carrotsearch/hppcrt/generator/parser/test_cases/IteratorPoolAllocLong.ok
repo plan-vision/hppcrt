@@ -1,0 +1,38 @@
+public class LongHeapPriorityQueue extends AbstractLongCollection
+        implements LongPriorityQueue, Cloneable
+{
+
+    protected final IteratorPool<LongCursor, ValueIterator> valueIteratorPool;
+ 
+
+    public LongHeapPriorityQueue()
+    {
+        this.valueIteratorPool = new IteratorPool<LongCursor, ValueIterator>(
+                new ObjectFactory<ValueIterator>() {
+
+                    @Override
+                    public ValueIterator create()
+                    {
+                        return new ValueIterator();
+                    }
+
+                    @Override
+                    public void initialize(final ValueIterator obj)
+                    {
+                        obj.cursor.index = 0;
+                        obj.size = LongHeapPriorityQueue.this.size();
+                        obj.buffer = LongHeapPriorityQueue.this.buffer;
+                    }
+
+                    @Override
+                    public void reset(final ValueIterator obj) {
+                        // for GC sake
+                        obj.buffer = null;
+
+                    }
+                });
+    }   
+ 
+ }
+
+

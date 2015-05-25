@@ -1,0 +1,46 @@
+package com.carrotsearch.hppcrt.generator.parser.test_cases;
+
+import com.carrotsearch.hppcrt.generator.parser.test_cases.subpackage.LongIntInterfaceImported;
+
+/**
+ * A map of (longs, ints) pairs. 
+ */
+public class LongIntClass
+        extends LongIntSuper
+        implements LongIntInterface,
+        LongIntInterfaceImported,
+        Cloneable
+{
+    long[] keys;
+    int[] values;
+
+    public LongIntClass() {
+    }
+
+    public LongIntClass(final long[] foo, final int[] booArray, final int boo) {
+
+        final long[] foo2 = (long[]) foo;
+        final int[] booArray2 = (int[]) booArray;
+
+        final int boo2 = (int) boo;
+    }
+
+    public LongIntClass(final LongIntSuper foo) {
+    }
+
+    public int foo(final long key, final int value) {
+
+        throw new RuntimeException();
+    }
+
+    public void foo(final LongIntSuper foo) {
+    }
+}
+
+class LongIntSuper
+{
+}
+
+interface LongIntInterface
+{
+}
