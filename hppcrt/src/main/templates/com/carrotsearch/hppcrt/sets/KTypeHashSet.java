@@ -1011,6 +1011,9 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
     /*! #if ($TemplateOptions.declareInline("REHASH(value)",
     "<Object>==>MurmurHash3.mix(value.hashCode() , this.perturbation)",
+    "<byte>==>PhiMix.mix(value , this.perturbation)",
+    "<char>==>PhiMix.mix(value , this.perturbation)",
+    "<short>==>PhiMix.mix(value , this.perturbation)",
     "<*>==>MurmurHash3.mix(value , this.perturbation)")) !*/
     /**
      * REHASH method for rehashing the keys.
@@ -1026,6 +1029,9 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
     /*! #if ($TemplateOptions.declareInline("REHASH2(value, perturb)",
     "<Object>==>MurmurHash3.mix(value.hashCode() , perturb)",
+    "<byte>==>PhiMix.mix(value , perturb)",
+    "<char>==>PhiMix.mix(value , perturb)",
+    "<short>==>PhiMix.mix(value , perturb)",
     "<*>==>MurmurHash3.mix(value , perturb)")) !*/
     /**
      * REHASH2 method for rehashing the keys with perturbation seed as parameter
