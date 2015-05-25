@@ -48,12 +48,6 @@
     </dependency>
         
     <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>${version.junit}</version>
-    </dependency>
-        
-    <dependency>
       <groupId>com.carrotsearch.randomizedtesting</groupId>
       <artifactId>randomizedtesting-runner</artifactId>
       <version>${version.randomizedtesting}</version>

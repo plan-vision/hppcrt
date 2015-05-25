@@ -363,7 +363,6 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
             putValue = (VType) (Intrinsics.<VType> add(putValue, incrementValue));
         }
-        #end !*/
 
         put(key, putValue);
         return putValue;

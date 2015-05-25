@@ -43,9 +43,9 @@ import com.carrotsearch.hppcrt.generator.parser.SignatureProcessor;
 /**
  * Template processor for HPPC-RT templates.
  */
-public final class TemplateProcessor {
-  private static final Pattern COMMENTS_PATTERN = Pattern
-      .compile("(/\\*!)|(!\\*/)", Pattern.MULTILINE | Pattern.DOTALL);
+public final class TemplateProcessor
+{
+    private static final Pattern COMMENTS_PATTERN = Pattern.compile("(/\\*!)|(!\\*/)", Pattern.MULTILINE | Pattern.DOTALL);
 
     /**
      * Be default, print everything !
@@ -54,15 +54,13 @@ public final class TemplateProcessor {
 
     private boolean incremental = false;
 
-  //by default, generate everything, talk as much as possible
-  private VerboseLevel verbose = VerboseLevel.full;
-  private boolean incremental = false;
+    private File templatesDir;
+    private File dependenciesDir;
+    private File outputDir;
 
-  private File templatesDir;
-  private File dependenciesDir;
-  private File outputDir;
+    private long timeVelocity, timeInlines, timeTypeClassRefs, timeComments;
 
-  private long timeVelocity, timeInlines, timeTypeClassRefs, timeComments;
+    private VelocityEngine velocity;
 
     /**
      * Logger handler for Velocity
@@ -75,34 +73,30 @@ public final class TemplateProcessor {
             // nothing strange here
         }
 
-  private class VelocityLogger implements LogChute {
-    @Override
-    public void init(final RuntimeServices rs) throws Exception {
-      // nothing strange here
-    }
+        @Override
+        public void log(final int level, final String message) {
 
-    @Override
-    public void log(final int level, final String message) {
+            if (level <= 2) {
 
                 logConf("[VELOCITY]-" + level + " : " + message);
             }
         }
 
-        System.out.println("[VELOCITY]-" + level + " : " + message);
-      }
-    }
+        @Override
+        public void log(final int level, final String message, final Throwable t) {
 
-    @Override
-    public void log(final int level, final String message, final Throwable t) {
+            if (level <= 2) {
 
                 logConf("[VELOCITY]-" + level + "-!!EXCEPTION!! : " + message + " , exception msg: "
                         + t.getMessage());
             }
         }
 
-        System.out.println("[VELOCITY]-" + level + "-!!EXCEPTION!! : " + message + " , exception msg: "
-            + t.getMessage());
-      }
+        @Override
+        public boolean isLevelEnabled(final int level) {
+            //let it  talk
+            return true;
+        }
     }
 
     /**
@@ -208,7 +202,6 @@ public final class TemplateProcessor {
 
         TemplateProcessor.setLoggerlevel(TemplateProcessor.getLog(), this.verbose);
     }
-  }
 
     /**
      * Also for Ant Task attribute 'incremental', MUST respect this naming.
@@ -271,10 +264,9 @@ public final class TemplateProcessor {
                 f.file.delete();
             }
 
-  /**
-   * 
-   */
-  public void execute() {
+            if (f.generated) {
+                generated++;
+            }
 
             if (f.updated) {
                 updated++;
@@ -283,38 +275,25 @@ public final class TemplateProcessor {
 
             }
         }
-        f.file.delete();
-      }
-
-      if (f.generated) {
-        generated++;
-      }
 
         logConf("Generated " + generated + " files (" + updated + " updated, " + deleted + " deleted).");
     }
 
-    System.out.println("Generated " + generated + " files (" + updated + " updated, " + deleted + " deleted).");
-  }
+    /**
+     * init a new Velocity Context for a specific TemplateOptions
+     */
+    private void initTemplateOptionsContext(final TemplateOptions options) {
 
-  /**
-   * init a new Velocity Context for a specific TemplateOptions
-   */
-  private void initTemplateOptionsContext(final TemplateOptions options) {
+        final VelocityContext ctx = new VelocityContext();
 
         ctx.put("TemplateOptions", options);
         ctx.put("true", Boolean.TRUE);
         ctx.put("templateOnly", Boolean.FALSE);
         ctx.put("false", Boolean.FALSE);
 
-    //Attach some GenericTools that may be useful for code generation :
-    ctx.put("esct", new EscapeTool());
-    ctx.put("classt", new ClassTool());
-    ctx.put("ctxt", new ContextTool());
-    ctx.put("convt", new ConversionTool());
-    ctx.put("matht", new MathTool());
-    ctx.put("numbert", new NumberTool());
-    ctx.put("rendert", new RenderTool());
-    ctx.put("dispt", new DisplayTool());
+        //reference the context itself into the TemplateOptions object
+        options.context = ctx;
+    }
 
     /**
      * Apply templates to <code>.ktype</code> files (single-argument).
@@ -353,12 +332,6 @@ public final class TemplateProcessor {
                 }
             }
         }
-      }
-      //B) (KType * VType) specializations
-      else if (fileName.contains("KType") && fileName.contains("VType")) {
-        for (final Type ktype : Type.values()) {
-          for (final Type vtype : Type.values()) {
-            final TemplateOptions options = new TemplateOptions(ktype, vtype);
 
         log(Level.FINE, String.format("\nVelocity: %.1f s\nInlines: %.1f s\nTypeClassRefs: %.1f s\nComments: %.1f s",
                 this.timeVelocity * 1e-3, this.timeInlines * 1e-3, this.timeTypeClassRefs * 1e-3, this.timeComments * 1e-3));
@@ -430,12 +403,12 @@ public final class TemplateProcessor {
                 throw e;
             } catch (final MethodInvocationException e) {
 
-        //1) Apply velocity : if TemplateOptions.isDoNotGenerateKType() or TemplateOptions.isDoNotGenerateVType() throw a
-        //DoNotGenerateTypeException , do not generate the final file.
-        t0 = System.currentTimeMillis();
-        input = filterVelocity(f, input, templateOptions);
+                if (e.getCause() instanceof DoNotGenerateTypeException) {
 
-        this.timeVelocity += (t1 = System.currentTimeMillis()) - t0;
+                    final DoNotGenerateTypeException doNotGenException = (DoNotGenerateTypeException) e.getCause();
+                    //indeed remove the generated file
+                    output.file.delete();
+                    outputs.remove(output);
 
                     log(Level.FINE, "output from template '" + input.fullPath + "' with KType = "
                             + doNotGenException.currentKType + " and VType =  " + doNotGenException.currentVType
@@ -446,8 +419,9 @@ public final class TemplateProcessor {
                     log(Level.SEVERE, "method invocation from template '" + input.fullPath + "' with "
                             + templateOptions + " failed with error: '" + e.getMessage() + "'");
 
-        output.updated = true;
-        saveFile(output.file, input);
+                    //rethrow the beast to stop the thing dead.
+                    throw e;
+                }
 
             } catch (final Exception e) {
 
@@ -459,7 +433,6 @@ public final class TemplateProcessor {
             }
         }
     }
-  }
 
     private String filterInlines(final TemplateFile f, final String input, final TemplateOptions templateOptions) {
 
@@ -567,9 +540,6 @@ public final class TemplateProcessor {
 
         return currentInput.toString();
     }
-    sb.append(input.substring(fromIndex, input.length()));
-    return sb.toString();
-  }
 
     /**
      * Cleanup the remaining 'void comments' blocks that are a byproduct of Velocity processing.
@@ -607,8 +577,6 @@ public final class TemplateProcessor {
 
         return template.replace(TemplateOptions.TEMPLATE_FILE_TOKEN, templateOptions.getTemplateFile());
     }
-    return sb.toString().replace('{', '<').replace('}', '>');
-  }
 
     /**
      * Apply velocity to the input.
@@ -620,16 +588,11 @@ public final class TemplateProcessor {
         //(like in separate compilation idioms)
         initTemplateOptionsContext(options);
 
-  private String rewriteLiterals(final TemplateFile f, String input, final TemplateOptions options) {
-    final Type k = options.getKType();
+        final StringWriter sw = new StringWriter();
 
         this.velocity.evaluate(options.context, sw, f.file.getName(), template);
 
-      input = input.replaceAll("(VType)([A-Z][a-zA-Z]*)", (v.isGeneric() ? "Object" : v.getBoxedType()) + "$2");
-
-      if (!v.isGeneric()) {
-        input = input.replaceAll("VType", v.getType());
-      }
+        return sw.toString();
     }
 
     /**
@@ -674,49 +637,25 @@ public final class TemplateProcessor {
             }
         }
 
-  private void saveFile(final File file, final String input) {
-    try {
-      if (!file.getParentFile().exists()) {
-        file.getParentFile().mkdirs();
-      }
-
-      final FileOutputStream fos = new FileOutputStream(file);
-      fos.write(input.getBytes("UTF-8"));
-      fos.close();
-    } catch (final IOException e) {
-      throw new RuntimeException(e);
+        final OutputFile o = new OutputFile(candidate, true);
+        outputs.add(o);
+        return o;
     }
-  }
 
     private String targetFileName(String relativePath, final TemplateOptions templateOptions) {
 
         if (templateOptions.hasKType()) {
 
-    final StringWriter sw = new StringWriter();
+            relativePath = relativePath.replace("KType", templateOptions.getKType().getBoxedType());
+        }
 
-    //set current file as source file.
-    options.sourceFile = f.file;
+        if (templateOptions.hasVType()) {
 
-    this.velocity.evaluate(options.context, sw, f.file.getName(), template);
+            relativePath = relativePath.replace("VType", templateOptions.getVType().getBoxedType());
+        }
 
-    return sw.toString();
-  }
-
-  /**
-   * 
-   */
-  private String readFile(final File file) {
-    try {
-      final byte[] contents = new byte[(int) file.length()];
-
-      final DataInputStream dataInputStream = new DataInputStream(new FileInputStream(file));
-      dataInputStream.readFully(contents);
-      dataInputStream.close();
-      return new String(contents, "UTF-8");
-    } catch (final Exception e) {
-      throw new RuntimeException(e);
+        return relativePath;
     }
-  }
 
     /**
      * Relative path name sub from a parent
@@ -788,7 +727,6 @@ public final class TemplateProcessor {
             throw new RuntimeException(e);
         }
     }
-  }
 
     /**
      * Get a standard java.util.logger instance
@@ -808,21 +746,6 @@ public final class TemplateProcessor {
 
         TemplateProcessor.getLog().log(lvl, message);
     }
-    return list;
-  }
-
-  public static File canonicalFile(final File target) {
-    try {
-      return target.getCanonicalFile();
-    } catch (final IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private boolean isVerboseEnabled(final VerboseLevel lvl) {
-
-    return lvl.ordinal() <= this.verbose.ordinal();
-  }
 
     /**
      * Log config messages
@@ -845,7 +768,7 @@ public final class TemplateProcessor {
         processor.setTemplatesDir(new File(args[0]));
         processor.setDestDir(new File(args[1]));
 
-    try {
+        if (args.length >= 3) {
 
             processor.setDependenciesDir(new File(args[2]));
         } else {
