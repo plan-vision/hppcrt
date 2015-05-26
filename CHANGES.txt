@@ -1,11 +1,13 @@
 [0.7.0]
-This release fix important bugs, and align on some refactorings or changes of HPPC v0.7.0, hence the version number.
+This release fix important bugs, and align on some refactorings or changes of HPPC v0.7.1, hence the version number.
 
 ** API-breaking changes / New features
+
 HPPCRT-36: Simplify specific IdentityHash impl by deriving a specific CustomHash
 HPPCRT-40: Remove DoubleLinkedIntSet 
-HPPC-140: Indeed, keys() and values() already returned Collections from a long time in HPPC-RT. 
+HPPC-140: On maps, values() and keys() returns a full-fledged Collection. Indeed, keys() and values() already returned Collection from a long time in HPPC-RT. 
 Still, rename the retuned types from KeysContainer/ValuesContainer into KeysCollection/ValuesCollection to stress on that fact.
+
 
 HPPCRT-37: API changes and internal code refactorings from HPPC v0.7.0:
 
@@ -14,39 +16,18 @@ HPPCRT-37: API changes and internal code refactorings from HPPC v0.7.0:
 - HPPC-109: Moved @author tags to NOTICE.txt.
 - HPPC-114: Buffer resizing and allocation should be throwing non-assertion mode exceptions.
 - HPPC-117: Static factory methods newInstanceXXX() renamed into newInstance() everywhere with proper overrides.
-- HPPC-120: Rework entry shifting routine to be less hairy
+- HPPC-118: Buffer arrays for generic types should be declared as Object[] to avoid compiler-injected automatic casts. 
 - HPPC-121: Renamed methods:
           T.removeFirstOccurrences -> T.removeFirst
           T.removeLastOccurrences  -> T.removeLast
           T.removeAllOccurrences   -> T.removeAll(type)
 
 - HPPC-125: equals should not compare with subclasses of itself.
-- HPPC-130: removeAll(KTypeLookupContainer) had an incorrect 
-          generic signature of:
-            public int removeAll(final KTypeLookupContainer<? extends KType> c)
-          now corrected to:
-            public int removeAll(final KTypeLookupContainer<? super KType> c)
-          (for primitive types this does not apply).
 
-- HPPC-131: retainAll(KTypeLookupContainer) had an incorrect 
-          generic signature of:
-            public int retainAll(final KTypeLookupContainer<? extends KType> c)
-          now corrected to:
-            public int retainAll(final KTypeLookupContainer<? super KType> c)
-          (for primitive types this does not apply).
-          
 - HPPC-133: KTypeContainer.toArray(Class<T>) now accepts any array
           component type; runtime checks will throw ArrayStoreException if not
           compatible. 
           
-- HPPC-134: Set and Map's removeAll() should pick the best removal strategy.
-          
-- HPPC-135: KTypeVTypeAssociativeContainer#removeAll had an incorrect 
-          generic signature of:
-            public int removeAll(KTypeContainer<? extends KType> container)
-          now corrected to:
-            public int removeAll(KTypeContainer<? super KType> container)
-
 - HPPC-141: Dropped mutable type wrappers (*Holder classes)
 - HPPC-145: Removed any "Open" infix from all Hash container classes:
 		  KTypeOpenHashSet -> KTypeHashSet
@@ -54,10 +35,39 @@ HPPCRT-37: API changes and internal code refactorings from HPPC v0.7.0:
 - HPPC-149: Recognize tests.seed as the initialization seed for perturbation key mixing for hash containers. 
 - HPPC-152: Add a simpler RPRG: XorShift128+.
 
+
+** Internal changes, cleanups, optimizations...etc.
+
+HPPCRT-36: Simplify specific IdentityHash impl by deriving a specific CustomHash
+HPPC-110: putOrAdd and other primitive-only methods should be template-compilable.
+HPPC-120: Rework entry shifting routine to be less hairy
+HPPC-134: Set and Map's removeAll() should pick the best removal strategy.
+
+
 ** Bug fixes
 
-HPPCRT-35: Hash to hash batch copying hangs, regression from the working perturbation policy 
+HPPCRT-35: Hash to hash batch copying hangs, regression from the working perturbation policy
 
+HPPC-130: removeAll(KTypeLookupContainer) had an incorrect 
+          generic signature of:
+            public int removeAll(final KTypeLookupContainer<? extends KType> c)
+          now corrected to:
+            public int removeAll(final KTypeLookupContainer<? super KType> c)
+          (for primitive types this does not apply).
+
+HPPC-131: retainAll(KTypeLookupContainer) had an incorrect 
+          generic signature of:
+            public int retainAll(final KTypeLookupContainer<? extends KType> c)
+          now corrected to:
+            public int retainAll(final KTypeLookupContainer<? super KType> c)
+          (for primitive types this does not apply). 
+
+HPPC-135: KTypeVTypeAssociativeContainer#removeAll had an incorrect 
+          generic signature of:
+            public int removeAll(KTypeContainer<? extends KType> container)
+          now corrected to:
+            public int removeAll(KTypeContainer<? super KType> container)
+			
 [0.6.8]
 ** API-breaking changes
 

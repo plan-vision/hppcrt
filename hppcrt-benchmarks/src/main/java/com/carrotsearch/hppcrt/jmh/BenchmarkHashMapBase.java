@@ -39,7 +39,7 @@ public class BenchmarkHashMapBase
 
     @Param({
 
-            "6000000"
+        "6000000"
     })
     public int targetSize;
 
@@ -178,7 +178,7 @@ public class BenchmarkHashMapBase
                 testIdentityFactor.add(curr.getKey());
             }
 
-            effectiveLoadFactor = testIdentityFactor.size() / (double) ((Object[]) testIdentityFactor.keys).length;
+            effectiveLoadFactor = testIdentityFactor.size() / (double) testIdentityFactor.keys.length;
 
         }
         else {

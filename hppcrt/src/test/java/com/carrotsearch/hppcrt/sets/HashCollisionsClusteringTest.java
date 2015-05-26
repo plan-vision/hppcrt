@@ -9,9 +9,12 @@ import org.junit.Test;
 
 import com.carrotsearch.hppcrt.IntBufferVisualizer;
 import com.carrotsearch.hppcrt.ObjectBufferVisualizer;
+import com.carrotsearch.hppcrt.ShortBufferVisualizer;
 import com.carrotsearch.hppcrt.cursors.IntCursor;
 import com.carrotsearch.hppcrt.cursors.ObjectCursor;
+import com.carrotsearch.hppcrt.cursors.ShortCursor;
 import com.carrotsearch.hppcrt.maps.IntIntHashMap;
+import com.carrotsearch.hppcrt.maps.ShortIntHashMap;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.Timeout;
 
@@ -105,6 +108,19 @@ public class HashCollisionsClusteringTest extends RandomizedTest
         b2.putAll(a);
     }
 
+    @Test
+    @Timeout(millis = 2000)
+    public void testHashMapClusteringOnRehashShort()
+    {
+        final ShortIntHashMap a = new ShortIntHashMap();
+
+        for (short i = 32000; i-- != 0;) {
+            a.put(i, 0);
+        }
+        final ShortIntHashMap b2 = new ShortIntHashMap();
+        b2.putAll(a);
+    }
+
     /** */
     @Test
     public void testHashSetClusteringAtFront()
@@ -171,7 +187,7 @@ public class HashCollisionsClusteringTest extends RandomizedTest
         }
         System.out.println("Target filled up.");
 
-        Assert.assertEquals(((Object[]) source.keys).length, ((Object[]) target.keys).length);
+        Assert.assertEquals(source.keys.length, target.keys.length);
 
         final long start = System.currentTimeMillis();
         final long deadline = start + HashCollisionsClusteringTest.BATCH_TIMEOUT_OBJECTS;
@@ -182,7 +198,7 @@ public class HashCollisionsClusteringTest extends RandomizedTest
 
             if ((i++ % 5000) == 0) {
 
-                if (((Object[]) source.keys).length == ((Object[]) target.keys).length) {
+                if (source.keys.length == target.keys.length) {
 
                     printDistributionResult(i, start, System.currentTimeMillis(), target);
                 }
@@ -220,6 +236,47 @@ public class HashCollisionsClusteringTest extends RandomizedTest
             int firstSubsetOfKeys = 5000;
 
             for (final IntCursor c : source) {
+                target.add(c.value);
+                if (firstSubsetOfKeys-- == 0) {
+                    break;
+                }
+            }
+
+            printDistributionResult(i, start, System.currentTimeMillis(), target);
+
+            if (System.currentTimeMillis() > deadline) {
+                Assert.fail("Takes too long, something is wrong. Added " + i + " batches.");
+            }
+        }
+    }
+
+    /** */
+    @Test
+    public void testHashSetClusteringAtFrontSmallBatchesShort()
+    {
+        final int keys = 1000;
+        final int expected = keys * 5;
+        final ShortHashSet target = new ShortHashSet(expected, 0.9);
+
+        final long deadline = System.currentTimeMillis() + HashCollisionsClusteringTest.BATCH_TIMEOUT_INTEGERS;
+        final ShortHashSet source = new ShortHashSet(expected, 0.9);
+        short unique = 0;
+
+        //Add up to 200 batches
+        for (int i = 0; i < 200; i++) {
+            source.clear();
+
+            //Each batch is built of keys all different from each batch, and from each other.
+            while (source.size() < keys) {
+                source.add(unique++);
+            }
+
+            //push the first firstSubsetOfKeys keys of source batch to target, measure it, show the distribution evolution while
+            //the batches keep piling up.
+            final long start = System.currentTimeMillis();
+            int firstSubsetOfKeys = 200;
+
+            for (final ShortCursor c : source) {
                 target.add(c.value);
                 if (firstSubsetOfKeys-- == 0) {
                     break;
@@ -286,7 +343,7 @@ public class HashCollisionsClusteringTest extends RandomizedTest
                 "Keys: %7d, %5d ms.: %s",
                 keyNb,
                 endMillis - startMillis,
-                ObjectBufferVisualizer.visualizeKeyDistribution((Object[]) target.keys, 100)));
+                ObjectBufferVisualizer.visualizeKeyDistribution(target.keys, 100)));
     }
 
     protected void printDistributionResult(final int keyNb, final long startMillis, final long endMillis, final IntHashSet target) {
@@ -296,5 +353,14 @@ public class HashCollisionsClusteringTest extends RandomizedTest
                 keyNb,
                 endMillis - startMillis,
                 IntBufferVisualizer.visualizeKeyDistribution(target.keys, 100)));
+    }
+
+    protected void printDistributionResult(final int keyNb, final long startMillis, final long endMillis, final ShortHashSet target) {
+
+        System.out.println(String.format(Locale.ROOT,
+                "Keys: %7d, %5d ms.: %s",
+                keyNb,
+                endMillis - startMillis,
+                ShortBufferVisualizer.visualizeKeyDistribution(target.keys, 100)));
     }
 }

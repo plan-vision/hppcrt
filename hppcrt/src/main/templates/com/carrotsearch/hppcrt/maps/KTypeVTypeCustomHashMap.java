@@ -67,8 +67,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
           KType []
           #else !*/
     Object[]
-    /*! #end !*/
-    keys;
+            /*! #end !*/
+            keys;
 
     /**
      * Hash-indexed array holding all values associated to the keys.
@@ -751,7 +751,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             //so it iterate linearly and call remove() from map which is O(1).
             for (final KTypeCursor<? super KType> c : other) {
 
-                remove((KType) c.value);
+                remove(Intrinsics.<KType> cast(c.value));
             }
         }
 
