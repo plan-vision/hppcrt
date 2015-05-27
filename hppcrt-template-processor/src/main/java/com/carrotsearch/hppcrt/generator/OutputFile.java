@@ -1,27 +1,13 @@
 package com.carrotsearch.hppcrt.generator;
 
-import java.io.File;
-import java.io.IOException;
+import java.nio.file.Path;
 
 class OutputFile
 {
-    public final File file;
-    public boolean generated;
-    public boolean updated = false;
-    public String fullPath;
+    public final Path path;
+    public boolean upToDate;
 
-    public OutputFile(final File target, final boolean generated)
-    {
-        this.file = TemplateProcessor.canonicalFile(target);
-        this.generated = generated;
-        try
-        {
-            fullPath = this.file.getCanonicalPath();
-        }
-        catch (final IOException e)
-        {
-            //nothing
-            e.printStackTrace();
-        }
+    public OutputFile(final Path target) {
+        this.path = target.toAbsolutePath().normalize();
     }
 }

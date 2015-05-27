@@ -1,6 +1,7 @@
 package com.carrotsearch.hppcrt.generator;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -18,6 +19,8 @@ import org.apache.velocity.VelocityContext;
 public class TemplateOptions
 {
     public static final String TEMPLATE_FILE_TOKEN = "__TEMPLATE_SOURCE__";
+
+    private static final Logger logger = Logger.getLogger(TemplateOptions.class.getName());
 
     final public Type ktype;
     final public Type vtype;
@@ -38,7 +41,7 @@ public class TemplateOptions
      */
     public VelocityContext context = null;
 
-    public File templateFile;
+    public Path templateFile;
 
     /**
      * Exception to throw when we don't want to generate a particular type
@@ -277,7 +280,7 @@ public class TemplateOptions
 
     public String getTemplateFile()
     {
-        return this.templateFile.getName();
+        return this.templateFile.getFileName().toString();
     }
 
     public String getGeneratedAnnotation() {
@@ -300,25 +303,22 @@ public class TemplateOptions
     public void setVerbose(final Level verbose) {
         this.verbose = verbose;
 
-        TemplateProcessor.setLoggerlevel(TemplateOptions.getLog(), this.verbose);
-    }
-
-    /**
-     * Get an standard java.util.logger instance
-     * @return
-     */
-    private static Logger getLog() {
-
-        return Logger.getLogger(TemplateOptions.class.getName());
+        TemplateProcessor.setLoggerlevel(TemplateOptions.logger, this.verbose);
     }
 
     /**
      * log shortcut
-     * @param lvl
-     * @param message
      */
-    public void log(final Level lvl, final String message) {
+    public void log(final Level lvl, final String format, final Object... args) {
 
-        TemplateOptions.getLog().log(lvl, message);
+        //this check prevents complex toString() formatting
+        if (TemplateOptions.logger.isLoggable(this.verbose)) {
+
+            if (args.length == 0) {
+                TemplateOptions.logger.log(lvl, format);
+            } else {
+                TemplateOptions.logger.log(lvl, String.format(Locale.ROOT, format, args));
+            }
+        }
     }
 }

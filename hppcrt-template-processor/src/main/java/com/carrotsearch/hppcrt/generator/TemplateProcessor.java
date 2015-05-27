@@ -6,17 +6,22 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Deque;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map.Entry;
 import java.util.Set;
-import java.util.UnknownFormatConversionException;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
@@ -47,6 +52,8 @@ public final class TemplateProcessor
 {
     private static final Pattern COMMENTS_PATTERN = Pattern.compile("(/\\*!)|(!\\*/)", Pattern.MULTILINE | Pattern.DOTALL);
 
+    private static final Logger logger = Logger.getLogger(TemplateProcessor.class.getName());
+
     /**
      * Be default, print everything !
      */
@@ -57,6 +64,9 @@ public final class TemplateProcessor
     private File templatesDir;
     private File dependenciesDir;
     private File outputDir;
+
+    private Path templatesPath;
+    private Path outputPath;
 
     private long timeVelocity, timeInlines, timeTypeClassRefs, timeComments;
 
@@ -177,8 +187,8 @@ public final class TemplateProcessor
             this.dependenciesDir = this.templatesDir;
         }
 
-        p.setProperty("file.resource.loader.path", ". , " + new TemplateFile(this.templatesDir).fullPath + " , "
-                + new TemplateFile(this.dependenciesDir).fullPath);
+        p.setProperty("file.resource.loader.path", ". , " + Paths.get(this.templatesDir.getAbsolutePath()) + " , "
+                + Paths.get(this.dependenciesDir.getAbsolutePath()));
 
         p.setProperty("file.resource.loader.cache", "true");
         p.setProperty("file.resource.loader.modificationCheckInterval", "-1");
@@ -200,7 +210,7 @@ public final class TemplateProcessor
 
         this.verbose = Level.parse(verboseLevel.toUpperCase());
 
-        TemplateProcessor.setLoggerlevel(TemplateProcessor.getLog(), this.verbose);
+        TemplateProcessor.setLoggerlevel(TemplateProcessor.logger, this.verbose);
     }
 
     /**
@@ -230,53 +240,39 @@ public final class TemplateProcessor
 
     /**
      * Ant Task main entry point. (also used in main)
+     * @throws IOException
      */
-    public void execute() {
+    public void execute() throws IOException {
 
         logConf("Incremental compilation : " + this.incremental);
         logConf("Verbose level : " + this.verbose);
 
         initVelocity();
 
-        // Collect files/ checksums from the output folder.
-        final List<OutputFile> outputs = collectOutputFiles(new ArrayList<OutputFile>(), this.outputDir);
+        this.templatesPath = this.templatesDir.toPath().toAbsolutePath().normalize();
+        this.outputPath = this.outputDir.toPath().toAbsolutePath().normalize();
 
-        // Collect template files in the input folder, recursively
-        final List<TemplateFile> inputs = collectTemplateFiles(new ArrayList<TemplateFile>(), this.templatesDir);
+        // Collect files/ checksums from the output folder.
+        final List<TemplateFile> templates = collectTemplateFiles(this.templatesPath);
 
         // Process templates
-        logConf("Processing " + inputs.size() + " templates to: '" + this.outputDir.getPath() + "'\n");
+        logConf("Processing " + templates.size() + " templates to: '" + this.outputDir.getPath() + "'\n");
         final long start = System.currentTimeMillis();
-        processTemplates(inputs, outputs);
+        final List<OutputFile> generated = processTemplates(templates);
         final long end = System.currentTimeMillis();
         logConf(String.format(Locale.ROOT, "\nProcessed in %.2f sec.\n", (end - start) * 1e-3));
 
-        // Remove non-marked files.
-        int generated = 0;
-        int updated = 0;
-        int deleted = 0;
-        for (final OutputFile f : outputs) {
-            if (!f.generated) {
-                deleted++;
+        // Remove all files != generated from outputPath
+        final List<Path> removed = removeOtherFiles(this.outputPath, generated);
 
-                log(Level.FINE, "Deleted: " + f.file);
-
-                f.file.delete();
-            }
-
-            if (f.generated) {
-                generated++;
-            }
-
-            if (f.updated) {
-                updated++;
-
-                log(Level.FINE, "Updated: " + relativePath(f.file, this.outputDir));
-
+        int updated = generated.size();
+        for (final OutputFile o : generated) {
+            if (o.upToDate) {
+                updated--;
             }
         }
 
-        logConf("Generated " + generated + " files (" + updated + " updated, " + deleted + " deleted).");
+        logConf("Generated " + generated.size() + " files (" + updated + " updated, " + removed.size() + " deleted).");
     }
 
     /**
@@ -297,13 +293,16 @@ public final class TemplateProcessor
 
     /**
      * Apply templates to <code>.ktype</code> files (single-argument).
+     * @throws IOException
      */
-    private void processTemplates(final List<TemplateFile> inputs, final List<OutputFile> outputs) {
+    private List<OutputFile> processTemplates(final List<TemplateFile> inputs) throws IOException {
+
+        final List<OutputFile> outputs = new ArrayList<>();
 
         //For each template file
         for (final TemplateFile f : inputs) {
 
-            final String fileName = f.file.getName();
+            final String fileName = f.getFileName();
 
             //A) KType only specialization
             if (fileName.contains("KType") && !fileName.contains("VType")) {
@@ -313,7 +312,6 @@ public final class TemplateProcessor
 
                     options.setVerbose(this.verbose);
                     generate(f, outputs, options);
-
                 }
             }
             //B) (KType * VType) specializations
@@ -327,111 +325,120 @@ public final class TemplateProcessor
 
                         options.setVerbose(this.verbose);
                         generate(f, outputs, options);
-
                     }
                 }
             }
         }
 
-        log(Level.FINE, String.format("\nVelocity: %.1f s\nInlines: %.1f s\nTypeClassRefs: %.1f s\nComments: %.1f s",
-                this.timeVelocity * 1e-3, this.timeInlines * 1e-3, this.timeTypeClassRefs * 1e-3, this.timeComments * 1e-3));
-
+        return outputs;
     }
 
     /**
      * Apply templates.
+     * @throws IOException
      */
-    private void generate(final TemplateFile input, final List<OutputFile> outputs, final TemplateOptions templateOptions) {
+    private void generate(final TemplateFile input, final List<OutputFile> outputs, final TemplateOptions templateOptions) throws IOException {
 
-        final String targetFileName = targetFileName(relativePath(input.file, this.templatesDir), templateOptions);
+        final String targetFileName = targetFileName(this.templatesPath.relativize(input.path).toString(), templateOptions);
 
-        final OutputFile output = findOrCreate(targetFileName, outputs);
+        final OutputFile output = new OutputFile(this.outputPath.resolve(targetFileName).toAbsolutePath().normalize());
 
-        if (!this.incremental || !output.file.exists() || output.file.lastModified() <= input.file.lastModified()) {
-            String template = readFile(input.file);
+        if (this.incremental &&
+                Files.exists(output.path) &&
+                Files.getLastModifiedTime(output.path).toMillis() >= Files.getLastModifiedTime(input.path).toMillis()) {
 
-            long t1, t0 = System.currentTimeMillis();
+            // No need to re-render but mark as generated.
+            output.upToDate = true;
+            outputs.add(output);
+            return;
+        }
 
-            try {
+        //Load file contents
+        String template = new String(Files.readAllBytes(input.path), StandardCharsets.UTF_8);
 
-                log(Level.FINE, "[" + templateOptions.ktype + "," + templateOptions.vtype + "] generate(), processing '"
-                        + input.fullPath + "'...");
+        long t1, t0 = System.currentTimeMillis();
 
-                //0) set current file as source file.
-                templateOptions.templateFile = input.file;
+        try {
 
-                //1) Apply velocity : if TemplateOptions.isDoNotGenerateKType() or TemplateOptions.isDoNotGenerateVType() throw a
-                //DoNotGenerateTypeException , do not generate the final file.
-                t0 = System.currentTimeMillis();
-                template = filterVelocity(input, template, templateOptions);
+            log(Level.FINE, "[" + templateOptions.ktype + "," + templateOptions.vtype + "] generate(), processing '"
+                    + input.path + "'...");
 
-                this.timeVelocity += (t1 = System.currentTimeMillis()) - t0;
+            //0) set current file as source file.
+            templateOptions.templateFile = input.path;
 
-                //2) Apply generic inlining, (which inlines Intrinsics...)
-                t0 = System.currentTimeMillis();
-                template = filterInlines(input, template, templateOptions);
-                this.timeInlines += (t1 = System.currentTimeMillis()) - t0;
+            //1) Apply velocity : if TemplateOptions.isDoNotGenerateKType() or TemplateOptions.isDoNotGenerateVType() throw a
+            //DoNotGenerateTypeException , do not generate the final file.
+            t0 = System.currentTimeMillis();
+            template = filterVelocity(input, template, templateOptions);
 
-                //3) Filter comments
-                t0 = System.currentTimeMillis();
-                template = filterComments(template);
-                this.timeComments += (t1 = System.currentTimeMillis()) - t0;
+            this.timeVelocity += (t1 = System.currentTimeMillis()) - t0;
 
-                //4) convert signatures
-                t0 = System.currentTimeMillis();
-                template = filterTypeClassRefs(template, templateOptions);
+            //2) Apply generic inlining, (which inlines Intrinsics...)
+            t0 = System.currentTimeMillis();
+            template = filterInlines(input, template, templateOptions);
+            this.timeInlines += (t1 = System.currentTimeMillis()) - t0;
 
-                //5) Filter static tokens
-                template = filterStaticTokens(template, templateOptions);
-                this.timeTypeClassRefs += (t1 = System.currentTimeMillis()) - t0;
+            //3) Filter comments
+            t0 = System.currentTimeMillis();
+            template = filterComments(template);
+            this.timeComments += (t1 = System.currentTimeMillis()) - t0;
 
-                output.updated = true;
-                saveFile(output.file, template);
-            } catch (final ParseErrorException e) {
+            //4) convert signatures
+            t0 = System.currentTimeMillis();
+            template = filterTypeClassRefs(template, templateOptions);
 
-                log(Level.SEVERE, "Velocity parsing template '" + input.fullPath + "' with " + templateOptions
-                        + " with error: '" + e.getMessage() + "'");
+            //5) Filter static tokens
+            template = filterStaticTokens(template, templateOptions);
+            this.timeTypeClassRefs += (t1 = System.currentTimeMillis()) - t0;
 
-                //rethrow the beast to stop the thing dead.
-                throw e;
-            } catch (final ResourceNotFoundException e) {
+            //6) Commit the result to disk
+            Files.createDirectories(output.path.getParent());
+            Files.write(output.path, template.getBytes(StandardCharsets.UTF_8));
 
-                log(Level.SEVERE, "resource not found for template '" + input.fullPath + "' with " + templateOptions
-                        + " with error: '" + e.getMessage() + "'");
+            outputs.add(output);
 
-                //rethrow the beast to stop the thing dead.
-                throw e;
-            } catch (final MethodInvocationException e) {
+        } catch (final ParseErrorException e) {
 
-                if (e.getCause() instanceof DoNotGenerateTypeException) {
+            log(Level.SEVERE, "Velocity parsing template '" + input.getFileName() + "' with " + templateOptions
+                    + " with error: '" + e.getMessage() + "'");
 
-                    final DoNotGenerateTypeException doNotGenException = (DoNotGenerateTypeException) e.getCause();
-                    //indeed remove the generated file
-                    output.file.delete();
-                    outputs.remove(output);
+            //rethrow the beast to stop the thing dead.
+            throw e;
+        } catch (final ResourceNotFoundException e) {
 
-                    log(Level.FINE, "output from template '" + input.fullPath + "' with KType = "
-                            + doNotGenException.currentKType + " and VType =  " + doNotGenException.currentVType
-                            + " was bypassed...");
+            log(Level.SEVERE, "resource not found for template '" + input.getFileName() + "' with " + templateOptions
+                    + " with error: '" + e.getMessage() + "'");
 
-                } else {
+            //rethrow the beast to stop the thing dead.
+            throw e;
+        } catch (final MethodInvocationException e) {
 
-                    log(Level.SEVERE, "method invocation from template '" + input.fullPath + "' with "
-                            + templateOptions + " failed with error: '" + e.getMessage() + "'");
+            if (e.getCause() instanceof DoNotGenerateTypeException) {
 
-                    //rethrow the beast to stop the thing dead.
-                    throw e;
-                }
+                final DoNotGenerateTypeException doNotGenException = (DoNotGenerateTypeException) e.getCause();
 
-            } catch (final Exception e) {
+                log(Level.FINE, "output from template '" + input.getFileName() + "' with KType = "
+                        + doNotGenException.currentKType + " and VType =  " + doNotGenException.currentVType
+                        + " was bypassed...");
 
-                log(Level.SEVERE, "Problem parsing template '" + input.fullPath + "' with "
-                        + templateOptions + " failed with exception: '" + e.getMessage() + "'");
+            } else {
+
+                log(Level.SEVERE, "method invocation from template '" + input.getFileName() + "' with "
+                        + templateOptions + " failed with error: '" + e.getMessage() + "'");
 
                 //rethrow the beast to stop the thing dead.
                 throw e;
             }
+
+        } catch (final Exception e) {
+
+            log(Level.SEVERE, "Problem parsing template '" + input.getFileName() + "' with "
+                    + templateOptions + " failed with exception: '" + e.getMessage() + "'");
+
+            //rethrow the beast to stop the thing dead.
+            throw e;
         }
+
     }
 
     private String filterInlines(final TemplateFile f, final String input, final TemplateOptions templateOptions) {
@@ -466,7 +473,7 @@ public final class TemplateProcessor
                     }
 
                     log(Level.FINE, "filterInlines(): found matching (" + m.start() + "," + m.end() + ") for '" + inlinedMethod.getMethodName()
-                            + "' in file '" + f.fullPath + "' as " + inlinedMethod.toString());
+                            + "' in file '" + f.getFileName() + "' as " + inlinedMethod.toString());
 
                     sb.append(currentInput, 0, m.start());
 
@@ -566,7 +573,7 @@ public final class TemplateProcessor
 
         } catch (final ParseCancellationException | IllegalArgumentException e) {
 
-            TemplateProcessor.getLog().log(Level.SEVERE,
+            TemplateProcessor.logger.log(Level.SEVERE,
                     "Signature processor parsing failure for template '" + options.getTemplateFile() + "' ", e);
 
             throw e;
@@ -590,56 +597,9 @@ public final class TemplateProcessor
 
         final StringWriter sw = new StringWriter();
 
-        this.velocity.evaluate(options.context, sw, f.file.getName(), template);
+        this.velocity.evaluate(options.context, sw, f.getFileName(), template);
 
         return sw.toString();
-    }
-
-    /**
-     * Read the whole file contents into a UTF-8 string.
-     */
-    private String readFile(final File file) {
-
-        try {
-
-            return new String(Files.readAllBytes(Paths.get(file.getAbsolutePath())), StandardCharsets.UTF_8);
-
-        } catch (final Exception e) {
-
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Save the whole String input in File as UTF-8 (replacing the existing contents)
-     * @param file
-     * @param input
-     */
-    private void saveFile(final File file, final String input) {
-
-        try {
-            Files.createDirectories(Paths.get(file.getParent()));
-
-            Files.write(Paths.get(file.getAbsolutePath()), input.getBytes(StandardCharsets.UTF_8));
-
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private OutputFile findOrCreate(final String targetFileName, final List<OutputFile> outputs) {
-
-        final File candidate = TemplateProcessor.canonicalFile(new File(this.outputDir, targetFileName));
-        for (final OutputFile o : outputs) {
-            if (o.file.equals(candidate)) {
-                o.generated = true;
-                return o;
-            }
-        }
-
-        final OutputFile o = new OutputFile(candidate, true);
-        outputs.add(o);
-        return o;
     }
 
     private String targetFileName(String relativePath, final TemplateOptions templateOptions) {
@@ -657,94 +617,83 @@ public final class TemplateProcessor
         return relativePath;
     }
 
-    /**
-     * Relative path name sub from a parent
-     */
-    private String relativePath(final File sub, final File parent) {
+    private List<Path> scanFilesMatching(final Path dir, final String matchPattern) throws IOException {
 
-        try {
-            return sub.getCanonicalPath().toString().substring(parent.getCanonicalPath().length());
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+        final List<Path> paths = new ArrayList<>();
 
-    /**
-     * Collect files present in the output.
-     */
-    private List<OutputFile> collectOutputFiles(final List<OutputFile> list, final File dir) {
+        if (Files.isDirectory(dir)) {
 
-        if (!dir.exists()) {
-            return list;
-        }
+            final PathMatcher matcher = dir.getFileSystem().getPathMatcher(matchPattern);
 
-        for (final File file : dir.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(final File dir, final String name) {
-                final File f = new File(dir, name);
-                if (f.isDirectory()) {
-                    collectOutputFiles(list, f);
-                    return false;
+            Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(final Path path, final BasicFileAttributes attrs) throws IOException {
+                    if (matcher.matches(path)) {
+                        paths.add(path);
+                    }
+                    return FileVisitResult.CONTINUE;
                 }
-
-                return name.endsWith(".java");
-            }
-        })) {
-            list.add(new OutputFile(file, false));
-        }
-        return list;
+            });
+        } //end if isDirectory
+        return paths;
     }
 
     /**
      * Collect all template files from this and subdirectories.
      */
-    private List<TemplateFile> collectTemplateFiles(final List<TemplateFile> list, final File dir) {
+    private List<TemplateFile> collectTemplateFiles(final Path dir) throws IOException {
 
-        for (final File file : dir.listFiles(new FilenameFilter() {
+        final List<TemplateFile> paths = new ArrayList<>();
+
+        for (final Path path : scanFilesMatching(dir, "glob:**.java")) {
+
+            paths.add(new TemplateFile(path));
+        }
+
+        return paths;
+    }
+
+    private List<Path> removeOtherFiles(final Path outputPath, final List<OutputFile> keep) throws IOException {
+
+        final Set<String> keepPaths = new HashSet<>();
+        for (final OutputFile o : keep) {
+            keepPaths.add(o.path.toRealPath().toString());
+        }
+
+        final List<Path> toRemove = new ArrayList<>();
+        Files.walkFileTree(outputPath, new SimpleFileVisitor<Path>() {
             @Override
-            public boolean accept(final File dir, final String name) {
-                final File f = new File(dir, name);
-
-                //if recursiveSearch is on, search in the sub-dirs
-                //but even with false;
-                if (f.isDirectory()) {
-                    collectTemplateFiles(list, f);
-                    return false;
+            public FileVisitResult visitFile(Path path, final BasicFileAttributes attrs) throws IOException {
+                path = path.toRealPath();
+                if (!keepPaths.contains(path.toString())) {
+                    toRemove.add(path);
                 }
-
-                return name.endsWith(".java");
+                return FileVisitResult.CONTINUE;
             }
-        })) {
-            list.add(new TemplateFile(file));
+        });
+
+        for (final Path p : toRemove) {
+            log(Level.FINE, "Deleting: " + p.toString());
+            Files.delete(p);
         }
-        return list;
-    }
 
-    public static File canonicalFile(final File target) {
-        try {
-            return target.getCanonicalFile();
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Get a standard java.util.logger instance
-     * @return
-     */
-    private static Logger getLog() {
-
-        return Logger.getLogger(TemplateProcessor.class.getName());
+        return toRemove;
     }
 
     /**
      * log shortcut
-     * @param lvl
-     * @param message
      */
-    private void log(final Level lvl, final String message) {
+    private void log(final Level lvl, final String format, final Object... args) {
 
-        TemplateProcessor.getLog().log(lvl, message);
+        //this check prevents complex toString() formatting
+        if (TemplateProcessor.logger.isLoggable(this.verbose)) {
+
+            if (args.length == 0) {
+                TemplateProcessor.logger.log(lvl, format);
+            } else {
+                TemplateProcessor.logger.log(lvl, String.format(Locale.ROOT, format, args));
+            }
+        }
     }
 
     /**
@@ -760,8 +709,9 @@ public final class TemplateProcessor
      * [additional template deps]) Also read the properties:
      * -Dincremental=[true|false], default false, -Dverbose=[off|severe|info|config|warning|fine|finer|finest],
      * default config
+     * @throws IOException
      */
-    public static void main(final String[] args) {
+    public static void main(final String[] args) throws IOException {
 
         final TemplateProcessor processor = new TemplateProcessor();
 

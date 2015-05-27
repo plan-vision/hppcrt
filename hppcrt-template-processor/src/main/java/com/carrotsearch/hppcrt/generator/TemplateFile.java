@@ -1,25 +1,16 @@
 package com.carrotsearch.hppcrt.generator;
 
-import java.io.File;
-import java.io.IOException;
+import java.nio.file.Path;
 
 class TemplateFile
 {
-    public final File file;
-    public String fullPath;
+    public final Path path;
 
-    public TemplateFile(final File target)
-    {
-        this.file = target;
+    public TemplateFile(final Path path) {
+        this.path = path;
+    }
 
-        try
-        {
-            fullPath = this.file.getCanonicalPath();
-        }
-        catch (final IOException e)
-        {
-            //nothing
-            e.printStackTrace();
-        }
+    public String getFileName() {
+        return this.path.getFileName().toString();
     }
 }

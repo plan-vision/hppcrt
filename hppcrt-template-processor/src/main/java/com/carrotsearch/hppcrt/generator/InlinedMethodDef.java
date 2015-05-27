@@ -16,6 +16,12 @@ import com.google.common.collect.Lists;
 
 public class InlinedMethodDef
 {
+    private static final Pattern NOT_QUALIFIED_METHOD_CALL = Pattern.compile("(?<this>this\\s*\\.\\s*)?(?<method>[\\w_]+\\s*)\\((?<args>[^\\)]*)\\)",
+            Pattern.MULTILINE | Pattern.DOTALL);
+
+    private static final Pattern CLASS_QUALIFIED_METHOD_CALL = Pattern.compile("(?<className>[\\w_]+\\s*\\.\\s*)(?<generic><[^>]+>\\s*)?(?<method>[\\w_]+\\s*)\\((?<args>[^\\)]*)\\)",
+            Pattern.MULTILINE | Pattern.DOTALL);
+
     private static final Pattern JAVA_IDENTIFIER_PATTERN = Pattern.compile("\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*",
             Pattern.MULTILINE | Pattern.DOTALL);
 
@@ -107,9 +113,9 @@ public class InlinedMethodDef
         @Override
         public String toString() {
 
-            return String.format("{TemplateSpecialization(sp args='%s', body='%s', pattern='%s')}",
-                    this.specializedGenericParameters.toString(),
-                    this.methodBody, this.methodBodyPattern);
+            return "{TemplateSpecialization(sp args='" + this.specializedGenericParameters.toString() +
+                    "', body='" + this.methodBody + "', pattern=' " + this.methodBodyPattern + "')}";
+
         }
     }
 
@@ -222,22 +228,17 @@ public class InlinedMethodDef
         }
 
         //B) The matching form is the one TemplateSpecialization.specializedGenericParameters equal to expectedGenericArgs in this.specializations.
-        options.log(Level.FINE, "computeInlinedForm(): Search specialization matching generics parameters '"
-                + expectedGenericArgs.toString()
-                + "'...");
+        options.log(Level.FINE, "computeInlinedForm(): Search specialization matching generics parameters '%s'", expectedGenericArgs);
 
         for (final TemplateSpecialization currentSpecialized : this.specializations) {
 
-            options.log(Level.FINE, "computeInlinedForm(): Try specialization '"
-                    + currentSpecialized.toString()
-                    + "'...");
+            options.log(Level.FINE, "computeInlinedForm(): Try specialization '%s'...", currentSpecialized);
 
             try {
                 if (currentSpecialized.equalsSpecialization(expectedGenericArgs)) {
 
-                    options.log(Level.FINE, "computeInlinedForm(): Found compatible specialization, formatting with '"
-                            + currentSpecialized.methodBodyPattern
-                            + "' with args " + ImmutableList.of(extractedArguments).toString());
+                    options.log(Level.FINE, "computeInlinedForm(): Found compatible specialization, formatting with '%s' with args %s",
+                            currentSpecialized.methodBodyPattern, ImmutableList.of(extractedArguments));
 
                     result = "(" + String.format(Locale.ROOT, currentSpecialized.methodBodyPattern, extractedArguments.toArray()) + ")";
 
@@ -297,12 +298,7 @@ public class InlinedMethodDef
 
             //NOT qualified, form a 2 group regex with an (optional) "this"-qualified pattern, ex:
             //"this.REHASH(...)" ==> "(this\.\s*)?([\w]+\s*)\("
-
-            final String parsePattern = "(?<this>this\\s*\\.\\s*)?(?<method>[\\w_]+\\s*)\\((?<args>[^\\)]*)\\)";
-
-            final Pattern p = Pattern.compile(parsePattern, Pattern.MULTILINE | Pattern.DOTALL);
-
-            final Matcher m = p.matcher(callName);
+            final Matcher m = InlinedMethodDef.NOT_QUALIFIED_METHOD_CALL.matcher(callName);
 
             if (m.find()) {
 
@@ -325,6 +321,7 @@ public class InlinedMethodDef
                 } else {
                     //separate each component
                     final String[] splittedArgs = args.split(",");
+
                     for (final String singleArg : splittedArgs) {
 
                         this.arguments.add(singleArg.trim());
@@ -349,11 +346,7 @@ public class InlinedMethodDef
             //"Intrinsics.<KType[]>newArray" ==> "(Intrinsics.\\s*)(<[^>]+>\\s*)?(newArray)"
             //also captures arguments considered as everything between the final parenthesis.
 
-            final String parsePattern = "(?<className>[\\w_]+\\s*\\.\\s*)(?<generic><[^>]+>\\s*)?(?<method>[\\w_]+\\s*)\\((?<args>[^\\)]*)\\)";
-
-            final Pattern p = Pattern.compile(parsePattern, Pattern.MULTILINE | Pattern.DOTALL);
-
-            final Matcher m = p.matcher(callName);
+            final Matcher m = InlinedMethodDef.CLASS_QUALIFIED_METHOD_CALL.matcher(callName);
 
             if (m.find()) {
 
