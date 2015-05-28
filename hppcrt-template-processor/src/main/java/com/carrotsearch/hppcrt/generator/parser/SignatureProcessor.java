@@ -12,16 +12,12 @@ import java.util.concurrent.Future;
 import javax.swing.JDialog;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.BufferedTokenStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.RecognitionException;
-import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.misc.ParseCancellationException;
 
 import com.carrotsearch.hppcrt.generator.TemplateOptions;
 import com.carrotsearch.hppcrt.generator.parser.Java7Parser.CompilationUnitContext;

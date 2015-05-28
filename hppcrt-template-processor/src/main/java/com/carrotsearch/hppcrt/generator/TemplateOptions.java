@@ -1,12 +1,9 @@
 package com.carrotsearch.hppcrt.generator;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;

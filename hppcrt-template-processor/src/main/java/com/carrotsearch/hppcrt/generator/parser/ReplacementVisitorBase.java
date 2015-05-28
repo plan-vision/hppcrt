@@ -17,9 +17,13 @@ import org.antlr.v4.runtime.tree.xpath.XPath;
 import com.carrotsearch.hppcrt.generator.TemplateOptions;
 import com.carrotsearch.hppcrt.generator.TemplateProcessor;
 import com.carrotsearch.hppcrt.generator.Type;
-import com.carrotsearch.hppcrt.generator.parser.Java7Parser.*;
+import com.carrotsearch.hppcrt.generator.parser.Java7Parser.ClassOrInterfaceTypeContext;
+import com.carrotsearch.hppcrt.generator.parser.Java7Parser.IdentifierTypePairContext;
+import com.carrotsearch.hppcrt.generator.parser.Java7Parser.TypeArgumentContext;
+import com.carrotsearch.hppcrt.generator.parser.Java7Parser.TypeArgumentsContext;
+import com.carrotsearch.hppcrt.generator.parser.Java7Parser.TypeContext;
+import com.carrotsearch.hppcrt.generator.parser.Java7Parser.TypeParameterContext;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 public class ReplacementVisitorBase extends Java7ParserBaseVisitor<List<Replacement>>
 {

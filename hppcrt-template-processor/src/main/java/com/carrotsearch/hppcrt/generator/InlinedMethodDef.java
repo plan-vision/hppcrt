@@ -1,7 +1,6 @@
 package com.carrotsearch.hppcrt.generator;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.IllegalFormatException;
 import java.util.List;
 import java.util.Locale;
@@ -249,7 +248,8 @@ public class InlinedMethodDef
                             Lists.newArrayList(optionalGenerics));
 
                     if (!resultPostProcess.equals(result)) {
-                        options.log(Level.FINE, "computeInlinedForm(): rewriting remaining generics '" + result + "' ==> '" + resultPostProcess + "'");
+                        options.log(Level.FINE, "computeInlinedForm(): rewriting remaining generics '%s' ==> '%s'",
+                                result, resultPostProcess);
                     }
 
                     result = resultPostProcess;
@@ -480,7 +480,7 @@ public class InlinedMethodDef
         int argPosition = 0;
         boolean argumentIsFound = false;
 
-        final StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder(methodBodyStr.length());
 
         final StringBuilder currentBody = new StringBuilder(methodBodyStr);
 
@@ -574,7 +574,7 @@ public class InlinedMethodDef
             throw new ParseErrorException("[ERROR] rewriteGenericsInInlinedForm(): not same size !");
         }
 
-        final StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder(inlinedForm.length());
 
         final StringBuilder currentBody = new StringBuilder(inlinedForm);
 

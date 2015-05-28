@@ -2,14 +2,10 @@ package com.carrotsearch.hppcrt.generator.parser;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.SyntaxTree;
-
-import com.google.common.collect.Lists;
 
 /** */
 public final class Replacement

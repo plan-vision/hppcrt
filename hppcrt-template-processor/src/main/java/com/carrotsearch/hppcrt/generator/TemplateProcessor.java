@@ -1,12 +1,10 @@
 package com.carrotsearch.hppcrt.generator;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,10 +12,7 @@ import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -44,6 +39,7 @@ import org.apache.velocity.runtime.log.LogChute;
 
 import com.carrotsearch.hppcrt.generator.TemplateOptions.DoNotGenerateTypeException;
 import com.carrotsearch.hppcrt.generator.parser.SignatureProcessor;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Template processor for HPPC-RT templates.
@@ -68,7 +64,6 @@ public final class TemplateProcessor
     private Path templatesPath;
     private Path outputPath;
 
-    private long timeVelocity, timeInlines, timeTypeClassRefs, timeComments;
 
     private VelocityEngine velocity;
 
@@ -356,8 +351,6 @@ public final class TemplateProcessor
         //Load file contents
         String template = new String(Files.readAllBytes(input.path), StandardCharsets.UTF_8);
 
-        long t1, t0 = System.currentTimeMillis();
-
         try {
 
             log(Level.FINE, "[" + templateOptions.ktype + "," + templateOptions.vtype + "] generate(), processing '"
@@ -368,28 +361,23 @@ public final class TemplateProcessor
 
             //1) Apply velocity : if TemplateOptions.isDoNotGenerateKType() or TemplateOptions.isDoNotGenerateVType() throw a
             //DoNotGenerateTypeException , do not generate the final file.
-            t0 = System.currentTimeMillis();
+
             template = filterVelocity(input, template, templateOptions);
 
-            this.timeVelocity += (t1 = System.currentTimeMillis()) - t0;
-
             //2) Apply generic inlining, (which inlines Intrinsics...)
-            t0 = System.currentTimeMillis();
+
             template = filterInlines(input, template, templateOptions);
-            this.timeInlines += (t1 = System.currentTimeMillis()) - t0;
 
             //3) Filter comments
-            t0 = System.currentTimeMillis();
+
             template = filterComments(template);
-            this.timeComments += (t1 = System.currentTimeMillis()) - t0;
 
             //4) convert signatures
-            t0 = System.currentTimeMillis();
+
             template = filterTypeClassRefs(template, templateOptions);
 
             //5) Filter static tokens
             template = filterStaticTokens(template, templateOptions);
-            this.timeTypeClassRefs += (t1 = System.currentTimeMillis()) - t0;
 
             //6) Commit the result to disk
             Files.createDirectories(output.path.getParent());
@@ -443,7 +431,7 @@ public final class TemplateProcessor
 
     private String filterInlines(final TemplateFile f, final String input, final TemplateOptions templateOptions) {
 
-        final StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder(input.length());
         final StringBuilder currentInput = new StringBuilder(input);
 
         //Attempt on each of inlineDefinitions
@@ -463,17 +451,23 @@ public final class TemplateProcessor
                 //end if found matcher
                 if (m.find()) {
 
-                    String[] genericArgs = new String[0];
+                    String[] genericArgs;
 
                     if (inlinedMethod.getGenericParameters().size() > 0) {
 
                         genericArgs = m.group("generic").split(",");
 
-                        log(Level.FINE, "filterInlines(): found matching with generics : " + Arrays.deepToString(genericArgs));
+                        log(Level.FINE,
+                                "filterInlines(): found matching with generics: '%s'", ImmutableList.of(genericArgs));
+                    } else {
+                        genericArgs = new String[0];
                     }
 
-                    log(Level.FINE, "filterInlines(): found matching (" + m.start() + "," + m.end() + ") for '" + inlinedMethod.getMethodName()
-                            + "' in file '" + f.getFileName() + "' as " + inlinedMethod.toString());
+                    log(Level.FINE,
+                            "filterInlines(): found matching (%d,%d) for '%s' in file '%s' as %s",
+                            m.start(), m.end(),
+                            inlinedMethod.getMethodName(),
+                            f.getFileName(), inlinedMethod);
 
                     sb.append(currentInput, 0, m.start());
 
@@ -515,20 +509,21 @@ public final class TemplateProcessor
                     }
 
                     log(Level.FINE,
-                            "filterInlines(), parsed arguments " + params.toString() +
-                            ", passed to inlinedMethod.computeInlinedForm(this.genericParameters = " + inlinedMethod.getGenericParameters() + ")...");
+                            "filterInlines(), parsed arguments '%s'"
+                                    + ", passed to inlinedMethod.computeInlinedForm(this.genericParameters =  %s)... ",
+                                    params, inlinedMethod.getGenericParameters());
 
                     //fill-in the arguments depending of the type
                     final String result = inlinedMethod.computeInlinedForm(templateOptions, genericArgs, params);
 
                     //Try to parse recursively the result:
                     //this is OK because we parse from left to right, i.e from outer to inner functions
-                    log(Level.FINE, "filterInlines(), ENTER attempt to filterInlines() recursively on text '" + result + "'...");
+                    log(Level.FINE, "filterInlines(), ENTER attempt to filterInlines() recursively on text '%s'...", result);
 
                     final String innerResult = filterInlines(f, result, templateOptions);
 
-                    log(Level.FINE, "filterInlines(), EXIT attempt to filterInlines() recursively on text '" + result +
-                            "' ==> '" + innerResult + "'");
+                    log(Level.FINE, "filterInlines(), EXIT attempt to filterInlines() recursively on text '%s' ==> '%s' ",
+                            result, innerResult);
 
                     sb.append(innerResult);
 

@@ -13,10 +13,23 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 
 import com.carrotsearch.hppcrt.generator.TemplateOptions;
 import com.carrotsearch.hppcrt.generator.Type;
-import com.carrotsearch.hppcrt.generator.parser.Java7Parser.*;
+import com.carrotsearch.hppcrt.generator.parser.Java7Parser.ClassDeclarationContext;
+import com.carrotsearch.hppcrt.generator.parser.Java7Parser.ConstructorDeclarationContext;
+import com.carrotsearch.hppcrt.generator.parser.Java7Parser.CreatedNameContext;
+import com.carrotsearch.hppcrt.generator.parser.Java7Parser.GenericMethodDeclarationContext;
+import com.carrotsearch.hppcrt.generator.parser.Java7Parser.IdentifierTypeOrDiamondPairContext;
+import com.carrotsearch.hppcrt.generator.parser.Java7Parser.IdentifierTypePairContext;
+import com.carrotsearch.hppcrt.generator.parser.Java7Parser.InterfaceDeclarationContext;
+import com.carrotsearch.hppcrt.generator.parser.Java7Parser.MethodDeclarationContext;
+import com.carrotsearch.hppcrt.generator.parser.Java7Parser.PrimaryContext;
+import com.carrotsearch.hppcrt.generator.parser.Java7Parser.QualifiedNameContext;
+import com.carrotsearch.hppcrt.generator.parser.Java7Parser.TypeArgumentContext;
+import com.carrotsearch.hppcrt.generator.parser.Java7Parser.TypeArgumentsContext;
+import com.carrotsearch.hppcrt.generator.parser.Java7Parser.TypeBoundContext;
+import com.carrotsearch.hppcrt.generator.parser.Java7Parser.TypeContext;
+import com.carrotsearch.hppcrt.generator.parser.Java7Parser.TypeParameterContext;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 public class SignatureReplacementVisitor extends ReplacementVisitorBase
 {
