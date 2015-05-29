@@ -34,8 +34,6 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
 
     public volatile long guard;
 
-    private int perturbation;
-
     @BeforeClass
     public static void configure()
     {
@@ -46,7 +44,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Before
     public void initialize()
     {
-        this.set = KTypeHashSet.newInstance();
+        this.set = KTypeHashSet.newInstance(10, HashContainers.MAX_LOAD_FACTOR);
     }
 
     /**
@@ -57,8 +55,6 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
     @After
     public void checkConsistency()
     {
-        this.perturbation = HashContainers.computePerturbationValue(this.set.keys.length);
-
         if (this.set != null)
         {
             int occupied = 0;
@@ -417,7 +413,6 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
         int counted = 0;
         for (final KTypeCursor<KType> cursor : this.set)
         {
-
             if (cursor.index == this.set.keys.length) {
 
                 TestUtils.assertEquals2(this.keyE, cursor.value);
@@ -439,7 +434,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testIterable2()
     {
-        this.set.add(asArray(0, 1, 2, 2, 3, 4));
+        this.set.add(this.keyE, this.key1, this.key2, this.key2, this.key3, this.key4);
         this.set.remove(this.k2);
         Assert.assertEquals(4, this.set.size());
 
@@ -904,11 +899,9 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
         }
     }
 
-    @Repeat(iterations = 5)
     @Test
     public void testForEachProcedureWithException()
     {
-        final Random randomVK = RandomizedTest.getRandom();
 
         //Test that the container do not resize if less that the initial size
 
@@ -924,10 +917,12 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
 
         final KTypeHashSet<KType> newSet = KTypeHashSet.newInstance();
 
-        //add a randomized number of key
+        newSet.add(this.keyE);
+
+        //add a increasing number of key
         for (int i = 0; i < NB_ELEMENTS; i++) {
 
-            final int KVpair = randomVK.nextInt((int) (0.7 * NB_ELEMENTS));
+            final int KVpair = i;
 
             newSet.add(cast(KVpair));
         }
@@ -935,10 +930,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
         //List the keys in the reverse-order of the internal buffer, since forEach() is iterating in reverse also:
         final KTypeArrayList<KType> keyList = new KTypeArrayList<KType>();
 
-        if (newSet.allocatedDefaultKey) {
-
-            keyList.add(this.keyE);
-        }
+        keyList.add(this.keyE);
 
         //Test forEach predicate and stop at each key in turn.
         final KTypeArrayList<KType> keyListTest = new KTypeArrayList<KType>();
@@ -961,10 +953,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
 
             keyList.clear();
 
-            if (newSet.allocatedDefaultKey) {
-
-                keyList.add(this.keyE);
-            }
+            keyList.add(this.keyE);
 
             for (int k = newSet.keys.length - 1; k >= 0; k--) {
 
@@ -1004,22 +993,19 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
 
                 //check that keyList/keyListTest and valueList/valueListTest are identical for the first
                 //currentPairIndexToIterate + 1 elements
-                Assert.assertEquals(currentPairIndexSizeToIterate, keyListTest.size());
+                Assert.assertEquals("i = " + i, currentPairIndexSizeToIterate, keyListTest.size());
 
                 for (int j = 0; j < currentPairIndexSizeToIterate; j++)
                 {
-                    TestUtils.assertEquals2(keyList.get(j), keyListTest.get(j));
+                    TestUtils.assertEquals2("j = " + j, keyList.get(j), keyListTest.get(j));
                 }
             } //end finally
         } //end for each index
     }
 
-    @Repeat(iterations = 5)
     @Test
     public void testForEachProcedure()
     {
-        final Random randomVK = RandomizedTest.getRandom();
-
         //Test that the container do not resize if less that the initial size
 
         //1) Choose a map to build
@@ -1034,11 +1020,12 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
 
         final KTypeHashSet<KType> newSet = KTypeHashSet.newInstance();
 
-        //add a randomized number of key
-        //use the same value for keys and values to ease later analysis
+        newSet.add(this.keyE);
+
+        //add a increasing number of key
         for (int i = 0; i < NB_ELEMENTS; i++) {
 
-            final int KVpair = randomVK.nextInt((int) (0.7 * NB_ELEMENTS));
+            final int KVpair = i;
 
             newSet.add(cast(KVpair));
         }
@@ -1046,10 +1033,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
         //List the keys in the reverse-order of the internal buffer, since forEach() is iterating in reverse also:
         final KTypeArrayList<KType> keyList = new KTypeArrayList<KType>();
 
-        if (newSet.allocatedDefaultKey) {
-
-            keyList.add(this.keyE);
-        }
+        keyList.add(this.keyE);
 
         for (int i = newSet.keys.length - 1; i >= 0; i--) {
 
@@ -1079,12 +1063,9 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertEquals(keyList, keyListTest);
     }
 
-    @Repeat(iterations = 5)
     @Test
     public void testForEachPredicate()
     {
-        final Random randomVK = RandomizedTest.getRandom();
-
         //Test that the container do not resize if less that the initial size
 
         //1) Choose a map to build
@@ -1099,11 +1080,13 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
 
         final KTypeHashSet<KType> newSet = KTypeHashSet.newInstance();
 
-        //add a randomized number of key
-        //use the same value for keys and values to ease later analysis
+        newSet.add(this.keyE);
+
+        //add a increasing number of key
+
         for (int i = 0; i < NB_ELEMENTS; i++) {
 
-            final int KVpair = randomVK.nextInt((int) (0.7 * NB_ELEMENTS));
+            final int KVpair = i;
 
             newSet.add(cast(KVpair));
         }
@@ -1111,10 +1094,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
         //List the keys in the reverse-order of the internal buffer, since forEach() is iterating in reverse also:
         final KTypeArrayList<KType> keyList = new KTypeArrayList<KType>();
 
-        if (newSet.allocatedDefaultKey) {
-
-            keyList.add(this.keyE);
-        }
+        keyList.add(this.keyE);
 
         //Test forEach predicate and stop at each key in turn.
         final KTypeArrayList<KType> keyListTest = new KTypeArrayList<KType>();
@@ -1136,10 +1116,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
             keyListTest.clear();
             keyList.clear();
 
-            if (newSet.allocatedDefaultKey) {
-
-                keyList.add(this.keyE);
-            }
+            keyList.add(this.keyE);
 
             for (int k = newSet.keys.length - 1; k >= 0; k--) {
 

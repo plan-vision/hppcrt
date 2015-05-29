@@ -26,7 +26,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeVTypeIdentityHashMap<KType, VType>
-        extends KTypeVTypeCustomHashMap<KType, VType>
+extends KTypeVTypeCustomHashMap<KType, VType>
 {
     private static final KTypeIdentityHash<Object> IDENTITY_EQUALITY = new KTypeIdentityHash<Object>();
 
@@ -136,7 +136,7 @@ public final class KTypeVTypeIdentityHashMap<KType, VType>
      * Create a new hash map with initial capacity and load factor control. (constructor
      * shortcut).
      */
-    public static <KType, VType> KTypeVTypeIdentityHashMap<KType, VType> newInstance(final int initialCapacity, final float loadFactor)
+    public static <KType, VType> KTypeVTypeIdentityHashMap<KType, VType> newInstance(final int initialCapacity, final double loadFactor)
     {
         return new KTypeVTypeIdentityHashMap<KType, VType>(initialCapacity, loadFactor);
     }
@@ -154,7 +154,7 @@ public final class KTypeVTypeIdentityHashMap<KType, VType>
      * Inherited from KTypeVTypeOpenCustomHashMap, DO NOT USE, throws RuntimeException
      * @throws RuntimeException
      */
-    public static final <KType, VType> KTypeVTypeIdentityHashMap<KType, VType> newInstance(final int initialCapacity, final float loadFactor, final KTypeHashingStrategy<? super KType> hashStrategy)
+    public static final <KType, VType> KTypeVTypeIdentityHashMap<KType, VType> newInstance(final int initialCapacity, final double loadFactor, final KTypeHashingStrategy<? super KType> hashStrategy)
     {
         throw new RuntimeException("Identity hash newInstance(capacity, loadfactor, strategy) usage logical error");
     }
@@ -174,7 +174,7 @@ public final class KTypeVTypeIdentityHashMap<KType, VType>
      */
     public static final <KType, VType> KTypeVTypeIdentityHashMap<KType, VType> from(final KTypeVTypeAssociativeContainer<KType, VType> container,
             final KTypeHashingStrategy<? super KType> hashStrategy)
-            {
+    {
         throw new RuntimeException("Identity hash from(KTypeVTypeAssociativeContainer, strategy) usage logical error");
-            }
+    }
 }

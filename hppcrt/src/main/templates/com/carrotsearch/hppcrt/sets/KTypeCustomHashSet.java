@@ -53,8 +53,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeCustomHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Hash-indexed array holding all set entries.
@@ -67,8 +67,8 @@ public class KTypeCustomHashSet<KType>
           KType []
           #else !*/
     Object[]
-    /*! #end !*/
-    keys;
+            /*! #end !*/
+            keys;
 
     /*! #if ($RH) !*/
     /**
@@ -1007,7 +1007,7 @@ public class KTypeCustomHashSet<KType>
      * Returns a new object of this class with no need to declare generic type
      * (shortcut instead of using a constructor).
      */
-    public static <KType> KTypeCustomHashSet<KType> newInstance(final int initialCapacity, final float loadFactor,
+    public static <KType> KTypeCustomHashSet<KType> newInstance(final int initialCapacity, final double loadFactor,
             final KTypeHashingStrategy<? super KType> hashStrategy) {
         return new KTypeCustomHashSet<KType>(initialCapacity, loadFactor, hashStrategy);
     }

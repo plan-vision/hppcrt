@@ -59,7 +59,7 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
     /**
      * Per-test fresh initialized instance.
      */
-    public KTypeVTypeCustomHashMap<KType, VType> map = KTypeVTypeCustomHashMap.newInstance(this.TEST_STRATEGY);
+    public KTypeVTypeCustomHashMap<KType, VType> map = KTypeVTypeCustomHashMap.newInstance(10, HashContainers.MAX_LOAD_FACTOR, this.TEST_STRATEGY);
 
     @Before
     public void initialize() {
@@ -1642,10 +1642,8 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
         }
     }
 
-    @Repeat(iterations = 5)
     @Test
     public void testForEachProcedureWithException() {
-        final Random randomVK = RandomizedTest.getRandom();
 
         //1) Choose a map to build
         /*! #if ($TemplateOptions.isKType("GENERIC", "int", "long", "float", "double") &&
@@ -1660,11 +1658,13 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
 
         final KTypeVTypeCustomHashMap<KType, VType> newMap = KTypeVTypeCustomHashMap.newInstance(this.TEST_STRATEGY);
 
-        //add a randomized number of key/values pairs
+        newMap.put(this.keyE, vcast(NB_ELEMENTS));
+
+        //add a increasing number of unique key/values pairs
         //use the same value for keys and values to ease later analysis
         for (int i = 0; i < NB_ELEMENTS; i++) {
 
-            final int KVpair = randomVK.nextInt((int) (0.7 * NB_ELEMENTS));
+            final int KVpair = i;
 
             newMap.put(cast(KVpair), vcast(KVpair));
         }
@@ -1673,11 +1673,8 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
         final KTypeArrayList<KType> keyList = new KTypeArrayList<KType>();
         final ArrayList<Integer> valueList = new ArrayList<Integer>();
 
-        if (newMap.allocatedDefaultKey) {
-
-            keyList.add(this.keyE);
-            valueList.add(vcastType(newMap.allocatedDefaultKeyValue));
-        }
+        keyList.add(this.keyE);
+        valueList.add(vcastType(newMap.allocatedDefaultKeyValue));
 
         //Test forEach predicate and stop at each key in turn.
         final KTypeArrayList<KType> keyListTest = new KTypeArrayList<KType>();
@@ -1702,11 +1699,8 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
             keyList.clear();
             valueList.clear();
 
-            if (newMap.allocatedDefaultKey) {
-
-                keyList.add(this.keyE);
-                valueList.add(vcastType(newMap.allocatedDefaultKeyValue));
-            }
+            keyList.add(this.keyE);
+            valueList.add(vcastType(newMap.allocatedDefaultKeyValue));
 
             for (int k = newMap.keys.length - 1; k >= 0; k--) {
 
@@ -1795,11 +1789,8 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
             keyList.clear();
             valueList.clear();
 
-            if (newMap.allocatedDefaultKey) {
-
-                keyList.add(this.keyE);
-                valueList.add(vcastType(newMap.allocatedDefaultKeyValue));
-            }
+            keyList.add(this.keyE);
+            valueList.add(vcastType(newMap.allocatedDefaultKeyValue));
 
             for (int k = 0; k < newMap.keys.length; k++) {
 
@@ -1833,20 +1824,18 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
 
                 //check that  valueList/valueListTest are identical for the first
                 //currentPairIndexToIterate + 1 elements
-                Assert.assertEquals(currentPairIndexSizeToIterate, valueListTest.size());
+                Assert.assertEquals("i = " + i + "(size=" + size + ")", currentPairIndexSizeToIterate, valueListTest.size());
 
                 for (int j = 0; j < currentPairIndexSizeToIterate; j++) {
-                    TestUtils.assertEquals2(valueList.get(j), valueListTest.get(j));
+                    TestUtils.assertEquals2("i = " + i + ", j = " + j, valueList.get(j), valueListTest.get(j));
                 }
             } //end finally
 
         } //end for each index
     }
 
-    @Repeat(iterations = 5)
     @Test
     public void testForEachProcedure() {
-        final Random randomVK = RandomizedTest.getRandom();
 
         //Test that the container do not resize if less that the initial size
 
@@ -1863,11 +1852,13 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
 
         final KTypeVTypeCustomHashMap<KType, VType> newMap = KTypeVTypeCustomHashMap.newInstance(this.TEST_STRATEGY);
 
-        //add a randomized number of key/values pairs
+        newMap.put(this.keyE, vcast(NB_ELEMENTS));
+
+        //add a increasing number of unique key/values pairs
         //use the same value for keys and values to ease later analysis
         for (int i = 0; i < NB_ELEMENTS; i++) {
 
-            final int KVpair = randomVK.nextInt((int) (0.7 * NB_ELEMENTS));
+            final int KVpair = i;
 
             newMap.put(cast(KVpair), vcast(KVpair));
         }
@@ -1876,11 +1867,8 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
         final KTypeArrayList<KType> keyList = new KTypeArrayList<KType>();
         final ArrayList<Integer> valueList = new ArrayList<Integer>();
 
-        if (newMap.allocatedDefaultKey) {
-
-            keyList.add(this.keyE);
-            valueList.add(vcastType(newMap.allocatedDefaultKeyValue));
-        }
+        keyList.add(this.keyE);
+        valueList.add(vcastType(newMap.allocatedDefaultKeyValue));
 
         for (int i = newMap.keys.length - 1; i >= 0; i--) {
 
@@ -1938,11 +1926,8 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
         keyList.clear();
         valueList.clear();
 
-        if (newMap.allocatedDefaultKey) {
-
-            keyList.add(this.keyE);
-            valueList.add(vcastType(newMap.allocatedDefaultKeyValue));
-        }
+        keyList.add(this.keyE);
+        valueList.add(vcastType(newMap.allocatedDefaultKeyValue));
 
         for (int k = 0; k < newMap.keys.length; k++) {
 
@@ -1965,10 +1950,8 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
         Assert.assertEquals(valueList, valueListTest);
     }
 
-    @Repeat(iterations = 5)
     @Test
     public void testForEachPredicate() {
-        final Random randomVK = RandomizedTest.getRandom();
 
         //Test that the container do not resize if less that the initial size
 
@@ -1985,11 +1968,13 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
 
         final KTypeVTypeCustomHashMap<KType, VType> newMap = KTypeVTypeCustomHashMap.newInstance(this.TEST_STRATEGY);
 
-        //add a randomized number of key/values pairs
+        newMap.put(this.keyE, vcast(NB_ELEMENTS));
+
+        //add a increasing number of unique key/values pairs
         //use the same value for keys and values to ease later analysis
         for (int i = 0; i < NB_ELEMENTS; i++) {
 
-            final int KVpair = randomVK.nextInt((int) (0.7 * NB_ELEMENTS));
+            final int KVpair = i;
 
             newMap.put(cast(KVpair), vcast(KVpair));
         }
@@ -1998,11 +1983,8 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
         final KTypeArrayList<KType> keyList = new KTypeArrayList<KType>();
         final ArrayList<Integer> valueList = new ArrayList<Integer>();
 
-        if (newMap.allocatedDefaultKey) {
-
-            keyList.add(this.keyE);
-            valueList.add(vcastType(newMap.allocatedDefaultKeyValue));
-        }
+        keyList.add(this.keyE);
+        valueList.add(vcastType(newMap.allocatedDefaultKeyValue));
 
         //Test forEach predicate and stop at each key in turn.
         final KTypeArrayList<KType> keyListTest = new KTypeArrayList<KType>();
@@ -2027,11 +2009,8 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
             keyList.clear();
             valueList.clear();
 
-            if (newMap.allocatedDefaultKey) {
-
-                keyList.add(this.keyE);
-                valueList.add(vcastType(newMap.allocatedDefaultKeyValue));
-            }
+            keyList.add(this.keyE);
+            valueList.add(vcastType(newMap.allocatedDefaultKeyValue));
 
             for (int k = newMap.keys.length - 1; k >= 0; k--) {
 
@@ -2114,11 +2093,8 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
             keyList.clear();
             valueList.clear();
 
-            if (newMap.allocatedDefaultKey) {
-
-                keyList.add(this.keyE);
-                valueList.add(vcastType(newMap.allocatedDefaultKeyValue));
-            }
+            keyList.add(this.keyE);
+            valueList.add(vcastType(newMap.allocatedDefaultKeyValue));
 
             for (int k = 0; k < newMap.keys.length; k++) {
 
@@ -2149,10 +2125,10 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
 
             //check that  valueList/valueListTest are identical for the first
             //currentPairIndexToIterate + 1 elements
-            Assert.assertEquals(currentPairIndexSizeToIterate, valueListTest.size());
+            Assert.assertEquals("i = " + i + "(size=" + size + ")", currentPairIndexSizeToIterate, valueListTest.size());
 
             for (int j = 0; j < currentPairIndexSizeToIterate; j++) {
-                TestUtils.assertEquals2(valueList.get(j), valueListTest.get(j));
+                TestUtils.assertEquals2("i = " + i + ", j = " + j, valueList.get(j), valueListTest.get(j));
             }
         } //end for each index
     }

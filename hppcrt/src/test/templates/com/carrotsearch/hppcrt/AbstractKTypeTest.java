@@ -33,12 +33,11 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
      */
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     protected KType keyE = null;
-    protected KType k0 = cast(0);
     /*! #else
     protected KType keyE = cast(0);
-    protected KType k0 = this.keyE;
      #end !*/
 
+    protected KType key0 = cast(0), k0 = this.key0;
     protected KType key1 = cast(1), k1 = this.key1;
     protected KType key2 = cast(2), k2 = this.key2;
     protected KType key3 = cast(3), k3 = this.key3;
