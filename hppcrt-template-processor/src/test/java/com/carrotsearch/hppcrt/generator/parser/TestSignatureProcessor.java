@@ -82,7 +82,7 @@ public class TestSignatureProcessor
         final SignatureProcessor sp = new SignatureProcessor(
                 "public class KTypeVTypeClass<KType, VType> " +
                         " extends     KTypeVTypeSuperClass<KType, VType>" +
-                " implements  KTypeVTypeInterface<KType, VType> {}");
+                        " implements  KTypeVTypeInterface<KType, VType> {}");
 
         check(Type.INT, Type.LONG, sp, "public class IntLongClass extends IntLongSuperClass implements IntLongInterface {}");
         check(Type.INT, Type.GENERIC, sp, "public class IntObjectClass<VType> extends IntObjectSuperClass<VType> implements IntObjectInterface<VType> {}");
@@ -94,7 +94,7 @@ public class TestSignatureProcessor
     public void testInterfaceKV() throws IOException {
         final SignatureProcessor sp = new SignatureProcessor(
                 "public interface KTypeVTypeInterface<KType, VType> " +
-                "         extends KTypeVTypeSuper<KType, VType> {}");
+                        "         extends KTypeVTypeSuper<KType, VType> {}");
 
         check(Type.INT, Type.LONG, sp, "public interface IntLongInterface extends IntLongSuper {}");
         check(Type.INT, Type.GENERIC, sp, "public interface IntObjectInterface<VType> extends IntObjectSuper<VType> {}");
@@ -406,7 +406,9 @@ public class TestSignatureProcessor
         }
 
         //Compute :
-        final String output = processor.process(new TemplateOptions(Type.LONG, null));
+        final String output = processor.process(new TemplateOptions(Type.LONG, Type.GENERIC));
+
+        System.out.println(output);
     }
 
     @Test
@@ -431,6 +433,37 @@ public class TestSignatureProcessor
         check(Type.GENERIC, Type.INT, sp, "class Foo { public void foo() { new ObjectIntFoo<ObjectIntInner<ObjectIntProcecedure<KType>>, A>(); } }");
         check(Type.GENERIC, Type.GENERIC, sp, "class Foo { public void foo() { new ObjectObjectFoo<ObjectObjectInner<ObjectObjectProcecedure<KType, VType>>, A>(); } }");
         check(Type.FLOAT, Type.INT, sp, "class Foo { public void foo() { new FloatIntFoo<FloatIntInner<FloatIntProcecedure>, A>(); } }");
+
+    }
+
+    @Test
+    public void testAbstractClassMethods() throws IOException {
+
+        //generic within generic within generic
+        final SignatureProcessor sp = new SignatureProcessor(
+                "public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<KType, VType> { "
+                        + " protected abstract KTypeVTypeMap<KType, VType> createNewMapInstance(final int initialCapacity,"
+                        + " final double loadFactor, KTypeHashingStrategy<KType> strategy); } }");
+
+        check(Type.FLOAT, Type.GENERIC, sp,
+                "public abstract class AbstractFloatObjectHashMapTest<VType> extends AbstractFloatObjectTest<VType> { "
+                        + " protected abstract FloatObjectMap<VType> createNewMapInstance(final int initialCapacity,"
+                        + " final double loadFactor, FloatHashingStrategy strategy); } }");
+
+        check(Type.GENERIC, Type.INT, sp,
+                "public abstract class AbstractObjectIntHashMapTest<KType> extends AbstractObjectIntTest<KType> { "
+                        + " protected abstract ObjectIntMap<KType> createNewMapInstance(final int initialCapacity,"
+                        + " final double loadFactor, ObjectHashingStrategy<KType> strategy); } }");
+
+        check(Type.GENERIC, Type.GENERIC, sp,
+                "public abstract class AbstractObjectObjectHashMapTest<KType, VType> extends AbstractObjectObjectTest<KType, VType> { "
+                        + " protected abstract ObjectObjectMap<KType, VType> createNewMapInstance(final int initialCapacity,"
+                        + " final double loadFactor, ObjectHashingStrategy<KType> strategy); } }");
+
+        check(Type.FLOAT, Type.INT, sp,
+                "public abstract class AbstractFloatIntHashMapTest extends AbstractFloatIntTest { "
+                        + " protected abstract FloatIntMap createNewMapInstance(final int initialCapacity,"
+                        + " final double loadFactor, FloatHashingStrategy strategy); } }");
 
     }
 

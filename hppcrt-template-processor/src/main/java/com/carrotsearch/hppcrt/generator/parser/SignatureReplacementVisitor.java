@@ -263,7 +263,10 @@ public class SignatureReplacementVisitor extends ReplacementVisitorBase
         log(Level.FINEST, "visitMethodDeclaration", "replacements after visitQualifiedNameList = "
                 + Replacement.toString(replacements));
 
-        replacements.addAll(visitMethodBody(ctx.methodBody()));
+        //The method body may be null, in case of an abstract method !
+        if (ctx.methodBody() != null) {
+            replacements.addAll(visitMethodBody(ctx.methodBody()));
+        }
 
         log(Level.FINEST, "visitMethodDeclaration", "replacements after visitMethodBody = "
                 + Replacement.toString(replacements));
