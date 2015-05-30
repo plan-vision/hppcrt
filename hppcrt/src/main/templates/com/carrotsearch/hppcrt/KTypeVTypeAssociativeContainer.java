@@ -105,16 +105,16 @@ public interface KTypeVTypeAssociativeContainer<KType, VType>
     <T extends KTypeVTypePredicate<? super KType, ? super VType>> T forEach(T predicate);
 
     /**
-     * Returns a collection of keys of this container. The returned collection is a view
+     * Returns a collection view of keys of this container. The returned collection is a view
      * over the key set and any modifications (if allowed) introduced to the collection will
      * propagate to the associative container immediately.
      */
     KTypeCollection<KType> keys();
 
     /**
-     * Returns a container view of all values present in this container. The returned collection is a view
+     * Returns a collection view of all values present in this container. The returned collection is a view
      * over the key set and any modifications (if allowed) introduced to the collection will
      * propagate to the associative container immediately.
      */
-    KTypeContainer<VType> values();
+    KTypeCollection<VType> values();
 }

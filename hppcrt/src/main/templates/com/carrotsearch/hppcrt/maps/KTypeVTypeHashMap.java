@@ -49,7 +49,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     protected VType defaultValue = Intrinsics.<VType> empty();
 
@@ -64,8 +64,8 @@ public class KTypeVTypeHashMap<KType, VType>
           KType []
           #else !*/
     Object[]
-    /*! #end !*/
-    keys;
+            /*! #end !*/
+            keys;
 
     /**
      * Hash-indexed array holding all values associated to the keys.
@@ -75,8 +75,8 @@ public class KTypeVTypeHashMap<KType, VType>
           VType []
           #else !*/
     Object[]
-    /*! #end !*/
-    values;
+            /*! #end !*/
+            values;
 
     /*! #if ($RH) !*/
     /**
@@ -1749,6 +1749,7 @@ public class KTypeVTypeHashMap<KType, VType>
      * Returns the "default value" value used in containers methods returning
      * "default value"
      */
+    @Override
     public VType getDefaultValue() {
         return this.defaultValue;
     }
@@ -1759,6 +1760,7 @@ public class KTypeVTypeHashMap<KType, VType>
      * 
      * @return
      */
+    @Override
     public void setDefaultValue(final VType defaultValue) {
         this.defaultValue = defaultValue;
     }

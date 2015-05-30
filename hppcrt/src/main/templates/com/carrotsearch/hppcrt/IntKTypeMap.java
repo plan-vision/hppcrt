@@ -10,7 +10,7 @@ import com.carrotsearch.hppcrt.cursors.*;
  */
 /*! ($TemplateOptions.doNotGenerate()) !*/
 public interface IntKTypeMap<T>
-extends IntKTypeAssociativeContainer<T>
+        extends IntKTypeAssociativeContainer<T>
 {
 
     T put(int key, T value);
@@ -28,4 +28,18 @@ extends IntKTypeAssociativeContainer<T>
     int putAll(Iterable<? extends IntKTypeCursor<? extends T>> iterable);
 
     T remove(int key);
+
+    /**
+     * Returns the "default value" value used in containers methods returning
+     * "default value"
+     */
+    T getDefaultValue();
+
+    /**
+     * Set the "default value" value to be used in containers methods returning
+     * "default value"
+     * 
+     * @return
+     */
+    void setDefaultValue(final T defaultValue);
 }

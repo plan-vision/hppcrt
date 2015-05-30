@@ -17,7 +17,7 @@ import com.carrotsearch.hppcrt.procedures.*;
  */
 /*! ($TemplateOptions.doNotGenerate()) !*/
 public interface IntKTypeAssociativeContainer<U>
-extends Iterable<IntKTypeCursor<U>>
+        extends Iterable<IntKTypeCursor<U>>
 {
 
     @Override
@@ -45,5 +45,5 @@ extends Iterable<IntKTypeCursor<U>>
 
     IntCollection keys();
 
-    KTypeContainer<U> values();
+    KTypeCollection<U> values();
 }

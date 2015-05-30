@@ -1,4 +1,4 @@
-package com.carrotsearch.hppcrt.maps;
+package com.carrotsearch.hppcrt;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
