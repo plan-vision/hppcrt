@@ -52,7 +52,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeCustomHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     protected VType defaultValue = Intrinsics.<VType> empty();
 
@@ -67,8 +67,8 @@ public class KTypeVTypeCustomHashMap<KType, VType>
           KType []
           #else !*/
     Object[]
-    /*! #end !*/
-    keys;
+            /*! #end !*/
+            keys;
 
     /**
      * Hash-indexed array holding all values associated to the keys.
@@ -78,8 +78,8 @@ public class KTypeVTypeCustomHashMap<KType, VType>
           VType []
           #else !*/
     Object[]
-    /*! #end !*/
-    values;
+            /*! #end !*/
+            values;
 
     /*! #if ($RH) !*/
     /**
@@ -1742,7 +1742,7 @@ public class KTypeVTypeCustomHashMap<KType, VType>
     }
 
     /**
-     * Creates a hash map from two index-aligned arrays of key-value pairs.
+     * Creates a hash map from two index-aligned arrays of key-value pairs. Default load factor is used.
      */
     public static <KType, VType> KTypeVTypeCustomHashMap<KType, VType> from(final KType[] keys, final VType[] values,
             final KTypeHashingStrategy<? super KType> hashStrategy) {
@@ -1760,7 +1760,7 @@ public class KTypeVTypeCustomHashMap<KType, VType>
     }
 
     /**
-     * Create a hash map from another associative container.
+     * Create a hash map from another associative container. Default load factor is used.
      */
     public static <KType, VType> KTypeVTypeCustomHashMap<KType, VType> from(
             final KTypeVTypeAssociativeContainer<KType, VType> container,
@@ -1797,6 +1797,7 @@ public class KTypeVTypeCustomHashMap<KType, VType>
      * Returns the "default value" value used
      * in containers methods returning "default value"
      */
+    @Override
     public VType getDefaultValue() {
         return this.defaultValue;
     }
@@ -1806,6 +1807,7 @@ public class KTypeVTypeCustomHashMap<KType, VType>
      * in containers methods returning "default value"
      * @return
      */
+    @Override
     public void setDefaultValue(final VType defaultValue) {
         this.defaultValue = defaultValue;
     }

@@ -49,7 +49,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeHashMap<KType, VType>
-implements KTypeVTypeMap<KType, VType>, Cloneable
+        implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     protected VType defaultValue = Intrinsics.<VType> empty();
 
@@ -64,8 +64,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
           KType []
           #else !*/
     Object[]
-            /*! #end !*/
-            keys;
+    /*! #end !*/
+    keys;
 
     /**
      * Hash-indexed array holding all values associated to the keys.
@@ -75,8 +75,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
           VType []
           #else !*/
     Object[]
-            /*! #end !*/
-            values;
+    /*! #end !*/
+    values;
 
     /*! #if ($RH) !*/
     /**
@@ -1705,7 +1705,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     }
 
     /**
-     * Creates a hash map from two index-aligned arrays of key-value pairs.
+     * Creates a hash map from two index-aligned arrays of key-value pairs. Default load factor is used.
      */
     public static <KType, VType> KTypeVTypeHashMap<KType, VType> from(final KType[] keys, final VType[] values) {
         if (keys.length != values.length) {
@@ -1721,7 +1721,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     }
 
     /**
-     * Create a hash map from another associative container. (constructor shortcut)
+     * Create a hash map from another associative container. (constructor shortcut) Default load factor is used.
      */
     public static <KType, VType> KTypeVTypeHashMap<KType, VType> from(
             final KTypeVTypeAssociativeContainer<KType, VType> container) {

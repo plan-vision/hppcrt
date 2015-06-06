@@ -137,4 +137,10 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeHashM
         return concreteClass.valuesIteratorPool.capacity();
     }
 
+    //////////////////////////////////////
+    /// Implementation-specific tests
+    /////////////////////////////////////
+
+    //none for now
+
 }

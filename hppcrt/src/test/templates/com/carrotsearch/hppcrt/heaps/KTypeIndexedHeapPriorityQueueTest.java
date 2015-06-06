@@ -2707,6 +2707,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
         final int nbRefElements = refContainer.size();
 
+        //Capacity must have not changed, i.e no reallocation must have occured.
         Assert.assertEquals(refCapacity, refContainer.capacity());
 
         //4) Duplicate by copy-construction and/or clone

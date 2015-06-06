@@ -312,21 +312,17 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     }
 
     /**
-     * Adds all elements from a given container to this set.
-     * 
-     * @return Returns the number of elements actually added as a result of this
-     *         call (not previously present in the set).
+     * {@inheritDoc}
      */
+    @Override
     public int addAll(final KTypeContainer<? extends KType> container) {
         return addAll((Iterable<? extends KTypeCursor<? extends KType>>) container);
     }
 
     /**
-     * Adds all elements from a given iterable to this set.
-     * 
-     * @return Returns the number of elements actually added as a result of this
-     *         call (not previously present in the set).
+     * {@inheritDoc}
      */
+    @Override
     public int addAll(final Iterable<? extends KTypeCursor<? extends KType>> iterable) {
         int count = 0;
         for (final KTypeCursor<? extends KType> cursor : iterable) {
@@ -488,9 +484,9 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     }
 
     /**
-     * An alias for {@link #removeAll}, i.e returns true
-     * if key was present in the set and has been successfully removed.
+     * {@inheritDoc}
      */
+    @Override
     public boolean remove(final KType key) {
         if (Intrinsics.<KType> isEmpty(key)) {
 
