@@ -5,7 +5,7 @@ import java.util.Random;
 
 import com.carrotsearch.hppcrt.BenchmarkSuiteRunner;
 import com.carrotsearch.hppcrt.LongArrays;
-import com.carrotsearch.hppcrt.XorShiftRandom;
+import com.carrotsearch.hppcrt.XorShift128P;
 
 public class HppcArraysBench
 {
@@ -21,7 +21,7 @@ public class HppcArraysBench
 
     private final int nbWarmupsRuns;
 
-    public Random prng = new XorShiftRandom();
+    public Random prng = new XorShift128P();
 
     /**
      *  inner comparator class
@@ -183,7 +183,7 @@ public class HppcArraysBench
      */
     public void runBenchArrays(final int nbElements)
     {
-        final Random randGenerator = new XorShiftRandom(HppcArraysBench.RAND_SEED);
+        final Random randGenerator = new XorShift128P(HppcArraysBench.RAND_SEED);
 
         // A) Start with a random sample
         final ComparableLong[] referenceArray = new ComparableLong[nbElements];

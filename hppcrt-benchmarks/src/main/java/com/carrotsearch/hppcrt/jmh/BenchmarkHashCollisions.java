@@ -16,7 +16,7 @@ import org.openjdk.jmh.runner.RunnerException;
 
 import com.carrotsearch.hppcrt.BenchmarkSuiteRunner;
 import com.carrotsearch.hppcrt.DistributionGenerator;
-import com.carrotsearch.hppcrt.XorShiftRandom;
+import com.carrotsearch.hppcrt.XorShift128P;
 import com.carrotsearch.hppcrt.procedures.IntProcedure;
 import com.carrotsearch.hppcrt.sets.IntHashSet;
 
@@ -92,7 +92,7 @@ public class BenchmarkHashCollisions
 
         this.testSet = new IntHashSet(nbElementsToPush);
 
-        final DistributionGenerator gene = new DistributionGenerator(-nbElementsToPush, 3 * nbElementsToPush, new XorShiftRandom(87955214455L));
+        final DistributionGenerator gene = new DistributionGenerator(-nbElementsToPush, 3 * nbElementsToPush, new XorShift128P(87955214455L));
 
         int nextValue = -1;
 

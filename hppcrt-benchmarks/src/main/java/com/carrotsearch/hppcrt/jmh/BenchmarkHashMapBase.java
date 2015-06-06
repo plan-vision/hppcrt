@@ -14,7 +14,7 @@ import org.openjdk.jmh.annotations.State;
 
 import com.carrotsearch.hppcrt.BitUtil;
 import com.carrotsearch.hppcrt.DistributionGenerator;
-import com.carrotsearch.hppcrt.XorShiftRandom;
+import com.carrotsearch.hppcrt.XorShift128P;
 import com.carrotsearch.hppcrt.implementations.HashMapImplementations;
 import com.carrotsearch.hppcrt.implementations.MapImplementation;
 import com.carrotsearch.hppcrt.implementations.MapImplementation.ComparableInt;
@@ -94,7 +94,7 @@ public class BenchmarkHashMapBase
     {
         skipForbiddenCombinations();
 
-        this.prng = new XorShiftRandom(0x11223344);
+        this.prng = new XorShift128P(0x11223344);
 
         //suppose our target load factor is this.loadFactor
         //compute the final size to allocate to reach knowing that the table is indeed sized to a power of 2.

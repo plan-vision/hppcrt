@@ -8,7 +8,7 @@ import net.openhft.koloboke.collect.map.hash.HashIntIntMap;
 import net.openhft.koloboke.collect.map.hash.HashIntIntMaps;
 import net.openhft.koloboke.collect.map.hash.HashObjIntMap;
 
-import com.carrotsearch.hppcrt.XorShiftRandom;
+import com.carrotsearch.hppcrt.XorShift128P;
 
 public class KolobokeIntIntMap extends MapImplementation<HashIntIntMap>
 {
@@ -34,7 +34,7 @@ public class KolobokeIntIntMap extends MapImplementation<HashIntIntMap>
     @Override
     public void setup(final int[] keysToInsert, final MapImplementation.HASH_QUALITY hashQ, final int[] keysForContainsQuery, final int[] keysForRemovalQuery) {
 
-        final Random prng = new XorShiftRandom(0x122335577L);
+        final Random prng = new XorShift128P(0x122335577L);
 
         //make a full copy
         this.insertKeys = Arrays.copyOf(keysToInsert, keysToInsert.length);

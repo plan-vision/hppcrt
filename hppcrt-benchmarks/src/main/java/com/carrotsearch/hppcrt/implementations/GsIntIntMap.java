@@ -4,7 +4,7 @@ package com.carrotsearch.hppcrt.implementations;
 import java.util.Arrays;
 import java.util.Random;
 
-import com.carrotsearch.hppcrt.XorShiftRandom;
+import com.carrotsearch.hppcrt.XorShift128P;
 import com.gs.collections.impl.map.mutable.primitive.IntIntHashMap;
 
 public class GsIntIntMap extends MapImplementation<IntIntHashMap>
@@ -26,7 +26,7 @@ public class GsIntIntMap extends MapImplementation<IntIntHashMap>
     @Override
     public void setup(final int[] keysToInsert, final MapImplementation.HASH_QUALITY hashQ, final int[] keysForContainsQuery, final int[] keysForRemovalQuery) {
 
-        final Random prng = new XorShiftRandom(0x122335577L);
+        final Random prng = new XorShift128P(0x122335577L);
 
         //make a full copy
         this.insertKeys = Arrays.copyOf(keysToInsert, keysToInsert.length);

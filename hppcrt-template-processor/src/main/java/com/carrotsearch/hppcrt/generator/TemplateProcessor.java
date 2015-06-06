@@ -50,6 +50,8 @@ public final class TemplateProcessor
 
     private static final Logger logger = Logger.getLogger(TemplateProcessor.class.getName());
 
+    private static final String[] EMPTY_GENRIC_ARGS = new String[0];
+
     /**
      * Be default, print everything !
      */
@@ -63,7 +65,6 @@ public final class TemplateProcessor
 
     private Path templatesPath;
     private Path outputPath;
-
 
     private VelocityEngine velocity;
 
@@ -149,7 +150,7 @@ public final class TemplateProcessor
     }
 
     /**
-     * Initialize Velocity engine.
+     * Constructor.
      */
     public TemplateProcessor() {
         //nothing there
@@ -216,19 +217,25 @@ public final class TemplateProcessor
     }
 
     /**
-     * 
+     * Also for Ant Task attribute 'destDir', MUST respect this naming.
+     * @param dir
      */
     public void setDestDir(final File dir) {
         this.outputDir = dir;
     }
 
     /**
-     * 
+     * Also for Ant Task attribute 'templatesDir', MUST respect this naming.
+     * @param dir
      */
     public void setTemplatesDir(final File dir) {
         this.templatesDir = dir;
     }
 
+    /**
+     * Also for Ant Task attribute 'dependenciesDir', MUST respect this naming.
+     * @param dir
+     */
     public void setDependenciesDir(final File dir) {
         this.dependenciesDir = dir;
     }
@@ -451,7 +458,7 @@ public final class TemplateProcessor
                 //end if found matcher
                 if (m.find()) {
 
-                    String[] genericArgs;
+                    String[] genericArgs = TemplateProcessor.EMPTY_GENRIC_ARGS;
 
                     if (inlinedMethod.getGenericParameters().size() > 0) {
 
@@ -459,8 +466,6 @@ public final class TemplateProcessor
 
                         log(Level.FINE,
                                 "filterInlines(): found matching with generics: '%s'", ImmutableList.of(genericArgs));
-                    } else {
-                        genericArgs = new String[0];
                     }
 
                     log(Level.FINE,
@@ -511,19 +516,22 @@ public final class TemplateProcessor
                     log(Level.FINE,
                             "filterInlines(), parsed arguments '%s'"
                                     + ", passed to inlinedMethod.computeInlinedForm(this.genericParameters =  %s)... ",
-                                    params, inlinedMethod.getGenericParameters());
+                            params, inlinedMethod.getGenericParameters());
 
                     //fill-in the arguments depending of the type
                     final String result = inlinedMethod.computeInlinedForm(templateOptions, genericArgs, params);
 
+                    log(Level.FINE, "filterInlines() computeInlinedForm result ==> '%s'...", result);
+
                     //Try to parse recursively the result:
                     //this is OK because we parse from left to right, i.e from outer to inner functions
-                    log(Level.FINE, "filterInlines(), ENTER attempt to filterInlines() recursively on text '%s'...", result);
 
                     final String innerResult = filterInlines(f, result, templateOptions);
 
-                    log(Level.FINE, "filterInlines(), EXIT attempt to filterInlines() recursively on text '%s' ==> '%s' ",
-                            result, innerResult);
+                    if (!innerResult.equals(result)) {
+
+                        log(Level.FINE, "filterInlines() acting recursively on '%s' ==> '%s'... ", result, innerResult);
+                    }
 
                     sb.append(innerResult);
 

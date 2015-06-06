@@ -33,7 +33,7 @@ HPPCRT-37: API changes and internal code refactorings from HPPC v0.7.0:
 		  KTypeOpenHashSet -> KTypeHashSet
           KTypeVTypeOpenHashMap -> KTypeVTypeHashMap
 - HPPC-149: Recognize tests.seed as the initialization seed for perturbation key mixing for hash containers. 
-- HPPC-152: Add a simpler RPRG: XorShift128+.
+- HPPC-152: Add a faster RPRG, XorShift128P as a replacement of XorShiftRandom.
 
 
 ** Internal changes, cleanups, optimizations...etc.

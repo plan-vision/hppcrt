@@ -13,7 +13,7 @@ public class XorShiftRandomTest
     @Test
     public void testApproxEqualBucketFill() {
 
-        checkApproxEqualBucketFill(new XorShiftRandom(0xdeadbeef));
+        checkApproxEqualBucketFill(new XorShift128P(0xdeadbeef));
     }
 
     @Test
@@ -25,7 +25,7 @@ public class XorShiftRandomTest
     @Test
     public void testNext() {
 
-        checkNext(new XorShiftRandom());
+        checkNext(new XorShift128P());
     }
 
     @Test
@@ -43,14 +43,9 @@ public class XorShiftRandomTest
 
                 long val = -1L;
 
-                if (random instanceof XorShiftRandom) {
-
-                    val = (((XorShiftRandom) random).next(bits)) & 0xffffffffL;
-
-                } else if (random instanceof XorShift128P) {
+                if (random instanceof XorShift128P) {
 
                     val = (((XorShift128P) random).next(bits)) & 0xffffffffL;
-
                 }
 
                 mask |= val;

@@ -6,7 +6,7 @@ import java.util.Random;
 
 import com.carrotsearch.hppcrt.BenchmarkSuiteRunner;
 import com.carrotsearch.hppcrt.Util;
-import com.carrotsearch.hppcrt.XorShiftRandom;
+import com.carrotsearch.hppcrt.XorShift128P;
 import com.carrotsearch.hppcrt.sorting.DoubleSort;
 import com.carrotsearch.hppcrt.sorting.LongSort;
 import com.carrotsearch.hppcrt.sorting.ObjectSort;
@@ -312,7 +312,7 @@ public class HppcSortSyntheticBench
      */
     public void runBenchSort(final int nbElements)
     {
-        final Random randGenerator = new XorShiftRandom(HppcSortSyntheticBench.RAND_SEED);
+        final Random randGenerator = new XorShift128P(HppcSortSyntheticBench.RAND_SEED);
 
         // A) Start with a random sample
         final ComparableLong[] referenceArray = new ComparableLong[nbElements];

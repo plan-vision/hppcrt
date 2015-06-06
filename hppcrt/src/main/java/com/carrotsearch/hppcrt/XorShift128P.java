@@ -12,7 +12,8 @@ import com.carrotsearch.hppcrt.hash.MurmurHash3;
  * @see "http://xorshift.di.unimi.it/xorshift128plus.c"
  */
 @SuppressWarnings("serial")
-public class XorShift128P extends Random {
+public class XorShift128P extends Random
+{
     /*
      * 128 bits of state.
      */

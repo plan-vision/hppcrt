@@ -5,7 +5,7 @@ import java.util.Random;
 
 import com.carrotsearch.hppcrt.BenchmarkSuiteRunner;
 import com.carrotsearch.hppcrt.LongIndexedContainer;
-import com.carrotsearch.hppcrt.XorShiftRandom;
+import com.carrotsearch.hppcrt.XorShift128P;
 import com.carrotsearch.hppcrt.cursors.LongCursor;
 import com.carrotsearch.hppcrt.lists.LongArrayList;
 import com.carrotsearch.hppcrt.lists.LongLinkedList;
@@ -24,7 +24,7 @@ public class HppcListSyntheticBench
 
     public static final int NB_WARMUPS = 3;
 
-    public Random prng = new XorShiftRandom();
+    public Random prng = new XorShift128P();
 
     private final int nbWarmupsRuns;
 

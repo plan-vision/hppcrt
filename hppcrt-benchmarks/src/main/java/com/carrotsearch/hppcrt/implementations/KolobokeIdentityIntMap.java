@@ -9,7 +9,7 @@ import net.openhft.koloboke.collect.map.hash.HashObjIntMap;
 import net.openhft.koloboke.collect.map.hash.HashObjIntMaps;
 
 import com.carrotsearch.hppcrt.Util;
-import com.carrotsearch.hppcrt.XorShiftRandom;
+import com.carrotsearch.hppcrt.XorShift128P;
 
 public class KolobokeIdentityIntMap extends MapImplementation<HashObjIntMap<MapImplementation.ComparableInt>>
 {
@@ -37,7 +37,7 @@ public class KolobokeIdentityIntMap extends MapImplementation<HashObjIntMap<MapI
     @Override
     public void setup(final int[] keysToInsert, final MapImplementation.HASH_QUALITY hashQ, final int[] keysForContainsQuery, final int[] keysForRemovalQuery) {
 
-        final Random prng = new XorShiftRandom(0x122335577L);
+        final Random prng = new XorShift128P(0x122335577L);
 
         this.insertKeys = new ComparableInt[keysToInsert.length];
 

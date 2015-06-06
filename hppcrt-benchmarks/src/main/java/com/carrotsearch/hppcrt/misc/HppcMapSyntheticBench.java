@@ -9,7 +9,7 @@ import com.carrotsearch.hppcrt.HashContainers;
 import com.carrotsearch.hppcrt.IntLongMap;
 import com.carrotsearch.hppcrt.ObjectLongMap;
 import com.carrotsearch.hppcrt.Util;
-import com.carrotsearch.hppcrt.XorShiftRandom;
+import com.carrotsearch.hppcrt.XorShift128P;
 import com.carrotsearch.hppcrt.cursors.IntLongCursor;
 import com.carrotsearch.hppcrt.lists.IntArrayList;
 import com.carrotsearch.hppcrt.lists.LongArrayList;
@@ -41,7 +41,7 @@ public final class HppcMapSyntheticBench
 
     private static final boolean RUN_IDENTITY = true;
 
-    public Random prng = new XorShiftRandom();
+    public Random prng = new XorShift128P();
 
     private long totalSum;
 

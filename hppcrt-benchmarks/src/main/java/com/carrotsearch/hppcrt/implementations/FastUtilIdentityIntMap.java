@@ -5,7 +5,7 @@ import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import java.util.Random;
 
 import com.carrotsearch.hppcrt.Util;
-import com.carrotsearch.hppcrt.XorShiftRandom;
+import com.carrotsearch.hppcrt.XorShift128P;
 
 public class FastUtilIdentityIntMap extends MapImplementation<Reference2IntOpenHashMap<MapImplementation.ComparableInt>>
 {
@@ -25,7 +25,7 @@ public class FastUtilIdentityIntMap extends MapImplementation<Reference2IntOpenH
     @Override
     public void setup(final int[] keysToInsert, final MapImplementation.HASH_QUALITY hashQ, final int[] keysForContainsQuery, final int[] keysForRemovalQuery) {
 
-        final Random prng = new XorShiftRandom(0x122335577L);
+        final Random prng = new XorShift128P(0x122335577L);
 
         this.insertKeys = new ComparableInt[keysToInsert.length];
 

@@ -46,8 +46,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Hash-indexed array holding all set entries.
@@ -61,8 +61,8 @@ public class KTypeHashSet<KType>
           KType []
           #else !*/
     Object[]
-    /*! #end !*/
-    keys;
+            /*! #end !*/
+            keys;
 
     /*! #if ($RH) !*/
     /**
@@ -532,6 +532,7 @@ public class KTypeHashSet<KType>
      * Shift all the slot-conflicting keys allocated to (and including) <code>slot</code>.
      */
     private void shiftConflictingKeys(int gapSlot) {
+
         final int mask = this.keys.length - 1;
 
         final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
