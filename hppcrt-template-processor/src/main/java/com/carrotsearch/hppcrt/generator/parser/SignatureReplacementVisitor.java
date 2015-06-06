@@ -233,7 +233,7 @@ public class SignatureReplacementVisitor extends ReplacementVisitorBase
         replacements.addAll(super.visitMethodDeclaration(ctx.methodDeclaration()));
 
         log(Level.FINEST, "visitGenericMethodDeclaration", "replacements = "
-                + ImmutableList.of(replacements).toString());
+                + ImmutableList.copyOf(replacements).toString());
 
         return replacements;
     }

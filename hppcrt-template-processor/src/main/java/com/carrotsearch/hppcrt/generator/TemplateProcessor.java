@@ -50,7 +50,7 @@ public final class TemplateProcessor
 
     private static final Logger logger = Logger.getLogger(TemplateProcessor.class.getName());
 
-    private static final String[] EMPTY_GENRIC_ARGS = new String[0];
+    private static final String[] EMPTY_GENERIC_ARGS = new String[0];
 
     /**
      * Be default, print everything !
@@ -458,14 +458,14 @@ public final class TemplateProcessor
                 //end if found matcher
                 if (m.find()) {
 
-                    String[] genericArgs = TemplateProcessor.EMPTY_GENRIC_ARGS;
+                    String[] genericArgs = TemplateProcessor.EMPTY_GENERIC_ARGS;
 
                     if (inlinedMethod.getGenericParameters().size() > 0) {
 
                         genericArgs = m.group("generic").split(",");
 
                         log(Level.FINE,
-                                "filterInlines(): found matching with generics: '%s'", ImmutableList.of(genericArgs));
+                                "filterInlines(): found matching with generics: '%s'", ImmutableList.copyOf(genericArgs));
                     }
 
                     log(Level.FINE,
@@ -516,7 +516,7 @@ public final class TemplateProcessor
                     log(Level.FINE,
                             "filterInlines(), parsed arguments '%s'"
                                     + ", passed to inlinedMethod.computeInlinedForm(this.genericParameters =  %s)... ",
-                            params, inlinedMethod.getGenericParameters());
+                                    params, inlinedMethod.getGenericParameters());
 
                     //fill-in the arguments depending of the type
                     final String result = inlinedMethod.computeInlinedForm(templateOptions, genericArgs, params);

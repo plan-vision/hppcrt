@@ -184,7 +184,7 @@ public class InlinedMethodDef
             throw new ParseErrorException(String.format(
                     "[ERROR] : incorrect number of arguments (%d=>'%s' instead of %d=>'%s') provided  for this call: '%s'...",
                     extractedArguments.size(),
-                    ImmutableList.of(extractedArguments).toString(),
+                    ImmutableList.copyOf(extractedArguments).toString(),
                     this.arguments.size(),
                     this.arguments.toString(),
                     toString()));
@@ -244,8 +244,7 @@ public class InlinedMethodDef
                     //Post-process the remaining generics in result
 
                     final String resultPostProcess = InlinedMethodDef.rewriteGenericsInInlinedForm(result,
-                            this.genericParameters,
-                            Lists.newArrayList(optionalGenerics));
+                            this.genericParameters, ImmutableList.copyOf(optionalGenerics));
 
                     if (!resultPostProcess.equals(result)) {
                         options.log(Level.FINE, "computeInlinedForm(): rewriting remaining generics '%s' ==> '%s'",
@@ -559,8 +558,8 @@ public class InlinedMethodDef
      * @param concreteGenerics
      * @return
      */
-    protected static String rewriteGenericsInInlinedForm(final String inlinedForm, final ArrayList<String> genericsParameters,
-            final ArrayList<String> concreteGenerics)
+    protected static String rewriteGenericsInInlinedForm(final String inlinedForm, final List<String> genericsParameters,
+            final List<String> concreteGenerics)
     {
         //can be empty, return original
         if (genericsParameters.isEmpty()) {
