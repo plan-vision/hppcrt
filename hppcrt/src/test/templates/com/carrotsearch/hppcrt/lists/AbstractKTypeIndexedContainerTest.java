@@ -23,7 +23,7 @@ import com.carrotsearch.randomizedtesting.annotations.*;
  */
 // ${TemplateOptions.doNotGenerateKType("BOOLEAN")}
 /*! ${TemplateOptions.generatedAnnotation} !*/
-public abstract class AbstractKTypeIndexedContainer<KType> extends AbstractKTypeTest<KType>
+public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractKTypeTest<KType>
 {
     @BeforeClass
     public static void configure()
@@ -79,7 +79,7 @@ public abstract class AbstractKTypeIndexedContainer<KType> extends AbstractKType
      * and all not-allocated contains nulls if Generic
      * @param set
      */
-    @After
+    @After 
     public void checkConsistency()
     {
         if (this.list != null)
@@ -231,6 +231,20 @@ public abstract class AbstractKTypeIndexedContainer<KType> extends AbstractKType
 
     /* */
     @Test
+    public void testRemoveAllEverything()
+    {
+        addFromArray(this.list, asArray(1, 1, 1, 1, 1));
+
+        Assert.assertEquals(5, this.list.removeAll(this.k1));
+        Assert.assertEquals(0, this.list.size());
+
+        //remove all a void
+        Assert.assertEquals(0, this.list.removeAll(this.k1));
+        Assert.assertEquals(0, this.list.size());
+    }
+
+    /* */
+    @Test
     public void testRemoveAllFromLookupContainer()
     {
         addFromArray(this.list, asArray(0, 1, 2, 1, 0));
@@ -246,6 +260,37 @@ public abstract class AbstractKTypeIndexedContainer<KType> extends AbstractKType
 
     /* */
     @Test
+    public void testRemoveAllOccurrences()
+    {
+        addFromArray(this.list, asArray(0, 1, 2, 1, 0, 3, 0));
+
+        Assert.assertEquals(0, this.list.removeAll(this.k4));
+        Assert.assertEquals(3, this.list.removeAll(this.k0));
+        TestUtils.assertListEquals(this.list.toArray(), 1, 2, 1, 3);
+        Assert.assertEquals(1, this.list.removeAll(this.k3));
+        TestUtils.assertListEquals(this.list.toArray(), 1, 2, 1);
+        Assert.assertEquals(2, this.list.removeAll(this.k1));
+        TestUtils.assertListEquals(this.list.toArray(), 2);
+        Assert.assertEquals(1, this.list.removeAll(this.k2));
+        Assert.assertEquals(0, this.list.size());
+    }
+
+    /* */
+    @Test
+    public void testRemoveAllFromLookupContainerEverything()
+    {
+        addFromArray(this.list, asArray(0, 1, 2, 1, 0));
+
+        final KTypeHashSet<KType> list2 = KTypeHashSet.newInstance();
+        list2.add(asArray(0, 1, 2));
+
+        Assert.assertEquals(5, this.list.removeAll(list2));
+        Assert.assertEquals(0, this.list.size());
+        Assert.assertEquals(0, this.list.removeAll(list2));
+    }
+
+    /* */
+    @Test
     public void testRemoveAllWithPredicate()
     {
         addFromArray(this.list, newArray(this.k0, this.k1, this.k2, this.k1, this.k4));
@@ -255,11 +300,41 @@ public abstract class AbstractKTypeIndexedContainer<KType> extends AbstractKType
             @Override
             public boolean apply(final KType v)
             {
-                return v == AbstractKTypeIndexedContainer.this.key1 || v == AbstractKTypeIndexedContainer.this.key2;
+                return v == AbstractKTypeIndexedContainerTest.this.key1 || v == AbstractKTypeIndexedContainerTest.this.key2;
             };
         }));
 
         TestUtils.assertListEquals(this.list.toArray(), 0, 4);
+    }
+
+    /* */
+    @Test
+    public void testRemoveAllWithPredicateEverything()
+    {
+        addFromArray(this.list, newArray(this.k0, this.k1, this.k2, this.k1, this.k4));
+
+        Assert.assertEquals(5, this.list.removeAll(new KTypePredicate<KType>()
+        {
+            @Override
+            public boolean apply(final KType v)
+            {
+                return true;
+            };
+        }));
+
+        Assert.assertEquals(0, this.list.size());
+
+        //try again
+        Assert.assertEquals(0, this.list.removeAll(new KTypePredicate<KType>()
+        {
+            @Override
+            public boolean apply(final KType v)
+            {
+                return true;
+            };
+        }));
+
+        Assert.assertEquals(0, this.list.size());
     }
 
     /* */
@@ -273,7 +348,7 @@ public abstract class AbstractKTypeIndexedContainer<KType> extends AbstractKType
             @Override
             public boolean apply(final KType v)
             {
-                return v == AbstractKTypeIndexedContainer.this.key1 || v == AbstractKTypeIndexedContainer.this.key2;
+                return v == AbstractKTypeIndexedContainerTest.this.key1 || v == AbstractKTypeIndexedContainerTest.this.key2;
             };
         }));
 
@@ -296,10 +371,10 @@ public abstract class AbstractKTypeIndexedContainer<KType> extends AbstractKType
                 @Override
                 public boolean apply(final KType v)
                 {
-                    if (v == AbstractKTypeIndexedContainer.this.key2) {
+                    if (v == AbstractKTypeIndexedContainerTest.this.key2) {
                         throw t;
                     }
-                    return v == AbstractKTypeIndexedContainer.this.key1;
+                    return v == AbstractKTypeIndexedContainerTest.this.key1;
                 };
             }));
             Assert.fail();
@@ -372,13 +447,13 @@ public abstract class AbstractKTypeIndexedContainer<KType> extends AbstractKType
     @Test
     public void testIterable()
     {
-        addFromArray(this.list, asArray(0, 1, 2, 3));
+        addFromArray(this.list, asArray(0, 1, 2, 3, 4, 5, 6, 7));
         int count = 0;
+
         for (final KTypeCursor<KType> cursor : this.list)
         {
             count++;
             TestUtils.assertEquals2(this.list.get(cursor.index), cursor.value);
-            TestUtils.assertEquals2(getBuffer(this.list)[cursor.index], cursor.value);
         }
         Assert.assertEquals(count, this.list.size());
 
@@ -425,7 +500,7 @@ public abstract class AbstractKTypeIndexedContainer<KType> extends AbstractKType
             @Override
             public void apply(final KType v)
             {
-                TestUtils.assertEquals2(v, AbstractKTypeIndexedContainer.this.list.get(this.index++));
+                TestUtils.assertEquals2(v, AbstractKTypeIndexedContainerTest.this.list.get(this.index++));
                 holder.value = this.index;
             }
         });
@@ -443,7 +518,7 @@ public abstract class AbstractKTypeIndexedContainer<KType> extends AbstractKType
             @Override
             public void apply(final KType v)
             {
-                TestUtils.assertEquals2(v, AbstractKTypeIndexedContainer.this.list.get(this.index++));
+                TestUtils.assertEquals2(v, AbstractKTypeIndexedContainerTest.this.list.get(this.index++));
             }
         }).index;
         Assert.assertEquals(result, this.list.size());
@@ -462,7 +537,7 @@ public abstract class AbstractKTypeIndexedContainer<KType> extends AbstractKType
             @Override
             public boolean apply(final KType v)
             {
-                TestUtils.assertEquals2(v, AbstractKTypeIndexedContainer.this.list.get(this.index));
+                TestUtils.assertEquals2(v, AbstractKTypeIndexedContainerTest.this.list.get(this.index));
                 this.value = castType(v);
 
                 if (this.value == 6) {
@@ -492,7 +567,7 @@ public abstract class AbstractKTypeIndexedContainer<KType> extends AbstractKType
             @Override
             public boolean apply(final KType v)
             {
-                TestUtils.assertEquals2(v, AbstractKTypeIndexedContainer.this.list.get(this.index));
+                TestUtils.assertEquals2(v, AbstractKTypeIndexedContainerTest.this.list.get(this.index));
                 this.value = castType(v);
 
                 this.index++;
@@ -606,7 +681,11 @@ public abstract class AbstractKTypeIndexedContainer<KType> extends AbstractKType
         Assert.assertEquals("["
                 + this.key1 + ", "
                 + this.key2 + ", "
-                + this.key3 + "]", getFrom(this.k1, this.k2, this.k3).toString());
+                + this.key3 + ", "
+                + this.key1 + ", "
+                + this.key7 + ", "
+                + this.key4 + ", "
+                + this.key3 + "]", getFrom(this.k1, this.k2, this.k3, this.k1, this.k7, this.k4, this.k3).toString());
     }
 
     @Test

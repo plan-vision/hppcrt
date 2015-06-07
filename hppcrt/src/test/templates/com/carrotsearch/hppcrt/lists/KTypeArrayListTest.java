@@ -24,7 +24,7 @@ import com.carrotsearch.randomizedtesting.annotations.Repeat;
  * Unit tests for {@link KTypeArrayList}.
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
-public class KTypeArrayListTest<KType> extends AbstractKTypeIndexedContainer<KType>
+public class KTypeArrayListTest<KType> extends AbstractKTypeIndexedContainerTest<KType>
 {
 
     @Override
