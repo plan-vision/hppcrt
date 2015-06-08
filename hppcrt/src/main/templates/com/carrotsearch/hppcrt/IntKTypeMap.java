@@ -29,17 +29,7 @@ public interface IntKTypeMap<T>
 
     T remove(int key);
 
-    /**
-     * Returns the "default value" value used in containers methods returning
-     * "default value"
-     */
     T getDefaultValue();
 
-    /**
-     * Set the "default value" value to be used in containers methods returning
-     * "default value"
-     * 
-     * @return
-     */
     void setDefaultValue(final T defaultValue);
 }

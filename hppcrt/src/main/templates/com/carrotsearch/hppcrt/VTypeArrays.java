@@ -12,7 +12,6 @@ import com.carrotsearch.hppcrt.KTypeIndexedContainer;
  * of KTypeArrays.
  */
 /*! ${TemplateOptions.doNotGenerate()} !*/
-/*! ${TemplateOptions.generatedAnnotation} !*/
 public final class VTypeArrays
 {
     private VTypeArrays() {

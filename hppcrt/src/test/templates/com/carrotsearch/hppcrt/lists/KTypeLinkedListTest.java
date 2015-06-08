@@ -167,6 +167,46 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
 
     /* */
     @Test
+    public void testDescendingIterator()
+    {
+        this.list.addLast(this.sequence);
+
+        int index = this.sequence.size() - 1;
+        for (final Iterator<KTypeCursor<KType>> i = this.list.descendingIterator(); i.hasNext();)
+        {
+            final KTypeCursor<KType> cursor = i.next();
+            TestUtils.assertEquals2(this.sequence.buffer[index], cursor.value);
+            TestUtils.assertEquals2(index, cursor.index);
+            index--;
+        }
+        Assert.assertEquals(-1, index);
+
+        this.list.clear();
+        Assert.assertFalse(this.list.descendingIterator().hasNext());
+    }
+
+    /* */
+    @Test
+    public void testDescendingForEachWithProcedure()
+    {
+        this.list.addLast(this.sequence);
+
+        final IntHolder count = new IntHolder();
+        this.list.descendingForEach(new KTypeProcedure<KType>() {
+            int index = KTypeLinkedListTest.this.sequence.size();
+
+            @Override
+            public void apply(final KType v)
+            {
+                TestUtils.assertEquals2(KTypeLinkedListTest.this.sequence.buffer[--this.index], v);
+                count.value++;
+            }
+        });
+        Assert.assertEquals(count.value, this.list.size());
+    }
+
+    /* */
+    @Test
     public void testDescendingForEachWithPredicate()
     {
         this.list.add(asArray(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12));
@@ -218,6 +258,105 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         }).value;
 
         Assert.assertEquals(lastValue, 1);
+    }
+
+    @Test
+    public void testDescendingPooledIteratorFullIteratorLoop()
+    {
+        final int TEST_SIZE = 5000;
+        final long TEST_ROUNDS = 100;
+
+        final KTypeLinkedList<KType> testContainer = createLinkedListWithOrderedData(TEST_SIZE);
+
+        final long checksum = testContainer.forEach(new KTypeProcedure<KType>() {
+
+            long count;
+
+            @Override
+            public void apply(final KType value)
+            {
+                this.count += castType(value);
+            }
+        }).count;
+
+        long testValue = 0;
+
+        final int startingPoolDescendingSize = testContainer.descendingValueIteratorPool.size();
+
+        for (int round = 0; round < TEST_ROUNDS; round++)
+        {
+
+            // Descending iterator loop
+            final int initialPoolSize = testContainer.descendingValueIteratorPool.size();
+
+            final KTypeLinkedList<KType>.DescendingValueIterator loopIterator = testContainer.descendingIterator();
+
+            Assert.assertEquals(initialPoolSize - 1, testContainer.descendingValueIteratorPool.size());
+
+            testValue = 0;
+            while (loopIterator.hasNext())
+            {
+                testValue += castType(loopIterator.next().value);
+            } //end IteratorLoop
+
+            //iterator is returned automatically to its pool, by normal iteration termination
+            Assert.assertEquals(initialPoolSize, testContainer.descendingValueIteratorPool.size());
+
+            //checksum
+            Assert.assertEquals(checksum, testValue);
+
+        } //end for rounds
+
+        // pool initial size is untouched anyway
+        Assert.assertEquals(startingPoolDescendingSize, testContainer.descendingValueIteratorPool.size());
+    }
+
+    @Test
+    public void testDescendingPooledIteratorBrokenIteratorLoop()
+    {
+        final int TEST_SIZE = 5000;
+        final long TEST_ROUNDS = 100;
+
+        final KTypeLinkedList<KType> testContainer = createLinkedListWithOrderedData(TEST_SIZE);
+
+        final int startingPoolDescendingSize = testContainer.descendingValueIteratorPool.size();
+
+        int count = 0;
+        for (int round = 0; round < TEST_ROUNDS; round++)
+        {
+            // Descending iteration
+            final int initialPoolSize = testContainer.descendingValueIteratorPool.size();
+
+            final KTypeLinkedList<KType>.DescendingValueIterator loopIterator = testContainer.descendingIterator();
+
+            Assert.assertEquals(initialPoolSize - 1, testContainer.descendingValueIteratorPool.size());
+
+            count = 0;
+            while (loopIterator.hasNext())
+            {
+                this.guard += castType(loopIterator.next().value);
+
+                //brutally interrupt in the middle
+                if (count > TEST_SIZE / 2)
+                {
+                    break;
+                }
+                count++;
+            } //end IteratorLoop
+
+            //iterator is NOT returned to its pool, due to the break.
+            Assert.assertEquals(initialPoolSize - 1, testContainer.descendingValueIteratorPool.size());
+
+            //manual return to the pool
+            loopIterator.release();
+
+            //now the pool is restored
+            Assert.assertEquals(initialPoolSize, testContainer.descendingValueIteratorPool.size());
+
+        } //end for rounds
+
+        // pool initial size is untouched anyway
+        Assert.assertEquals(startingPoolDescendingSize, testContainer.descendingValueIteratorPool.size());
     }
 
     /**
@@ -282,13 +421,13 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         assertOrder(comparatorListOriginal, comparatorList, lowerRange, upperRange);
     }
 
-    private KTypeLinkedList<KType> createArrayWithOrderedData(final int size)
+    private KTypeLinkedList<KType> createLinkedListWithOrderedData(final int size)
     {
         final KTypeLinkedList<KType> newArray = KTypeLinkedList.newInstance();
 
         for (int i = 0; i < size; i++)
         {
-            newArray.add(cast(i));
+            newArray.addLast(cast(i));
         }
 
         return newArray;
@@ -564,60 +703,6 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
 
         removedIndex = this.list.removeLast(cast(modulo + 1));
         Assert.assertTrue("removeLastOccurrence(cast(modulo + 1) = " + removedIndex, removedIndex == 0);
-    }
-
-    /* */
-    @Test
-    public void testClear2()
-    {
-        this.list.addLast(this.k1);
-        this.list.addLast(this.k2);
-        this.list.addFirst(this.k3);
-        this.list.clear();
-        Assert.assertEquals(0, this.list.size());
-
-        this.list.addLast(this.k1);
-        TestUtils.assertListEquals(this.list.toArray(), 1);
-    }
-
-    /* */
-    @Test
-    public void testDescendingIterator()
-    {
-        this.list.addLast(this.sequence);
-
-        int index = this.sequence.size() - 1;
-        for (final Iterator<KTypeCursor<KType>> i = this.list.descendingIterator(); i.hasNext();)
-        {
-            final KTypeCursor<KType> cursor = i.next();
-            TestUtils.assertEquals2(this.sequence.buffer[index], cursor.value);
-            TestUtils.assertEquals2(index, cursor.index);
-            index--;
-        }
-        Assert.assertEquals(-1, index);
-
-        this.list.clear();
-        Assert.assertFalse(this.list.descendingIterator().hasNext());
-    }
-
-    /* */
-    @Test
-    public void testDescendingForEachWithProcedure()
-    {
-        this.list.addLast(this.sequence);
-
-        final IntHolder count = new IntHolder();
-        this.list.descendingForEach(new KTypeProcedure<KType>() {
-            int index = KTypeLinkedListTest.this.sequence.size();
-
-            @Override
-            public void apply(final KType v)
-            {
-                TestUtils.assertEquals2(KTypeLinkedListTest.this.sequence.buffer[--this.index], v);
-                count.value++;
-            }
-        });
-        Assert.assertEquals(count.value, this.list.size());
     }
 
     ///////////////////////////////// iteration special methods ////////////////////////////////////

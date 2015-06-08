@@ -63,10 +63,21 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
      */
     protected KTypeIndexedContainer<KType> list;
 
+    /**
+     * Some sequence values for tests.
+     */
+    protected ArrayList<Integer> sequence;
+
     @Before
     public void initialize() {
 
         this.list = createNewInstance();
+
+        this.sequence = new ArrayList<Integer>();
+
+        for (int i = 0; i < 10000; i++) {
+            this.sequence.add(castType(cast(i))); //double-cast to assure downmixing for smaller types
+        }
     }
 
     protected KTypeIndexedContainer<KType> createNewInstance() {
@@ -79,7 +90,7 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
      * and all not-allocated contains nulls if Generic
      * @param set
      */
-    @After 
+    @After
     public void checkConsistency()
     {
         if (this.list != null)
@@ -395,16 +406,19 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
     @Test
     public void testIndexOf()
     {
-        addFromArray(this.list, asArray(0, 1, 2, 1, 0));
+        addFromArray(this.list, asArray(0, 1, 2, 1, 0, 8, 7, 4, 3, 2));
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         this.list.add((KType) null);
-        Assert.assertEquals(5, this.list.indexOf(null));
+        Assert.assertEquals(10, this.list.indexOf(null));
         /*! #end !*/
 
         Assert.assertEquals(0, this.list.indexOf(this.k0));
-        Assert.assertEquals(-1, this.list.indexOf(this.k3));
+        Assert.assertEquals(8, this.list.indexOf(this.k3));
+        Assert.assertEquals(-1, this.list.indexOf(this.k9));
         Assert.assertEquals(2, this.list.indexOf(this.k2));
+        Assert.assertEquals(5, this.list.indexOf(this.k8));
+        Assert.assertEquals(7, this.list.indexOf(this.k4));
     }
 
     /* */
@@ -431,31 +445,43 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
     @Test
     public void testLastIndexOf()
     {
-        addFromArray(this.list, asArray(0, 1, 2, 1, 0));
+
+        addFromArray(this.list, asArray(0, 1, 2, 1, 0, 8, 3, 4, 8, 2));
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         this.list.add((KType) null);
-        Assert.assertEquals(5, this.list.lastIndexOf(null));
+        Assert.assertEquals(10, this.list.lastIndexOf(null));
         /*! #end !*/
 
-        TestUtils.assertEquals2(4, this.list.lastIndexOf(this.k0));
-        TestUtils.assertEquals2(-1, this.list.lastIndexOf(this.k3));
-        TestUtils.assertEquals2(2, this.list.lastIndexOf(this.k2));
+        Assert.assertEquals(4, this.list.lastIndexOf(this.k0));
+        Assert.assertEquals(6, this.list.lastIndexOf(this.k3));
+        Assert.assertEquals(-1, this.list.indexOf(this.k9));
+        Assert.assertEquals(9, this.list.lastIndexOf(this.k2));
+        Assert.assertEquals(8, this.list.lastIndexOf(this.k8));
     }
 
     /* */
     @Test
     public void testIterable()
     {
-        addFromArray(this.list, asArray(0, 1, 2, 3, 4, 5, 6, 7));
+        for (final int val : this.sequence) {
+
+            this.list.add(cast(val));
+        }
+
         int count = 0;
+
+        final Integer[] seqBuffer = this.sequence.toArray(new Integer[this.sequence.size()]);
 
         for (final KTypeCursor<KType> cursor : this.list)
         {
-            count++;
+            TestUtils.assertEquals2((int) (seqBuffer[count]), castType(cursor.value));
             TestUtils.assertEquals2(this.list.get(cursor.index), cursor.value);
+            count++;
+
         }
         Assert.assertEquals(count, this.list.size());
+        Assert.assertEquals(count, this.sequence.size());
 
         count = 0;
         this.list.clear();

@@ -82,13 +82,6 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
 
     /* */
     @Test
-    public void testInitiallyEmpty()
-    {
-        Assert.assertEquals(0, this.deque.size());
-    }
-
-    /* */
-    @Test
     public void testAddFirst()
     {
         this.deque.addFirst(this.k1);
@@ -111,7 +104,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
 
     /* */
     @Test
-    public void testAddWithGrowth()
+    public void testAddFirstWithGrowth()
     {
         for (int i = 0; i < this.sequence.size(); i++)
         {
@@ -268,76 +261,6 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
 
     /* */
     @Test
-    public void testIndexOf()
-    {
-        this.deque.addLast(asArray(0, 1, 2, 1, 0, 8, 7, 4, 3, 2));
-
-        /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        this.deque.add((KType) null);
-        Assert.assertEquals(10, this.deque.indexOf(null));
-        /*! #end !*/
-
-        Assert.assertEquals(0, this.deque.indexOf(this.k0));
-        Assert.assertEquals(8, this.deque.indexOf(this.k3));
-        Assert.assertEquals(-1, this.deque.indexOf(this.k9));
-        Assert.assertEquals(2, this.deque.indexOf(this.k2));
-        Assert.assertEquals(5, this.deque.indexOf(this.k8));
-        Assert.assertEquals(7, this.deque.indexOf(this.k4));
-    }
-
-    /* */
-    @Test
-    public void testContains()
-    {
-        this.deque.addLast(asArray(0, 1, 2, 7, 4, 3));
-
-        /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        this.deque.add((KType) null);
-        Assert.assertTrue(this.deque.contains(null));
-        /*! #end !*/
-
-        Assert.assertTrue(this.deque.contains(this.k0));
-        Assert.assertTrue(this.deque.contains(this.k3));
-        Assert.assertTrue(this.deque.contains(this.k2));
-
-        Assert.assertFalse(this.deque.contains(this.k5));
-        Assert.assertFalse(this.deque.contains(this.k6));
-        Assert.assertFalse(this.deque.contains(this.k8));
-    }
-
-    /* */
-    @Test
-    public void testLastIndexOf()
-    {
-        this.deque.addLast(asArray(0, 1, 2, 1, 0, 8, 3, 4, 8, 2));
-
-        /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        this.deque.add((KType) null);
-        Assert.assertEquals(10, this.deque.lastIndexOf(null));
-        /*! #end !*/
-
-        Assert.assertEquals(4, this.deque.lastIndexOf(this.k0));
-        Assert.assertEquals(6, this.deque.lastIndexOf(this.k3));
-        Assert.assertEquals(-1, this.deque.indexOf(this.k9));
-        Assert.assertEquals(9, this.deque.lastIndexOf(this.k2));
-        Assert.assertEquals(8, this.deque.lastIndexOf(this.k8));
-    }
-
-    /* */
-    @Test
-    public void testSet()
-    {
-        this.deque.addLast(asArray(0, 1, 2));
-
-        TestUtils.assertEquals2(0, this.deque.set(0, this.k3));
-        TestUtils.assertEquals2(1, this.deque.set(1, this.k4));
-        TestUtils.assertEquals2(2, this.deque.set(2, this.k5));
-
-        TestUtils.assertListEquals(this.deque.toArray(), 3, 4, 5);
-    }
-
-    /* */
-    @Test
     public void testGetAndGrowth()
     {
         final int maxGrowth = 10;
@@ -358,20 +281,6 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
 
         Assert.assertTrue("Buffer size: 510 <= " + this.deque.buffer.length,
                 this.deque.buffer.length <= count + maxGrowth);
-    }
-
-    /* */
-    @Test
-    public void testRemove()
-    {
-        this.deque.addLast(asArray(0, 1, 2, 3, 4, 5, 6, 7, 8));
-
-        Assert.assertEquals(0, castType(this.deque.remove(0)));
-        Assert.assertEquals(3, castType(this.deque.remove(2)));
-        Assert.assertEquals(2, castType(this.deque.remove(1)));
-        Assert.assertEquals(6, castType(this.deque.remove(3)));
-
-        TestUtils.assertListEquals(this.deque.toArray(), 1, 4, 5, 7, 8);
     }
 
     /* */
@@ -527,93 +436,6 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
 
     /* */
     @Test
-    public void testRemoveAllOccurrences()
-    {
-        this.deque.addLast(asArray(0, 1, 2, 1, 0, 3, 0));
-
-        Assert.assertEquals(0, this.deque.removeAll(this.k4));
-        Assert.assertEquals(3, this.deque.removeAll(this.k0));
-        TestUtils.assertListEquals(this.deque.toArray(), 1, 2, 1, 3);
-        Assert.assertEquals(1, this.deque.removeAll(this.k3));
-        TestUtils.assertListEquals(this.deque.toArray(), 1, 2, 1);
-        Assert.assertEquals(2, this.deque.removeAll(this.k1));
-        TestUtils.assertListEquals(this.deque.toArray(), 2);
-        Assert.assertEquals(1, this.deque.removeAll(this.k2));
-        Assert.assertEquals(0, this.deque.size());
-    }
-
-    /* */
-    @Test
-    public void testRemoveAllInLookupContainer()
-    {
-        this.deque.addLast(asArray(0, 1, 2, 1, 0));
-
-        final KTypeHashSet<KType> set = KTypeHashSet.newInstance();
-        set.add(asArray(0, 2));
-
-        Assert.assertEquals(3, this.deque.removeAll(set));
-        Assert.assertEquals(0, this.deque.removeAll(set));
-
-        TestUtils.assertListEquals(this.deque.toArray(), 1, 1);
-    }
-
-    /* */
-    @Test
-    public void testRemoveAllWithPredicate()
-    {
-        this.deque.addLast(newArray(this.k0, this.k1, this.k2, this.k1, this.k4));
-
-        Assert.assertEquals(3, this.deque.removeAll(new KTypePredicate<KType>()
-                {
-            @Override
-            public boolean apply(final KType v)
-            {
-                return v == KTypeArrayDequeTest.this.key1 || v == KTypeArrayDequeTest.this.key2;
-            };
-                }));
-
-        TestUtils.assertListEquals(this.deque.toArray(), 0, 4);
-    }
-
-    /* */
-    @Test
-    public void testRemoveAllWithPredicateInterrupted()
-    {
-        this.deque.addLast(newArray(this.k0, this.k1, this.k2, this.k1, this.k4));
-
-        final RuntimeException t = new RuntimeException();
-
-        try
-        {
-            //the assert below should never be triggered because of the exception
-            //so give it an invalid value in case the thing terminates  = initial size
-            Assert.assertEquals(5, this.deque.removeAll(new KTypePredicate<KType>()
-                    {
-                @Override
-                public boolean apply(final KType v)
-                {
-                    if (v == KTypeArrayDequeTest.this.key2) {
-                        throw t;
-                    }
-                    return v == KTypeArrayDequeTest.this.key1;
-                };
-                    }));
-            Assert.fail();
-        } catch (final RuntimeException e)
-        {
-            // Make sure it's really our exception...
-            if (e != t) {
-                throw e;
-            }
-        }
-
-        // And check if the deque is in consistent state.
-        TestUtils.assertListEquals(this.deque.toArray(), 0, this.key2, this.key1, 4);
-        Assert.assertEquals(4, this.deque.size());
-    }
-
-    /* */
-    @Test
     public void testClear()
     {
         this.deque.addLast(this.k1);
@@ -646,54 +468,6 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
 
     /* */
     @Test
-    public void testIterable()
-    {
-        this.deque.addLast(this.sequence);
-
-        int count = 0;
-        for (final KTypeCursor<KType> cursor : this.deque)
-        {
-            TestUtils.assertEquals2(this.sequence.buffer[count], cursor.value);
-            TestUtils.assertEquals2(this.deque.buffer[cursor.index], cursor.value);
-            count++;
-        }
-        Assert.assertEquals(count, this.deque.size());
-        Assert.assertEquals(count, this.sequence.size());
-
-        count = 0;
-        this.deque.clear();
-        for (@SuppressWarnings("unused")
-        final KTypeCursor<KType> cursor : this.deque)
-        {
-            count++;
-        }
-        Assert.assertEquals(0, count);
-    }
-
-    /* */
-    @Test
-    public void testIterator()
-    {
-        this.deque.addLast(asArray(0, 1, 2, 3));
-
-        final Iterator<KTypeCursor<KType>> iterator = this.deque.iterator();
-        int count = 0;
-        while (iterator.hasNext())
-        {
-            iterator.hasNext();
-            iterator.hasNext();
-            iterator.hasNext();
-            iterator.next();
-            count++;
-        }
-        Assert.assertEquals(count, this.deque.size());
-
-        this.deque.clear();
-        Assert.assertFalse(this.deque.iterator().hasNext());
-    }
-
-    /* */
-    @Test
     public void testDescendingIterator()
     {
         this.deque.addLast(this.sequence);
@@ -714,26 +488,6 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
 
     /* */
     @Test
-    public void testForEachWithProcedure()
-    {
-        this.deque.addLast(this.sequence);
-
-        final IntHolder count = new IntHolder();
-        this.deque.forEach(new KTypeProcedure<KType>() {
-            int index = 0;
-
-            @Override
-            public void apply(final KType v)
-            {
-                TestUtils.assertEquals2(KTypeArrayDequeTest.this.sequence.buffer[this.index++], v);
-                count.value++;
-            }
-        });
-        Assert.assertEquals(count.value, this.deque.size());
-    }
-
-    /* */
-    @Test
     public void testDescendingForEachWithProcedure()
     {
         this.deque.addLast(this.sequence);
@@ -750,61 +504,6 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
             }
         });
         Assert.assertEquals(count.value, this.deque.size());
-    }
-
-    /* */
-    @Test
-    public void testForEachWithPredicate()
-    {
-        this.deque.addLast(asArray(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12));
-
-        final int lastValue = this.deque.forEach(new KTypePredicate<KType>() {
-            int value = 0;
-            int index = 0;
-
-            @Override
-            public boolean apply(final KType v)
-            {
-                TestUtils.assertEquals2(v, KTypeArrayDequeTest.this.deque.get(this.index));
-                this.value = castType(v);
-
-                if (this.value == 6) {
-
-                    return false;
-                }
-
-                this.index++;
-
-                return true;
-            }
-        }).value;
-
-        Assert.assertEquals(lastValue, 6);
-    }
-
-    /* */
-    @Test
-    public void testForEachWithPredicateAllwaysTrue()
-    {
-        this.deque.addLast(asArray(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12));
-
-        final int lastValue = this.deque.forEach(new KTypePredicate<KType>() {
-            int value = 0;
-            int index = 0;
-
-            @Override
-            public boolean apply(final KType v)
-            {
-                TestUtils.assertEquals2(v, KTypeArrayDequeTest.this.deque.get(this.index));
-                this.value = castType(v);
-
-                this.index++;
-
-                return true;
-            }
-        }).value;
-
-        Assert.assertEquals(lastValue, 12);
     }
 
     /* */
@@ -936,174 +635,8 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
-    /*! #end !*/
     @Test
-    public void testHashCodeEquals()
-    {
-        final KTypeArrayDeque<KType> l0 = KTypeArrayDeque.newInstance();
-        Assert.assertEquals(1, l0.hashCode());
-        Assert.assertEquals(l0, KTypeArrayDeque.from());
-
-        final KTypeArrayDeque<KType> l1 = KTypeArrayDeque.from(this.k1, this.k2, this.k3);
-        final KTypeArrayDeque<KType> l2 = KTypeArrayDeque.from(this.k1, this.k2);
-        l2.addLast(this.k3);
-
-        Assert.assertEquals(l1.hashCode(), l2.hashCode());
-        Assert.assertEquals(l1, l2);
-    }
-
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testHashCodeWithNulls()
-    {
-        final KTypeArrayDeque<KType> l1 = KTypeArrayDeque.from(this.k1, null, this.k3);
-        final KTypeArrayDeque<KType> l2 = KTypeArrayDeque.from(this.k1, null, this.k3);
-        Assert.assertEquals(l1.hashCode(), l2.hashCode());
-        Assert.assertEquals(l1, l2);
-    }
-
-    /*! #end !*/
-
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @Test
-    public void testToArrayWithClass()
-    {
-        final KTypeArrayDeque<Integer> l1 = KTypeArrayDeque.from(1, 2, 3);
-        final Integer[] result = l1.toArray(Integer.class);
-        Assert.assertArrayEquals(new Integer[] { 1, 2, 3 }, result); // dummy
-    }
-
-    /*! #end !*/
-
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testToArray()
-    {
-        final KTypeArrayDeque<KType> l1 = KTypeArrayDeque.from(this.k1, this.k2, this.k3);
-        final Object[] result = l1.toArray();
-        Assert.assertArrayEquals(new Object[] { this.k1, this.k2, this.k3 }, result); // dummy
-    }
-
-    /*! #end !*/
-
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
-    /*! #end !*/
-    @Test
-    public void testClone()
-    {
-        this.deque.addLast(this.key1, this.key2, this.key3);
-
-        final KTypeArrayDeque<KType> cloned = this.deque.clone();
-        cloned.removeAll(this.key1);
-
-        TestUtils.assertSortedListEquals(this.deque.toArray(), this.key1, this.key2, this.key3);
-        TestUtils.assertSortedListEquals(cloned.toArray(), this.key2, this.key3);
-    }
-
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
-    /*! #end !*/
-    @Test
-    public void testToString()
-    {
-        Assert.assertEquals("["
-                + this.key1 + ", "
-                + this.key2 + ", "
-                + this.key3 + "]", KTypeArrayDeque.from(this.key1, this.key2, this.key3).toString());
-    }
-
-    @Test
-    public void testPooledIteratorForEach()
-    {
-        // Unbroken for-each loop
-        final int TEST_SIZE = 5000;
-        final long TEST_ROUNDS = 100;
-
-        final KTypeArrayDeque<KType> testContainer = createDequeWithOrderedData(TEST_SIZE);
-
-        final long checksum = testContainer.forEach(new KTypeProcedure<KType>() {
-
-            long count;
-
-            @Override
-            public void apply(final KType value)
-            {
-                this.count += castType(value);
-            }
-        }).count;
-
-        long testValue = 0;
-        final long initialPoolSize = testContainer.valueIteratorPool.size();
-
-        for (int round = 0; round < TEST_ROUNDS; round++)
-        {
-            //for-each in test :
-            testValue = 0;
-            for (final KTypeCursor<KType> cursor : testContainer)
-            {
-                //we consume 1 iterator for this loop
-                Assert.assertEquals(initialPoolSize - 1, testContainer.valueIteratorPool.size());
-
-                testValue += castType(cursor.value);
-            }
-
-            //check checksum the iteration
-            Assert.assertEquals(checksum, testValue);
-
-            //iterator is returned to its pool
-            Assert.assertEquals(initialPoolSize, testContainer.valueIteratorPool.size());
-        } //end for rounds
-    }
-
-    @Test
-    public void testPooledIteratorBrokenForEach()
-    {
-        final int TEST_SIZE = 5000;
-        final long TEST_ROUNDS = 100;
-
-        final KTypeArrayDeque<KType> testContainer = createDequeWithOrderedData(TEST_SIZE);
-
-        int count = 0;
-        for (int round = 0; round < TEST_ROUNDS; round++)
-        {
-            //for-each in test :
-            final long initialPoolSize = testContainer.valueIteratorPool.size();
-
-            count = 0;
-            for (final KTypeCursor<KType> cursor : testContainer)
-            {
-                this.guard += castType(cursor.value);
-                //we consume 1 iterator for this loop, but reallocs can happen,
-                //so we can only say its != initialPoolSize
-                Assert.assertTrue(initialPoolSize != testContainer.valueIteratorPool.size());
-
-                //brutally interrupt in the middle
-                if (count > TEST_SIZE / 2)
-                {
-                    break;
-                }
-
-                count++;
-            } //end for-each
-
-            //iterator is NOT returned to its pool, due to the break.
-            //reallocation could happen, so that the only testable thing
-            //is that the size is != full pool
-            Assert.assertTrue(initialPoolSize != testContainer.valueIteratorPool.size());
-        } //end for rounds
-
-        //Due to policy of the Iterator pool, the intended pool never get bigger that some limit
-        //despite the Iterator leak.
-        Assert.assertTrue(testContainer.valueIteratorPool.capacity() < IteratorPool.getMaxPoolSize() + 1);
-    }
-
-    @Test
-    public void testPooledIteratorFullIteratorLoop()
+    public void testDescendingPooledIteratorFullIteratorLoop()
     {
         final int TEST_SIZE = 5000;
         final long TEST_ROUNDS = 100;
@@ -1122,35 +655,16 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
         }).count;
 
         long testValue = 0;
-        final int startingPoolSize = testContainer.valueIteratorPool.size();
+
         final int startingPoolDescendingSize = testContainer.descendingValueIteratorPool.size();
 
         for (int round = 0; round < TEST_ROUNDS; round++)
         {
-            //A) Classical iterator loop, with manually allocated Iterator
-            int initialPoolSize = testContainer.valueIteratorPool.size();
 
-            Iterator<KTypeCursor<KType>> loopIterator = testContainer.iterator();
+            // Descending iterator loop
+            final int initialPoolSize = testContainer.descendingValueIteratorPool.size();
 
-            Assert.assertEquals(initialPoolSize - 1, testContainer.valueIteratorPool.size());
-
-            testValue = 0;
-
-            while (loopIterator.hasNext())
-            {
-                testValue += castType(loopIterator.next().value);
-            } //end IteratorLoop
-
-            //iterator is returned automatically to its pool, by normal iteration termination
-            Assert.assertEquals(initialPoolSize, testContainer.valueIteratorPool.size());
-
-            //checksum
-            Assert.assertEquals(checksum, testValue);
-
-            //B) Descending iterator loop
-            initialPoolSize = testContainer.descendingValueIteratorPool.size();
-
-            loopIterator = testContainer.descendingIterator();
+            final KTypeArrayDeque<KType>.DescendingValueIterator loopIterator = testContainer.descendingIterator();
 
             Assert.assertEquals(initialPoolSize - 1, testContainer.descendingValueIteratorPool.size());
 
@@ -1169,56 +683,26 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
         } //end for rounds
 
         // pool initial size is untouched anyway
-        Assert.assertEquals(startingPoolSize, testContainer.valueIteratorPool.size());
         Assert.assertEquals(startingPoolDescendingSize, testContainer.descendingValueIteratorPool.size());
     }
 
     @Test
-    public void testPooledIteratorBrokenIteratorLoop()
+    public void testDescendingPooledIteratorBrokenIteratorLoop()
     {
         final int TEST_SIZE = 5000;
         final long TEST_ROUNDS = 100;
 
         final KTypeArrayDeque<KType> testContainer = createDequeWithOrderedData(TEST_SIZE);
-        final int startingPoolSize = testContainer.valueIteratorPool.size();
+
         final int startingPoolDescendingSize = testContainer.descendingValueIteratorPool.size();
 
         int count = 0;
         for (int round = 0; round < TEST_ROUNDS; round++)
         {
-            //A) Classical iterator loop, with manually allocated Iterator, forward
-            long initialPoolSize = testContainer.valueIteratorPool.size();
+            // Descending iteration
+            final int initialPoolSize = testContainer.descendingValueIteratorPool.size();
 
-            Iterator<KTypeCursor<KType>> loopIterator = testContainer.iterator();
-
-            Assert.assertEquals(initialPoolSize - 1, testContainer.valueIteratorPool.size());
-
-            count = 0;
-            while (loopIterator.hasNext())
-            {
-                this.guard += castType(loopIterator.next().value);
-
-                //brutally interrupt in the middle
-                if (count > TEST_SIZE / 2)
-                {
-                    break;
-                }
-                count++;
-            } //end IteratorLoop
-
-            //iterator is NOT returned to its pool, due to the break.
-            Assert.assertEquals(initialPoolSize - 1, testContainer.valueIteratorPool.size());
-
-            //manual return to the pool
-            ((KTypeArrayDeque<KType>.ValueIterator) loopIterator).release();
-
-            //now the pool is restored
-            Assert.assertEquals(initialPoolSize, testContainer.valueIteratorPool.size());
-
-            //B) Descending iteration
-            initialPoolSize = testContainer.descendingValueIteratorPool.size();
-
-            loopIterator = testContainer.descendingIterator();
+            final KTypeArrayDeque<KType>.DescendingValueIterator loopIterator = testContainer.descendingIterator();
 
             Assert.assertEquals(initialPoolSize - 1, testContainer.descendingValueIteratorPool.size());
 
@@ -1239,7 +723,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
             Assert.assertEquals(initialPoolSize - 1, testContainer.descendingValueIteratorPool.size());
 
             //manual return to the pool
-            ((KTypeArrayDeque<KType>.DescendingValueIterator) loopIterator).release();
+            loopIterator.release();
 
             //now the pool is restored
             Assert.assertEquals(initialPoolSize, testContainer.descendingValueIteratorPool.size());
@@ -1247,74 +731,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
         } //end for rounds
 
         // pool initial size is untouched anyway
-        Assert.assertEquals(startingPoolSize, testContainer.valueIteratorPool.size());
         Assert.assertEquals(startingPoolDescendingSize, testContainer.descendingValueIteratorPool.size());
-    }
-
-    @Test
-    public void testPooledIteratorExceptionIteratorLoop()
-    {
-        final int TEST_SIZE = 5000;
-        final long TEST_ROUNDS = 100;
-
-        final KTypeArrayDeque<KType> testContainer = createDequeWithOrderedData(TEST_SIZE);
-
-        final long checksum = testContainer.forEach(new KTypeProcedure<KType>() {
-
-            long count;
-
-            @Override
-            public void apply(final KType value)
-            {
-                this.count += castType(value);
-            }
-        }).count;
-
-        final int startingPoolSize = testContainer.valueIteratorPool.size();
-
-        int count = 0;
-        Iterator<KTypeCursor<KType>> loopIterator = null;
-
-        for (int round = 0; round < TEST_ROUNDS; round++)
-        {
-            try
-            {
-                loopIterator = testContainer.iterator();
-                Assert.assertEquals(startingPoolSize - 1, testContainer.valueIteratorPool.size());
-
-                this.guard = 0;
-                count = 0;
-                while (loopIterator.hasNext())
-                {
-                    this.guard += castType(loopIterator.next().value);
-
-                    //brutally interrupt in the middle some of the loops, but not all
-                    if (round > TEST_ROUNDS / 2 && count > TEST_SIZE / 2)
-                    {
-                        throw new Exception("Oups some problem in the loop occured");
-                    }
-                    count++;
-                } //end while
-
-                //iterator is returned to its pool in case of normal loop termination
-                Assert.assertEquals(startingPoolSize, testContainer.valueIteratorPool.size());
-                Assert.assertEquals(checksum, this.guard);
-
-            } catch (final Exception e)
-            {
-                //iterator is NOT returned to its pool because of the exception
-                Assert.assertEquals(startingPoolSize - 1, testContainer.valueIteratorPool.size());
-
-                //manual return to the pool then
-                ((KTypeArrayDeque<KType>.ValueIterator) loopIterator).release();
-
-                //now the pool is restored
-                Assert.assertEquals(startingPoolSize, testContainer.valueIteratorPool.size());
-            }
-        } //end for rounds
-
-        // pool initial size is untouched anyway
-        Assert.assertEquals(startingPoolSize, testContainer.valueIteratorPool.size());
     }
 
     @Seed("1F4A04B1D776DCB6")
@@ -1375,120 +792,6 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
         comparatorDequeOriginal = creatDequeWithRandomData(TEST_SIZE, currentSeed);
         comparatorDeque.sort(lowerRange, upperRange, comp);
         assertOrder(comparatorDequeOriginal, comparatorDeque, lowerRange, upperRange);
-    }
-
-    @Repeat(iterations = 10)
-    @Test
-    public void testPreallocatedSize()
-    {
-        final Random randomVK = RandomizedTest.getRandom();
-        //Test that the container do not resize if less that the initial size
-
-        //1) Choose a random number of elements
-        /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
-        final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
-        /*!
-            #elseif ($TemplateOptions.isKType("SHORT", "CHAR"))
-             int PREALLOCATED_SIZE = randomVK.nextInt(10000);
-            #else
-              int PREALLOCATED_SIZE = randomVK.nextInt(10000);
-            #end !*/
-
-        //2) Preallocate to PREALLOCATED_SIZE :
-        final KTypeArrayDeque<KType> newDequeue = KTypeArrayDeque.newInstance(PREALLOCATED_SIZE);
-
-        //computed real capacity
-        final int realCapacity = newDequeue.capacity();
-
-        //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == realCapacity,
-        //and internal buffer/allocated must not have changed of size
-        final int contructorBufferSize = newDequeue.buffer.length;
-
-        Assert.assertEquals(contructorBufferSize, newDequeue.buffer.length);
-
-        for (int i = 0; i < 1.5 * realCapacity; i++) {
-
-            newDequeue.addLast(cast(randomVK.nextInt()));
-
-            //internal size has not changed until realCapacity
-            if (newDequeue.size() <= realCapacity) {
-
-                Assert.assertEquals(contructorBufferSize, newDequeue.buffer.length);
-            }
-
-            if (contructorBufferSize < newDequeue.buffer.length) {
-                //The container as just reallocated, its actual size must be not too far from the previous capacity:
-                Assert.assertTrue("Container as reallocated at size = " + newDequeue.size() + " with previous capacity = " + realCapacity,
-                        (newDequeue.size() - realCapacity) <= 2);
-                break;
-            }
-        }
-    }
-
-    @Repeat(iterations = 10)
-    @Test
-    public void testNoOverallocation() {
-
-        final Random randomVK = RandomizedTest.getRandom();
-        //Test that the container do not resize if less that the initial size
-
-        //1) Choose a random number of elements
-        /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
-        final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
-        /*!
-            #elseif ($TemplateOptions.isKType("SHORT", "CHAR"))
-             int PREALLOCATED_SIZE = randomVK.nextInt(10000);
-            #else
-              int PREALLOCATED_SIZE = randomVK.nextInt(10000);
-            #end !*/
-
-        //2) Preallocate to PREALLOCATED_SIZE :
-        final KTypeArrayDeque<KType> refContainer = new KTypeArrayDeque<KType>(PREALLOCATED_SIZE);
-
-        final int refCapacity = refContainer.capacity();
-
-        //3) Fill with random values, random number of elements below preallocation
-        final int nbElements = RandomizedTest.randomInt(PREALLOCATED_SIZE);
-
-        for (int i = 0; i < nbElements; i++) {
-
-            refContainer.add(cast(randomVK.nextInt()));
-        }
-
-        final int nbRefElements = refContainer.size();
-
-        //Capacity must have not changed, i.e no reallocation must have occured.
-        Assert.assertEquals(refCapacity, refContainer.capacity());
-
-        //4) Duplicate by copy-construction and/or clone
-        KTypeArrayDeque<KType> clonedContainer = refContainer.clone();
-        KTypeArrayDeque<KType> copiedContainer = new KTypeArrayDeque<KType>(refContainer);
-
-        //Duplicated containers must be equal to their origin, with a capacity no bigger than the original.
-
-        final int copiedCapacity = copiedContainer.capacity();
-
-        Assert.assertEquals(nbRefElements, clonedContainer.size());
-        Assert.assertEquals(nbRefElements, copiedContainer.size());
-        Assert.assertEquals(refCapacity, clonedContainer.capacity()); //clone is supposed to be cloned, so exact match !
-        Assert.assertTrue(refCapacity >= copiedCapacity);
-        Assert.assertTrue(clonedContainer.equals(refContainer));
-        Assert.assertTrue(copiedContainer.equals(refContainer));
-
-        //Maybe we were lucky, iterate duplication over itself several times
-        for (int j = 0; j < 10; j++) {
-
-            clonedContainer = clonedContainer.clone();
-            copiedContainer = new KTypeArrayDeque<KType>(copiedContainer);
-
-            //when copied over itself, of course every characteristic must be constant, else something is wrong.
-            Assert.assertEquals(nbRefElements, clonedContainer.size());
-            Assert.assertEquals(nbRefElements, copiedContainer.size());
-            Assert.assertEquals(refCapacity, clonedContainer.capacity());
-            Assert.assertEquals(copiedCapacity, copiedContainer.capacity());
-            Assert.assertTrue(clonedContainer.equals(refContainer));
-            Assert.assertTrue(copiedContainer.equals(refContainer));
-        }
     }
 
     private KTypeArrayDeque<KType> createDequeWithOrderedData(final int size)
