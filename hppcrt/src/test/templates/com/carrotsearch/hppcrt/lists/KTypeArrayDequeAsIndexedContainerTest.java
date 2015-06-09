@@ -19,10 +19,10 @@ import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
 
 /*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
-// ${TemplateOptions.doNotGenerateKType("BOOLEAN")}
 /**
  * Unit tests for {@link KTypeArrayDeque as KTypeIndexedContainer}.
  */
+//${TemplateOptions.doNotGenerateKType("BOOLEAN")}
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayDequeAsIndexedContainerTest<KType> extends AbstractKTypeIndexedContainerTest<KType>
 {
@@ -97,14 +97,14 @@ public class KTypeArrayDequeAsIndexedContainerTest<KType> extends AbstractKTypeI
     @After
     public void checkConsistency()
     {
-        final KTypeArrayDeque<KType> deque = (KTypeArrayDeque<KType>) this.list;
+        final KTypeArrayDeque<KType> arrayDeque = (KTypeArrayDeque<KType>) this.list;
 
-        if (deque != null)
+        if (arrayDeque != null)
         {
-            for (int i = deque.tail; i < deque.head; i = oneRight(i, deque.buffer.length))
+            for (int i = arrayDeque.tail; i < arrayDeque.head; i = oneRight(i, arrayDeque.buffer.length))
             {
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                Assert.assertTrue(Intrinsics.<KType> empty() == deque.buffer[i]);
+                Assert.assertTrue(Intrinsics.<KType> empty() == arrayDeque.buffer[i]);
                 /*! #end !*/
             }
         }

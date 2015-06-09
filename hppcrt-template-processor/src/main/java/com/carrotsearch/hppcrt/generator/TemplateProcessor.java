@@ -176,7 +176,6 @@ public final class TemplateProcessor
         p.setProperty(RuntimeConstants.OUTPUT_ENCODING, "UTF-8");
 
         //set the templatesDir to search for the '#import'ed  files....
-        p.setProperty("resource.loader", "file");
 
         //if the dependencies are not set, make them the same as the templates.
         if (this.dependenciesDir == null) {
@@ -516,7 +515,7 @@ public final class TemplateProcessor
                     log(Level.FINE,
                             "filterInlines(), parsed arguments '%s'"
                                     + ", passed to inlinedMethod.computeInlinedForm(this.genericParameters =  %s)... ",
-                                    params, inlinedMethod.getGenericParameters());
+                            params, inlinedMethod.getGenericParameters());
 
                     //fill-in the arguments depending of the type
                     final String result = inlinedMethod.computeInlinedForm(templateOptions, genericArgs, params);

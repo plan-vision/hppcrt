@@ -19,10 +19,10 @@ import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
 
 /*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
-// ${TemplateOptions.doNotGenerateKType("BOOLEAN")}
 /**
  * Unit tests for {@link KTypeArrayList}.
  */
+//${TemplateOptions.doNotGenerateKType("BOOLEAN")}
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayListTest<KType> extends AbstractKTypeIndexedContainerTest<KType>
 {
@@ -92,6 +92,43 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeIndexedContainerTest
     /// Implementation-specific tests
     /////////////////////////////////////
     private KTypeArrayList<KType> arrayList = new KTypeArrayList<KType>();
+
+    /* */
+    @Override
+    @Test
+    public void testIterator()
+    {
+        for (final int val : this.sequence) {
+
+            this.list.add(cast(val));
+        }
+
+        int count = 0;
+
+        final Integer[] seqBuffer = this.sequence.toArray(new Integer[this.sequence.size()]);
+
+        for (final KTypeCursor<KType> cursor : this.list)
+        {
+            TestUtils.assertEquals2((int) (seqBuffer[count]), castType(cursor.value));
+            //general case: index in buffer matches index of cursor
+            TestUtils.assertEquals2(getBuffer(this.list)[cursor.index], cursor.value);
+            //array list: index in buffer also matches index of get() method !
+            TestUtils.assertEquals2(this.list.get(cursor.index), cursor.value);
+            count++;
+
+        }
+        Assert.assertEquals(count, this.list.size());
+        Assert.assertEquals(count, this.sequence.size());
+
+        count = 0;
+        this.list.clear();
+        for (@SuppressWarnings("unused")
+        final KTypeCursor<KType> cursor : this.list)
+        {
+            count++;
+        }
+        Assert.assertEquals(0, count);
+    }
 
     /* */
 

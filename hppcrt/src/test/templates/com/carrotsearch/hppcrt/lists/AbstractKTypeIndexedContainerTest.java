@@ -476,7 +476,8 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
         for (final KTypeCursor<KType> cursor : this.list)
         {
             TestUtils.assertEquals2((int) (seqBuffer[count]), castType(cursor.value));
-            TestUtils.assertEquals2(this.list.get(cursor.index), cursor.value);
+            //general case: index in buffer matches index of cursor
+            TestUtils.assertEquals2(getBuffer(this.list)[cursor.index], cursor.value);
             count++;
 
         }

@@ -6,6 +6,12 @@ import org.junit.Assert;
 import com.carrotsearch.hppcrt.Intrinsics;
 import com.carrotsearch.hppcrt.KTypeContainer;
 
+/*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
+/**
+ * Unit tests for {@link KTypeArrayDeque as KTypeDeque}.
+ */
+//${TemplateOptions.doNotGenerateKType("BOOLEAN")}
+/*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayDequeAsDequeTest<KType> extends AbstractKTypeDequeTest<KType>
 {
     @Override
@@ -57,15 +63,14 @@ public class KTypeArrayDequeAsDequeTest<KType> extends AbstractKTypeDequeTest<KT
     @After
     public void checkConsistency()
     {
-
         final KTypeArrayDeque<KType> arrayDeque = (KTypeArrayDeque<KType>) this.deque;
 
         if (this.deque != null)
         {
-            for (int i = arrayDeque.tail; i < arrayDeque.head; i = oneRight(i, getBuffer(this.deque).length))
+            for (int i = arrayDeque.tail; i < arrayDeque.head; i = oneRight(i, arrayDeque.buffer.length))
             {
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                Assert.assertTrue(Intrinsics.<KType> empty() == getBuffer(this.deque)[i]);
+                Assert.assertTrue(Intrinsics.<KType> empty() == arrayDeque.buffer[i]);
                 /*! #end !*/
             }
         }

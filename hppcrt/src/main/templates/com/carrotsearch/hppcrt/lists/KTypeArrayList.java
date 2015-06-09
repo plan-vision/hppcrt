@@ -261,7 +261,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     @Override
     public void removeRange(final int fromIndex, final int toIndex) {
         assert (fromIndex >= 0 && fromIndex <= size()) : "Index " + fromIndex + " out of bounds [" + 0 + ", " + size()
-                + ").";
+        + ").";
 
         assert (toIndex >= 0 && toIndex <= size()) : "Index " + toIndex + " out of bounds [" + 0 + ", " + size() + "].";
 
@@ -618,8 +618,20 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     }
 
     /**
-     * {@inheritDoc}
+     * Returns an iterator over the values of this list.
+     * The iterator is implemented as a cursor and it returns <b>the same cursor instance</b>
+     * on every call to {@link Iterator#next()} (to avoid boxing of primitive types). To
+     * read the current value, or index in the list's {@link #buffer} (which also matches index as in {@link #get(index)}), use the cursor's public
+     * fields. An example is shown below.
      * 
+     * <pre>
+     * for (Iterator<IntCursor> i = intDeque.descendingIterator(); i.hasNext(); )
+     * {
+     *   final IntCursor c = i.next();
+     *     System.out.println(&quot;buffer index=&quot;
+     *         + c.index + &quot; value=&quot; + c.value);
+     * }
+     * </pre>
      */
     @Override
     public ValueIterator iterator() {
@@ -641,7 +653,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      */
     public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure, final int fromIndex, final int toIndex) {
         assert (fromIndex >= 0 && fromIndex <= size()) : "Index " + fromIndex + " out of bounds [" + 0 + ", " + size()
-                + ").";
+        + ").";
 
         assert (toIndex >= 0 && toIndex <= size()) : "Index " + toIndex + " out of bounds [" + 0 + ", " + size() + "].";
 
@@ -716,7 +728,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      */
     public <T extends KTypePredicate<? super KType>> T forEach(final T predicate, final int fromIndex, final int toIndex) {
         assert (fromIndex >= 0 && fromIndex <= size()) : "Index " + fromIndex + " out of bounds [" + 0 + ", " + size()
-                + ").";
+        + ").";
 
         assert (toIndex >= 0 && toIndex <= size()) : "Index " + toIndex + " out of bounds [" + 0 + ", " + size() + "].";
 
@@ -738,7 +750,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayList<KType> newInstance() {
+    KTypeArrayList<KType> newInstance() {
         return new KTypeArrayList<KType>();
     }
 
@@ -747,7 +759,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayList<KType> newInstance(final int initialCapacity) {
+    KTypeArrayList<KType> newInstance(final int initialCapacity) {
         return new KTypeArrayList<KType>(initialCapacity);
     }
 
@@ -756,7 +768,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * <code>KType</code>.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayList<KType> from(final KType... elements) {
+    KTypeArrayList<KType> from(final KType... elements) {
         final KTypeArrayList<KType> list = new KTypeArrayList<KType>(elements.length);
         list.add(elements);
         return list;
@@ -766,7 +778,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * Create a list from elements of another container.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayList<KType> from(final KTypeContainer<KType> container) {
+    KTypeArrayList<KType> from(final KTypeContainer<KType> container) {
         return new KTypeArrayList<KType>(container);
     }
 
@@ -818,10 +830,10 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     public void sort(final int beginIndex, final int endIndex,
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
-            /*! #else
+    /*! #else
                                             KTypeComparator<? super KType>
                                             #end !*/
-            comp) {
+    comp) {
         assert endIndex <= this.elementsCount;
 
         if (endIndex - beginIndex > 1) {

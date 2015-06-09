@@ -46,10 +46,6 @@ public abstract class AbstractKTypeDequeTest<KType> extends AbstractKTypeTest<KT
 
     protected abstract KType[] getBuffer(KTypeDeque<KType> testList);
 
-    //   protected abstract int getHead(KTypeDeque<KType> testList);
-
-    //    protected abstract int getTail(KTypeDeque<KType> testList);
-
     abstract int getDescendingValuePoolSize(KTypeDeque<KType> testList);
 
     abstract int getDescendingValuePoolCapacity(KTypeDeque<KType> testList);
@@ -90,8 +86,27 @@ public abstract class AbstractKTypeDequeTest<KType> extends AbstractKTypeTest<KT
         this.deque.addFirst(this.k1);
         this.deque.addFirst(this.k2);
         this.deque.addFirst(this.k3);
-        TestUtils.assertListEquals(this.deque.toArray(), 3, 2, 1);
-        Assert.assertEquals(3, this.deque.size());
+        this.deque.addFirst(this.k7);
+        this.deque.addFirst(this.k1);
+        this.deque.addFirst(this.k4);
+        this.deque.addFirst(this.k5);
+        TestUtils.assertListEquals(this.deque.toArray(), 5, 4, 1, 7, 3, 2, 1);
+        Assert.assertEquals(7, this.deque.size());
+    }
+
+    /* */
+    @Test
+    public void testAddLast()
+    {
+        this.deque.addLast(this.k1);
+        this.deque.addLast(this.k2);
+        this.deque.addLast(this.k3);
+        this.deque.addLast(this.k7);
+        this.deque.addLast(this.k1);
+        this.deque.addLast(this.k4);
+        this.deque.addLast(this.k5);
+        TestUtils.assertListEquals(this.deque.toArray(), 1, 2, 3, 7, 1, 4, 5);
+        Assert.assertEquals(7, this.deque.size());
     }
 
     /* */
@@ -367,7 +382,7 @@ public abstract class AbstractKTypeDequeTest<KType> extends AbstractKTypeTest<KT
 
     /* */
     @Test
-    public void testDescendingIterator()
+    public void testDescendingIterable()
     {
         addFromContainer(this.deque, this.sequence);
 
@@ -376,6 +391,7 @@ public abstract class AbstractKTypeDequeTest<KType> extends AbstractKTypeTest<KT
         {
             final KTypeCursor<KType> cursor = i.next();
             TestUtils.assertEquals2(this.sequence.buffer[index], cursor.value);
+            //general case: index in buffer matches index of cursor
             TestUtils.assertEquals2(getBuffer(this.deque)[cursor.index], cursor.value);
             index--;
         }

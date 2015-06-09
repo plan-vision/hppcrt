@@ -21,10 +21,10 @@ import com.carrotsearch.randomizedtesting.annotations.Repeat;
 import com.carrotsearch.randomizedtesting.annotations.Seed;
 
 /*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
-// ${TemplateOptions.doNotGenerateKType("BOOLEAN")}
 /**
  * Unit tests for {@link KTypeArrayDeque}.
  */
+//${TemplateOptions.doNotGenerateKType("BOOLEAN")}
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
 {

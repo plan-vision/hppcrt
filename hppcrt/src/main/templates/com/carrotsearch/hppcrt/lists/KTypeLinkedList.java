@@ -31,7 +31,7 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeLinkedList<KType>
-        extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, KTypeDeque<KType>, Cloneable
+extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, KTypeDeque<KType>, Cloneable
 {
     /**
      * Internal array for storing the list. The array may be larger than the current size
@@ -45,8 +45,8 @@ public class KTypeLinkedList<KType>
           KType []
           #else !*/
     Object[]
-    /*! #end !*/
-    buffer;
+            /*! #end !*/
+            buffer;
 
     /**
      * Represent the before / after nodes for each element of the buffer,
@@ -334,7 +334,7 @@ public class KTypeLinkedList<KType>
     @Override
     public void removeRange(final int fromIndex, final int toIndex) {
         assert (fromIndex >= 0 && fromIndex <= size()) : "Index " + fromIndex + " out of bounds [" + 0 + ", " + size()
-                + ").";
+        + ").";
 
         assert (toIndex >= 0 && toIndex <= size()) : "Index " + toIndex + " out of bounds [" + 0 + ", " + size() + "].";
 
@@ -1465,7 +1465,12 @@ public class KTypeLinkedList<KType>
 
     /**
      * 
-     * Request a new iterator. The iterator points to "head", such as ValueIterator.gotoNext()
+     * {@inheritDoc}
+     * The iterator is implemented as a cursor and it returns <b>the same cursor instance</b>
+     * on every call to {@link Iterator#next()} (to avoid boxing of primitive types). To
+     * read the current value, or index as in {@link #get(index)}, use the cursor's public
+     * fields.
+     * The iterator points to "head", such as ValueIterator.gotoNext()
      * is the first element of the list.
      * <b>
      * Important note: java.util.Iterator methods are error-prone, and only there for compatibility and enhanced for loop usage:
@@ -1501,12 +1506,12 @@ public class KTypeLinkedList<KType>
     }
 
     /**
-     * Returns a cursor over the values of this list (in tail to head order).
+     * Returns an iterator over the values of this list (in tail to head order).
      * The iterator points to the "head", such as DescendingValueIterator.gotoNext()
-     * is the last element of the list (since it is a "reversed" iteration).
+     * is the last element of the list, since it is a "reversed" iteration.
      * The iterator is implemented as a cursor and it returns <b>the same cursor instance</b>
      * on every call to {@link Iterator#next()} (to avoid boxing of primitive types). To
-     * read the current value (or index in the deque's buffer) use the cursor's public
+     * read the current value, or index as in {@link #get(index)}, use the cursor's public
      * fields. An example is shown below.
      * <b>
      * Important note: java.util.Iterator methods are error-prone, and only there for compatibility. Use
@@ -1654,7 +1659,7 @@ public class KTypeLinkedList<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> newInstance() {
+    KTypeLinkedList<KType> newInstance() {
         return new KTypeLinkedList<KType>();
     }
 
@@ -1663,7 +1668,7 @@ public class KTypeLinkedList<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> newInstance(final int initialCapacity) {
+    KTypeLinkedList<KType> newInstance(final int initialCapacity) {
         return new KTypeLinkedList<KType>(initialCapacity);
     }
 
@@ -1672,7 +1677,7 @@ public class KTypeLinkedList<KType>
      * The elements are copied from the argument to the internal buffer.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> from(final KType... elements) {
+    KTypeLinkedList<KType> from(final KType... elements) {
         final KTypeLinkedList<KType> list = new KTypeLinkedList<KType>(elements.length);
         list.add(elements);
         return list;
@@ -1682,7 +1687,7 @@ public class KTypeLinkedList<KType>
      * Create a list from elements of another container.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> from(final KTypeContainer<KType> container) {
+    KTypeLinkedList<KType> from(final KTypeContainer<KType> container) {
         return new KTypeLinkedList<KType>(container);
     }
 
@@ -1730,10 +1735,10 @@ public class KTypeLinkedList<KType>
     public void sort(final int beginIndex, final int endIndex,
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
-            /*! #else
+    /*! #else
                                                                             KTypeComparator<? super KType>
                                                                             #end !*/
-            comp) {
+    comp) {
         assert endIndex <= size();
 
         if (endIndex - beginIndex > 1) {

@@ -229,42 +229,6 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
                 + this.key1 + "]", KTypeStack.from(this.key1, this.key2, this.key3).toString());
     }
 
-    @Repeat(iterations = 10)
-    @Test
-    public void testPreallocatedSize()
-    {
-        final Random randomVK = RandomizedTest.getRandom();
-        //Test that the container do not resize if less that the initial size
-
-        //1) Choose a random number of elements
-        /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
-        final int PREALLOCATED_SIZE = randomVK.nextInt(10000);
-        /*!
-            #elseif ($TemplateOptions.isKType("SHORT", "CHAR"))
-             int PREALLOCATED_SIZE = randomVK.nextInt(10000);
-            #else
-              int PREALLOCATED_SIZE = randomVK.nextInt(10000);
-            #end !*/
-
-        //2) Preallocate to PREALLOCATED_SIZE :
-        final KTypeStack<KType> newStack = KTypeStack.newInstance(PREALLOCATED_SIZE);
-
-        //3) Add PREALLOCATED_SIZE different values. At the end, size() must be == PREALLOCATED_SIZE,
-        //and internal buffer/allocated must not have changed of size
-        final int contructorBufferSize = newStack.buffer.length;
-
-        for (int i = 0; i < PREALLOCATED_SIZE; i++)
-        {
-
-            newStack.add(cast(randomVK.nextInt()));
-
-            //internal size has not changed.
-            Assert.assertEquals(contructorBufferSize, newStack.buffer.length);
-        }
-
-        Assert.assertEquals(PREALLOCATED_SIZE, newStack.size());
-    }
-
     /////////////////////
     // Overridden list methods
     ////////////////////////
