@@ -49,7 +49,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     protected VType defaultValue = Intrinsics.<VType> empty();
 
@@ -64,8 +64,8 @@ public class KTypeVTypeHashMap<KType, VType>
           KType []
           #else !*/
     Object[]
-    /*! #end !*/
-    keys;
+            /*! #end !*/
+            keys;
 
     /**
      * Hash-indexed array holding all values associated to the keys.
@@ -75,8 +75,8 @@ public class KTypeVTypeHashMap<KType, VType>
           VType []
           #else !*/
     Object[]
-    /*! #end !*/
-    values;
+            /*! #end !*/
+            values;
 
     /*! #if ($RH) !*/
     /**
@@ -1039,6 +1039,8 @@ public class KTypeVTypeHashMap<KType, VType>
 
     /**
      * An iterator implementation for {@link #iterator}.
+     * Holds a KTypeVTypeCursor returning
+     * (key, value, index) = (KType key, VType value, index the position in keys {@link KTypeVTypeHashMap#keys}, or keys.length for key = 0/null)
      */
     public final class EntryIterator extends AbstractIterator<KTypeVTypeCursor<KType, VType>>
     {
@@ -1334,6 +1336,7 @@ public class KTypeVTypeHashMap<KType, VType>
 
     /**
      * An iterator over the set of keys.
+     * Holds a KTypeCursor returning (value, index) = (KType key, index the position in heap {@link KTypeVTypeHashMap#keys}, or keys.length for key = 0/null.)
      */
     public final class KeysIterator extends AbstractIterator<KTypeCursor<KType>>
     {
@@ -1616,6 +1619,8 @@ public class KTypeVTypeHashMap<KType, VType>
 
     /**
      * An iterator over the set of values.
+     * Holds a KTypeCursor returning (value, index) = (VType value, index the position in buffer {@link KTypeVTypeHashMap#values},
+     * or values.length for value = {@link KTypeVTypeHashMap#allocatedDefaultKeyValue}).
      */
     public final class ValuesIterator extends AbstractIterator<KTypeCursor<VType>>
     {

@@ -1075,6 +1075,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
     /**
      * An iterator implementation for {@link #iterator}.
+     * Holds a KTypeVTypeCursor returning
+     * (key, value, index) = (KType key, VType value, index the position in keys {@link KTypeVTypeCustomHashMap#keys}, or keys.length for key = 0/null)
      */
     public final class EntryIterator extends AbstractIterator<KTypeVTypeCursor<KType, VType>>
     {
@@ -1368,6 +1370,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
     /**
      * An iterator over the set of keys.
+     * Holds a KTypeCursor returning (value, index) = (KType key, index the position in buffer {@link KTypeVTypeCustomHashMap#keys}, or keys.length for key = 0/null.)
      */
     public final class KeysIterator extends AbstractIterator<KTypeCursor<KType>>
     {
@@ -1648,6 +1651,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
     /**
      * An iterator over the set of values.
+     * Holds a KTypeCursor returning (value, index) = (VType value, index the position in buffer {@link KTypeVTypeCustomHashMap#values},
+     * or values.length for value = {@link KTypeVTypeCustomHashMap#allocatedDefaultKeyValue}).
      */
     public final class ValuesIterator extends AbstractIterator<KTypeCursor<VType>>
     {

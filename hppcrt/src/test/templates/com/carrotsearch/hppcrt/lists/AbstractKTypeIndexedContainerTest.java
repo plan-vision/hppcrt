@@ -95,6 +95,25 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
     {
         if (this.list != null)
         {
+            int count = 0;
+            //check access by get()
+            for (/*! #if ($TemplateOptions.KTypeGeneric) !*/final Object
+            /*! #else
+            final KType
+            #end !*/
+            val : this.list.toArray()) {
+
+                /*! #if ($TemplateOptions.KTypeGeneric) !*/
+                TestUtils.assertEquals2(val, (Object) this.list.get(count));
+                /*! #else
+                TestUtils.assertEquals2(val, this.list.get(count));
+                #end !*/
+                count++;
+            }
+
+            Assert.assertEquals(count, this.list.size());
+
+            //check beyond validity range
             for (int i = this.list.size(); i < getBuffer(this.list).length; i++) {
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 Assert.assertTrue(Intrinsics.<KType> empty() == getBuffer(this.list)[i]);
@@ -307,13 +326,13 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
         addFromArray(this.list, newArray(this.k0, this.k1, this.k2, this.k1, this.k4));
 
         Assert.assertEquals(3, this.list.removeAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return v == AbstractKTypeIndexedContainerTest.this.key1 || v == AbstractKTypeIndexedContainerTest.this.key2;
             };
-                }));
+        }));
 
         TestUtils.assertListEquals(this.list.toArray(), 0, 4);
     }
@@ -325,25 +344,25 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
         addFromArray(this.list, newArray(this.k0, this.k1, this.k2, this.k1, this.k4));
 
         Assert.assertEquals(5, this.list.removeAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return true;
             };
-                }));
+        }));
 
         Assert.assertEquals(0, this.list.size());
 
         //try again
         Assert.assertEquals(0, this.list.removeAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return true;
             };
-                }));
+        }));
 
         Assert.assertEquals(0, this.list.size());
     }
@@ -355,13 +374,13 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
         addFromArray(this.list, newArray(this.k0, this.k1, this.k2, this.k1, this.k0));
 
         Assert.assertEquals(2, this.list.retainAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return v == AbstractKTypeIndexedContainerTest.this.key1 || v == AbstractKTypeIndexedContainerTest.this.key2;
             };
-                }));
+        }));
 
         TestUtils.assertListEquals(this.list.toArray(), 1, 2, 1);
     }
@@ -378,7 +397,7 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size
             Assert.assertEquals(5, this.list.removeAll(new KTypePredicate<KType>()
-                    {
+            {
                 @Override
                 public boolean apply(final KType v)
                 {
@@ -387,7 +406,7 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
                     }
                     return v == AbstractKTypeIndexedContainerTest.this.key1;
                 };
-                    }));
+            }));
             Assert.fail();
         } catch (final RuntimeException e)
         {

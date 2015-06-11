@@ -61,8 +61,29 @@ public class KTypeLinkedListAsDequeTest<KType> extends AbstractKTypeDequeTest<KT
     @After
     public void checkConsistency()
     {
+        final KTypeLinkedList<KType> linkedList = (KTypeLinkedList<KType>) this.deque;
+
         if (this.deque != null)
         {
+            int count = 0;
+            //check access by get()
+            for (/*! #if ($TemplateOptions.KTypeGeneric) !*/final Object
+                    /*! #else
+            final KType
+            #end !*/
+                    val : linkedList.toArray()) {
+
+                /*! #if ($TemplateOptions.KTypeGeneric) !*/
+                TestUtils.assertEquals2(val, (Object) linkedList.get(count));
+                /*! #else
+                TestUtils.assertEquals2(val, linkedList.get(count));
+                #end !*/
+                count++;
+            }
+
+            Assert.assertEquals(count, linkedList.size());
+
+            //check beyond validity range
             //real data starts after first 2 placeholders
             for (int i = this.deque.size() + 2; i < getBuffer(this.deque).length; i++) {
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/

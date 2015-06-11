@@ -77,8 +77,6 @@ public abstract class AbstractKTypeDequeTest<KType> extends AbstractKTypeTest<KT
         return createNewInstance(0);
     }
 
-
-
     /* */
     @Test
     public void testAddFirst()

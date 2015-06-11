@@ -64,6 +64,25 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     {
         if (this.list != null)
         {
+            int count = 0;
+            //check access by get()
+            for (/*! #if ($TemplateOptions.KTypeGeneric) !*/final Object
+            /*! #else
+            final KType
+            #end !*/
+            val : this.list.toArray()) {
+
+                /*! #if ($TemplateOptions.KTypeGeneric) !*/
+                TestUtils.assertEquals2(val, (Object) this.list.get(count));
+                /*! #else
+                TestUtils.assertEquals2(val, this.list.get(count));
+                #end !*/
+                count++;
+            }
+
+            Assert.assertEquals(count, this.list.size());
+
+            //check beyond validity range
             for (int i = this.list.elementsCount; i < this.list.buffer.length; i++) {
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 Assert.assertTrue(Intrinsics.<KType> empty() == this.list.buffer[i]);
@@ -242,7 +261,6 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     }
 
     ////////////////////////////////// Dequeue-like tests //////////////////////////////////////////////////////////////////
-
 
     /* */
     @Test

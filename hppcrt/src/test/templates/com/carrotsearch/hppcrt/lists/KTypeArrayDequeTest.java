@@ -71,6 +71,26 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     {
         if (this.deque != null)
         {
+            int count = 0;
+            //check access by get()
+            for (/*! #if ($TemplateOptions.KTypeGeneric) !*/final Object
+            /*! #else
+            final KType
+            #end !*/
+            val : this.deque.toArray()) {
+
+                /*! #if ($TemplateOptions.KTypeGeneric) !*/
+                TestUtils.assertEquals2(val, (Object) this.deque.get(count));
+                /*! #else
+                TestUtils.assertEquals2(val, this.deque.get(count));
+                #end !*/
+                count++;
+            }
+
+            Assert.assertEquals(count, this.deque.size());
+
+            //check beyond validity range
+
             for (int i = this.deque.tail; i < this.deque.head; i = oneRight(i, this.deque.buffer.length))
             {
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
@@ -98,7 +118,6 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
         this.deque.addFirst(deque2);
         TestUtils.assertListEquals(this.deque.toArray(), 2, 1, 0);
     }
-
 
     /* */
     @Test
@@ -142,7 +161,6 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertTrue("Buffer size: 510 <= " + this.deque.buffer.length,
                 this.deque.buffer.length <= count + maxGrowth);
     }
-
 
     /* */
     @Test

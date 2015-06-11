@@ -293,7 +293,7 @@ implements KTypePriorityQueue<KType>, Cloneable
 
     /**
      * An iterator implementation for {@link KTypeHeapPriorityQueue#iterator}.
-     * Holds a KTypeCursor cursor returning (value, index) = (KType value, index the position in heap)
+     * Holds a KTypeCursor returning (value, index) = (KType value, index the position in heap {@link KTypeHeapPriorityQueue#buffer}.)
      */
     public final class ValueIterator extends AbstractIterator<KTypeCursor<KType>>
     {
@@ -715,8 +715,8 @@ implements KTypePriorityQueue<KType>, Cloneable
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
             /*! #else
-                                                    public KTypeComparator<? super KType>
-                                            #end !*/
+                                                            public KTypeComparator<? super KType>
+                                                    #end !*/
             comparator() {
 
         return this.comparator;

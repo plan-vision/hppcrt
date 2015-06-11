@@ -5,6 +5,7 @@ import org.junit.Assert;
 
 import com.carrotsearch.hppcrt.Intrinsics;
 import com.carrotsearch.hppcrt.KTypeContainer;
+import com.carrotsearch.hppcrt.TestUtils;
 
 /*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
 /**
@@ -65,8 +66,26 @@ public class KTypeArrayDequeAsDequeTest<KType> extends AbstractKTypeDequeTest<KT
     {
         final KTypeArrayDeque<KType> arrayDeque = (KTypeArrayDeque<KType>) this.deque;
 
-        if (this.deque != null)
+        if (arrayDeque != null)
         {
+            int count = 0;
+            //check access by get()
+            for (/*! #if ($TemplateOptions.KTypeGeneric) !*/final Object
+                    /*! #else
+            final KType
+            #end !*/
+                    val : arrayDeque.toArray()) {
+
+                /*! #if ($TemplateOptions.KTypeGeneric) !*/
+                TestUtils.assertEquals2(val, (Object) arrayDeque.get(count));
+                /*! #else
+                TestUtils.assertEquals2(val, arrayDeque.get(count));
+                #end !*/
+                count++;
+            }
+
+            Assert.assertEquals(count, this.deque.size());
+
             for (int i = arrayDeque.tail; i < arrayDeque.head; i = oneRight(i, arrayDeque.buffer.length))
             {
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/

@@ -99,6 +99,26 @@ public class KTypeLinkedListAsIndexedContainerTest<KType> extends AbstractKTypeI
     {
         if (this.list != null)
         {
+            int count = 0;
+            //check access by get()
+            for (/*! #if ($TemplateOptions.KTypeGeneric) !*/final Object
+                    /*! #else
+            final KType
+            #end !*/
+                    val : this.list.toArray()) {
+
+                /*! #if ($TemplateOptions.KTypeGeneric) !*/
+                TestUtils.assertEquals2(val, (Object) this.list.get(count));
+                /*! #else
+                TestUtils.assertEquals2(val, this.list.get(count));
+                #end !*/
+                count++;
+            }
+
+            Assert.assertEquals(count, this.list.size());
+
+            //check beyond validity range
+
             //real data starts after first 2 placeholders
             for (int i = this.list.size() + 2; i < getBuffer(this.list).length; i++) {
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/

@@ -96,7 +96,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeIndexedContainerTest
     /* */
     @Override
     @Test
-    public void testIterator()
+    public void testIterable()
     {
         for (final int val : this.sequence) {
 

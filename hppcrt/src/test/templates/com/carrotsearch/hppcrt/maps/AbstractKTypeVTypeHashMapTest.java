@@ -898,6 +898,9 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
         this.map.put(this.key1, this.value1);
         this.map.put(this.key2, this.value2);
         this.map.put(this.key3, this.value3);
+        this.map.put(this.key5, this.value5);
+        this.map.put(this.key6, this.value7);
+        this.map.put(this.key7, this.value9);
         this.map.remove(this.key2);
 
         int count = 0;
@@ -905,27 +908,35 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
         {
             if (cursor.index == this.getKeys(this.map).length) {
 
+                Assert.assertTrue(this.isAllocatedDefaultKey(this.map));
                 TestUtils.assertEquals2(this.keyE, cursor.key);
                 TestUtils.assertEquals2(this.getAllocatedDefaultKeyValue(this.map), cursor.value);
+                Assert.assertTrue(this.map.containsKey(cursor.key));
+                TestUtils.assertEquals2(cursor.value, this.map.get(cursor.key));
                 count++;
                 continue;
             }
 
-            count++;
             Assert.assertTrue(this.map.containsKey(cursor.key));
             TestUtils.assertEquals2(cursor.value, this.map.get(cursor.key));
 
             TestUtils.assertEquals2(cursor.value, this.getValues(this.map)[cursor.index]);
             TestUtils.assertEquals2(cursor.key, this.getKeys(this.map)[cursor.index]);
+            count++;
         }
         Assert.assertEquals(count, this.map.size());
 
+        //Another try !
         this.map.clear();
         Assert.assertFalse(this.map.iterator().hasNext());
 
-        this.map.put(this.keyE, this.value1);
         this.map.put(this.key8, this.value2);
         this.map.put(this.key2, this.value3);
+        this.map.put(this.key5, this.value2);
+        this.map.put(this.keyE, this.value1);
+        this.map.put(this.key4, this.value3);
+        this.map.put(this.key3, this.value2);
+        this.map.put(this.key2, this.value9);
         this.map.remove(this.key2);
 
         count = 0;
@@ -933,18 +944,156 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
         {
             if (cursor.index == this.getKeys(this.map).length) {
 
+                Assert.assertTrue(this.isAllocatedDefaultKey(this.map));
                 TestUtils.assertEquals2(this.keyE, cursor.key);
                 TestUtils.assertEquals2(this.getAllocatedDefaultKeyValue(this.map), cursor.value);
+                Assert.assertTrue(this.map.containsKey(cursor.key));
+                TestUtils.assertEquals2(cursor.value, this.map.get(cursor.key));
                 count++;
                 continue;
             }
 
-            count++;
             Assert.assertTrue(this.map.containsKey(cursor.key));
             TestUtils.assertEquals2(cursor.value, this.map.get(cursor.key));
 
             TestUtils.assertEquals2(cursor.value, this.getValues(this.map)[cursor.index]);
             TestUtils.assertEquals2(cursor.key, this.getKeys(this.map)[cursor.index]);
+            count++;
+        }
+        Assert.assertEquals(count, this.map.size());
+
+        this.map.clear();
+        Assert.assertFalse(this.map.iterator().hasNext());
+    }
+
+    /* */
+    @Test
+    public void testIterableByKeysView()
+    {
+        this.map.put(this.key1, this.value1);
+        this.map.put(this.key2, this.value2);
+        this.map.put(this.key3, this.value3);
+        this.map.put(this.key5, this.value5);
+        this.map.put(this.key6, this.value7);
+        this.map.put(this.key7, this.value9);
+        this.map.remove(this.key2);
+
+        int count = 0;
+        for (final KTypeCursor<KType> cursor : this.map.keys())
+        {
+            if (cursor.index == this.getKeys(this.map).length) {
+
+                Assert.assertTrue(this.isAllocatedDefaultKey(this.map));
+                TestUtils.assertEquals2(this.keyE, cursor.value);
+                Assert.assertTrue(this.isAllocatedDefaultKey(this.map));
+                Assert.assertTrue(this.map.containsKey(cursor.value));
+
+                count++;
+                continue;
+            }
+
+            Assert.assertTrue(this.map.containsKey(cursor.value));
+
+            TestUtils.assertEquals2(cursor.value, this.getKeys(this.map)[cursor.index]);
+            count++;
+        }
+        Assert.assertEquals(count, this.map.size());
+
+        //Another try !
+        this.map.clear();
+        Assert.assertFalse(this.map.keys().iterator().hasNext());
+
+        this.map.put(this.key8, this.value2);
+        this.map.put(this.key2, this.value3);
+        this.map.put(this.key5, this.value2);
+        this.map.put(this.keyE, this.value1);
+        this.map.put(this.key4, this.value3);
+        this.map.put(this.key3, this.value2);
+        this.map.put(this.key2, this.value9);
+        this.map.remove(this.key2);
+
+        count = 0;
+        for (final KTypeCursor<KType> cursor : this.map.keys())
+        {
+            if (cursor.index == this.getKeys(this.map).length) {
+
+                Assert.assertTrue(this.isAllocatedDefaultKey(this.map));
+                TestUtils.assertEquals2(this.keyE, cursor.value);
+                Assert.assertTrue(this.isAllocatedDefaultKey(this.map));
+                Assert.assertTrue(this.map.containsKey(cursor.value));
+
+                count++;
+                continue;
+            }
+
+            Assert.assertTrue(this.map.containsKey(cursor.value));
+
+            TestUtils.assertEquals2(cursor.value, this.getKeys(this.map)[cursor.index]);
+            count++;
+        }
+        Assert.assertEquals(count, this.map.size());
+
+        this.map.clear();
+        Assert.assertFalse(this.map.keys().iterator().hasNext());
+    }
+
+    /* */
+    @Test
+    public void testIterableByValuesView()
+    {
+        this.map.put(this.key1, this.value1);
+        this.map.put(this.key2, this.value2);
+        this.map.put(this.key3, this.value3);
+        this.map.put(this.key5, this.value5);
+        this.map.put(this.key6, this.value7);
+        this.map.put(this.key7, this.value9);
+        this.map.remove(this.key2);
+
+        int count = 0;
+        for (final KTypeCursor<VType> cursor : this.map.values())
+        {
+            if (cursor.index == this.getKeys(this.map).length) {
+
+                Assert.assertTrue(this.isAllocatedDefaultKey(this.map));
+                TestUtils.assertEquals2(this.getAllocatedDefaultKeyValue(this.map), cursor.value);
+
+                count++;
+                continue;
+            }
+
+            TestUtils.assertEquals2(cursor.value, this.getValues(this.map)[cursor.index]);
+            count++;
+        }
+        Assert.assertEquals(count, this.map.size());
+
+        //Another try !
+        this.map.clear();
+        Assert.assertFalse(this.map.iterator().hasNext());
+
+        this.map.put(this.key8, this.value2);
+        this.map.put(this.key2, this.value3);
+        this.map.put(this.key5, this.value2);
+        this.map.put(this.keyE, this.value1);
+        this.map.put(this.key4, this.value3);
+        this.map.put(this.key3, this.value2);
+        this.map.put(this.key2, this.value9);
+        this.map.remove(this.key2);
+
+        count = 0;
+        for (final KTypeCursor<VType> cursor : this.map.values())
+        {
+            if (cursor.index == this.getKeys(this.map).length) {
+
+                Assert.assertTrue(this.isAllocatedDefaultKey(this.map));
+                TestUtils.assertEquals2(this.getAllocatedDefaultKeyValue(this.map), cursor.value);
+
+                count++;
+                continue;
+            }
+
+            TestUtils.assertEquals2(cursor.value, this.getValues(this.map)[cursor.index]);
+
+            count++;
         }
         Assert.assertEquals(count, this.map.size());
 

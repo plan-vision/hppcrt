@@ -66,7 +66,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
      * i.e for a priority buffer position pos, qp[pos] is the index of the value.,
      * ie qp[pq|i]] = i
      */
-    public int[] qp;
+    protected int[] qp;
 
     /**
      * Number of elements in the queue.
@@ -212,7 +212,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
     /**
      * An iterator implementation for {@link KTypeIndexedHeapPriorityQueue#iterator} entries.
-     * Holds a IntKTypeCursor cursor returning (key, value, index) = (int key, KType value, index the position in heap)
+     * Holds a IntKTypeCursor returning
+     * (key, value, index) = (int key, KType value, index the position in heap {@link KTypeIndexedHeapPriorityQueue#buffer}.)
      */
     public final class EntryIterator extends AbstractIterator<IntKTypeCursor<KType>>
     {
@@ -1026,7 +1027,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
     /**
      * An iterator over the set of assigned keys.
-     * Holds a IntCursor cursor returning (value, index) = (int key, index the position in heap)
+     * Holds a IntCursor returning (value, index) = (int key, index the position in heap {@link KTypeIndexedHeapPriorityQueue#buffer}.)
      */
     public final class KeysIterator extends AbstractIterator<IntCursor>
     {
@@ -1278,7 +1279,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
     /**
      * An iterator over the set of assigned values.
-     * Holds a KTypeCursor cursor returning (value, index) = (KType value, index the position in heap)
+     * Holds a KTypeCursor returning (value, index) = (KType value, index the position in heap {@link KTypeIndexedHeapPriorityQueue#buffer}.)
      */
     public final class ValuesIterator extends AbstractIterator<KTypeCursor<KType>>
     {
@@ -1342,6 +1343,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
      * Returns the "default value" value used
      * in methods returning "default value"
      */
+    @Override
     public KType getDefaultValue() {
         return this.defaultValue;
     }
@@ -1350,6 +1352,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
      * Set the "default value" value to be used
      * in methods returning the "default value"
      */
+    @Override
     public void setDefaultValue(final KType defaultValue) {
         this.defaultValue = defaultValue;
     }
@@ -1363,8 +1366,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
     /*! #else
-                                                                    public KTypeComparator<? super KType>
-                                                                    #end !*/
+                                                                                    public KTypeComparator<? super KType>
+                                                                                    #end !*/
     comparator() {
 
         return this.comparator;

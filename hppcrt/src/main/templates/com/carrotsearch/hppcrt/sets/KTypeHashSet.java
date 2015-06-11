@@ -733,6 +733,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
     /**
      * An iterator implementation for {@link #iterator}.
+     * Holds a KTypeCursor returning (value, index) = (KType value, index the position in {@link KTypeHashSet#keys}, or keys.length for key = 0/null.)
      */
     public final class EntryIterator extends AbstractIterator<KTypeCursor<KType>>
     {

@@ -101,6 +101,26 @@ public class KTypeArrayDequeAsIndexedContainerTest<KType> extends AbstractKTypeI
 
         if (arrayDeque != null)
         {
+            int count = 0;
+            //check access by get()
+            for (/*! #if ($TemplateOptions.KTypeGeneric) !*/final Object
+                    /*! #else
+            final KType
+            #end !*/
+                    val : arrayDeque.toArray()) {
+
+                /*! #if ($TemplateOptions.KTypeGeneric) !*/
+                TestUtils.assertEquals2(val, (Object) arrayDeque.get(count));
+                /*! #else
+                TestUtils.assertEquals2(val, arrayDeque.get(count));
+                #end !*/
+                count++;
+            }
+
+            Assert.assertEquals(count, arrayDeque.size());
+
+            //check beyond validity range
+
             for (int i = arrayDeque.tail; i < arrayDeque.head; i = oneRight(i, arrayDeque.buffer.length))
             {
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
