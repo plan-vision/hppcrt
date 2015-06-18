@@ -281,7 +281,14 @@
 		<profile>
 			<id>quick</id>
 			<properties>
+				<skipTests>true</skipTests> 
+			</properties>
+		</profile>
+        <profile>
+			<id>quicknodoc</id>
+			<properties>
 				<skipTests>true</skipTests>
+                <maven.javadoc.skip>true</maven.javadoc.skip>
 			</properties>
 		</profile>
 	</profiles>
