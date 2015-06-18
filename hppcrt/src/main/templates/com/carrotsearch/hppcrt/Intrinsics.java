@@ -38,6 +38,10 @@ public final class Intrinsics
         "<boolean>==>!key",
         "<*> ==> key == ${TemplateOptions.getKType().getDefaultValue()}")) !*/
 
+        //Enforce the version with explicit Generic
+        /*! ($TemplateOptions.declareInline("Intrinsics.isEmpty(key)",
+        "<*> ==> @FORBIDDEN_IS_EMPTY_WITHOUT_GENERIC@")) !*/
+
         return key == null;
     }
 

@@ -1,7 +1,5 @@
 package com.carrotsearch.hppcrt.sets;
 
-import java.util.*;
-
 import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.cursors.*;
 import com.carrotsearch.hppcrt.predicates.*;
@@ -46,8 +44,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeHashSet<KType>
-extends AbstractKTypeCollection<KType>
-implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+        extends AbstractKTypeCollection<KType>
+        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Hash-indexed array holding all set entries.
@@ -55,14 +53,13 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      * Direct set iteration: iterate  {keys[i]} for i in [0; keys.length[ where keys[i] != 0/null, then also
      * {0/null} is in the set if {@link #allocatedDefaultKey} = true.
      * </p>
-     * 
      */
     public/*! #if ($TemplateOptions.KTypePrimitive)
           KType []
           #else !*/
     Object[]
-            /*! #end !*/
-            keys;
+    /*! #end !*/
+    keys;
 
     /*! #if ($RH) !*/
     /**
@@ -144,6 +141,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      */
     @Override
     public boolean add(KType e) {
+
         if (Intrinsics.<KType> isEmpty(e)) {
 
             if (this.allocatedDefaultKey) {
@@ -160,33 +158,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
 
-        //copied straight from  fastutil "fast-path"
-        int slot;
-        KType curr;
-
-        //1.1 The rehashed key slot is occupied...
-        if (!Intrinsics.<KType> isEmpty(curr = keys[slot = REHASH(e) & mask])) {
-
-            //1.2 the occupied place is indeed key, return false
-            if (Intrinsics.<KType> equalsNotNull(curr, e)) {
-
-                return false;
-            }
-
-            //1.3 key is colliding, manage below :
-        } else if (this.assigned < this.resizeAt) {
-
-            //1.4 key is not colliding, without resize, so insert, return true.
-            keys[slot] = e;
-
-            this.assigned++;
-
-            /*! #if ($RH) !*/
-            this.hash_cache[slot] = slot;
-            /*! #end !*/
-
-            return true;
-        }
+        int slot = REHASH(e) & mask;
+        KType existing;
 
         /*! #if ($RH) !*/
         final int[] cached = this.hash_cache;
@@ -197,8 +170,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         int existing_distance = 0;
         /*! #end !*/
 
-        while (is_allocated(slot, keys)) {
-            if (Intrinsics.<KType> equalsNotNull(e, keys[slot])) {
+        while (!Intrinsics.<KType> isEmpty(existing = keys[slot])) {
+            if (Intrinsics.<KType> equalsNotNull(e, existing)) {
                 return false;
             }
 
@@ -466,6 +439,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      */
     @Override
     public boolean remove(final KType key) {
+
         if (Intrinsics.<KType> isEmpty(key)) {
 
             if (this.allocatedDefaultKey) {
@@ -481,36 +455,18 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
 
-        //copied straight from  fastutil "fast-path"
-        int slot;
-        KType curr;
-
-        //1.1 The rehashed slot is free, nothing to remove, return false
-        if (Intrinsics.<KType> isEmpty(curr = keys[slot = REHASH(key) & mask])) {
-
-            return false;
-        }
-
-        //1.2) The rehashed entry is occupied by the key, remove it, return true
-        if (Intrinsics.<KType> equalsNotNull(curr, key)) {
-
-            this.assigned--;
-            shiftConflictingKeys(slot);
-            return true;
-        }
-
-        //2. Hash collision, search for the key along the path
-        slot = (slot + 1) & mask;
+        int slot = REHASH(key) & mask;
+        KType existing;
 
         /*! #if ($RH) !*/
         int dist = 0;
         final int[] cached = this.hash_cache;
         /*! #end !*/
 
-        while (is_allocated(slot, keys)
+        while (!Intrinsics.<KType> isEmpty(existing = keys[slot])
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/) {
-            if (Intrinsics.<KType> equalsNotNull(key, keys[slot])) {
-                this.assigned--;
+            if (Intrinsics.<KType> equalsNotNull(key, existing)) {
+
                 shiftConflictingKeys(slot);
                 return true;
             }
@@ -586,6 +542,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         // Mark the last found gap slot without a conflict as empty.
         keys[gapSlot] = Intrinsics.<KType> empty();
+
+        this.assigned--;
     }
 
     /**
@@ -593,6 +551,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      */
     @Override
     public boolean contains(final KType key) {
+
         if (Intrinsics.<KType> isEmpty(key)) {
 
             return this.allocatedDefaultKey;
@@ -602,33 +561,17 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
 
-        //copied straight from  fastutil "fast-path"
-        int slot;
-        KType curr;
-
-        //1.1 The rehashed slot is free, return false
-        if (Intrinsics.<KType> isEmpty(curr = keys[slot = REHASH(key) & mask])) {
-
-            return false;
-        }
-
-        //1.2) The rehashed entry is occupied by the key, return true
-        if (Intrinsics.<KType> equalsNotNull(curr, key)) {
-
-            return true;
-        }
-
-        //2. Hash collision, search for the key along the path
-        slot = (slot + 1) & mask;
+        int slot = REHASH(key) & mask;
+        KType existing;
 
         /*! #if ($RH) !*/
         final int[] cached = this.hash_cache;
         int dist = 0;
         /*! #end !*/
 
-        while (is_allocated(slot, keys)
+        while (!Intrinsics.<KType> isEmpty(existing = keys[slot])
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/) {
-            if (Intrinsics.<KType> equalsNotNull(key, keys[slot])) {
+            if (Intrinsics.<KType> equalsNotNull(key, existing)) {
                 return true;
             }
             slot = (slot + 1) & mask;
@@ -925,7 +868,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         for (int i = 0; i < keys.length;) {
             if (is_allocated(i, keys) && predicate.apply(keys[i])) {
-                this.assigned--;
+
                 shiftConflictingKeys(i);
                 // Shift, do not increment slot.
             } else {

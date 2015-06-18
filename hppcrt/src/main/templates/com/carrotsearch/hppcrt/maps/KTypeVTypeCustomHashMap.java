@@ -8,7 +8,7 @@ import com.carrotsearch.hppcrt.strategies.*;
 import com.carrotsearch.hppcrt.hash.*;
 
 /*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
-/*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
+/*! ${TemplateOptions.doNotGenerateKType("boolean", "byte", "char", "short", "float", "double" )} !*/
 /*! #set( $ROBIN_HOOD_FOR_ALL = true) !*/
 /*! #set( $DEBUG = false) !*/
 //If RH is defined, RobinHood Hashing is in effect :
@@ -52,7 +52,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeCustomHashMap<KType, VType>
-implements KTypeVTypeMap<KType, VType>, Cloneable
+        implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     protected VType defaultValue = Intrinsics.<VType> empty();
 
@@ -67,8 +67,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
           KType []
           #else !*/
     Object[]
-            /*! #end !*/
-            keys;
+    /*! #end !*/
+    keys;
 
     /**
      * Hash-indexed array holding all values associated to the keys.
@@ -78,8 +78,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
           VType []
           #else !*/
     Object[]
-            /*! #end !*/
-            values;
+    /*! #end !*/
+    values;
 
     /*! #if ($RH) !*/
     /**
@@ -212,40 +212,12 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
         final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-        final VType[] values = Intrinsics.<VType[]> cast(this.values);
-
-        //copied straight from  fastutil "fast-path"
-        int slot;
-        KType curr;
-
-        //1.1 The rehashed key slot is occupied...
-        if (!Intrinsics.<KType> isEmpty((curr = keys[slot = (REHASH(strategy, key) & mask)]))) {
-
-            //1.2 the occupied place is indeed key, so only updates the value and nothing else.
-            if (strategy.equals(curr, key)) {
-
-                final VType oldValue = Intrinsics.<VType> cast(this.values[slot]);
-                values[slot] = value;
-
-                return oldValue;
-            }
-
-            //1.3 key is colliding, manage below :
-        } else if (this.assigned < this.resizeAt) {
-
-            //1.4 key is not colliding, without resize, so insert, return defaultValue.
-            keys[slot] = key;
-            values[slot] = value;
-            this.assigned++;
-
-            /*! #if ($RH) !*/
-            this.hash_cache[slot] = slot;
-            /*! #end !*/
-
-            return this.defaultValue;
-        }
+        int slot = REHASH(strategy, key) & mask;
+        KType existing;
 
         /*! #if ($RH) !*/
+        final VType[] values = Intrinsics.<VType[]> cast(this.values);
+
         final int[] cached = this.hash_cache;
 
         KType tmpKey;
@@ -256,10 +228,10 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         int existing_distance = 0;
         /*! #end !*/
 
-        //2. Slow path, find a place somewhere down there...
-        while (is_allocated(slot, keys)) {
-            if (strategy.equals(key, keys[slot])) {
-                final VType oldValue = values[slot];
+        while (!Intrinsics.<KType> isEmpty(existing = keys[slot])) {
+
+            if (strategy.equals(key, existing)) {
+                final VType oldValue = Intrinsics.<VType> cast(this.values[slot]);
                 values[slot] = value;
 
                 return oldValue;
@@ -299,7 +271,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             /*! #if ($RH) !*/
             dist++;
             /*! #end !*/
-        }
+        } //end while
 
         // Check if we need to grow. If so, reallocate new data, fill in the last element
         // and rehash.
@@ -585,46 +557,23 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         final int mask = this.keys.length - 1;
 
         final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-        final VType[] values = Intrinsics.<VType[]> cast(this.values);
 
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
-        //copied straight from  fastutil "fast-path"
-        int slot;
-        KType curr;
-
-        //1.1 The rehashed slot is free, nothing to remove, return default value
-        if (Intrinsics.<KType> isEmpty(curr = keys[slot = REHASH(strategy, key) & mask])) {
-
-            return this.defaultValue;
-        }
-
-        //1.2) The rehashed entry is occupied by the key, remove it, return value
-        if (strategy.equals(curr, key)) {
-
-            final VType value = values[slot];
-
-            this.assigned--;
-            shiftConflictingKeys(slot);
-
-            return value;
-        }
-
-        //2. Hash collision, search for the key along the path
-        slot = (slot + 1) & mask;
+        int slot = REHASH(strategy, key) & mask;
+        KType existing;
 
         /*! #if ($RH) !*/
         int dist = 0;
         final int[] cached = this.hash_cache;
         /*!  #end !*/
 
-        //2. Slow path here
-        while (is_allocated(slot, keys)
+        while (!Intrinsics.<KType> isEmpty(existing = keys[slot])
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/) {
-            if (strategy.equals(key, keys[slot])) {
-                final VType value = values[slot];
 
-                this.assigned--;
+            if (strategy.equals(key, existing)) {
+
+                final VType value = Intrinsics.<VType> cast(this.values[slot]);
                 shiftConflictingKeys(slot);
 
                 return value;
@@ -708,6 +657,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         /* #if ($TemplateOptions.VTypeGeneric) */
         values[gapSlot] = Intrinsics.<VType> empty();
         /* #end */
+        this.assigned--;
     }
 
     /**
@@ -739,7 +689,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
             for (int i = 0; i < keys.length;) {
                 if (is_allocated(i, keys) && other.contains(keys[i])) {
-                    this.assigned--;
+
                     shiftConflictingKeys(i);
                     // Shift, do not increment slot.
                 } else {
@@ -781,7 +731,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         for (int i = 0; i < keys.length;) {
             if (is_allocated(i, keys) && predicate.apply(keys[i])) {
-                this.assigned--;
+
                 shiftConflictingKeys(i);
                 // Shift, do not increment slot.
             } else {
@@ -817,7 +767,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         for (int i = 0; i < keys.length;) {
             if (is_allocated(i, keys) && predicate.apply(keys[i], values[i])) {
-                this.assigned--;
+
                 shiftConflictingKeys(i);
                 // Shift, do not increment slot.
             } else {
@@ -830,13 +780,6 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
     /**
      * {@inheritDoc}
-     * 
-     * <p> Use the following snippet of code to check for key existence
-     * first and then retrieve the value if it exists.</p>
-     * <pre>
-     * if (map.containsKey(key))
-     *   value = map.lget();
-     * </pre>
      */
     @Override
     public VType get(final KType key) {
@@ -855,36 +798,21 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
         final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-        final VType[] values = Intrinsics.<VType[]> cast(this.values);
 
-        //copied straight from  fastutil "fast-path"
-        int slot;
-        KType curr;
-
-        //1.1 The rehashed slot is free, nothing to get, return default value
-        if (Intrinsics.<KType> isEmpty(curr = keys[slot = REHASH(strategy, key) & mask])) {
-
-            return this.defaultValue;
-        }
-
-        //1.2) The rehashed entry is occupied by the key, return value
-        if (strategy.equals(curr, key)) {
-
-            return values[slot];
-        }
-
-        //2. Hash collision, search for the key along the path
-        slot = (slot + 1) & mask;
+        int slot = REHASH(strategy, key) & mask;
+        KType existing;
 
         /*! #if ($RH) !*/
         int dist = 0;
         final int[] cached = this.hash_cache;
         /*! #end !*/
 
-        while (is_allocated(slot, keys)
+        while (!Intrinsics.<KType> isEmpty(existing = keys[slot])
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/) {
-            if (strategy.equals(key, keys[slot])) {
-                return values[slot];
+
+            if (strategy.equals(key, existing)) {
+
+                return Intrinsics.<VType> cast(this.values[slot]);
             }
             slot = (slot + 1) & mask;
 
@@ -912,33 +840,18 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
 
-        //copied straight from  fastutil "fast-path"
-        int slot;
-        KType curr;
-
-        //1.1 The rehashed slot is free, return false
-        if (Intrinsics.<KType> isEmpty(curr = keys[slot = REHASH(strategy, key) & mask])) {
-
-            return false;
-        }
-
-        //1.2) The rehashed entry is occupied by the key, return true
-        if (strategy.equals(curr, key)) {
-
-            return true;
-        }
-
-        //2. Hash collision, search for the key along the path
-        slot = (slot + 1) & mask;
+        int slot = REHASH(strategy, key) & mask;
+        KType existing;
 
         /*! #if ($RH) !*/
         int dist = 0;
         final int[] cached = this.hash_cache;
         /*! #end !*/
 
-        while (is_allocated(slot, keys)
+        while (!Intrinsics.<KType> isEmpty(existing = keys[slot])
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/) {
-            if (strategy.equals(key, keys[slot])) {
+
+            if (strategy.equals(key, existing)) {
                 return true;
             }
             slot = (slot + 1) & mask;
@@ -953,7 +866,6 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
     /**
      * {@inheritDoc}
-     * 
      */
     @Override
     public void clear() {
@@ -1032,7 +944,6 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     @Override
     public boolean equals(final Object obj) {
         if (obj != null) {
@@ -1220,7 +1131,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     }
 
     /**
-     * A view of the keys inside this hash map.
+     * A view of the keys inside this map.
      */
     public final class KeysCollection extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
@@ -1387,6 +1298,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
          */
         @Override
         protected KTypeCursor<KType> fetch() {
+
             if (this.cursor.index == KTypeVTypeCustomHashMap.this.keys.length + 1) {
 
                 if (KTypeVTypeCustomHashMap.this.allocatedDefaultKey) {
@@ -1546,7 +1458,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
             for (int slot = 0; slot < keys.length;) {
                 if (is_allocated(slot, keys) && Intrinsics.<VType> equals(e, values[slot])) {
-                    this.owner.assigned--;
+
                     shiftConflictingKeys(slot);
                     // Shift, do not increment slot.
                 } else {
@@ -1582,7 +1494,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
             for (int slot = 0; slot < keys.length;) {
                 if (is_allocated(slot, keys) && predicate.apply(values[slot])) {
-                    this.owner.assigned--;
+
                     shiftConflictingKeys(slot);
                     // Shift, do not increment slot.
                 } else {
@@ -1702,7 +1614,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     }
 
     /**
-     * Clone this object.
+     * {@inheritDoc}
      * #if ($TemplateOptions.AnyGeneric)
      * The returned clone will use the same HashingStrategy strategy.
      * #end

@@ -33,25 +33,6 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
         IteratorPool.configureInitialPoolSize(8);
     }
 
-    private static final int STRIDE = 13;
-
-    protected final KTypeHashingStrategy<KType> TEST_STRATEGY = new KTypeHashingStrategy<KType>() {
-
-        @Override
-        public int computeHashCode(final KType object) {
-
-            return BitMixer.mix(cast(castType(object) + AbstractKTypeHashSetTest.STRIDE));
-        }
-
-        @Override
-        public boolean equals(final KType o1, final KType o2) {
-
-            return Intrinsics.<KType> equals(cast(castType(o1) + AbstractKTypeHashSetTest.STRIDE), cast(castType(o2)
-                    + AbstractKTypeHashSetTest.STRIDE));
-        }
-
-    };
-
     /**
      * Customize this for concrete hash set creation
      * @param initialCapacity
@@ -60,7 +41,7 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
      * @return
      */
     protected abstract KTypeSet<KType> createNewSetInstance(final int initialCapacity,
-            final double loadFactor, KTypeHashingStrategy<KType> strategy);
+            final double loadFactor);
 
     protected abstract KType[] getKeys(KTypeSet<KType> testSet);
 
@@ -96,7 +77,7 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
     protected KTypeSet<KType> createNewSetInstance() {
 
         //use the Max load factor to assure to trigger all the code paths
-        return createNewSetInstance(0, HashContainers.MAX_LOAD_FACTOR, this.TEST_STRATEGY);
+        return createNewSetInstance(0, HashContainers.MAX_LOAD_FACTOR);
     }
 
     /**
@@ -203,7 +184,7 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
     {
         for (int i = 0; i < 256; i++)
         {
-            final KTypeSet<KType> set = createNewSetInstance(i, HashContainers.MAX_LOAD_FACTOR, this.TEST_STRATEGY);
+            final KTypeSet<KType> set = createNewSetInstance(i, HashContainers.MAX_LOAD_FACTOR);
 
             for (int j = 0; j < i; j++)
             {
@@ -237,13 +218,13 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
         addFromArray(this.set, newArray(this.k0, this.k1, this.k2));
 
         Assert.assertEquals(1, this.set.removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == AbstractKTypeHashSetTest.this.k1;
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.k0, this.k2);
     }
@@ -255,13 +236,13 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
         addFromArray(this.set, this.keyE, this.key1, this.key2, this.key4);
 
         Assert.assertEquals(2, this.set.removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return (v == AbstractKTypeHashSetTest.this.key1) || (v == AbstractKTypeHashSetTest.this.keyE);
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.key2, this.key4);
     }
@@ -278,7 +259,7 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size + 1
             Assert.assertEquals(10, this.set.removeAll(new KTypePredicate<KType>()
-            {
+                    {
                 @Override
                 public boolean apply(final KType v)
                 {
@@ -287,7 +268,7 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
                     }
                     return v == AbstractKTypeHashSetTest.this.key2 || v == AbstractKTypeHashSetTest.this.key9 || v == AbstractKTypeHashSetTest.this.key5;
                 };
-            }));
+                    }));
 
             Assert.fail();
         } catch (final RuntimeException e)
@@ -312,13 +293,13 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
         addFromArray(this.set, newArray(this.k0, this.k1, this.k2, this.k3, this.k4, this.k5));
 
         Assert.assertEquals(4, this.set.retainAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == AbstractKTypeHashSetTest.this.key1 || v == AbstractKTypeHashSetTest.this.key2;
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.key1, this.key2);
     }
@@ -330,13 +311,13 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
         addFromArray(this.set, newArray(this.keyE, this.k1, this.k2, this.k3, this.k4, this.k5));
 
         Assert.assertEquals(4, this.set.retainAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == AbstractKTypeHashSetTest.this.keyE || v == AbstractKTypeHashSetTest.this.k3;
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.keyE, this.k3);
     }
@@ -530,10 +511,10 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
     {
         Assume.assumeTrue(
                 int[].class.isInstance(getKeys(this.set)) ||
-                        short[].class.isInstance(getKeys(this.set)) ||
-                        byte[].class.isInstance(getKeys(this.set)) ||
-                        long[].class.isInstance(getKeys(this.set)) ||
-                        Object[].class.isInstance(getKeys(this.set)));
+                short[].class.isInstance(getKeys(this.set)) ||
+                byte[].class.isInstance(getKeys(this.set)) ||
+                long[].class.isInstance(getKeys(this.set)) ||
+                Object[].class.isInstance(getKeys(this.set)));
 
         addFromArray(this.set, this.key1, this.key2);
         String asString = this.set.toString();
@@ -828,7 +809,7 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
             #end !*/
 
         final KTypeSet<KType> newSet = createNewSetInstance(PREALLOCATED_SIZE,
-                HashContainers.DEFAULT_LOAD_FACTOR, this.TEST_STRATEGY);
+                HashContainers.DEFAULT_LOAD_FACTOR);
 
         //computed real capacity
         final int realCapacity = newSet.capacity();
@@ -1137,7 +1118,7 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
             #end !*/
 
         //2) Preallocate to PREALLOCATED_SIZE, use default factor because copy-constructor use this.
-        final KTypeSet<KType> refContainer = createNewSetInstance(PREALLOCATED_SIZE, HashContainers.DEFAULT_LOAD_FACTOR, this.TEST_STRATEGY);
+        final KTypeSet<KType> refContainer = createNewSetInstance(PREALLOCATED_SIZE, HashContainers.DEFAULT_LOAD_FACTOR);
 
         final int refCapacity = refContainer.capacity();
 

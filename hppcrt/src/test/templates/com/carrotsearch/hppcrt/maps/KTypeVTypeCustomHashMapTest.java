@@ -27,16 +27,34 @@ import com.carrotsearch.randomizedtesting.annotations.*;
 /**
  * Tests for {@link KTypeVTypeCustomHashMap}.
  */
-// ${TemplateOptions.doNotGenerateKType("BOOLEAN")}
+/*! ${TemplateOptions.doNotGenerateKType("boolean", "byte", "char", "short", "float", "double" )} !*/
 //${TemplateOptions.doNotGenerateVType("BOOLEAN")}
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTypeHashMapTest<KType, VType>
 {
+    private static final int STRIDE = 13;
+
+    protected final KTypeHashingStrategy<KType> TEST_STRATEGY = new KTypeHashingStrategy<KType>() {
+
+        @Override
+        public int computeHashCode(final KType object) {
+
+            return BitMixer.mix(cast(castType(object) + KTypeVTypeCustomHashMapTest.STRIDE));
+        }
+
+        @Override
+        public boolean equals(final KType o1, final KType o2) {
+
+            return Intrinsics.<KType> equals(cast(castType(o1) + KTypeVTypeCustomHashMapTest.STRIDE), cast(castType(o2)
+                    + KTypeVTypeCustomHashMapTest.STRIDE));
+        }
+
+    };
 
     @Override
-    protected KTypeVTypeMap<KType, VType> createNewMapInstance(final int initialCapacity, final double loadFactor, final KTypeHashingStrategy<KType> strategy) {
+    protected KTypeVTypeMap<KType, VType> createNewMapInstance(final int initialCapacity, final double loadFactor) {
 
-        return new KTypeVTypeCustomHashMap<KType, VType>(initialCapacity, loadFactor, strategy);
+        return new KTypeVTypeCustomHashMap<KType, VType>(initialCapacity, loadFactor, this.TEST_STRATEGY);
     }
 
     @Override

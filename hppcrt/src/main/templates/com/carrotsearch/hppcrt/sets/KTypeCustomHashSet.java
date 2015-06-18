@@ -8,7 +8,7 @@ import com.carrotsearch.hppcrt.strategies.*;
 import com.carrotsearch.hppcrt.hash.*;
 
 /*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
-/*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
+/*! ${TemplateOptions.doNotGenerateKType("boolean", "byte", "char", "short", "float", "double" )} !*/
 /*! #set( $ROBIN_HOOD_FOR_ALL = true) !*/
 /*! #set( $DEBUG = false) !*/
 //If RH is defined, RobinHood Hashing is in effect :
@@ -184,33 +184,8 @@ public class KTypeCustomHashSet<KType>
 
         final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
 
-        //copied straight from  fastutil "fast-path"
-        int slot;
-        KType curr;
-
-        //1.1 The rehashed key slot is occupied...
-        if (!Intrinsics.<KType> isEmpty(curr = keys[slot = REHASH(strategy, e) & mask])) {
-
-            //1.2 the occupied place is indeed key, return false
-            if (strategy.equals(curr, e)) {
-
-                return false;
-            }
-
-            //1.3 key is colliding, manage below :
-        } else if (this.assigned < this.resizeAt) {
-
-            //1.4 key is not colliding, without resize, so insert, return true.
-            keys[slot] = e;
-
-            this.assigned++;
-
-            /*! #if ($RH) !*/
-            this.hash_cache[slot] = slot;
-            /*! #end !*/
-
-            return true;
-        }
+        int slot = REHASH(strategy, e) & mask;
+        KType existing;
 
         /*! #if ($RH) !*/
         final int[] cached = this.hash_cache;
@@ -221,8 +196,8 @@ public class KTypeCustomHashSet<KType>
         int existing_distance = 0;
         /*! #end !*/
 
-        while (is_allocated(slot, keys)) {
-            if (strategy.equals(e, keys[slot])) {
+        while (!Intrinsics.<KType> isEmpty(existing = keys[slot])) {
+            if (strategy.equals(e, existing)) {
                 return false;
             }
 
@@ -505,36 +480,18 @@ public class KTypeCustomHashSet<KType>
 
         final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
 
-        //copied straight from  fastutil "fast-path"
-        int slot;
-        KType curr;
-
-        //1.1 The rehashed slot is free, nothing to remove, return false
-        if (Intrinsics.<KType> isEmpty(curr = keys[slot = REHASH(strategy, key) & mask])) {
-
-            return false;
-        }
-
-        //1.2) The rehashed entry is occupied by the key, remove it, return true
-        if (strategy.equals(curr, key)) {
-
-            this.assigned--;
-            shiftConflictingKeys(slot);
-            return true;
-        }
-
-        //2. Hash collision, search for the key along the path
-        slot = (slot + 1) & mask;
+        int slot = REHASH(strategy, key) & mask;
+        KType existing;
 
         /*! #if ($RH) !*/
         int dist = 0;
         final int[] cached = this.hash_cache;
         /*! #end !*/
 
-        while (is_allocated(slot, keys)
+        while (!Intrinsics.<KType> isEmpty(existing = keys[slot])
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/) {
-            if (strategy.equals(key, keys[slot])) {
-                this.assigned--;
+            if (strategy.equals(key, existing)) {
+
                 shiftConflictingKeys(slot);
                 return true;
             }
@@ -610,6 +567,8 @@ public class KTypeCustomHashSet<KType>
 
         // Mark the last found gap slot without a conflict as empty.
         keys[gapSlot] = Intrinsics.<KType> empty();
+
+        this.assigned--;
     }
 
     /**
@@ -628,33 +587,17 @@ public class KTypeCustomHashSet<KType>
 
         final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
 
-        //copied straight from  fastutil "fast-path"
-        int slot;
-        KType curr;
-
-        //1.1 The rehashed slot is free, return false
-        if (Intrinsics.<KType> isEmpty(curr = keys[slot = REHASH(strategy, key) & mask])) {
-
-            return false;
-        }
-
-        //1.2) The rehashed entry is occupied by the key, return true
-        if (strategy.equals(curr, key)) {
-
-            return true;
-        }
-
-        //2. Hash collision, search for the key along the path
-        slot = (slot + 1) & mask;
+        int slot = REHASH(strategy, key) & mask;
+        KType existing;
 
         /*! #if ($RH) !*/
         final int[] cached = this.hash_cache;
         int dist = 0;
         /*! #end !*/
 
-        while (is_allocated(slot, keys)
+        while (!Intrinsics.<KType> isEmpty(existing = keys[slot])
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/) {
-            if (strategy.equals(key, keys[slot])) {
+            if (strategy.equals(key, existing)) {
                 return true;
             }
             slot = (slot + 1) & mask;
@@ -663,8 +606,6 @@ public class KTypeCustomHashSet<KType>
             dist++;
             /*! #end !*/
         } //end while true
-
-        //unsuccessful search
 
         return false;
     }
@@ -729,7 +670,6 @@ public class KTypeCustomHashSet<KType>
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     @Override
     public boolean equals(final Object obj) {
         if (obj != null) {
@@ -896,10 +836,7 @@ public class KTypeCustomHashSet<KType>
     }
 
     /**
-     * Clone this object.
-     * #if ($TemplateOptions.KTypeGeneric)
-     * The returned clone will use the same HashingStrategy strategy.
-     * #end
+     * {@inheritDoc}
      */
     @Override
     public KTypeCustomHashSet<KType> clone() {
@@ -963,7 +900,7 @@ public class KTypeCustomHashSet<KType>
 
         for (int i = 0; i < keys.length;) {
             if (is_allocated(i, keys) && predicate.apply(keys[i])) {
-                this.assigned--;
+
                 shiftConflictingKeys(i);
                 // Shift, do not increment slot.
             } else {
@@ -1058,7 +995,7 @@ public class KTypeCustomHashSet<KType>
     /*! #if ($TemplateOptions.declareInline("REHASH(strategy, value)",
     "<*>==>MurmurHash3.mix(strategy.computeHashCode(value) , this.perturbation )")) !*/
     /**
-     * (actual method is inlined in generated code)
+     * (inlined in generated code)
      */
     private int REHASH(final KTypeHashingStrategy<? super KType> strategy, final KType value) {
 

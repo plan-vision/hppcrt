@@ -34,25 +34,6 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
         IteratorPool.configureInitialPoolSize(8);
     }
 
-    private static final int STRIDE = 13;
-
-    protected final KTypeHashingStrategy<KType> TEST_STRATEGY = new KTypeHashingStrategy<KType>() {
-
-        @Override
-        public int computeHashCode(final KType object) {
-
-            return BitMixer.mix(cast(castType(object) + AbstractKTypeVTypeHashMapTest.STRIDE));
-        }
-
-        @Override
-        public boolean equals(final KType o1, final KType o2) {
-
-            return Intrinsics.<KType> equals(cast(castType(o1) + AbstractKTypeVTypeHashMapTest.STRIDE), cast(castType(o2)
-                    + AbstractKTypeVTypeHashMapTest.STRIDE));
-        }
-
-    };
-
     /**
      * Customize this for concrete hash map creation
      * @param initialCapacity
@@ -61,7 +42,7 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
      * @return
      */
     protected abstract KTypeVTypeMap<KType, VType> createNewMapInstance(final int initialCapacity,
-            final double loadFactor, KTypeHashingStrategy<KType> strategy);
+            final double loadFactor);
 
     protected abstract KType[] getKeys(KTypeVTypeMap<KType, VType> testMap);
 
@@ -105,7 +86,7 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
     protected KTypeVTypeMap<KType, VType> createNewMapInstance() {
 
         //use the Max load factor to assure to trigger all the code paths
-        return createNewMapInstance(0, HashContainers.MAX_LOAD_FACTOR, this.TEST_STRATEGY);
+        return createNewMapInstance(0, HashContainers.MAX_LOAD_FACTOR);
     }
 
     /**
@@ -264,7 +245,7 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
         this.map.put(this.keyE, this.value0);
 
         final KTypeVTypeMap<KType, VType> map2 =
-                createNewMapInstance(0, 0.75, this.TEST_STRATEGY);
+                createNewMapInstance(0, 0.75);
 
         map2.put(this.key2, this.value2);
         map2.put(this.key3, this.value1);
@@ -432,13 +413,13 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
         this.map.put(this.keyE, this.value0);
 
         this.map.removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType value)
             {
                 return value == AbstractKTypeVTypeHashMapTest.this.key2 || value == AbstractKTypeVTypeHashMapTest.this.key3;
             }
-        });
+                });
         Assert.assertEquals(2, this.map.size());
         Assert.assertTrue(this.map.containsKey(this.key1));
         Assert.assertTrue(this.map.containsKey(this.keyE));
@@ -454,13 +435,13 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
         this.map.put(this.keyE, this.value0);
 
         this.map.removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType value)
             {
                 return value == AbstractKTypeVTypeHashMapTest.this.keyE || value == AbstractKTypeVTypeHashMapTest.this.key1;
             }
-        });
+                });
         Assert.assertEquals(2, this.map.size());
         Assert.assertTrue(this.map.containsKey(this.key2));
         Assert.assertTrue(this.map.containsKey(this.key3));
@@ -486,7 +467,7 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size + 1
             Assert.assertEquals(10, this.map.removeAll(new KTypePredicate<KType>()
-            {
+                    {
                 @Override
                 public boolean apply(final KType key)
                 {
@@ -495,7 +476,7 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
                     }
                     return key == AbstractKTypeVTypeHashMapTest.this.key2 || key == AbstractKTypeVTypeHashMapTest.this.key9 || key == AbstractKTypeVTypeHashMapTest.this.key5;
                 };
-            }));
+                    }));
 
             Assert.fail();
         } catch (final RuntimeException e)
@@ -525,14 +506,14 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
         this.map.put(this.key6, this.value6);
 
         this.map.removeAll(new KTypeVTypePredicate<KType, VType>()
-        {
+                {
             @Override
             public boolean apply(final KType key, final VType value)
             {
                 return key == AbstractKTypeVTypeHashMapTest.this.key2 || key == AbstractKTypeVTypeHashMapTest.this.key3 ||
                         value == AbstractKTypeVTypeHashMapTest.this.value5;
             }
-        });
+                });
 
         Assert.assertEquals(4, this.map.size());
         Assert.assertTrue(this.map.containsKey(this.key1));
@@ -554,14 +535,14 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
         this.map.put(this.key6, this.value6);//removed by value
 
         this.map.removeAll(new KTypeVTypePredicate<KType, VType>()
-        {
+                {
             @Override
             public boolean apply(final KType key, final VType value)
             {
                 return key == AbstractKTypeVTypeHashMapTest.this.key2 || key == AbstractKTypeVTypeHashMapTest.this.keyE ||
                         value == AbstractKTypeVTypeHashMapTest.this.value6;
             }
-        });
+                });
 
         Assert.assertEquals(4, this.map.size());
         Assert.assertTrue(this.map.containsKey(this.key1));
@@ -580,13 +561,13 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
         this.map.put(this.keyE, this.value0);
 
         this.map.keys().removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType value)
             {
                 return value == AbstractKTypeVTypeHashMapTest.this.key2 || value == AbstractKTypeVTypeHashMapTest.this.key3;
             }
-        });
+                });
         Assert.assertEquals(2, this.map.size());
         Assert.assertTrue(this.map.containsKey(this.key1));
         Assert.assertTrue(this.map.containsKey(this.keyE));
@@ -602,13 +583,13 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
         this.map.put(this.keyE, this.value0);
 
         this.map.keys().removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType value)
             {
                 return value == AbstractKTypeVTypeHashMapTest.this.keyE || value == AbstractKTypeVTypeHashMapTest.this.key1;
             }
-        });
+                });
         Assert.assertEquals(2, this.map.size());
         Assert.assertTrue(this.map.containsKey(this.key2));
         Assert.assertTrue(this.map.containsKey(this.key3));
@@ -630,13 +611,13 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
         this.map.put(this.keyE, this.value0);
 
         final int nbRemoved = this.map.values().removeAll(new KTypePredicate<VType>()
-        {
+                {
             @Override
             public boolean apply(final VType value)
             {
                 return value == AbstractKTypeVTypeHashMapTest.this.value1 || value == AbstractKTypeVTypeHashMapTest.this.value2;
             }
-        });
+                });
 
         Assert.assertEquals(5, nbRemoved);
         Assert.assertEquals(5, this.map.size());
@@ -662,13 +643,13 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
         this.map.put(this.key9, this.value2); //del
 
         final int nbRemoved = this.map.values().removeAll(new KTypePredicate<VType>()
-        {
+                {
             @Override
             public boolean apply(final VType value)
             {
                 return value == AbstractKTypeVTypeHashMapTest.this.value1 || value == AbstractKTypeVTypeHashMapTest.this.value2;
             }
-        });
+                });
 
         Assert.assertEquals(5, nbRemoved);
         Assert.assertEquals(4, this.map.size());
@@ -1414,25 +1395,25 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
 
         final KTypeArrayList<VType> values = new KTypeArrayList<VType>();
         this.map.values().forEach(new KTypeProcedure<VType>()
-        {
+                {
             @Override
             public void apply(final VType value)
             {
                 values.add(value);
             }
-        });
+                });
         TestUtils.assertSortedListEquals(this.map.values().toArray(), this.value0, this.value1, this.value2, this.value2);
 
         values.clear();
         this.map.values().forEach(new KTypePredicate<VType>()
-        {
+                {
             @Override
             public boolean apply(final VType value)
             {
                 values.add(value);
                 return true;
             }
-        });
+                });
         TestUtils.assertSortedListEquals(this.map.values().toArray(), this.value0, this.value1, this.value2, this.value2);
     }
 
@@ -1916,7 +1897,7 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
 
         //2) Preallocate to PREALLOCATED_SIZE :
         final KTypeVTypeMap<KType, VType> newMap = createNewMapInstance(PREALLOCATED_SIZE,
-                HashContainers.DEFAULT_LOAD_FACTOR, this.TEST_STRATEGY);
+                HashContainers.DEFAULT_LOAD_FACTOR);
 
         //computed real capacity
         final int realCapacity = newMap.capacity();
@@ -1963,7 +1944,7 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
         #end !*/
 
         final KTypeVTypeMap<KType, VType> newMap = createNewMapInstance(NB_ELEMENTS,
-                HashContainers.DEFAULT_LOAD_FACTOR, this.TEST_STRATEGY);
+                HashContainers.DEFAULT_LOAD_FACTOR);
 
         newMap.put(this.keyE, vcast(NB_ELEMENTS));
 
@@ -2182,7 +2163,7 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
         #end !*/
 
         final KTypeVTypeMap<KType, VType> newMap = createNewMapInstance(NB_ELEMENTS,
-                HashContainers.DEFAULT_LOAD_FACTOR, this.TEST_STRATEGY);
+                HashContainers.DEFAULT_LOAD_FACTOR);
 
         newMap.put(this.keyE, vcast(NB_ELEMENTS));
 
@@ -2302,7 +2283,7 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
         #end !*/
 
         final KTypeVTypeMap<KType, VType> newMap = createNewMapInstance(NB_ELEMENTS,
-                HashContainers.DEFAULT_LOAD_FACTOR, this.TEST_STRATEGY);
+                HashContainers.DEFAULT_LOAD_FACTOR);
 
         newMap.put(this.keyE, vcast(NB_ELEMENTS));
 
@@ -2499,7 +2480,7 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
 
         //2) Preallocate to PREALLOCATED_SIZE : use default factor because copy-constructor use this.
         final KTypeVTypeMap<KType, VType> refContainer = createNewMapInstance(PREALLOCATED_SIZE,
-                HashContainers.DEFAULT_LOAD_FACTOR, this.TEST_STRATEGY);
+                HashContainers.DEFAULT_LOAD_FACTOR);
 
         final int refCapacity = refContainer.capacity();
 
@@ -2548,7 +2529,7 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
     protected KTypeVTypeMap<KType, VType> createMapWithOrderedData(final int size)
     {
         final KTypeVTypeMap<KType, VType> newMap = createNewMapInstance(Containers.DEFAULT_EXPECTED_ELEMENTS,
-                HashContainers.DEFAULT_LOAD_FACTOR, this.TEST_STRATEGY);
+                HashContainers.DEFAULT_LOAD_FACTOR);
 
         for (int i = 0; i < size; i++)
         {

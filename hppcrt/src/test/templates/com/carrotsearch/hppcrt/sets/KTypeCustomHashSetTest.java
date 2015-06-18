@@ -26,12 +26,32 @@ import com.carrotsearch.randomizedtesting.annotations.*;
 /**
  * Unit tests for {@link KTypeCustomHashSet}.
  */
-/*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
+/*! ${TemplateOptions.doNotGenerateKType("boolean", "byte", "char", "short", "float", "double" )} !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeCustomHashSetTest<KType> extends AbstractKTypeHashSetTest<KType>
 {
+
+    private static final int STRIDE = 13;
+
+    protected final KTypeHashingStrategy<KType> TEST_STRATEGY = new KTypeHashingStrategy<KType>() {
+
+        @Override
+        public int computeHashCode(final KType object) {
+
+            return BitMixer.mix(cast(castType(object) + KTypeCustomHashSetTest.STRIDE));
+        }
+
+        @Override
+        public boolean equals(final KType o1, final KType o2) {
+
+            return Intrinsics.<KType> equals(cast(castType(o1) + KTypeCustomHashSetTest.STRIDE), cast(castType(o2)
+                    + KTypeCustomHashSetTest.STRIDE));
+        }
+
+    };
+
     @Override
-    protected KTypeSet<KType> createNewSetInstance(final int initialCapacity, final double loadFactor, final KTypeHashingStrategy<KType> strategy) {
+    protected KTypeSet<KType> createNewSetInstance(final int initialCapacity, final double loadFactor) {
 
         return new KTypeCustomHashSet<KType>(initialCapacity, loadFactor, this.TEST_STRATEGY);
     }

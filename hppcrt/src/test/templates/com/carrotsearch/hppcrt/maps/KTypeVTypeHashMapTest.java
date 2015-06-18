@@ -30,7 +30,7 @@ import com.carrotsearch.randomizedtesting.annotations.*;
 public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeHashMapTest<KType, VType>
 {
     @Override
-    protected KTypeVTypeMap<KType, VType> createNewMapInstance(final int initialCapacity, final double loadFactor, final KTypeHashingStrategy<KType> strategy) {
+    protected KTypeVTypeMap<KType, VType> createNewMapInstance(final int initialCapacity, final double loadFactor) {
 
         return new KTypeVTypeHashMap<KType, VType>(initialCapacity, loadFactor);
     }

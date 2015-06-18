@@ -16,7 +16,6 @@ import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
 import com.carrotsearch.hppcrt.sets.*;
 import com.carrotsearch.hppcrt.sorting.*;
-import com.carrotsearch.hppcrt.strategies.KTypeHashingStrategy;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.*;
 
@@ -28,9 +27,8 @@ import com.carrotsearch.randomizedtesting.annotations.*;
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeHashSetTest<KType> extends AbstractKTypeHashSetTest<KType>
 {
-
     @Override
-    protected KTypeSet<KType> createNewSetInstance(final int initialCapacity, final double loadFactor, final KTypeHashingStrategy<KType> strategy) {
+    protected KTypeSet<KType> createNewSetInstance(final int initialCapacity, final double loadFactor) {
 
         return new KTypeHashSet<KType>(initialCapacity, loadFactor);
     }

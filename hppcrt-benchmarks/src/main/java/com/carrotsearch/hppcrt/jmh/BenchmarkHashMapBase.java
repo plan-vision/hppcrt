@@ -39,12 +39,12 @@ public class BenchmarkHashMapBase
 
     @Param({
 
-        "6000000"
+            "6000000"
     })
     public int targetSize;
 
     @Param({
-        "0.75"
+            "0.75"
     })
     public float loadFactor;
 
@@ -126,20 +126,20 @@ public class BenchmarkHashMapBase
 
         switch (this.distribution)
         {
-            case RANDOM:
-                // truly random int in the whole range
-                gene = new DistributionGenerator((long) (Integer.MIN_VALUE * 0.5), Integer.MAX_VALUE - 10, this.prng);
-                break;
-            case RAND_LINEAR:
-                //Randomly increasing values in [- nbElementsToPush; 2 * nbElementsToPush]
-                gene = new DistributionGenerator(-nbElementsToPush, 3 * nbElementsToPush, this.prng);
-                break;
-            case HIGHBITS:
-                gene = new DistributionGenerator(Integer.MIN_VALUE + 10, Integer.MAX_VALUE, this.prng);
+        case RANDOM:
+            // truly random int in the whole range
+            gene = new DistributionGenerator((long) (Integer.MIN_VALUE * 0.5), Integer.MAX_VALUE - 10, this.prng);
+            break;
+        case RAND_LINEAR:
+            //Randomly increasing values in [- nbElementsToPush; 2 * nbElementsToPush]
+            gene = new DistributionGenerator(-nbElementsToPush, 3 * nbElementsToPush, this.prng);
+            break;
+        case HIGHBITS:
+            gene = new DistributionGenerator(Integer.MIN_VALUE + 10, Integer.MAX_VALUE, this.prng);
 
-                break;
-            default:
-                throw new RuntimeException();
+            break;
+        default:
+            throw new RuntimeException();
         }
 
         while (dryRunHashSet.size() < nbElementsToPush) {
@@ -148,17 +148,17 @@ public class BenchmarkHashMapBase
 
             switch (this.distribution)
             {
-                case RANDOM:
-                    currentKey = gene.RANDOM.getNext();
-                    break;
-                case RAND_LINEAR:
-                    currentKey = gene.RAND_INCREMENT.getNext();
-                    break;
-                case HIGHBITS:
-                    currentKey = gene.HIGHBITS.getNext();
-                    break;
-                default:
-                    throw new RuntimeException();
+            case RANDOM:
+                currentKey = gene.RANDOM.getNext();
+                break;
+            case RAND_LINEAR:
+                currentKey = gene.RAND_INCREMENT.getNext();
+                break;
+            case HIGHBITS:
+                currentKey = gene.HIGHBITS.getNext();
+                break;
+            default:
+                throw new RuntimeException();
             }
 
             dryRunHashSet.put(new ComparableInt(currentKey, HASH_QUALITY.NORMAL), 0);
@@ -166,7 +166,7 @@ public class BenchmarkHashMapBase
 
         } //end while
 
-        //Check that HPPC would indeed reach the target load factor, test using a IntSet and Identity
+            //Check that HPPC would indeed reach the target load factor, test using a IntSet and Identity
         double effectiveLoadFactor = 0.0;
 
         if (this.impl.isIdentityMap()) {
@@ -212,6 +212,12 @@ public class BenchmarkHashMapBase
      * Call this to skip execution of some benchmarks categories
      */
     protected void skipForbiddenCombinations() {
+
+        //TODO: Only bench HPPC
+        if (!this.implementation.toString().contains("HPPC")) {
+
+            throw new DoNotExecuteBenchmarkException();
+        }
 
         //1-1)skip senseless benchmark combinations : BAD hash is only valid for some types
         if (this.hash_quality == HASH_QUALITY.BAD &&

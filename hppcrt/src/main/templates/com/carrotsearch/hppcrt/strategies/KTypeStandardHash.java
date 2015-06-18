@@ -4,7 +4,7 @@ import com.carrotsearch.hppcrt.Intrinsics;
 import com.carrotsearch.hppcrt.hash.BitMixer;
 
 /*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
-/*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
+/*! ${TemplateOptions.doNotGenerateKType("boolean", "byte", "char", "short", "float", "double" )} !*/
 /**
  * Standard  {@link KTypeHashingStrategy} for <code>KType</code>s, providing the same behavior as equals()/ hashCode()
  * gives for objects.
