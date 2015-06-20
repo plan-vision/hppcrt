@@ -2,6 +2,7 @@ package com.carrotsearch.hppcrt;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.openjdk.jmh.annotations.Mode;
@@ -91,8 +92,7 @@ public class BenchmarkSuiteRunner
 
                 try {
                     commonOptions.nbWarmups = Integer.parseInt(commonArg.split("--warmup=")[1]);
-                }
-                finally {
+                } finally {
                     //nothing, keep previous or default value,
                 }
             }
@@ -100,8 +100,7 @@ public class BenchmarkSuiteRunner
 
                 try {
                     commonOptions.nbMeasurements = Integer.parseInt(commonArg.split("--measure=")[1]);
-                }
-                finally {
+                } finally {
                     //nothing, keep previous or default value
                 }
             }
@@ -129,38 +128,57 @@ public class BenchmarkSuiteRunner
         final BenchmarkSuiteRunner.BenchmarkOptions commonOpts = new BenchmarkSuiteRunner.BenchmarkOptions();
 
         //extract warmup and measurement args
-        BenchmarkSuiteRunner.parseCommonArguments(commandLine, commonOpts);
+        final String[] overridenJmhParams = BenchmarkSuiteRunner.parseCommonArguments(commandLine, commonOpts);
 
         BenchmarkSuiteRunner.runJmhBenchmark(jmhClass,
                 commonOpts.nbWarmups, commonOpts.nbMeasurements,
-                minHeapSizeMbytes, maxHeapSizeMbytes);
+                minHeapSizeMbytes, maxHeapSizeMbytes, overridenJmhParams);
 
     }
 
     /**
      * Run the jmhClass JMH class with generic params, automatically parsing warmup and measure parameters
      * from commandLine, then executing JMH with warmup and measure parameters and the provided JVM memory params.
+     * @param jmhClass
+     * @param nbWarmups
+     * @param nbIterations
      * @param commandLine
      * @param minHeapSizeMbytes
      * @param maxHeapSizeMbytes
+     * @param overridenJmhParams
      * @throws RunnerException
      */
     public static void runJmhBenchmark(final Class<?> jmhClass,
             final int nbWarmups, final int nbIterations,
-            final int minHeapSizeMbytes, final int maxHeapSizeMbytes) throws RunnerException {
+            final int minHeapSizeMbytes, final int maxHeapSizeMbytes, final String[] overridenJmhParams) throws RunnerException {
 
         Util.printSystemInfo("Benchmarks for '" + jmhClass.getSimpleName() + "' starting...");
 
-        final Options opt = new OptionsBuilder()
-        .include(jmhClass.getSimpleName())
-        .forks(1)
-        .mode(Mode.SingleShotTime)
-        .warmupIterations(nbWarmups)
-        .measurementIterations(nbIterations)
-        .verbosity(VerboseMode.NORMAL)
-        .jvmArgsAppend("-Xms" + minHeapSizeMbytes + "m")
-        .jvmArgsAppend("-Xmx" + maxHeapSizeMbytes + "m")
-        .build();
+        final OptionsBuilder optBuilder = new OptionsBuilder();
+
+        optBuilder.include(jmhClass.getSimpleName())
+                .forks(1)
+                .mode(Mode.SingleShotTime)
+                .warmupIterations(nbWarmups)
+                .measurementIterations(nbIterations)
+                .verbosity(VerboseMode.NORMAL)
+                .jvmArgsAppend("-Xms" + minHeapSizeMbytes + "m")
+                .jvmArgsAppend("-Xmx" + maxHeapSizeMbytes + "m");
+
+        //overridenJmhParams are in the form "[param]=[value1,value2...etc]
+        //where param is one @Param of the benchmark, with value1,value2,... replacing the original alternatives.
+        for (final String singleParamOverride : overridenJmhParams) {
+
+            final String[] splitParam = singleParamOverride.split("=");
+
+            if (splitParam.length == 2) {
+
+                System.out.println(">>>> Override benchmark @Param '" + splitParam[0] + "' values by " + Arrays.toString(splitParam[1].split(",")));
+                optBuilder.param(splitParam[0], splitParam[1].split(","));
+            }
+        }
+
+        final Options opt = optBuilder.build();
 
         //run
         new Runner(opt).run();

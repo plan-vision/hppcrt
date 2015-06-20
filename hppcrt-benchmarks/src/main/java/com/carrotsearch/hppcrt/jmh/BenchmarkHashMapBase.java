@@ -39,12 +39,13 @@ public class BenchmarkHashMapBase
 
     @Param({
 
-            "6000000"
+        "3000000"
     })
     public int targetSize;
 
+    //use 0.5 as default since GS is hardcoded to 0.5, for fair comparison.
     @Param({
-            "0.75"
+        "0.5"
     })
     public float loadFactor;
 
@@ -166,12 +167,12 @@ public class BenchmarkHashMapBase
 
         } //end while
 
-            //Check that HPPC would indeed reach the target load factor, test using a IntSet and Identity
+        //Check that HPPC would indeed reach the target load factor, test using a IntSet and Identity
         double effectiveLoadFactor = 0.0;
 
         if (this.impl.isIdentityMap()) {
 
-            final ObjectIdentityHashSet<ComparableInt> testIdentityFactor = new ObjectIdentityHashSet<ComparableInt>(nbElementsToPush);
+            final ObjectIdentityHashSet<ComparableInt> testIdentityFactor = new ObjectIdentityHashSet<ComparableInt>(nbElementsToPush, this.loadFactor);
 
             for (final Entry<ComparableInt, Integer> curr : dryRunHashSet.entrySet()) {
 
@@ -182,7 +183,7 @@ public class BenchmarkHashMapBase
 
         }
         else {
-            final IntHashSet testSetFactor = new IntHashSet(nbElementsToPush);
+            final IntHashSet testSetFactor = new IntHashSet(nbElementsToPush, this.loadFactor);
 
             testSetFactor.addAll(keysListToPush);
 
@@ -212,12 +213,6 @@ public class BenchmarkHashMapBase
      * Call this to skip execution of some benchmarks categories
      */
     protected void skipForbiddenCombinations() {
-
-        //TODO: Only bench HPPC
-        if (!this.implementation.toString().contains("HPPC")) {
-
-            throw new DoNotExecuteBenchmarkException();
-        }
 
         //1-1)skip senseless benchmark combinations : BAD hash is only valid for some types
         if (this.hash_quality == HASH_QUALITY.BAD &&

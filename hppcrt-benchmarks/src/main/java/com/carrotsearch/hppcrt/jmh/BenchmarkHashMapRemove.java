@@ -22,8 +22,8 @@ public class BenchmarkHashMapRemove extends BenchmarkHashMapBase
     public enum MAP_LOOKUP_TEST
     {
         TRUE,
-        MOSTLY_FALSE,
-        MIXED
+        MIXED,
+        MOSTLY_FALSE
     }
 
     @Param
