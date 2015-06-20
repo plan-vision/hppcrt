@@ -332,9 +332,7 @@ public class KTypeHashSet<KType>
 
         for (int i = oldKeys.length; --i >= 0;) {
 
-            if (is_allocated(i, oldKeys)) {
-
-                e = oldKeys[i];
+            if (!Intrinsics.<KType> isEmpty(e = oldKeys[i])) {
 
                 slot = REHASH2(e, perturb) & mask;
 
@@ -631,8 +629,9 @@ public class KTypeHashSet<KType>
         final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
 
         for (int i = keys.length; --i >= 0;) {
-            if (is_allocated(i, keys)) {
-                h += BitMixer.mix(keys[i]);
+             KType existing;
+            if (!Intrinsics.<KType> isEmpty(existing = keys[i])) {
+                h += BitMixer.mix(existing);
             }
         }
 
@@ -772,8 +771,9 @@ public class KTypeHashSet<KType>
         //Iterate in reverse for side-stepping the longest conflict chain
         //in another hash, in case apply() is actually used to fill another hash container.
         for (int i = keys.length - 1; i >= 0; i--) {
-            if (is_allocated(i, keys)) {
-                procedure.apply(keys[i]);
+            KType existing;
+            if (!Intrinsics.<KType> isEmpty(existing = keys[i])) {
+                procedure.apply(existing);
             }
         }
 
@@ -795,8 +795,9 @@ public class KTypeHashSet<KType>
         final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
 
         for (int i = 0; i < keys.length; i++) {
-            if (is_allocated(i, keys)) {
-                target[count++] = keys[i];
+            KType existing;
+            if (!Intrinsics.<KType> isEmpty(existing = keys[i])) {
+                target[count++] = existing;
             }
         }
 
@@ -840,8 +841,9 @@ public class KTypeHashSet<KType>
         //Iterate in reverse for side-stepping the longest conflict chain
         //in another hash, in case apply() is actually used to fill another hash container.
         for (int i = keys.length - 1; i >= 0; i--) {
-            if (is_allocated(i, keys)) {
-                if (!predicate.apply(keys[i])) {
+            KType existing;
+            if (!Intrinsics.<KType> isEmpty(existing = keys[i])) {
+                if (!predicate.apply(existing)) {
                     break;
                 }
             }
@@ -867,7 +869,8 @@ public class KTypeHashSet<KType>
         final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
 
         for (int i = 0; i < keys.length;) {
-            if (is_allocated(i, keys) && predicate.apply(keys[i])) {
+            KType existing;
+            if (!Intrinsics.<KType> isEmpty(existing = keys[i]) && predicate.apply(existing)) {
 
                 shiftConflictingKeys(i);
                 // Shift, do not increment slot.

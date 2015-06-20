@@ -431,8 +431,9 @@ public class KTypeVTypeCustomHashMap<KType, VType>
         final int perturb = this.perturbation;
 
         for (int i = oldKeys.length; --i >= 0;) {
-            if (is_allocated(i, oldKeys)) {
-                key = oldKeys[i];
+
+            if (!Intrinsics.<KType> isEmpty(key = oldKeys[i])) {
+               
                 value = oldValues[i];
 
                 slot = REHASH2(strategy, key, perturb) & mask;
@@ -688,7 +689,8 @@ public class KTypeVTypeCustomHashMap<KType, VType>
             final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
 
             for (int i = 0; i < keys.length;) {
-                if (is_allocated(i, keys) && other.contains(keys[i])) {
+                KType existing;
+                if (!Intrinsics.<KType> isEmpty(existing = keys[i]) && other.contains(existing)) {
 
                     shiftConflictingKeys(i);
                     // Shift, do not increment slot.
@@ -730,7 +732,8 @@ public class KTypeVTypeCustomHashMap<KType, VType>
         final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
 
         for (int i = 0; i < keys.length;) {
-            if (is_allocated(i, keys) && predicate.apply(keys[i])) {
+            KType existing;
+            if (!Intrinsics.<KType> isEmpty(existing = keys[i]) && predicate.apply(existing)) {
 
                 shiftConflictingKeys(i);
                 // Shift, do not increment slot.
@@ -766,7 +769,8 @@ public class KTypeVTypeCustomHashMap<KType, VType>
         final VType[] values = Intrinsics.<VType[]> cast(this.values);
 
         for (int i = 0; i < keys.length;) {
-            if (is_allocated(i, keys) && predicate.apply(keys[i], values[i])) {
+            KType existing;
+            if (!Intrinsics.<KType> isEmpty(existing = keys[i]) && predicate.apply(existing, values[i])) {
 
                 shiftConflictingKeys(i);
                 // Shift, do not increment slot.
@@ -933,8 +937,9 @@ public class KTypeVTypeCustomHashMap<KType, VType>
         final VType[] values = Intrinsics.<VType[]> cast(this.values);
 
         for (int i = keys.length; --i >= 0;) {
-            if (is_allocated(i, keys)) {
-                h += BitMixer.mix(strategy.computeHashCode(keys[i])) + BitMixer.mix(values[i]);
+            KType existing;
+            if (!Intrinsics.<KType> isEmpty(existing = keys[i])) {
+                h += BitMixer.mix(strategy.computeHashCode(existing)) + BitMixer.mix(values[i]);
             }
         }
 
@@ -1084,8 +1089,9 @@ public class KTypeVTypeCustomHashMap<KType, VType>
         //Iterate in reverse for side-stepping the longest conflict chain
         //in another hash, in case apply() is actually used to fill another hash container.
         for (int i = keys.length - 1; i >= 0; i--) {
-            if (is_allocated(i, keys)) {
-                procedure.apply(keys[i], values[i]);
+            KType existing;
+            if (!Intrinsics.<KType> isEmpty(existing = keys[i])) {
+                procedure.apply(existing, values[i]);
             }
         }
 
@@ -1111,8 +1117,9 @@ public class KTypeVTypeCustomHashMap<KType, VType>
         //Iterate in reverse for side-stepping the longest conflict chain
         //in another hash, in case apply() is actually used to fill another hash container.
         for (int i = keys.length - 1; i >= 0; i--) {
-            if (is_allocated(i, keys)) {
-                if (!predicate.apply(keys[i], values[i])) {
+            KType existing;
+            if (!Intrinsics.<KType> isEmpty(existing = keys[i])) {
+                if (!predicate.apply(existing, values[i])) {
                     break;
                 }
             }
@@ -1155,8 +1162,9 @@ public class KTypeVTypeCustomHashMap<KType, VType>
             //Iterate in reverse for side-stepping the longest conflict chain
             //in another hash, in case apply() is actually used to fill another hash container.
             for (int i = keys.length - 1; i >= 0; i--) {
-                if (is_allocated(i, keys)) {
-                    procedure.apply(keys[i]);
+                KType existing;
+                if (!Intrinsics.<KType> isEmpty(existing = keys[i])) {
+                    procedure.apply(existing);
                 }
             }
 
@@ -1178,8 +1186,9 @@ public class KTypeVTypeCustomHashMap<KType, VType>
             //Iterate in reverse for side-stepping the longest conflict chain
             //in another hash, in case apply() is actually used to fill another hash container.
             for (int i = keys.length - 1; i >= 0; i--) {
-                if (is_allocated(i, keys)) {
-                    if (!predicate.apply(keys[i])) {
+                KType existing;
+                if (!Intrinsics.<KType> isEmpty(existing = keys[i])) {
+                    if (!predicate.apply(existing)) {
                         break;
                     }
                 }
@@ -1269,8 +1278,9 @@ public class KTypeVTypeCustomHashMap<KType, VType>
             final KType[] keys = Intrinsics.<KType[]> cast(this.owner.keys);
 
             for (int i = 0; i < keys.length; i++) {
-                if (is_allocated(i, keys)) {
-                    target[count++] = keys[i];
+                KType existing;
+                if (!Intrinsics.<KType> isEmpty(existing = keys[i])) {
+                    target[count++] = existing;
                 }
             }
 
