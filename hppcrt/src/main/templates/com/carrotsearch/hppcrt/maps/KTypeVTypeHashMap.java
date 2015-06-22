@@ -48,7 +48,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeHashMap<KType, VType>
-implements KTypeVTypeMap<KType, VType>, Cloneable
+        implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     protected VType defaultValue = Intrinsics.<VType> empty();
 
@@ -63,8 +63,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
           KType []
           #else !*/
     Object[]
-            /*! #end !*/
-            keys;
+    /*! #end !*/
+    keys;
 
     /**
      * Hash-indexed array holding all values associated to the keys.
@@ -74,8 +74,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
           VType []
           #else !*/
     Object[]
-            /*! #end !*/
-            values;
+    /*! #end !*/
+    values;
 
     /*! #if ($RH) !*/
     /**
@@ -900,7 +900,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         int h = 0;
 
         if (this.allocatedDefaultKey) {
-            h += 0 + BitMixer.mix(this.allocatedDefaultKeyValue);
+            h += BitMixer.mix(this.allocatedDefaultKeyValue);
         }
 
         final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
@@ -909,7 +909,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         for (int i = keys.length; --i >= 0;) {
             KType existing;
             if (!Intrinsics.<KType> isEmpty(existing = keys[i])) {
-                h += BitMixer.mix(existing) + BitMixer.mix(values[i]);
+
+                h += BitMixer.mix(existing) ^ BitMixer.mix(values[i]);
             }
         }
 

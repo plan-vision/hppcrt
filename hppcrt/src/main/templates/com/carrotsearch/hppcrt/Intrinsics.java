@@ -38,7 +38,7 @@ public final class Intrinsics
         "<boolean>==>!key",
         "<*> ==> key == ${TemplateOptions.getKType().getDefaultValue()}")) !*/
 
-        //Enforce the version with explicit Generic
+        //Enforce the version with explicit Generic, i.e make the generic-less not valid.
         /*! ($TemplateOptions.declareInline("Intrinsics.isEmpty(key)",
         "<*> ==> @FORBIDDEN_IS_EMPTY_WITHOUT_GENERIC@")) !*/
 

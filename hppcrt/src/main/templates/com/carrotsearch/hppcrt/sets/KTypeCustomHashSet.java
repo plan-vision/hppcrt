@@ -53,8 +53,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeCustomHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Hash-indexed array holding all set entries.
@@ -67,8 +67,8 @@ public class KTypeCustomHashSet<KType>
           KType []
           #else !*/
     Object[]
-    /*! #end !*/
-    keys;
+            /*! #end !*/
+            keys;
 
     /*! #if ($RH) !*/
     /**
@@ -650,16 +650,14 @@ public class KTypeCustomHashSet<KType>
         final KTypeHashingStrategy<? super KType> strategy = this.hashStrategy;
 
         int h = 0;
-
-        if (this.allocatedDefaultKey) {
-            h += 0;
-        }
+        //allocated default key has hash = 0
 
         final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
 
         for (int i = keys.length; --i >= 0;) {
             KType existing;
             if (!Intrinsics.<KType> isEmpty(existing = keys[i])) {
+
                 h += BitMixer.mix(strategy.computeHashCode(existing));
             }
         }

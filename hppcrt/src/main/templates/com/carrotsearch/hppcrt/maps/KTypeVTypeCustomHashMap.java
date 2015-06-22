@@ -52,7 +52,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeCustomHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     protected VType defaultValue = Intrinsics.<VType> empty();
 
@@ -67,8 +67,8 @@ public class KTypeVTypeCustomHashMap<KType, VType>
           KType []
           #else !*/
     Object[]
-    /*! #end !*/
-    keys;
+            /*! #end !*/
+            keys;
 
     /**
      * Hash-indexed array holding all values associated to the keys.
@@ -78,8 +78,8 @@ public class KTypeVTypeCustomHashMap<KType, VType>
           VType []
           #else !*/
     Object[]
-    /*! #end !*/
-    values;
+            /*! #end !*/
+            values;
 
     /*! #if ($RH) !*/
     /**
@@ -433,7 +433,7 @@ public class KTypeVTypeCustomHashMap<KType, VType>
         for (int i = oldKeys.length; --i >= 0;) {
 
             if (!Intrinsics.<KType> isEmpty(key = oldKeys[i])) {
-               
+
                 value = oldValues[i];
 
                 slot = REHASH2(strategy, key, perturb) & mask;
@@ -930,7 +930,7 @@ public class KTypeVTypeCustomHashMap<KType, VType>
         int h = 0;
 
         if (this.allocatedDefaultKey) {
-            h += 0 + BitMixer.mix(this.allocatedDefaultKeyValue);
+            h += BitMixer.mix(this.allocatedDefaultKeyValue);
         }
 
         final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
@@ -939,7 +939,8 @@ public class KTypeVTypeCustomHashMap<KType, VType>
         for (int i = keys.length; --i >= 0;) {
             KType existing;
             if (!Intrinsics.<KType> isEmpty(existing = keys[i])) {
-                h += BitMixer.mix(strategy.computeHashCode(existing)) + BitMixer.mix(values[i]);
+
+                h += BitMixer.mix(strategy.computeHashCode(existing)) ^ BitMixer.mix(values[i]);
             }
         }
 

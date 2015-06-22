@@ -622,14 +622,12 @@ public class KTypeHashSet<KType>
     public int hashCode() {
         int h = 0;
 
-        if (this.allocatedDefaultKey) {
-            h += 0;
-        }
+        //allocated default key has hash = 0
 
         final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
 
         for (int i = keys.length; --i >= 0;) {
-             KType existing;
+            KType existing;
             if (!Intrinsics.<KType> isEmpty(existing = keys[i])) {
                 h += BitMixer.mix(existing);
             }
