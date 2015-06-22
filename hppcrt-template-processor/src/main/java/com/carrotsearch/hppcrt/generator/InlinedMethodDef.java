@@ -50,7 +50,7 @@ public class InlinedMethodDef
     private String methodNamePattern;
 
     /**
-     * Compiled Pattern to recognized the InlinedMethodDef method call.
+     * Compiled Pattern to recognize the InlinedMethodDef method call.
      */
     private Pattern methodNameCompiledPattern;
 
@@ -62,7 +62,7 @@ public class InlinedMethodDef
 
     /**
      * Represents a unique template specialization applicable to
-     * concrete tampletized parameters, ex:
+     * concrete templatized parameters, ex:
      * <int, Object> ==> [specialization]
      * @author Vincent
      *

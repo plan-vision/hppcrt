@@ -62,6 +62,10 @@ public final class Intrinsics
         /*! ($TemplateOptions.declareInline("Intrinsics.<T>empty()",
          "<${TemplateOptions.KType}> ==> ${TemplateOptions.getKType().getDefaultValue()}")) !*/
 
+        //Enforce the version with explicit Generic, i.e make the generic-less not valid.
+        /*! ($TemplateOptions.declareInline("Intrinsics.empty(key)",
+        "<*> ==> @FORBIDDEN_EMPTY_WITHOUT_GENERIC@")) !*/
+
         return (T) null;
     }
 
@@ -77,6 +81,10 @@ public final class Intrinsics
         "<Object>==>(T)obj",
         "<Object[]>==>(T)obj",
         "<*>==>obj")) !*/
+
+        //Enforce the version with explicit Generic, i.e make the generic-less not valid.
+        /*! ($TemplateOptions.declareInline("Intrinsics.cast(obj)",
+        "<*> ==> @FORBIDDEN_CAST_WITHOUT_GENERIC@")) !*/
 
         return (T) value;
     }
@@ -102,6 +110,10 @@ public final class Intrinsics
         "<Object> ==> (T[])new Object[arraySize]",
         "<${TemplateOptions.KType}> ==> new ${TemplateOptions.KType}[arraySize]")) !*/
 
+        //Enforce the version with explicit Generic, i.e make the generic-less not valid.
+        /*! ($TemplateOptions.declareInline("Intrinsics.newArray(arraySize)",
+        "<*> ==> @FORBIDDEN_NEW_ARRAY_WITHOUT_GENERIC@")) !*/
+
         return (T[]) new Object[arraySize];
     }
 
@@ -119,6 +131,10 @@ public final class Intrinsics
         "<double>==>Double.doubleToLongBits(e1) == Double.doubleToLongBits(e2)",
         "<*>==>e1 == e2")) !*/
 
+        //Enforce the version with explicit Generic, i.e make the generic-less not valid.
+        /*! ($TemplateOptions.declareInline("Intrinsics.equals(e1, e2)",
+        "<*> ==> @FORBIDDEN_EQUALS_WITHOUT_GENERIC@")) !*/
+
         return e1 == null ? e2 == null : e1.equals(e2);
     }
 
@@ -134,6 +150,10 @@ public final class Intrinsics
         "<double>==> Double.doubleToLongBits(e1) == Double.doubleToLongBits(e2)",
         "<*>==>e1 == e2")) !*/
 
+        //Enforce the version with explicit Generic, i.e make the generic-less not valid.
+        /*! ($TemplateOptions.declareInline("Intrinsics.equalsNotNull(e1, e2)",
+        "<*> ==> @FORBIDDEN_EQUALS_NOTNULL_WITHOUT_GENERIC@")) !*/
+
         return e1.equals(e2);
     }
 
@@ -148,6 +168,10 @@ public final class Intrinsics
         "<Object>==>@INVALID_REPLACEMENT_ADD_FORBIDDEN_FOR_OBJECTS@",
         "<boolean>==>@INVALID_REPLACEMENT_ADD_FORBIDDEN_FOR_BOOLEANS@",
         "<*>==>e1 + e2")) !*/
+
+        //Enforce the version with explicit Generic, i.e make the generic-less not valid.
+        /*! ($TemplateOptions.declareInline("Intrinsics.add(e1, e2)",
+        "<*> ==> @FORBIDDEN_ADD_WITHOUT_GENERIC@")) !*/
 
         if (op1.getClass() != op2.getClass()) {
             throw new RuntimeException("Arguments of different classes: " + op1 + " " + op2);
@@ -193,6 +217,10 @@ public final class Intrinsics
         "<boolean>==>(e1 == e2) ? 0 : ((e1)? 1 : -1)",
         "<*>==>(e1 == e2)?0:((e1 < e2)?-1:1)")) !*/
 
+        //Enforce the version with explicit Generic, i.e make the generic-less not valid.
+        /*! ($TemplateOptions.declareInline("Intrinsics.compare(e1, e2)",
+        "<*> ==> @FORBIDDEN_COMPARE_WITHOUT_GENERIC@")) !*/
+
         return e1.compareTo(e2);
     }
 
@@ -212,6 +240,10 @@ public final class Intrinsics
         "<boolean>==>(e1 == e2) ? 0 : ((e1)? 1 : -1)",
         "<*>==>(e1 == e2)?0:((e1 < e2)?-1:1)")) !*/
 
+        //Enforce the version with explicit Generic, i.e make the generic-less not valid.
+        /*! ($TemplateOptions.declareInline("Intrinsics.compareUnchecked(e1, e2)",
+        "<*> ==> @FORBIDDEN_COMPARE_UNCHECKED_WITHOUT_GENERIC@")) !*/
+
         return ((Comparable<? super T>) e1).compareTo(e2);
     }
 
@@ -229,6 +261,10 @@ public final class Intrinsics
         "<double>==>Double.compare(e1 , e2) > 0",
         "<boolean>==>(e1 == e2) ? false :(e1)",
         "<*>==>e1 > e2")) !*/
+
+        //Enforce the version with explicit Generic, i.e make the generic-less not valid.
+        /*! ($TemplateOptions.declareInline("Intrinsics.isCompSup(e1, e2)",
+        "<*> ==> @FORBIDDEN_COMP_SUP_WITHOUT_GENERIC@")) !*/
 
         return e1.compareTo(e2) > 0;
     }
@@ -249,6 +285,10 @@ public final class Intrinsics
         "<boolean>==>(e1 == e2) ? false :(e1)",
         "<*>==>e1 > e2")) !*/
 
+        //Enforce the version with explicit Generic, i.e make the generic-less not valid.
+        /*! ($TemplateOptions.declareInline("Intrinsics.isCompSupUnchecked(e1, e2)",
+        "<*> ==> @FORBIDDEN_COMP_SUP_UNCHECKED_WITHOUT_GENERIC@")) !*/
+
         return ((Comparable<? super T>) e1).compareTo(e2) > 0;
     }
 
@@ -266,6 +306,10 @@ public final class Intrinsics
         "<double>==>Double.compare(e1 , e2) < 0",
         "<boolean>==>(e1 == e2) ? false :(e2)",
         "<*>==>e1 < e2")) !*/
+
+        //Enforce the version with explicit Generic, i.e make the generic-less not valid.
+        /*! ($TemplateOptions.declareInline("Intrinsics.isCompInf(e1, e2)",
+        "<*> ==> @FORBIDDEN_COMP_INF_WITHOUT_GENERIC@")) !*/
 
         return e1.compareTo(e2) < 0;
     }
@@ -286,6 +330,10 @@ public final class Intrinsics
         "<boolean>==>(e1 == e2) ? false :(e2)",
         "<*>==>e1 < e2")) !*/
 
+        //Enforce the version with explicit Generic, i.e make the generic-less not valid.
+        /*! ($TemplateOptions.declareInline("Intrinsics.isCompInfUnchecked(e1, e2)",
+        "<*> ==> @FORBIDDEN_COMP_INF_UNCHECKED_WITHOUT_GENERIC@")) !*/
+
         return ((Comparable<? super T>) e1).compareTo(e2) < 0;
     }
 
@@ -302,6 +350,10 @@ public final class Intrinsics
         "<float>==>Float.floatToIntBits(e1) == Float.floatToIntBits(e2)",
         "<double>==>Double.doubleToLongBits(e1) == Double.doubleToLongBits(e2)",
         "<*>==>e1 == e2")) !*/
+
+        //Enforce the version with explicit Generic, i.e make the generic-less not valid.
+        /*! ($TemplateOptions.declareInline("Intrinsics.isCompEqual(e1, e2)",
+        "<*> ==> @FORBIDDEN_COMP_EQUAL_WITHOUT_GENERIC@")) !*/
 
         return e1.compareTo(e2) == 0;
     }
@@ -320,6 +372,10 @@ public final class Intrinsics
         "<float>==>Float.floatToIntBits(e1) == Float.floatToIntBits(e2)",
         "<double>==>Double.doubleToLongBits(e1) == Double.doubleToLongBits(e2)",
         "<*>==>e1 == e2")) !*/
+
+        //Enforce the version with explicit Generic, i.e make the generic-less not valid.
+        /*! ($TemplateOptions.declareInline("Intrinsics.isCompEqualUnchecked(e1, e2)",
+        "<*> ==> @FORBIDDEN_COMP_EQUAL_UNCHECKED_WITHOUT_GENERIC@")) !*/
 
         return ((Comparable<? super T>) e1).compareTo(e2) == 0;
     }
