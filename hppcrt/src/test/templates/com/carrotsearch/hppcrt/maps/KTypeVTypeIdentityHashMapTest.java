@@ -21,8 +21,7 @@ import com.carrotsearch.randomizedtesting.annotations.*;
 /**
  * Tests for {@link KTypeVTypeIdentityHashMap} peculiarities.
  */
-/*! ${TemplateOptions.doNotGenerateKType("BOOLEAN", "BYTE", "CHAR", "SHORT", "INT", "LONG", "FLOAT", "DOUBLE")} !*/
-//${TemplateOptions.doNotGenerateVType("BOOLEAN")}
+/*! ${TemplateOptions.doNotGenerateKType("BYTE", "CHAR", "SHORT", "INT", "LONG", "FLOAT", "DOUBLE")} !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<KType, VType>
 {
@@ -239,7 +238,7 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
         Assume.assumeTrue(Object[].class.isInstance(this.map.keys) &&
                 (!float[].class.isInstance(this.map.values) &&
                         !double[].class.isInstance(this.map.values) &&
-                !char[].class.isInstance(this.map.values)));
+                        !char[].class.isInstance(this.map.values)));
 
         this.map.put(this.key1, this.value1);
         this.map.put(this.key2, this.value2);

@@ -7,7 +7,7 @@ import com.carrotsearch.hppcrt.procedures.*;
 import com.carrotsearch.hppcrt.strategies.*;
 import com.carrotsearch.hppcrt.hash.*;
 
-/*! ${TemplateOptions.doNotGenerateKType("BOOLEAN", "BYTE", "CHAR", "SHORT", "INT", "LONG", "FLOAT", "DOUBLE")} !*/
+/*! ${TemplateOptions.doNotGenerateKType( "BYTE", "CHAR", "SHORT", "INT", "LONG", "FLOAT", "DOUBLE")} !*/
 /**
  * An identity hash set of <code>KType</code> types, implemented using open
  * addressing with linear probing for collision resolution.
@@ -21,7 +21,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeIdentityHashSet<KType>
-extends KTypeCustomHashSet<KType>
+        extends KTypeCustomHashSet<KType>
 {
     private static final KTypeIdentityHash<Object> IDENTITY_EQUALITY = new KTypeIdentityHash<Object>();
 

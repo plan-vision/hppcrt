@@ -41,7 +41,7 @@ public class TestInlinedMethodDef
 
         //D) Compute inlined replacements
         //= int
-        String intReplacement = testClass.computeInlinedForm(new TemplateOptions(Type.INT, Type.BOOLEAN),
+        String intReplacement = testClass.computeInlinedForm(new TemplateOptions(Type.INT, Type.FLOAT),
                 m.group("generic").split(","),
                 Arrays.asList("A1 + A2", "B1 + B2"));
 
@@ -88,7 +88,7 @@ public class TestInlinedMethodDef
         Assert.assertEquals("REHASH(", m.group("method")); //the first parenthesis is matched also on purspose
 
         //D) Compute inlined replacement
-        intReplacement = testClass.computeInlinedForm(new TemplateOptions(Type.INT, Type.BOOLEAN),
+        intReplacement = testClass.computeInlinedForm(new TemplateOptions(Type.INT, Type.FLOAT),
                 new String[0],
                 Arrays.asList("A1 + A2"));
 
@@ -119,7 +119,7 @@ public class TestInlinedMethodDef
         Assert.assertEquals("REHASH(", m.group("method")); //the first parenthesis is matched also on purspose
 
         //D) Compute inlined replacement
-        intReplacement = testClass.computeInlinedForm(new TemplateOptions(Type.INT, Type.BOOLEAN),
+        intReplacement = testClass.computeInlinedForm(new TemplateOptions(Type.INT, Type.FLOAT),
                 new String[0],
                 Arrays.asList("A1 + A2", "pp"));
 
@@ -151,7 +151,7 @@ public class TestInlinedMethodDef
         Assert.assertEquals("newArray(", m.group("method")); //the first parenthesis is matched also on purspose
 
         //D) Compute inlined replacement
-        intReplacement = testClass.computeInlinedForm(new TemplateOptions(Type.BYTE, Type.BOOLEAN),
+        intReplacement = testClass.computeInlinedForm(new TemplateOptions(Type.BYTE, Type.FLOAT),
                 m.group("generic").split(","),
                 Arrays.asList("0"));
 
@@ -244,7 +244,6 @@ public class TestInlinedMethodDef
         testClass.addSpecialization("<Object>==> key == null");
         testClass.addSpecialization("<float>==>Float.floatToIntBits(key) == 0");
         testClass.addSpecialization("<double>==>Double.doubleToLongBits(key) == 0L");
-        testClass.addSpecialization("<boolean>==>!key");
         testClass.addSpecialization("<*> ==> key == 0");
 
         //C) try to match it as TemplateProcessor is supposed to:
@@ -338,7 +337,7 @@ public class TestInlinedMethodDef
 
         //D) Compute inlined replacements
         //= Object = VType
-        replacement = testClass.computeInlinedForm(new TemplateOptions(Type.BOOLEAN, Type.GENERIC),
+        replacement = testClass.computeInlinedForm(new TemplateOptions(Type.DOUBLE, Type.GENERIC),
                 m.group("generic").split(","),
                 Arrays.asList("AA"));
 
@@ -423,7 +422,7 @@ public class TestInlinedMethodDef
         Assert.assertEquals("((VType[])(this.values))".replaceAll("\\s*", ""), replacement.replaceAll("\\s*", ""));
 
         //= float = VType
-        replacement = testClass.computeInlinedForm(new TemplateOptions(Type.BOOLEAN, Type.FLOAT),
+        replacement = testClass.computeInlinedForm(new TemplateOptions(Type.CHAR, Type.FLOAT),
                 m.group("generic").split(","),
                 Arrays.asList("this.values"));
 

@@ -22,7 +22,6 @@ import com.carrotsearch.randomizedtesting.annotations.Repeat;
 /**
  * Unit tests for {@link KTypeArrayList}.
  */
-//${TemplateOptions.doNotGenerateKType("BOOLEAN")}
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayListTest<KType> extends AbstractKTypeIndexedContainerTest<KType>
 {

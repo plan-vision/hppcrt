@@ -24,8 +24,6 @@ import com.carrotsearch.randomizedtesting.annotations.*;
 /**
  * Tests for {@link KTypeVTypeHashMap}.
  */
-// ${TemplateOptions.doNotGenerateKType("BOOLEAN")}
-//${TemplateOptions.doNotGenerateVType("BOOLEAN")}
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeHashMapTest<KType, VType>
 {

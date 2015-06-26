@@ -1,10 +1,8 @@
 package com.carrotsearch.hppcrt.cursors;
 
-
 /**
  * A cursor over entries of an associative container (KType keys and VType values).
  */
-//${TemplateOptions.doNotGenerateKType("BOOLEAN")}
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeVTypeCursor<KType, VType>
 {
@@ -28,6 +26,6 @@ public final class KTypeVTypeCursor<KType, VType>
     @Override
     public String toString()
     {
-        return "[cursor, index: " + index + ", key: " + key + ", value: " + value + "]";
+        return "[cursor, index: " + this.index + ", key: " + this.key + ", value: " + this.value + "]";
     }
 }

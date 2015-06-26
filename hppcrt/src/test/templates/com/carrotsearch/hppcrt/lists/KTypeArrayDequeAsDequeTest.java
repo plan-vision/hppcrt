@@ -11,7 +11,6 @@ import com.carrotsearch.hppcrt.TestUtils;
 /**
  * Unit tests for {@link KTypeArrayDeque as KTypeDeque}.
  */
-//${TemplateOptions.doNotGenerateKType("BOOLEAN")}
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayDequeAsDequeTest<KType> extends AbstractKTypeDequeTest<KType>
 {
@@ -71,10 +70,10 @@ public class KTypeArrayDequeAsDequeTest<KType> extends AbstractKTypeDequeTest<KT
             int count = 0;
             //check access by get()
             for (/*! #if ($TemplateOptions.KTypeGeneric) !*/final Object
-                    /*! #else
+            /*! #else
             final KType
             #end !*/
-                    val : arrayDeque.toArray()) {
+            val : arrayDeque.toArray()) {
 
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 TestUtils.assertEquals2(val, (Object) arrayDeque.get(count));

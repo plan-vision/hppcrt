@@ -8,7 +8,7 @@ import com.carrotsearch.hppcrt.strategies.*;
 import com.carrotsearch.hppcrt.hash.*;
 
 /*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
-/*! ${TemplateOptions.doNotGenerateKType("boolean", "byte", "char", "short", "float", "double" )} !*/
+/*! ${TemplateOptions.doNotGenerateKType("byte", "char", "short", "float", "double" )} !*/
 /*! #set( $ROBIN_HOOD_FOR_ALL = true) !*/
 /*! #set( $DEBUG = false) !*/
 //If RH is defined, RobinHood Hashing is in effect :
@@ -330,7 +330,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         return false;
     }
 
-    /*! #if ($TemplateOptions.VTypeNumeric) !*/
+    /*! #if ($TemplateOptions.VTypePrimitive) !*/
     /**
      * If <code>key</code> exists, <code>putValue</code> is inserted into the map,
      * otherwise any existing value is incremented by <code>additionValue</code>.
@@ -359,7 +359,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.VTypeNumeric) !*/
+    /*! #if ($TemplateOptions.VTypePrimitive) !*/
     /**
      * Adds <code>incrementValue</code> to any existing value for the given <code>key</code>
      * or inserts <code>incrementValue</code> if <code>key</code> did not previously exist.

@@ -22,7 +22,6 @@ import com.carrotsearch.randomizedtesting.annotations.Repeat;
 /**
  * Unit tests for {@link KTypeArrayDeque as KTypeIndexedContainer}.
  */
-//${TemplateOptions.doNotGenerateKType("BOOLEAN")}
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayDequeAsIndexedContainerTest<KType> extends AbstractKTypeIndexedContainerTest<KType>
 {
@@ -104,10 +103,10 @@ public class KTypeArrayDequeAsIndexedContainerTest<KType> extends AbstractKTypeI
             int count = 0;
             //check access by get()
             for (/*! #if ($TemplateOptions.KTypeGeneric) !*/final Object
-                    /*! #else
+            /*! #else
             final KType
             #end !*/
-                    val : arrayDeque.toArray()) {
+            val : arrayDeque.toArray()) {
 
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 TestUtils.assertEquals2(val, (Object) arrayDeque.get(count));

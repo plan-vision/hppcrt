@@ -5,7 +5,6 @@ import com.carrotsearch.hppcrt.cursors.KTypeVTypeCursor;
 /**
  * An associative container with unique binding from keys to a single value.
  */
-/*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public interface KTypeVTypeMap<KType, VType>
         extends KTypeVTypeAssociativeContainer<KType, VType>
@@ -33,7 +32,7 @@ public interface KTypeVTypeMap<KType, VType>
      */
     boolean putIfAbsent(final KType key, final VType value);
 
-    /*! #if ($TemplateOptions.VTypeNumeric)!*/
+    /*! #if ($TemplateOptions.VTypePrimitive)!*/
     /**
      * If <code>key</code> exists, <code>putValue</code> is inserted into the map,
      * otherwise any existing value is incremented by <code>additionValue</code>.
@@ -51,7 +50,7 @@ public interface KTypeVTypeMap<KType, VType>
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.VTypeNumeric) !*/
+    /*! #if ($TemplateOptions.VTypePrimitive) !*/
     /**
      * An equivalent of calling
      * 

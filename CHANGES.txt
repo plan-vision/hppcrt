@@ -6,6 +6,7 @@ This release fix important bugs, and align on some refactorings or changes of HP
 HPPCRT-36: Simplify specific IdentityHash impl by deriving a specific CustomHash
 HPPCRT-40: Remove DoubleLinkedIntSet
 HPPCRT-41: Remove senseless key types for CustomHash containers. Now CustomHash are only generated for int, long, Object keys.  
+HPPCRT-42: Remove all Boolean containers versions. Usage for them is either uncommon, or can be easily emulated with the other containers.  
 HPPC-140: On maps, values() and keys() returns a full-fledged Collection. Indeed, keys() and values() already returned Collection from a long time in HPPC-RT. 
 Still, rename the retuned types from KeysContainer/ValuesContainer into KeysCollection/ValuesCollection to stress on that fact.
 

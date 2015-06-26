@@ -55,11 +55,7 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
     public KType cast(final int v)
     {
         /*! #if ($TemplateOptions.KTypePrimitive)
-             #if ($TemplateOptions.KTypeNumeric)
-               return (KType) v;
-             #else
-                return  (v > 0);
-             #end
+           return (KType) v;
          #else !*/
         // @SuppressWarnings("unchecked")
         final KType k = (KType) (Object) v;
@@ -75,11 +71,7 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
     public <KType> int castType(final KType type)
     {
         /*! #if ($TemplateOptions.KTypePrimitive)
-              #if ($TemplateOptions.KTypeNumeric)
-                return (int) type;
-              #else
-                return (type?1:0);
-             #end
+             return (int) type;
         #else !*/
         long k = 0L;
 
@@ -108,11 +100,7 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
         for (int i = 0; i < ints.length; i++)
         {
             /*! #if ($TemplateOptions.KTypePrimitive)
-                 #if ($TemplateOptions.KTypeNumeric)
                   values[i] = (KType) ints[i];
-               #else
-                  values[i] = (ints[i] > 0)?true:false;
-               #end
             #else !*/
             values[i] = (KType) (Object) ints[i];
             /*! #end !*/

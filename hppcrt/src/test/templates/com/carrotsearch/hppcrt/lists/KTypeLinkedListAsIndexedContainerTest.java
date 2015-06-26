@@ -22,7 +22,6 @@ import com.carrotsearch.randomizedtesting.annotations.Repeat;
 /**
  * Unit tests for {@link KTypeLinkedList as KTypeIndexedContainer}.
  */
-//${TemplateOptions.doNotGenerateKType("BOOLEAN")}
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeLinkedListAsIndexedContainerTest<KType> extends AbstractKTypeIndexedContainerTest<KType>
 {
@@ -102,10 +101,10 @@ public class KTypeLinkedListAsIndexedContainerTest<KType> extends AbstractKTypeI
             int count = 0;
             //check access by get()
             for (/*! #if ($TemplateOptions.KTypeGeneric) !*/final Object
-                    /*! #else
+            /*! #else
             final KType
             #end !*/
-                    val : this.list.toArray()) {
+            val : this.list.toArray()) {
 
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 TestUtils.assertEquals2(val, (Object) this.list.get(count));

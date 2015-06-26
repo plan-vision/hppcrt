@@ -32,7 +32,6 @@ import com.carrotsearch.hppcrt.strategies.*;
  * the [0 ; {@link #capacity()}[ range. So when a {@link #put} occurs, the map may be resized to be able hold a key exceeding the current capacity.</b>
  * </p>
  */
-/*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
 /*! #set( $DEBUG = false) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>, Cloneable
@@ -470,7 +469,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         return this.defaultValue;
     }
 
-    /*! #if ($TemplateOptions.KTypeNumeric) !*/
+    /*! #if ($TemplateOptions.KTypePrimitive) !*/
     /**
      * If <code>key</code> exists, <code>putValue</code> is inserted into the map,
      * otherwise any existing value is incremented by <code>additionValue</code>.
@@ -499,7 +498,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.KTypeNumeric) !*/
+    /*! #if ($TemplateOptions.KTypePrimitive) !*/
     /**
      * Adds <code>incrementValue</code> to any existing value for the given <code>key</code>
      * or inserts <code>incrementValue</code> if <code>key</code> did not previously exist.
@@ -1366,8 +1365,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
     /*! #else
-                                                                                    public KTypeComparator<? super KType>
-                                                                                    #end !*/
+                                                                                            public KTypeComparator<? super KType>
+                                                                                            #end !*/
     comparator() {
 
         return this.comparator;

@@ -7,7 +7,6 @@ import com.carrotsearch.hppcrt.procedures.*;
 import com.carrotsearch.hppcrt.hash.*;
 
 /*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
-/*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
 /*! #set( $ROBIN_HOOD_FOR_GENERICS = true) !*/
 /*! #set( $DEBUG = false) !*/
 // If RH is defined, RobinHood Hashing is in effect :
@@ -309,7 +308,7 @@ public class KTypeVTypeHashMap<KType, VType>
         return false;
     }
 
-    /*! #if ($TemplateOptions.VTypeNumeric) !*/
+    /*! #if ($TemplateOptions.VTypePrimitive) !*/
     /**
      * If <code>key</code> exists, <code>putValue</code> is inserted into the map,
      * otherwise any existing value is incremented by <code>additionValue</code>.
@@ -338,7 +337,7 @@ public class KTypeVTypeHashMap<KType, VType>
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.VTypeNumeric) !*/
+    /*! #if ($TemplateOptions.VTypePrimitive) !*/
     /**
      * Adds <code>incrementValue</code> to any existing value for the given <code>key</code>
      * or inserts <code>incrementValue</code> if <code>key</code> did not previously exist.

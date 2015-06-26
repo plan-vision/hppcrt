@@ -35,8 +35,6 @@ That means in particular using the enhanced for loop without any dynamic allocat
 
 * Custom default values for methods returning default values in some circumstances. (see Javadoc)
 
-* Boolean versions of containers when it makes sense: lists, queues, stacks, values in Maps.
-
 ...and some general performance and API tweaks.
 
 All these new features are heavily Unit tested, so should work well.

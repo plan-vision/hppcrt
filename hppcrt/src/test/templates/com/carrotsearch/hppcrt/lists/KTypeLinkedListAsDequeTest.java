@@ -15,7 +15,6 @@ import com.carrotsearch.hppcrt.cursors.KTypeCursor;
 /**
  * Unit tests for {@link KTypeLinkedList as KTypeDeque}.
  */
-//${TemplateOptions.doNotGenerateKType("BOOLEAN")}
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeLinkedListAsDequeTest<KType> extends AbstractKTypeDequeTest<KType>
 {
@@ -68,10 +67,10 @@ public class KTypeLinkedListAsDequeTest<KType> extends AbstractKTypeDequeTest<KT
             int count = 0;
             //check access by get()
             for (/*! #if ($TemplateOptions.KTypeGeneric) !*/final Object
-                    /*! #else
+            /*! #else
             final KType
             #end !*/
-                    val : linkedList.toArray()) {
+            val : linkedList.toArray()) {
 
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 TestUtils.assertEquals2(val, (Object) linkedList.get(count));

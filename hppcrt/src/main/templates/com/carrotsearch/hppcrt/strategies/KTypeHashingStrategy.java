@@ -1,6 +1,6 @@
 package com.carrotsearch.hppcrt.strategies;
 
-/*! ${TemplateOptions.doNotGenerateKType("boolean", "byte", "char", "short", "float", "double" )} !*/
+/*! ${TemplateOptions.doNotGenerateKType("byte", "char", "short", "float", "double" )} !*/
 /**
  * Interface to support custom hashing strategies in Hash containers using <code>KType</code>s
  * keys, as replacement of the original equals() and hashCode() methods.

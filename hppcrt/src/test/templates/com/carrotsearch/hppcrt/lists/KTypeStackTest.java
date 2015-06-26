@@ -23,7 +23,6 @@ import com.carrotsearch.randomizedtesting.annotations.Repeat;
 /**
  * Unit tests for {@link KTypeStack}.
  */
-//${TemplateOptions.doNotGenerateKType("BOOLEAN")}
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
 {

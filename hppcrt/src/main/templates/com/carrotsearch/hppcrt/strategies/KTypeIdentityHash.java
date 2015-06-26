@@ -1,6 +1,6 @@
 package com.carrotsearch.hppcrt.strategies;
 
-/*! ${TemplateOptions.doNotGenerateKType("BOOLEAN","BYTE","CHAR","SHORT","INT","LONG","FLOAT", "DOUBLE")} !*/
+/*! ${TemplateOptions.doNotGenerateKType("BYTE","CHAR","SHORT","INT","LONG","FLOAT", "DOUBLE")} !*/
 /**
  * Standard  {@link KTypeHashingStrategy} providing an 'identity'
  * behavior for objects, where they are compared by reference, and their

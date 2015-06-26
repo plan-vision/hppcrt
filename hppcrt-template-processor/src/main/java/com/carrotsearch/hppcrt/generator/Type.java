@@ -9,8 +9,7 @@ public enum Type
     INT("0"),
     LONG("0L"),
     FLOAT("0f"),
-    DOUBLE("0.0"),
-    BOOLEAN("false");
+    DOUBLE("0.0");
 
     private static final Type[] VALUES = Type.values();
 

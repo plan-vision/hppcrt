@@ -73,16 +73,6 @@ public class TemplateOptions
         return this.ktype != Type.GENERIC;
     }
 
-    public boolean isKTypeNumeric()
-    {
-        return isKTypePrimitive() && !isKTypeBoolean();
-    }
-
-    public boolean isKTypeBoolean()
-    {
-        return this.ktype == Type.BOOLEAN;
-    }
-
     public boolean isKType(final String... strKind)
     {
         //return true if it matches any type of the list, case insensitively while
@@ -107,16 +97,6 @@ public class TemplateOptions
     public boolean isVTypePrimitive()
     {
         return this.vtype != Type.GENERIC;
-    }
-
-    public boolean isVTypeNumeric()
-    {
-        return isVTypePrimitive() && !isVTypeBoolean();
-    }
-
-    public boolean isVTypeBoolean()
-    {
-        return this.vtype == Type.BOOLEAN;
     }
 
     public boolean isVType(final String... strKind)

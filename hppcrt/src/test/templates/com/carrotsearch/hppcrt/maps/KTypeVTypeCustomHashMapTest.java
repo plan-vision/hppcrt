@@ -27,8 +27,7 @@ import com.carrotsearch.randomizedtesting.annotations.*;
 /**
  * Tests for {@link KTypeVTypeCustomHashMap}.
  */
-/*! ${TemplateOptions.doNotGenerateKType("boolean", "byte", "char", "short", "float", "double" )} !*/
-//${TemplateOptions.doNotGenerateVType("BOOLEAN")}
+/*! ${TemplateOptions.doNotGenerateKType("byte", "char", "short", "float", "double" )} !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTypeHashMapTest<KType, VType>
 {
@@ -203,18 +202,18 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
         final KTypeVTypeCustomHashMap<KType, VType> refMap3 = createMapWithRandomData(TEST_SIZE,
                 new KTypeHashingStrategy<KType>() {
 
-            @Override
-            public int computeHashCode(final KType object) {
+                    @Override
+                    public int computeHashCode(final KType object) {
 
-                return BitMixer.mix(object);
-            }
+                        return BitMixer.mix(object);
+                    }
 
-            @Override
-            public boolean equals(final KType o1, final KType o2) {
+                    @Override
+                    public boolean equals(final KType o1, final KType o2) {
 
-                return Intrinsics.<KType> equals(o1, o2);
-            }
-        }, TEST_SEED);
+                        return Intrinsics.<KType> equals(o1, o2);
+                    }
+                }, TEST_SEED);
 
         //because they do the same thing as above, but with semantically different strategies, ref3 is != ref
         Assert.assertFalse(refMap.equals(refMap3));
@@ -230,46 +229,46 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
         KTypeVTypeCustomHashMap<KType, VType> refMap4 = createMapWithRandomData(TEST_SIZE,
                 new KTypeHashingStrategy<KType>() {
 
-            @Override
-            public boolean equals(final Object obj) {
+                    @Override
+                    public boolean equals(final Object obj) {
 
-                return true;
-            }
+                        return true;
+                    }
 
-            @Override
-            public int computeHashCode(final KType object) {
+                    @Override
+                    public int computeHashCode(final KType object) {
 
-                return BitMixer.mix(object);
-            }
+                        return BitMixer.mix(object);
+                    }
 
-            @Override
-            public boolean equals(final KType o1, final KType o2) {
+                    @Override
+                    public boolean equals(final KType o1, final KType o2) {
 
-                return Intrinsics.<KType> equals(o1, o2);
-            }
-        }, TEST_SEED);
+                        return Intrinsics.<KType> equals(o1, o2);
+                    }
+                }, TEST_SEED);
 
         KTypeVTypeCustomHashMap<KType, VType> refMap4Image = createMapWithRandomData(TEST_SIZE,
                 new KTypeHashingStrategy<KType>() {
 
-            @Override
-            public boolean equals(final Object obj) {
+                    @Override
+                    public boolean equals(final Object obj) {
 
-                return true;
-            }
+                        return true;
+                    }
 
-            @Override
-            public int computeHashCode(final KType object) {
+                    @Override
+                    public int computeHashCode(final KType object) {
 
-                return BitMixer.mix(object);
-            }
+                        return BitMixer.mix(object);
+                    }
 
-            @Override
-            public boolean equals(final KType o1, final KType o2) {
+                    @Override
+                    public boolean equals(final KType o1, final KType o2) {
 
-                return Intrinsics.<KType> equals(o1, o2);
-            }
-        }, TEST_SEED);
+                        return Intrinsics.<KType> equals(o1, o2);
+                    }
+                }, TEST_SEED);
 
         Assert.assertEquals(refMap4, refMap4Image);
         //but strategy instances are indeed 2 different objects

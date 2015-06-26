@@ -5,7 +5,6 @@ import com.carrotsearch.hppcrt.KTypeCollection;
 /**
  * A Priority queue of <code>KType</code>s.
  */
-/*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public interface KTypePriorityQueue<KType> extends KTypeCollection<KType>
 {
@@ -22,7 +21,6 @@ public interface KTypePriorityQueue<KType> extends KTypeCollection<KType>
      * of the queue. Returns the default value if empty.
      */
     KType top();
-
 
     /**
      * Retrieve, and remove the top element of the queue,

@@ -165,7 +165,7 @@
                     <version>${version.maven-eclipse-plugin}</version>
                     <configuration>
                         <downloadSources>true</downloadSources>
-                        <downloadJavadocs>true</downloadJavadocs>
+                        <downloadJavadocs>false</downloadJavadocs>
                         <buildOutputDirectory>${project.build.directory}/eclipse</buildOutputDirectory>
                     </configuration>
                 </plugin>

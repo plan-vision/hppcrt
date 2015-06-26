@@ -13,8 +13,6 @@ import com.carrotsearch.randomizedtesting.annotations.*;
 /**
  * Unit helpers for <code>KType</code> and <code>VType</code> pair containers
  */
-//${TemplateOptions.doNotGenerateKType("boolean")}
-//${TemplateOptions.doNotGenerateVType("boolean")}
 /*! #if ($TemplateOptions.KTypeGeneric) !*/
 @SuppressWarnings("unchecked")
 /*! #end !*/
@@ -40,11 +38,7 @@ public abstract class AbstractKTypeVTypeTest<KType, VType> extends AbstractKType
     protected VType vcast(final int value)
     {
         /*! #if ($TemplateOptions.VTypePrimitive)
-              #if ($TemplateOptions.VTypeNumeric)
-                  return (VType) value;
-              #else
-                  return  (value > 0);
-              #end
+             return (VType) value;
          #else !*/
         @SuppressWarnings("unchecked")
         final VType v = (VType) (Object) value;
@@ -59,11 +53,7 @@ public abstract class AbstractKTypeVTypeTest<KType, VType> extends AbstractKType
     protected int vcastType(final VType type)
     {
         /*! #if ($TemplateOptions.VTypePrimitive)
-             #if ($TemplateOptions.VTypeNumeric)
-                    return (int) type;
-             #else
-                    return (type?1:0);
-             #end
+               return (int) type;
         #else !*/
         long k = 0L;
 
@@ -96,13 +86,13 @@ public abstract class AbstractKTypeVTypeTest<KType, VType> extends AbstractKType
         Assert.assertEquals(c1.size(), c2.size());
 
         c1.forEach(new KTypeVTypeProcedure<KType, VType>()
-        {
+                {
             @Override
             public void apply(final KType key, final VType value)
             {
                 Assert.assertTrue(c2.containsKey(key));
                 TestUtils.assertEquals2(value, c2.get(key));
             }
-        });
+                });
     }
 }

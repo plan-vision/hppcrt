@@ -21,7 +21,6 @@ import com.carrotsearch.randomizedtesting.annotations.*;
 /**
  * Tests common for all kinds of hash sets {@link KTypeDeque}.
  */
-// ${TemplateOptions.doNotGenerateKType("BOOLEAN")}
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public abstract class AbstractKTypeDequeTest<KType> extends AbstractKTypeTest<KType>
 {

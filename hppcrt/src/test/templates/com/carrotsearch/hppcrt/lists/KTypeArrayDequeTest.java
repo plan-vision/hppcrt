@@ -24,7 +24,6 @@ import com.carrotsearch.randomizedtesting.annotations.Seed;
 /**
  * Unit tests for {@link KTypeArrayDeque}.
  */
-//${TemplateOptions.doNotGenerateKType("BOOLEAN")}
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
 {
@@ -74,10 +73,10 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
             int count = 0;
             //check access by get()
             for (/*! #if ($TemplateOptions.KTypeGeneric) !*/final Object
-            /*! #else
+                    /*! #else
             final KType
             #end !*/
-            val : this.deque.toArray()) {
+                    val : this.deque.toArray()) {
 
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 TestUtils.assertEquals2(val, (Object) this.deque.get(count));

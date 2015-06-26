@@ -26,7 +26,7 @@ import com.carrotsearch.randomizedtesting.annotations.*;
 /**
  * Unit tests for {@link KTypeCustomHashSet}.
  */
-/*! ${TemplateOptions.doNotGenerateKType("boolean", "byte", "char", "short", "float", "double" )} !*/
+/*! ${TemplateOptions.doNotGenerateKType("byte", "char", "short", "float", "double" )} !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeCustomHashSetTest<KType> extends AbstractKTypeHashSetTest<KType>
 {

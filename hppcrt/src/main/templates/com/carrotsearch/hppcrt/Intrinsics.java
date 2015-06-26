@@ -35,7 +35,6 @@ public final class Intrinsics
         /*! ($TemplateOptions.declareInline("Intrinsics.<T>isEmpty(key)",
         "<float>==>Float.floatToIntBits(key) == 0",
         "<double>==>Double.doubleToLongBits(key) == 0L",
-        "<boolean>==>!key",
         "<*> ==> key == ${TemplateOptions.getKType().getDefaultValue()}")) !*/
 
         //Enforce the version with explicit Generic, i.e make the generic-less not valid.
@@ -166,7 +165,6 @@ public final class Intrinsics
 
         /*! ($TemplateOptions.declareInline("Intrinsics.<T>add(e1 , e2)",
         "<Object>==>@INVALID_REPLACEMENT_ADD_FORBIDDEN_FOR_OBJECTS@",
-        "<boolean>==>@INVALID_REPLACEMENT_ADD_FORBIDDEN_FOR_BOOLEANS@",
         "<*>==>e1 + e2")) !*/
 
         //Enforce the version with explicit Generic, i.e make the generic-less not valid.
@@ -214,7 +212,6 @@ public final class Intrinsics
         "<Object>==>e1.compareTo(e2)",
         "<float>==>Float.compare(e1 , e2)",
         "<double>==>Double.compare(e1 , e2)",
-        "<boolean>==>(e1 == e2) ? 0 : ((e1)? 1 : -1)",
         "<*>==>(e1 == e2)?0:((e1 < e2)?-1:1)")) !*/
 
         //Enforce the version with explicit Generic, i.e make the generic-less not valid.
@@ -237,7 +234,6 @@ public final class Intrinsics
         "<Object>==>((Comparable<? super T>) e1).compareTo(e2)",
         "<float>==>Float.compare(e1 , e2)",
         "<double>==>Double.compare(e1 , e2)",
-        "<boolean>==>(e1 == e2) ? 0 : ((e1)? 1 : -1)",
         "<*>==>(e1 == e2)?0:((e1 < e2)?-1:1)")) !*/
 
         //Enforce the version with explicit Generic, i.e make the generic-less not valid.
@@ -256,10 +252,9 @@ public final class Intrinsics
     public static <T extends Comparable<? super T>> boolean isCompSup(final T e1, final T e2)
     {
         /*! ($TemplateOptions.declareInline("Intrinsics.<T>isCompSup(e1 , e2)",
-         "<Object>==>e1.compareTo(e2) > 0",
+        "<Object>==>e1.compareTo(e2) > 0",
         "<float>==>Float.compare(e1 , e2) > 0",
         "<double>==>Double.compare(e1 , e2) > 0",
-        "<boolean>==>(e1 == e2) ? false :(e1)",
         "<*>==>e1 > e2")) !*/
 
         //Enforce the version with explicit Generic, i.e make the generic-less not valid.
@@ -282,7 +277,6 @@ public final class Intrinsics
         "<Object>==>((Comparable<? super T>) e1).compareTo(e2) > 0",
         "<float>==>Float.compare(e1 , e2) > 0",
         "<double>==>Double.compare(e1 , e2) > 0",
-        "<boolean>==>(e1 == e2) ? false :(e1)",
         "<*>==>e1 > e2")) !*/
 
         //Enforce the version with explicit Generic, i.e make the generic-less not valid.
@@ -304,7 +298,6 @@ public final class Intrinsics
         "<Object>==>e1.compareTo(e2) < 0",
         "<float>==>Float.compare(e1 , e2) < 0",
         "<double>==>Double.compare(e1 , e2) < 0",
-        "<boolean>==>(e1 == e2) ? false :(e2)",
         "<*>==>e1 < e2")) !*/
 
         //Enforce the version with explicit Generic, i.e make the generic-less not valid.
@@ -327,7 +320,6 @@ public final class Intrinsics
         "<Object>==>((Comparable<? super T>) e1).compareTo(e2) < 0",
         "<float>==>Float.compare(e1 , e2) < 0",
         "<double>==>Double.compare(e1 , e2) < 0",
-        "<boolean>==>(e1 == e2) ? false :(e2)",
         "<*>==>e1 < e2")) !*/
 
         //Enforce the version with explicit Generic, i.e make the generic-less not valid.

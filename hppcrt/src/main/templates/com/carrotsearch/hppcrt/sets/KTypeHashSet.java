@@ -7,7 +7,6 @@ import com.carrotsearch.hppcrt.procedures.*;
 import com.carrotsearch.hppcrt.hash.*;
 
 /*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
-/*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
 /*! #set( $ROBIN_HOOD_FOR_GENERICS = true) !*/
 /*! #set( $DEBUG = false) !*/
 // If RH is defined, RobinHood Hashing is in effect
@@ -44,8 +43,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Hash-indexed array holding all set entries.
@@ -58,8 +57,8 @@ public class KTypeHashSet<KType>
           KType []
           #else !*/
     Object[]
-    /*! #end !*/
-    keys;
+            /*! #end !*/
+            keys;
 
     /*! #if ($RH) !*/
     /**

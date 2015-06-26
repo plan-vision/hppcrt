@@ -15,10 +15,9 @@ import com.carrotsearch.hppcrt.procedures.*;
  * 
  * @see KTypeContainer
  */
-/*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public interface KTypeVTypeAssociativeContainer<KType, VType>
-        extends Iterable<KTypeVTypeCursor<KType, VType>>
+extends Iterable<KTypeVTypeCursor<KType, VType>>
 {
     /**
      * Returns a cursor over the entries (key-value pairs) in this map. The iterator is

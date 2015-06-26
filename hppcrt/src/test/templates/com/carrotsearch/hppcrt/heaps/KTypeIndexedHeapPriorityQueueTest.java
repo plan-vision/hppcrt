@@ -24,7 +24,6 @@ import com.carrotsearch.randomizedtesting.annotations.*;
 /**
  * Unit tests for {@link KTypeHeapPriorityQueue}.
  */
-//${TemplateOptions.doNotGenerateKType("BOOLEAN")}
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
 {
@@ -207,7 +206,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         TestUtils.assertEquals2(this.key1, this.prioq.get(1));
     }
 
-    /*! #if ($TemplateOptions.KTypeNumeric) !*/
+    /*! #if ($TemplateOptions.KTypePrimitive) !*/
     @Test
     public void testPutOrAdd()
     {
@@ -217,7 +216,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.KTypeNumeric) !*/
+    /*! #if ($TemplateOptions.KTypePrimitive) !*/
     @Test
     public void testAddTo()
     {

@@ -23,8 +23,6 @@ import com.carrotsearch.randomizedtesting.annotations.*;
 /**
  * Tests common for all kinds of hash maps {@link KTypeVTypeMap}.
  */
-// ${TemplateOptions.doNotGenerateKType("BOOLEAN")}
-//${TemplateOptions.doNotGenerateVType("BOOLEAN")}
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<KType, VType>
 {
@@ -274,7 +272,7 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
 
     }
 
-    /*! #if ($TemplateOptions.VTypeNumeric) !*/
+    /*! #if ($TemplateOptions.VTypePrimitive) !*/
     @Test
     public void testPutOrAdd()
     {
@@ -297,7 +295,7 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.VTypeNumeric) !*/
+    /*! #if ($TemplateOptions.VTypePrimitive) !*/
     @Test
     public void testAddTo()
     {

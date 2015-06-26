@@ -23,7 +23,6 @@ import com.carrotsearch.randomizedtesting.annotations.*;
 /**
  * Unit tests for {@link KTypeHashSet}.
  */
-/*! ${TemplateOptions.doNotGenerateKType("BOOLEAN")} !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeHashSetTest<KType> extends AbstractKTypeHashSetTest<KType>
 {

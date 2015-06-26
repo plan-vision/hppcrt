@@ -6,7 +6,6 @@ import com.carrotsearch.hppcrt.cursors.KTypeCursor;
 /**
  * A set of <code>KType</code>s.
  */
-// ${TemplateOptions.doNotGenerateKType("BOOLEAN")}
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public interface KTypeSet<KType> extends KTypeCollection<KType>
 {
