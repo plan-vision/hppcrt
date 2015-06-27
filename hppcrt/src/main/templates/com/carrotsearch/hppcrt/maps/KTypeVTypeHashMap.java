@@ -113,7 +113,7 @@ public class KTypeVTypeHashMap<KType, VType>
     /**
      * Resize buffers when {@link #keys} hits this value.
      */
-    protected int resizeAt;
+    private int resizeAt;
 
     /**
      * Per-instance, per-allocation size perturbation
@@ -153,8 +153,7 @@ public class KTypeVTypeHashMap<KType, VType>
     public KTypeVTypeHashMap(final int initialCapacity, final double loadFactor) {
         this.loadFactor = loadFactor;
         //take into account of the load factor to guarantee no reallocations before reaching  initialCapacity.
-        allocateBuffers(HashContainers.minBufferSize(Math.max(Containers.DEFAULT_EXPECTED_ELEMENTS, initialCapacity),
-                loadFactor));
+        allocateBuffers(HashContainers.minBufferSize(initialCapacity, loadFactor));
     }
 
     /**
@@ -496,7 +495,7 @@ public class KTypeVTypeHashMap<KType, VType>
 
             //allocate so that there is at least one slot that remains allocated = false
             //this is compulsory to guarantee proper stop in searching loops
-            this.resizeAt = Math.min(capacity - 1, (int) (capacity * this.loadFactor));
+            this.resizeAt = HashContainers.expandAtCount(capacity, this.loadFactor);
         } catch (final OutOfMemoryError e) {
 
             throw new BufferAllocationException(
@@ -1100,8 +1099,7 @@ public class KTypeVTypeHashMap<KType, VType>
     }
 
     /**
-     * @return a new KeysCollection view of the keys of this associated container.
-     *         This view then reflects all changes from the map.
+     * @return a new KeysCollection view of the keys of this map.
      */
     @Override
     public KeysCollection keys() {
@@ -1314,8 +1312,7 @@ public class KTypeVTypeHashMap<KType, VType>
     }
 
     /**
-     * @return a new ValuesCollection, view of the values of this map. This view
-     *         then reflects all changes from the map.
+     * @return a new ValuesCollection view of the values of this map.
      */
     @Override
     public ValuesCollection values() {

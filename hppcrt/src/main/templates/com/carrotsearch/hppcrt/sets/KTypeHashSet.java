@@ -43,8 +43,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeHashSet<KType>
-extends AbstractKTypeCollection<KType>
-implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+        extends AbstractKTypeCollection<KType>
+        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Hash-indexed array holding all set entries.
@@ -57,8 +57,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
           KType []
           #else !*/
     Object[]
-            /*! #end !*/
-            keys;
+    /*! #end !*/
+    keys;
 
     /*! #if ($RH) !*/
     /**
@@ -93,7 +93,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     /**
      * Resize buffers when {@link #keys} hits this value.
      */
-    protected int resizeAt;
+    private int resizeAt;
 
     /**
      * Per-instance, per-allocation size perturbation
@@ -123,8 +123,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     public KTypeHashSet(final int initialCapacity, final double loadFactor) {
         this.loadFactor = loadFactor;
         //take into account of the load factor to guarantee no reallocations before reaching  initialCapacity.
-        allocateBuffers(HashContainers.minBufferSize(Math.max(Containers.DEFAULT_EXPECTED_ELEMENTS, initialCapacity),
-                loadFactor));
+        allocateBuffers(HashContainers.minBufferSize(initialCapacity, loadFactor));
     }
 
     /**
@@ -412,7 +411,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
             //allocate so that there is at least one slot that remains allocated = false
             //this is compulsory to guarantee proper stop in searching loops
-            this.resizeAt = Math.min(capacity - 1, (int) (capacity * this.loadFactor));
+            this.resizeAt = HashContainers.expandAtCount(capacity, this.loadFactor);
         } catch (final OutOfMemoryError e) {
 
             throw new BufferAllocationException(

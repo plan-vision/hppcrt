@@ -118,7 +118,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     /**
      * Resize buffers when {@link #keys} hits this value.
      */
-    protected int resizeAt;
+    private int resizeAt;
 
     /**
      * Per-instance, per-allocation size perturbation
@@ -521,7 +521,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
             //allocate so that there is at least one slot that remains allocated = false
             //this is compulsory to guarantee proper stop in searching loops
-            this.resizeAt = Math.min(capacity - 1, (int) (capacity * this.loadFactor));
+            this.resizeAt = HashContainers.expandAtCount(capacity, this.loadFactor);
         } catch (final OutOfMemoryError e) {
 
             throw new BufferAllocationException(
@@ -1130,8 +1130,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     }
 
     /**
-     * @return a new KeysCollection view of the keys of this associated container.
-     *         This view then reflects all changes from the map.
+     * @return a new KeysCollection view of the keys of this map.
      */
     @Override
     public KeysCollection keys() {
@@ -1342,8 +1341,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     }
 
     /**
-     *  @return a new ValuesCollection, view of the values of this map.
-     * This view then reflects all changes from the map.
+     *  @return a new ValuesCollection view of the values of this map.
      */
     @Override
     public ValuesCollection values() {

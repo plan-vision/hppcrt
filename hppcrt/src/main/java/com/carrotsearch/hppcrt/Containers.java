@@ -8,7 +8,6 @@ import com.carrotsearch.hppcrt.hash.MurmurHash3;
 
 public final class Containers
 {
-
     final public static int NB_OF_PROCESSORS = Runtime.getRuntime().availableProcessors();
 
     /**
@@ -58,7 +57,7 @@ public final class Containers
         }
 
         long initialSeed;
-        if ( ! Containers.testsSeedProperty.equals(Containers.NOT_AVAILABLE)) {
+        if (!Containers.testsSeedProperty.equals(Containers.NOT_AVAILABLE)) {
             initialSeed = Containers.testsSeedProperty.hashCode();
         } else {
             // Mix something that is changing over time (nanoTime)

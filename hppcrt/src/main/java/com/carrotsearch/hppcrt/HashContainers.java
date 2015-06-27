@@ -1,9 +1,5 @@
 package com.carrotsearch.hppcrt;
 
-import java.util.concurrent.Callable;
-
-import com.carrotsearch.hppcrt.hash.MurmurHash3;
-
 public final class HashContainers
 {
     /**
@@ -13,9 +9,10 @@ public final class HashContainers
     public final static int MAX_HASH_ARRAY_LENGTH = 0x80000000 >>> 1;
 
     /**
-     * Minimum hash buffer size.
+     * Minimum hash buffer size. (must be a power-of-two !)
      */
-    public final static int MIN_HASH_ARRAY_LENGTH = Containers.DEFAULT_EXPECTED_ELEMENTS;
+    public final static int MIN_HASH_ARRAY_LENGTH = 1 << 3;
+
     /**
      * Default load factor.
      */
@@ -32,26 +29,12 @@ public final class HashContainers
     public final static double MAX_LOAD_FACTOR = 90.0 / 100.0;
 
     /**
-     * Computer static perturbations table.
-     */
-    private final static int[] PERTURBATIONS = new Callable<int[]>() {
-        @Override
-        public int[] call() {
-            final int[] result = new int[32];
-            for (int i = 0; i < result.length; i++) {
-                result[i] = MurmurHash3.mix32(17 + i);
-            }
-            return result;
-        }
-    }.call();
-
-    /**
      * Compute and return the maximum number of elements (inclusive) that can be
      * stored in a hash container for a given load factor.
      */
     public static int maxElements(final double loadFactor) {
 
-        HashContainers.checkLoadFactor(loadFactor, 0, 1);
+        HashContainers.checkLoadFactor(loadFactor, HashContainers.MIN_LOAD_FACTOR, HashContainers.MAX_LOAD_FACTOR);
         return HashContainers.expandAtCount(HashContainers.MAX_HASH_ARRAY_LENGTH, loadFactor) - 1;
     }
 
@@ -64,10 +47,6 @@ public final class HashContainers
      */
     @SuppressWarnings("boxing")
     public static int minBufferSize(final int elements, final double loadFactor) {
-
-        if (elements < 0) {
-            throw new IllegalArgumentException("Number of elements must be >= 0: " + elements);
-        }
 
         HashContainers.checkLoadFactor(loadFactor, HashContainers.MIN_LOAD_FACTOR, HashContainers.MAX_LOAD_FACTOR);
 
@@ -98,7 +77,7 @@ public final class HashContainers
     @SuppressWarnings("boxing")
     public static int nextBufferSize(final int arraySize, final int elements, final double loadFactor) {
 
-        assert HashContainers.checkPowerOfTwo(arraySize);
+        HashContainers.checkPowerOfTwo(arraySize);
 
         if (arraySize == HashContainers.MAX_HASH_ARRAY_LENGTH) {
             throw new BufferAllocationException(
@@ -111,15 +90,16 @@ public final class HashContainers
     }
 
     /**
-     * Protected purpose for Unit test visibility
-     * 
+     * Compute the max number of elements
+     * that can be put into a hash container from a power of two arraySize,
+     * given a load factor loadFactor
      * @param arraySize
      * @param loadFactor
      * @return
      */
-    protected static int expandAtCount(final int arraySize, final double loadFactor) {
+    public static int expandAtCount(final int arraySize, final double loadFactor) {
 
-        assert HashContainers.checkPowerOfTwo(arraySize);
+        HashContainers.checkPowerOfTwo(arraySize);
         // Take care of hash container invariant (there has to be at least one empty slot to ensure
         // the lookup loop finds either the element or an empty slot).
         return Math.min(arraySize - 1, (int) Math.ceil(arraySize * loadFactor));
@@ -141,20 +121,13 @@ public final class HashContainers
     }
 
     /** */
-    private static boolean checkPowerOfTwo(final int arraySize) {
+    private static void checkPowerOfTwo(final int arraySize) {
         // These are internals, we can just assert without retrying.
-        assert arraySize > 1;
-        assert BitUtil.nextHighestPowerOfTwo(arraySize) == arraySize;
-        return true;
-    }
 
-    /**
-     * <p>
-     * Compute the a key perturbation value, unique per-power-of-2 capacity to
-     * be applied before hashing.
-     */
-    public static int computePerturbationValue(final int capacity) {
-        return HashContainers.PERTURBATIONS[Integer.numberOfLeadingZeros(capacity)];
+        if (BitUtil.nextHighestPowerOfTwo(arraySize) != arraySize) {
+
+            throw new IllegalArgumentException("arraySize must be a power of two !");
+        }
     }
 
     /**

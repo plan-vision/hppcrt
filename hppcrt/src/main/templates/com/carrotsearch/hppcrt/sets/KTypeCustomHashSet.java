@@ -102,7 +102,7 @@ public class KTypeCustomHashSet<KType>
     /**
      * Resize buffers when {@link #keys} hits this value.
      */
-    protected int resizeAt;
+    private int resizeAt;
 
     /**
      * Per-instance, per-allocation size perturbation
@@ -148,8 +148,7 @@ public class KTypeCustomHashSet<KType>
 
         this.loadFactor = loadFactor;
         //take into account of the load factor to guarantee no reallocations before reaching  initialCapacity.
-        allocateBuffers(HashContainers.minBufferSize(Math.max(Containers.DEFAULT_EXPECTED_ELEMENTS, initialCapacity),
-                loadFactor));
+        allocateBuffers(HashContainers.minBufferSize(initialCapacity, loadFactor));
     }
 
     /**
@@ -441,7 +440,7 @@ public class KTypeCustomHashSet<KType>
 
             //allocate so that there is at least one slot that remains allocated = false
             //this is compulsory to guarantee proper stop in searching loops
-            this.resizeAt = Math.min(capacity - 1, (int) (capacity * this.loadFactor));
+            this.resizeAt = HashContainers.expandAtCount(capacity, this.loadFactor);
         } catch (final OutOfMemoryError e) {
 
             throw new BufferAllocationException("Not enough memory to allocate buffers to grow from %d -> %d elements", e,
