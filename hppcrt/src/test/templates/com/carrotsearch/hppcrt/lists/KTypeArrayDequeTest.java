@@ -90,13 +90,77 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
 
             //check beyond validity range
 
-            for (int i = this.deque.tail; i < this.deque.head; i = oneRight(i, this.deque.buffer.length))
+            for (int i = this.deque.tail; i != this.deque.head; i = oneRight(i, this.deque.buffer.length))
             {
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 Assert.assertTrue(Intrinsics.<KType> empty() == this.deque.buffer[i]);
                 /*! #end !*/
             }
         }
+    }
+
+    /**
+     * Try lots of combinations of size, range
+     */
+    @Test
+    public void testRemoveRange()
+    {
+        final ArrayList<Integer> referenceDeque = new ArrayList<Integer>();
+
+        final int TEST_SIZE = (int) 126;
+
+        final Random prng = new Random(0xBADCAFE);
+
+        final int NB_ITERATION = 50000;
+
+        for (int ii = 0; ii < NB_ITERATION; ii++) {
+
+            referenceDeque.clear();
+
+            //create deque of this size
+            final int dequeSize = prng.nextInt(TEST_SIZE);
+
+            if (dequeSize <= 0) {
+
+                continue;
+            }
+
+            final KTypeArrayDeque<KType> testQ = createDequeWithRandomData(dequeSize, 0xBADCAFE);
+
+            //will attempt to remove this range
+            final int upperRange = prng.nextInt(dequeSize);
+
+            if (upperRange <= 0) {
+                continue;
+            }
+
+            final int lowerRange = prng.nextInt(upperRange);
+
+            //Fill the reference JCF deque
+            for (int jj = 0; jj < testQ.size(); jj++) {
+
+                if (jj < lowerRange || jj >= upperRange) {
+                    referenceDeque.add(castType(testQ.get(jj)));
+                }
+            }
+
+            //Proceed to truncation
+            testQ.removeRange(lowerRange, upperRange);
+
+            //Check: testQ is the same as referenceDeque.
+
+            Assert.assertEquals(String.format("Iteration = %d, lower range %d, upper range %d", ii, lowerRange, upperRange),
+                    referenceDeque.size(), testQ.size());
+
+            for (int jj = 0; jj < testQ.size(); jj++) {
+
+                if (referenceDeque.get(jj).intValue() != castType(testQ.get(jj))) {
+
+                    Assert.assertEquals(String.format("Iteration = %d, index %d", ii, jj),
+                            referenceDeque.get(jj).intValue(), castType(testQ.get(jj)));
+                }
+            }
+        } //end for
     }
 
     /* */
@@ -214,30 +278,30 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
         //A) Sort a deque of random values of primitive types
 
         //A-1) full sort
-        KTypeArrayDeque<KType> primitiveDeque = creatDequeWithRandomData(TEST_SIZE, currentSeed);
-        KTypeArrayDeque<KType> primitiveDequeOriginal = creatDequeWithRandomData(TEST_SIZE, currentSeed);
+        KTypeArrayDeque<KType> primitiveDeque = createDequeWithRandomData(TEST_SIZE, currentSeed);
+        KTypeArrayDeque<KType> primitiveDequeOriginal = createDequeWithRandomData(TEST_SIZE, currentSeed);
         primitiveDeque.sort();
         assertOrder(primitiveDequeOriginal, primitiveDeque, 0, primitiveDequeOriginal.size());
         //A-2) Partial sort
-        primitiveDeque = creatDequeWithRandomData(TEST_SIZE, currentSeed);
-        primitiveDequeOriginal = creatDequeWithRandomData(TEST_SIZE, currentSeed);
+        primitiveDeque = createDequeWithRandomData(TEST_SIZE, currentSeed);
+        primitiveDequeOriginal = createDequeWithRandomData(TEST_SIZE, currentSeed);
         primitiveDeque.sort(lowerRange, upperRange);
         assertOrder(primitiveDequeOriginal, primitiveDeque, lowerRange, upperRange);
 
         //B) Sort with Comparator
         //B-1) Full sort
-        KTypeArrayDeque<KType> comparatorDeque = creatDequeWithRandomData(TEST_SIZE, currentSeed);
-        KTypeArrayDeque<KType> comparatorDequeOriginal = creatDequeWithRandomData(TEST_SIZE, currentSeed);
+        KTypeArrayDeque<KType> comparatorDeque = createDequeWithRandomData(TEST_SIZE, currentSeed);
+        KTypeArrayDeque<KType> comparatorDequeOriginal = createDequeWithRandomData(TEST_SIZE, currentSeed);
         comparatorDeque.sort(comp);
         assertOrder(comparatorDequeOriginal, comparatorDeque, 0, comparatorDequeOriginal.size());
         //B-2) Partial sort
-        comparatorDeque = creatDequeWithRandomData(TEST_SIZE, currentSeed);
-        comparatorDequeOriginal = creatDequeWithRandomData(TEST_SIZE, currentSeed);
+        comparatorDeque = createDequeWithRandomData(TEST_SIZE, currentSeed);
+        comparatorDequeOriginal = createDequeWithRandomData(TEST_SIZE, currentSeed);
         comparatorDeque.sort(lowerRange, upperRange, comp);
         assertOrder(comparatorDequeOriginal, comparatorDeque, lowerRange, upperRange);
     }
 
-    private KTypeArrayDeque<KType> creatDequeWithRandomData(final int size, final long randomSeed)
+    private KTypeArrayDeque<KType> createDequeWithRandomData(final int size, final long randomSeed)
     {
         final Random prng = new Random(randomSeed);
 

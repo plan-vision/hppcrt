@@ -31,7 +31,7 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeLinkedList<KType>
-extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, KTypeDeque<KType>, Cloneable
+        extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, KTypeDeque<KType>, Cloneable
 {
     /**
      * Internal array for storing the list. The array may be larger than the current size
@@ -45,8 +45,8 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
           KType []
           #else !*/
     Object[]
-            /*! #end !*/
-            buffer;
+    /*! #end !*/
+    buffer;
 
     /**
      * Represent the before / after nodes for each element of the buffer,
@@ -268,7 +268,6 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      */
     @Override
     public void insert(final int index, final KType e1) {
-        assert (index >= 0 && index <= size()) : "Index " + index + " out of bounds [" + 0 + ", " + size() + "].";
 
         ensureBufferSpace(1);
 
@@ -284,7 +283,6 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      */
     @Override
     public KType get(final int index) {
-        assert (index >= 0 && index < size()) : "Index " + index + " out of bounds [" + 0 + ", " + size() + ").";
 
         //get object at pos currentPos in buffer
         return Intrinsics.<KType> cast(this.buffer[gotoIndex(index)]);
@@ -296,7 +294,6 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      */
     @Override
     public KType set(final int index, final KType e1) {
-        assert (index >= 0 && index < size()) : "Index " + index + " out of bounds [" + 0 + ", " + size() + ").";
 
         //get object at pos currentPos in buffer
         final int pos = gotoIndex(index);
@@ -315,7 +312,6 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      */
     @Override
     public KType remove(final int index) {
-        assert (index >= 0 && index < size()) : "Index " + index + " out of bounds [" + 0 + ", " + size() + ").";
 
         //get object at pos currentPos in buffer
         final int currentPos = gotoIndex(index);
@@ -333,15 +329,14 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      */
     @Override
     public void removeRange(final int fromIndex, final int toIndex) {
-        assert (fromIndex >= 0 && fromIndex <= size()) : "Index " + fromIndex + " out of bounds [" + 0 + ", " + size()
-        + ").";
-
-        assert (toIndex >= 0 && toIndex <= size()) : "Index " + toIndex + " out of bounds [" + 0 + ", " + size() + "].";
-
-        assert fromIndex <= toIndex : "fromIndex must be <= toIndex: " + fromIndex + ", " + toIndex;
 
         //goto pos
         int currentPos = gotoIndex(fromIndex);
+
+        if (toIndex < fromIndex || toIndex > size()) {
+
+            throw new IndexOutOfBoundsException("Index toIndex " + toIndex + " out of bounds [" + fromIndex + ", " + size() + "].");
+        }
 
         //start removing size elements...
         final int size = toIndex - fromIndex;
@@ -754,6 +749,12 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * @return
      */
     protected int gotoIndex(final int index) {
+
+        if (index < 0 || index >= size()) {
+
+            throw new IndexOutOfBoundsException("Index " + index + " out of bounds [" + 0 + ", size=" + size() + "[.");
+        }
+
         int currentPos = KTypeLinkedList.TAIL_POSITION;
         int currentIndex = -1;
         final long[] pointers = this.beforeAfterPointers;
@@ -780,7 +781,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
             }
         }
 
-        //assert currentIndex == index;
+        assert currentIndex == index;
 
         return currentPos;
     }
@@ -1659,7 +1660,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeLinkedList<KType> newInstance() {
+            KTypeLinkedList<KType> newInstance() {
         return new KTypeLinkedList<KType>();
     }
 
@@ -1668,7 +1669,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeLinkedList<KType> newInstance(final int initialCapacity) {
+            KTypeLinkedList<KType> newInstance(final int initialCapacity) {
         return new KTypeLinkedList<KType>(initialCapacity);
     }
 
@@ -1677,7 +1678,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * The elements are copied from the argument to the internal buffer.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeLinkedList<KType> from(final KType... elements) {
+            KTypeLinkedList<KType> from(final KType... elements) {
         final KTypeLinkedList<KType> list = new KTypeLinkedList<KType>(elements.length);
         list.add(elements);
         return list;
@@ -1687,7 +1688,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * Create a list from elements of another container.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeLinkedList<KType> from(final KTypeContainer<KType> container) {
+            KTypeLinkedList<KType> from(final KTypeContainer<KType> container) {
         return new KTypeLinkedList<KType>(container);
     }
 
@@ -1709,7 +1710,6 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * @param endIndex the end index to be sorted (excluded)
      */
     public void sort(final int beginIndex, final int endIndex) {
-        assert endIndex <= size();
 
         if (endIndex - beginIndex > 1) {
             KTypeSort.quicksort(this, beginIndex, endIndex);
@@ -1735,11 +1735,10 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     public void sort(final int beginIndex, final int endIndex,
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
-    /*! #else
-                                                                            KTypeComparator<? super KType>
-                                                                            #end !*/
-    comp) {
-        assert endIndex <= size();
+            /*! #else
+                KTypeComparator<? super KType>
+            #end !*/
+            comp) {
 
         if (endIndex - beginIndex > 1) {
             KTypeSort.quicksort(this, beginIndex, endIndex, comp);

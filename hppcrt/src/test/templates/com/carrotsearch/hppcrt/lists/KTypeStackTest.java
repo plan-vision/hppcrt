@@ -372,11 +372,17 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
         this.stack.removeRange(2, 3);
         TestUtils.assertListEquals(this.stack.toArray(), 6, 5, 3, 2, 1, 0);
 
-        this.stack.removeRange(1, 1);
-        TestUtils.assertListEquals(this.stack.toArray(), 6, 5, 3, 2, 1, 0);
+        this.stack.removeRange(1, 2);
+        TestUtils.assertListEquals(this.stack.toArray(), 6, 3, 2, 1, 0);
 
         this.stack.removeRange(0, 1);
-        TestUtils.assertListEquals(this.stack.toArray(), 5, 3, 2, 1, 0);
+        TestUtils.assertListEquals(this.stack.toArray(), 3, 2, 1, 0);
+
+        this.stack.removeRange(2, 4);
+        TestUtils.assertListEquals(this.stack.toArray(), 3, 2);
+
+        this.stack.removeRange(0, 2);
+        Assert.assertEquals(0, this.stack.size());
     }
 
     @Repeat(iterations = 100)

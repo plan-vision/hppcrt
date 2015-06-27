@@ -43,7 +43,7 @@ public class KTypeSortTest<KType> extends AbstractKTypeTest<KType>
         sortCertification(Algorithm.QUICKSORT_COMPARATOR);
     }
 
-    @Repeat(iterations = 250)
+    @Repeat(iterations = 200)
     @Test
     public void testRandomizedSort()
     {
@@ -74,7 +74,12 @@ public class KTypeSortTest<KType> extends AbstractKTypeTest<KType>
         final long currentSeed = RandomizedTest.randomLong();
 
         final int upperRange = RandomizedTest.randomInt(TEST_SIZE);
-        final int lowerRange = RandomizedTest.randomInt(upperRange);
+
+        if (upperRange <= 0) {
+            return;
+        }
+
+        final int lowerRange = RandomizedTest.randomInt(upperRange - 1);
 
         //A) Sort an array of random values of primitive types
 

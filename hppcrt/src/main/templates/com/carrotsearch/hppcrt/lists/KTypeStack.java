@@ -441,8 +441,6 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
     @Override
     public void sort(final int beginIndex, final int endIndex)
     {
-        assert endIndex <= this.elementsCount;
-
         if (endIndex - beginIndex > 1)
         {
             //take care of ordering the right range : [startSortingRange, endSortingRange[
@@ -493,8 +491,6 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
             #end !*/
             comp)
     {
-        assert endIndex <= this.elementsCount;
-
         if (endIndex - beginIndex > 1)
         {
             //take care of ordering the right range : [startSortingRange, endSortingRange[

@@ -260,12 +260,8 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      */
     @Override
     public void removeRange(final int fromIndex, final int toIndex) {
-        assert (fromIndex >= 0 && fromIndex <= size()) : "Index " + fromIndex + " out of bounds [" + 0 + ", " + size()
-        + ").";
 
-        assert (toIndex >= 0 && toIndex <= size()) : "Index " + toIndex + " out of bounds [" + 0 + ", " + size() + "].";
-
-        assert fromIndex <= toIndex : "fromIndex must be <= toIndex: " + fromIndex + ", " + toIndex;
+        checkRangeBounds(fromIndex, toIndex);
 
         System.arraycopy(this.buffer, toIndex, this.buffer, fromIndex, this.elementsCount - toIndex);
 
@@ -652,12 +648,8 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * <code>fromIndex</code>, inclusive, to <code>toIndex</code>, exclusive.
      */
     public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure, final int fromIndex, final int toIndex) {
-        assert (fromIndex >= 0 && fromIndex <= size()) : "Index " + fromIndex + " out of bounds [" + 0 + ", " + size()
-        + ").";
 
-        assert (toIndex >= 0 && toIndex <= size()) : "Index " + toIndex + " out of bounds [" + 0 + ", " + size() + "].";
-
-        assert fromIndex <= toIndex : "fromIndex must be <= toIndex: " + fromIndex + ", " + toIndex;
+        checkRangeBounds(fromIndex, toIndex);
 
         final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
 
@@ -727,12 +719,8 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * exclusive, or until predicate returns <code>false</code>.
      */
     public <T extends KTypePredicate<? super KType>> T forEach(final T predicate, final int fromIndex, final int toIndex) {
-        assert (fromIndex >= 0 && fromIndex <= size()) : "Index " + fromIndex + " out of bounds [" + 0 + ", " + size()
-        + ").";
 
-        assert (toIndex >= 0 && toIndex <= size()) : "Index " + toIndex + " out of bounds [" + 0 + ", " + size() + "].";
-
-        assert fromIndex <= toIndex : "fromIndex must be <= toIndex: " + fromIndex + ", " + toIndex;
+        checkRangeBounds(fromIndex, toIndex);
 
         final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
 
@@ -795,7 +783,6 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     #end
      */
     public void sort(final int beginIndex, final int endIndex) {
-        assert endIndex <= this.elementsCount;
 
         if (endIndex - beginIndex > 1) {
             KTypeSort.quicksort(this.buffer, beginIndex, endIndex);
@@ -831,10 +818,9 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
     /*! #else
-                                            KTypeComparator<? super KType>
-                                            #end !*/
+                                                                    KTypeComparator<? super KType>
+                                                                    #end !*/
     comp) {
-        assert endIndex <= this.elementsCount;
 
         if (endIndex - beginIndex > 1) {
             KTypeSort.quicksort(Intrinsics.<KType[]> cast(this.buffer), beginIndex, endIndex, comp);
@@ -858,5 +844,23 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
             #end !*/
             comp) {
         sort(0, this.elementsCount, comp);
+    }
+
+    protected void checkRangeBounds(final int beginIndex, final int endIndex) {
+
+        if (beginIndex < 0 || beginIndex >= this.elementsCount) {
+
+            throw new IndexOutOfBoundsException("Index beginIndex " + beginIndex + " out of bounds [" + 0 + ", " + this.elementsCount + "[.");
+        }
+
+        if (beginIndex >= endIndex) {
+
+            throw new IllegalArgumentException("Index beginIndex " + beginIndex + " is >= endIndex " + endIndex);
+        }
+
+        if (endIndex > this.elementsCount) {
+
+            throw new IndexOutOfBoundsException("Index endIndex " + endIndex + " out of bounds [" + 0 + ", " + this.elementsCount + "].");
+        }
     }
 }

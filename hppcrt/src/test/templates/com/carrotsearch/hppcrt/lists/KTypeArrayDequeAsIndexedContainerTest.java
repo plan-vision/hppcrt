@@ -120,22 +120,13 @@ public class KTypeArrayDequeAsIndexedContainerTest<KType> extends AbstractKTypeI
 
             //check beyond validity range
 
-            for (int i = arrayDeque.tail; i < arrayDeque.head; i = oneRight(i, arrayDeque.buffer.length))
+            for (int i = arrayDeque.tail; i != arrayDeque.head; i = oneRight(i, arrayDeque.buffer.length))
             {
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 Assert.assertTrue(Intrinsics.<KType> empty() == arrayDeque.buffer[i]);
                 /*! #end !*/
             }
         }
-    }
-
-    /* */
-    @Override
-    @Test
-    public void testRemoveRange()
-    {
-        //override: unsupported op, make it as success for nice statistics.
-        Assert.assertTrue(true);
     }
 
     /* */
