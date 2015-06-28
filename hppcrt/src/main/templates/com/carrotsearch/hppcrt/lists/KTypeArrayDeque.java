@@ -51,7 +51,7 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayDeque<KType>
-        extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexedContainer<KType>, Cloneable
+extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexedContainer<KType>, Cloneable
 {
     /**
      * Internal array for storing elements.
@@ -64,8 +64,8 @@ public class KTypeArrayDeque<KType>
           KType []
           #else !*/
     Object[]
-    /*! #end !*/
-    buffer;
+            /*! #end !*/
+            buffer;
 
     /**
      * The index of the element at the head of the deque or an
@@ -136,7 +136,9 @@ public class KTypeArrayDeque<KType>
 
             @Override
             public void reset(final ValueIterator obj) {
-                // nothing
+                /*! #if ($TemplateOptions.KTypeGeneric) !*/
+                obj.cursor.value = null;
+                /*! #end !*/
 
             }
         });
@@ -158,7 +160,9 @@ public class KTypeArrayDeque<KType>
 
                     @Override
                     public void reset(final DescendingValueIterator obj) {
-                        // nothing
+                        /*! #if ($TemplateOptions.KTypeGeneric) !*/
+                        obj.cursor.value = null;
+                        /*! #end !*/
                     }
                 });
 
@@ -989,7 +993,7 @@ public class KTypeArrayDeque<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayDeque<KType> newInstance() {
+    KTypeArrayDeque<KType> newInstance() {
         return new KTypeArrayDeque<KType>();
     }
 
@@ -998,7 +1002,7 @@ public class KTypeArrayDeque<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayDeque<KType> newInstance(final int initialCapacity) {
+    KTypeArrayDeque<KType> newInstance(final int initialCapacity) {
         return new KTypeArrayDeque<KType>(initialCapacity);
     }
 
@@ -1006,7 +1010,7 @@ public class KTypeArrayDeque<KType>
      * Create a new deque by pushing a variable number of arguments to the end of it.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayDeque<KType> from(final KType... elements) {
+    KTypeArrayDeque<KType> from(final KType... elements) {
         final KTypeArrayDeque<KType> coll = new KTypeArrayDeque<KType>(elements.length);
         coll.addLast(elements);
         return coll;
@@ -1016,7 +1020,7 @@ public class KTypeArrayDeque<KType>
      * Create a new deque by pushing a variable number of arguments to the end of it.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayDeque<KType> from(final KTypeContainer<KType> container) {
+    KTypeArrayDeque<KType> from(final KTypeContainer<KType> container) {
         return new KTypeArrayDeque<KType>(container);
     }
 
@@ -1066,10 +1070,10 @@ public class KTypeArrayDeque<KType>
     public void sort(final int beginIndex, final int endIndex,
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
-            /*! #else
+    /*! #else
                                                                                                                                                                                                                                                                                                             KTypeComparator<? super KType>
                                                                                                                                                                                                                                                                                                             #end !*/
-            comp) {
+    comp) {
 
         if (endIndex - beginIndex > 1) {
             //Fast path : if the actual indices matching [beginIndex; endIndex[

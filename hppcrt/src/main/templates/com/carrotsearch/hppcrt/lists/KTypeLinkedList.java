@@ -31,7 +31,7 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeLinkedList<KType>
-        extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, KTypeDeque<KType>, Cloneable
+extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, KTypeDeque<KType>, Cloneable
 {
     /**
      * Internal array for storing the list. The array may be larger than the current size
@@ -45,8 +45,8 @@ public class KTypeLinkedList<KType>
           KType []
           #else !*/
     Object[]
-    /*! #end !*/
-    buffer;
+            /*! #end !*/
+            buffer;
 
     /**
      * Represent the before / after nodes for each element of the buffer,
@@ -149,6 +149,10 @@ public class KTypeLinkedList<KType>
                 obj.buffer = null;
                 obj.pointers = null;
 
+                /*! #if ($TemplateOptions.KTypeGeneric) !*/
+                obj.cursor.value = null;
+                /*! #end !*/
+
             }
         });
 
@@ -175,6 +179,10 @@ public class KTypeLinkedList<KType>
                         // for GC sake
                         obj.buffer = null;
                         obj.pointers = null;
+
+                        /*! #if ($TemplateOptions.KTypeGeneric) !*/
+                        obj.cursor.value = null;
+                        /*! #end !*/
                     }
                 });
     }
@@ -1652,7 +1660,7 @@ public class KTypeLinkedList<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> newInstance() {
+    KTypeLinkedList<KType> newInstance() {
         return new KTypeLinkedList<KType>();
     }
 
@@ -1661,7 +1669,7 @@ public class KTypeLinkedList<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> newInstance(final int initialCapacity) {
+    KTypeLinkedList<KType> newInstance(final int initialCapacity) {
         return new KTypeLinkedList<KType>(initialCapacity);
     }
 
@@ -1670,7 +1678,7 @@ public class KTypeLinkedList<KType>
      * The elements are copied from the argument to the internal buffer.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> from(final KType... elements) {
+    KTypeLinkedList<KType> from(final KType... elements) {
         final KTypeLinkedList<KType> list = new KTypeLinkedList<KType>(elements.length);
         list.add(elements);
         return list;
@@ -1680,7 +1688,7 @@ public class KTypeLinkedList<KType>
      * Create a list from elements of another container.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeLinkedList<KType> from(final KTypeContainer<KType> container) {
+    KTypeLinkedList<KType> from(final KTypeContainer<KType> container) {
         return new KTypeLinkedList<KType>(container);
     }
 
@@ -1727,10 +1735,10 @@ public class KTypeLinkedList<KType>
     public void sort(final int beginIndex, final int endIndex,
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
-            /*! #else
+    /*! #else
                                                 KTypeComparator<? super KType>
                                             #end !*/
-            comp) {
+    comp) {
 
         if (endIndex - beginIndex > 1) {
             KTypeSort.quicksort(this, beginIndex, endIndex, comp);

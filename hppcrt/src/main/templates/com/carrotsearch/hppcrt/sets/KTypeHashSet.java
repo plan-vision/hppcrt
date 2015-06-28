@@ -43,8 +43,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeHashSet<KType>
-extends AbstractKTypeCollection<KType>
-implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+        extends AbstractKTypeCollection<KType>
+        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Hash-indexed array holding all set entries.
@@ -57,8 +57,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
           KType []
           #else !*/
     Object[]
-            /*! #end !*/
-            keys;
+    /*! #end !*/
+    keys;
 
     /*! #if ($RH) !*/
     /**
@@ -738,7 +738,10 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
                 @Override
                 public void reset(final EntryIterator obj) {
-                    // nothing
+                    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+                    obj.cursor.value = null;
+                    /*! #end !*/
+
                 }
             });
 

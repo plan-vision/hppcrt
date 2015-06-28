@@ -1029,7 +1029,13 @@ public class KTypeVTypeHashMap<KType, VType>
 
                 @Override
                 public void reset(final EntryIterator obj) {
-                    // nothing
+                    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+                    obj.cursor.key = null;
+                    /*! #end !*/
+
+                    /*! #if ($TemplateOptions.VTypeGeneric) !*/
+                    obj.cursor.value = null;
+                    /*! #end !*/
                 }
             });
 
@@ -1231,7 +1237,9 @@ public class KTypeVTypeHashMap<KType, VType>
 
                     @Override
                     public void reset(final KeysIterator obj) {
-                        // nothing
+                        /*! #if ($TemplateOptions.KTypeGeneric) !*/
+                        obj.cursor.value = null;
+                        /*! #end !*/
 
                     }
                 });
@@ -1513,7 +1521,10 @@ public class KTypeVTypeHashMap<KType, VType>
 
                     @Override
                     public void reset(final ValuesIterator obj) {
-                        // nothing
+
+                        /*! #if ($TemplateOptions.VTypeGeneric) !*/
+                        obj.cursor.value = null;
+                        /*! #end !*/
                     }
                 });
 
