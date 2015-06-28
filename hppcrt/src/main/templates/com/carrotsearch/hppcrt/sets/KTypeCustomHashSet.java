@@ -53,8 +53,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeCustomHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Hash-indexed array holding all set entries.
@@ -67,8 +67,8 @@ public class KTypeCustomHashSet<KType>
           KType []
           #else !*/
     Object[]
-    /*! #end !*/
-    keys;
+            /*! #end !*/
+            keys;
 
     /*! #if ($RH) !*/
     /**
@@ -847,7 +847,6 @@ public class KTypeCustomHashSet<KType>
         cloned.addAll(this);
 
         cloned.allocatedDefaultKey = this.allocatedDefaultKey;
-        cloned.defaultValue = this.defaultValue;
 
         return cloned;
     }

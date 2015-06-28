@@ -51,7 +51,7 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayDeque<KType>
-extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexedContainer<KType>, Cloneable
+        extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexedContainer<KType>, Cloneable
 {
     /**
      * Internal array for storing elements.
@@ -64,8 +64,8 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
           KType []
           #else !*/
     Object[]
-            /*! #end !*/
-            buffer;
+    /*! #end !*/
+    buffer;
 
     /**
      * The index of the element at the head of the deque or an
@@ -75,7 +75,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
 
     /**
      * The index at which the next element would be added to the tail
-     * of the deque.
+     * of the deque. (this is a valid index in buffer !)
      */
     public int tail;
 
@@ -563,7 +563,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
             int newSize = this.resizer.grow(bufferLen, elementsCount, expectedAdditions);
 
             if (this.buffer == null) {
-                //first allocation, reserve an additional slot
+                //first allocation, reserve an additional slot (tail is always a valid index in buffer)
                 newSize++;
             }
 
@@ -628,8 +628,6 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
 
         cloned.head = this.head;
         cloned.tail = this.tail;
-
-        cloned.defaultValue = this.defaultValue;
 
         return cloned;
 
@@ -991,7 +989,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeArrayDeque<KType> newInstance() {
+            KTypeArrayDeque<KType> newInstance() {
         return new KTypeArrayDeque<KType>();
     }
 
@@ -1000,7 +998,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeArrayDeque<KType> newInstance(final int initialCapacity) {
+            KTypeArrayDeque<KType> newInstance(final int initialCapacity) {
         return new KTypeArrayDeque<KType>(initialCapacity);
     }
 
@@ -1008,7 +1006,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
      * Create a new deque by pushing a variable number of arguments to the end of it.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeArrayDeque<KType> from(final KType... elements) {
+            KTypeArrayDeque<KType> from(final KType... elements) {
         final KTypeArrayDeque<KType> coll = new KTypeArrayDeque<KType>(elements.length);
         coll.addLast(elements);
         return coll;
@@ -1018,7 +1016,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
      * Create a new deque by pushing a variable number of arguments to the end of it.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeArrayDeque<KType> from(final KTypeContainer<KType> container) {
+            KTypeArrayDeque<KType> from(final KTypeContainer<KType> container) {
         return new KTypeArrayDeque<KType>(container);
     }
 
@@ -1068,10 +1066,10 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
     public void sort(final int beginIndex, final int endIndex,
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
-    /*! #else
-                                                                                                                                                                                                                                                                                            KTypeComparator<? super KType>
-                                                                                                                                                                                                                                                                                            #end !*/
-    comp) {
+            /*! #else
+                                                                                                                                                                                                                                                                                                            KTypeComparator<? super KType>
+                                                                                                                                                                                                                                                                                                            #end !*/
+            comp) {
 
         if (endIndex - beginIndex > 1) {
             //Fast path : if the actual indices matching [beginIndex; endIndex[
@@ -1143,7 +1141,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
     }
 
     /**
-     * This operation is not supported on array deques, throwing throws UnsupportedOperationException.
+     * This operation is not supported on array deques, throwing UnsupportedOperationException.
      * @throws UnsupportedOperationException
      */
     @Override

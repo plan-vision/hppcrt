@@ -41,4 +41,17 @@ public interface KTypePriorityQueue<KType> extends KTypeCollection<KType>
      *  min element with respect to the comparison criteria.
      */
     void updateTopPriority();
+
+    /**
+     * Returns the "default value" value used
+     * in methods returning "default value"
+     */
+    KType getDefaultValue();
+
+    /**
+     * Set the "default value" value to be used
+     * in methods returning "default value"
+     */
+    void setDefaultValue(final KType defaultValue);
+
 }

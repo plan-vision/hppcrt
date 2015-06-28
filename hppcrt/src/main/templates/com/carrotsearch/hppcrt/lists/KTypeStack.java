@@ -540,7 +540,6 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
         cloned.buffer = this.buffer.clone();
 
         cloned.elementsCount = this.elementsCount;
-        cloned.defaultValue = this.defaultValue;
 
         return cloned;
     }

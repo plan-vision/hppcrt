@@ -21,7 +21,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeIdentityHashSet<KType>
-        extends KTypeCustomHashSet<KType>
+extends KTypeCustomHashSet<KType>
 {
     private static final KTypeIdentityHash<Object> IDENTITY_EQUALITY = new KTypeIdentityHash<Object>();
 
@@ -71,7 +71,6 @@ public final class KTypeIdentityHashSet<KType>
         cloned.addAll(this);
 
         cloned.allocatedDefaultKey = this.allocatedDefaultKey;
-        cloned.defaultValue = this.defaultValue;
 
         return cloned;
     }

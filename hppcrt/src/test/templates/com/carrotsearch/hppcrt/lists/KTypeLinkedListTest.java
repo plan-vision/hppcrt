@@ -66,10 +66,10 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
             int count = 0;
             //check access by get()
             for (/*! #if ($TemplateOptions.KTypeGeneric) !*/final Object
-                    /*! #else
+            /*! #else
             final KType
             #end !*/
-                    val : this.list.toArray()) {
+            val : this.list.toArray()) {
 
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 TestUtils.assertEquals2(val, (Object) this.list.get(count));
@@ -717,9 +717,11 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
 
         //rewind to first
         it.gotoHead().gotoNext();
-        //set -88 at 0 value
+        //set 88 at 0 value
         it.gotoNext().gotoNext();
-        Assert.assertEquals(0, castType(it.set(cast(88))));
+        Assert.assertEquals(0, castType(it.cursor.value));
+        it.set(cast(88));
+        Assert.assertEquals(88, castType(it.cursor.value));
         // ==> list.add(asArray(112,111,88, 3,33,20, 11, 99, 100, 111, 22, 33, 44, 55,7, 9));
         TestUtils.assertListEquals(this.list.toArray(), 112, 111, 88, 3, 33, 20, 11, 99, 100, 111, 22, 33, 44, 55, 7, 9);
 
@@ -904,7 +906,9 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         it.gotoHead().gotoNext();
         //set 88 at 55 value
         it.gotoNext().gotoNext();
-        Assert.assertEquals(55, castType(it.set(cast(88))));
+        Assert.assertEquals(55, castType(it.cursor.value));
+        it.set(cast(88));
+        Assert.assertEquals(88, castType(it.cursor.value));
         // ==> list.add(asArray( 9, 7, 0, 11, 22, 33, 111, 100, 99, 44, 20, 33,3,-88,111,112));
         TestUtils.assertListEquals(this.list.toArray(), 9, 7, 0, 11, 22, 33, 111, 100, 99, 44, 20, 33, 3, 88, 111, 112);
 

@@ -123,8 +123,8 @@ public class KTypeLinkedList<KType>
         this.elementsCount = 2;
 
         //initialize head and tail: initially, they are linked to each other.
-        this.beforeAfterPointers[KTypeLinkedList.HEAD_POSITION] = KTypeLinkedList.getLinkNodeValue(KTypeLinkedList.HEAD_POSITION, KTypeLinkedList.TAIL_POSITION);
-        this.beforeAfterPointers[KTypeLinkedList.TAIL_POSITION] = KTypeLinkedList.getLinkNodeValue(KTypeLinkedList.HEAD_POSITION, KTypeLinkedList.TAIL_POSITION);
+        this.beforeAfterPointers[KTypeLinkedList.HEAD_POSITION] = getLinkNodeValue(KTypeLinkedList.HEAD_POSITION, KTypeLinkedList.TAIL_POSITION);
+        this.beforeAfterPointers[KTypeLinkedList.TAIL_POSITION] = getLinkNodeValue(KTypeLinkedList.HEAD_POSITION, KTypeLinkedList.TAIL_POSITION);
 
         this.valueIteratorPool = new IteratorPool<KTypeCursor<KType>, ValueIterator>(new ObjectFactory<ValueIterator>() {
 
@@ -137,7 +137,7 @@ public class KTypeLinkedList<KType>
             public void initialize(final ValueIterator obj) {
                 obj.internalIndex = -1;
                 obj.cursor.index = -1;
-                obj.cursor.value = KTypeLinkedList.this.defaultValue;
+
                 obj.buffer = Intrinsics.<KType[]> cast(KTypeLinkedList.this.buffer);
                 obj.pointers = KTypeLinkedList.this.beforeAfterPointers;
                 obj.internalPos = KTypeLinkedList.HEAD_POSITION;
@@ -164,7 +164,7 @@ public class KTypeLinkedList<KType>
                     public void initialize(final DescendingValueIterator obj) {
                         obj.internalIndex = KTypeLinkedList.this.size();
                         obj.cursor.index = KTypeLinkedList.this.size();
-                        obj.cursor.value = KTypeLinkedList.this.defaultValue;
+
                         obj.buffer = Intrinsics.<KType[]> cast(KTypeLinkedList.this.buffer);
                         obj.pointers = KTypeLinkedList.this.beforeAfterPointers;
                         obj.internalPos = KTypeLinkedList.TAIL_POSITION;
@@ -202,9 +202,9 @@ public class KTypeLinkedList<KType>
      */
     public void add(final KType e1, final KType e2) {
         ensureBufferSpace(2);
-        insertAfterPosNoCheck(e1, KTypeLinkedList.getLinkBefore(this.beforeAfterPointers[KTypeLinkedList.TAIL_POSITION]));
+        insertAfterPosNoCheck(e1, getLinkBefore(this.beforeAfterPointers[KTypeLinkedList.TAIL_POSITION]));
 
-        insertAfterPosNoCheck(e2, KTypeLinkedList.getLinkBefore(this.beforeAfterPointers[KTypeLinkedList.TAIL_POSITION]));
+        insertAfterPosNoCheck(e2, getLinkBefore(this.beforeAfterPointers[KTypeLinkedList.TAIL_POSITION]));
 
     }
 
@@ -229,7 +229,7 @@ public class KTypeLinkedList<KType>
 
         for (int i = 0; i < length; i++)
         {
-            insertAfterPosNoCheck(elements[start + i], KTypeLinkedList.getLinkBefore(beforeAfterPointers[KTypeLinkedList.TAIL_POSITION]));
+            insertAfterPosNoCheck(elements[start + i], getLinkBefore(beforeAfterPointers[KTypeLinkedList.TAIL_POSITION]));
         }
     }
 
@@ -356,7 +356,7 @@ public class KTypeLinkedList<KType>
         final long[] pointers = this.beforeAfterPointers;
         final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
 
-        int currentPos = KTypeLinkedList.getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
+        int currentPos = getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
         int count = 0;
 
         while (currentPos != KTypeLinkedList.TAIL_POSITION) {
@@ -366,7 +366,7 @@ public class KTypeLinkedList<KType>
             }
 
             //increment
-            currentPos = KTypeLinkedList.getLinkAfter(pointers[currentPos]);
+            currentPos = getLinkAfter(pointers[currentPos]);
             count++;
         }
 
@@ -382,7 +382,7 @@ public class KTypeLinkedList<KType>
         final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
         final int size = size();
 
-        int currentPos = KTypeLinkedList.getLinkBefore(pointers[KTypeLinkedList.TAIL_POSITION]);
+        int currentPos = getLinkBefore(pointers[KTypeLinkedList.TAIL_POSITION]);
         int count = 0;
 
         while (currentPos != KTypeLinkedList.HEAD_POSITION) {
@@ -391,7 +391,7 @@ public class KTypeLinkedList<KType>
                 return size - count - 1;
             }
 
-            currentPos = KTypeLinkedList.getLinkBefore(pointers[currentPos]);
+            currentPos = getLinkBefore(pointers[currentPos]);
             count++;
         }
 
@@ -441,7 +441,7 @@ public class KTypeLinkedList<KType>
         final long[] pointers = this.beforeAfterPointers;
         final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
 
-        int currentPos = KTypeLinkedList.getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
+        int currentPos = getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
         int count = 0;
 
         while (currentPos != KTypeLinkedList.TAIL_POSITION) {
@@ -449,7 +449,7 @@ public class KTypeLinkedList<KType>
                 return count;
             }
 
-            currentPos = KTypeLinkedList.getLinkAfter(pointers[currentPos]);
+            currentPos = getLinkAfter(pointers[currentPos]);
             count++;
         }
 
@@ -464,7 +464,7 @@ public class KTypeLinkedList<KType>
         final long[] pointers = this.beforeAfterPointers;
         final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
 
-        int currentPos = KTypeLinkedList.getLinkBefore(pointers[KTypeLinkedList.TAIL_POSITION]);
+        int currentPos = getLinkBefore(pointers[KTypeLinkedList.TAIL_POSITION]);
         int count = 0;
 
         while (currentPos != KTypeLinkedList.HEAD_POSITION) {
@@ -472,7 +472,7 @@ public class KTypeLinkedList<KType>
                 return size() - count - 1;
             }
 
-            currentPos = KTypeLinkedList.getLinkBefore(pointers[currentPos]);
+            currentPos = getLinkBefore(pointers[currentPos]);
             count++;
         }
 
@@ -566,8 +566,8 @@ public class KTypeLinkedList<KType>
         this.elementsCount = 2;
 
         //rebuild head/tail
-        this.beforeAfterPointers[KTypeLinkedList.HEAD_POSITION] = KTypeLinkedList.getLinkNodeValue(KTypeLinkedList.HEAD_POSITION, KTypeLinkedList.TAIL_POSITION);
-        this.beforeAfterPointers[KTypeLinkedList.TAIL_POSITION] = KTypeLinkedList.getLinkNodeValue(KTypeLinkedList.HEAD_POSITION, KTypeLinkedList.TAIL_POSITION);
+        this.beforeAfterPointers[KTypeLinkedList.HEAD_POSITION] = getLinkNodeValue(KTypeLinkedList.HEAD_POSITION, KTypeLinkedList.TAIL_POSITION);
+        this.beforeAfterPointers[KTypeLinkedList.TAIL_POSITION] = getLinkNodeValue(KTypeLinkedList.HEAD_POSITION, KTypeLinkedList.TAIL_POSITION);
     }
 
     /**
@@ -581,12 +581,12 @@ public class KTypeLinkedList<KType>
 
         int index = 0;
 
-        int currentPos = KTypeLinkedList.getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
+        int currentPos = getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
 
         while (currentPos != KTypeLinkedList.TAIL_POSITION) {
             target[index] = buffer[currentPos];
             //increment both
-            currentPos = KTypeLinkedList.getLinkAfter(pointers[currentPos]);
+            currentPos = getLinkAfter(pointers[currentPos]);
             index++;
         }
 
@@ -607,8 +607,6 @@ public class KTypeLinkedList<KType>
 
         cloned.elementsCount = this.elementsCount;
 
-        cloned.defaultValue = this.defaultValue;
-
         return cloned;
     }
 
@@ -621,13 +619,13 @@ public class KTypeLinkedList<KType>
         final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
         int h = 1;
 
-        int currentPos = KTypeLinkedList.getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
+        int currentPos = getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
 
         while (currentPos != KTypeLinkedList.TAIL_POSITION) {
             h = 31 * h + BitMixer.mix(buffer[currentPos]);
 
             //increment
-            currentPos = KTypeLinkedList.getLinkAfter(pointers[currentPos]);
+            currentPos = getLinkAfter(pointers[currentPos]);
         }
 
         return h;
@@ -660,8 +658,8 @@ public class KTypeLinkedList<KType>
                 final KType[] bufferOther = (KType[]) other.buffer;
 
                 //compare index/index
-                int currentPos = KTypeLinkedList.getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
-                int currentPosOther = KTypeLinkedList.getLinkAfter(pointersOther[KTypeLinkedList.HEAD_POSITION]);
+                int currentPos = getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
+                int currentPosOther = getLinkAfter(pointersOther[KTypeLinkedList.HEAD_POSITION]);
 
                 while (currentPos != KTypeLinkedList.TAIL_POSITION && currentPosOther != KTypeLinkedList.TAIL_POSITION) {
                     if (!Intrinsics.<KType> equals(buffer[currentPos], bufferOther[currentPosOther])) {
@@ -669,8 +667,8 @@ public class KTypeLinkedList<KType>
                     }
 
                     //increment both
-                    currentPos = KTypeLinkedList.getLinkAfter(pointers[currentPos]);
-                    currentPosOther = KTypeLinkedList.getLinkAfter(pointersOther[currentPosOther]);
+                    currentPos = getLinkAfter(pointers[currentPos]);
+                    currentPosOther = getLinkAfter(pointersOther[currentPosOther]);
                 }
 
                 return true;
@@ -683,7 +681,7 @@ public class KTypeLinkedList<KType>
                 }
 
                 //compare index/index
-                int currentPos = KTypeLinkedList.getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
+                int currentPos = getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
 
                 //request a pooled iterator
                 final Iterator<KTypeCursor<KType>> it = other.iterator();
@@ -704,7 +702,7 @@ public class KTypeLinkedList<KType>
                     }
 
                     //increment both
-                    currentPos = KTypeLinkedList.getLinkAfter(pointers[currentPos]);
+                    currentPos = getLinkAfter(pointers[currentPos]);
                 } //end while
 
                 //if iterator was pooled, recycled it
@@ -722,7 +720,7 @@ public class KTypeLinkedList<KType>
                 }
 
                 //compare index/index
-                int currentPos = KTypeLinkedList.getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
+                int currentPos = getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
                 int index = 0;
 
                 while (currentPos != KTypeLinkedList.TAIL_POSITION) {
@@ -731,7 +729,7 @@ public class KTypeLinkedList<KType>
                     }
 
                     //increment both
-                    currentPos = KTypeLinkedList.getLinkAfter(pointers[currentPos]);
+                    currentPos = getLinkAfter(pointers[currentPos]);
                     index++;
                 }
 
@@ -763,20 +761,20 @@ public class KTypeLinkedList<KType>
         if (index <= (this.elementsCount / 2.0)) {
             //reach index - 1 position, from head, insert after
             currentIndex = 0;
-            currentPos = KTypeLinkedList.getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
+            currentPos = getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
 
             while (currentIndex < index && currentPos != KTypeLinkedList.TAIL_POSITION) {
-                currentPos = KTypeLinkedList.getLinkAfter(pointers[currentPos]);
+                currentPos = getLinkAfter(pointers[currentPos]);
                 currentIndex++;
             }
         } else {
             //B) short path to go from tail,
             //reach index - 1 position, from head, insert after
             currentIndex = size() - 1;
-            currentPos = KTypeLinkedList.getLinkBefore(pointers[KTypeLinkedList.TAIL_POSITION]);
+            currentPos = getLinkBefore(pointers[KTypeLinkedList.TAIL_POSITION]);
 
             while (currentIndex > index && currentPos != KTypeLinkedList.HEAD_POSITION) {
-                currentPos = KTypeLinkedList.getLinkBefore(pointers[currentPos]);
+                currentPos = getLinkBefore(pointers[currentPos]);
                 currentIndex--;
             }
         }
@@ -797,19 +795,19 @@ public class KTypeLinkedList<KType>
         final long[] pointers = this.beforeAfterPointers;
 
         //we insert between insertionPos and its successor, keep reference of the successor
-        final int nextAfterInsertionPos = KTypeLinkedList.getLinkAfter(pointers[insertionPos]);
+        final int nextAfterInsertionPos = getLinkAfter(pointers[insertionPos]);
 
         //the new element is taken at the end of the buffer, at elementsCount.
         //link it as: [insertionPos | nextAfterInsertionPos]
-        pointers[this.elementsCount] = KTypeLinkedList.getLinkNodeValue(insertionPos, nextAfterInsertionPos);
+        pointers[this.elementsCount] = getLinkNodeValue(insertionPos, nextAfterInsertionPos);
 
         //re-link insertionPos element (left) :
         //[.. | nextAfterInsertionPos] ==> [.. | elementsCount]
-        pointers[insertionPos] = KTypeLinkedList.setLinkAfterNodeValue(pointers[insertionPos], this.elementsCount);
+        pointers[insertionPos] = setLinkAfterNodeValue(pointers[insertionPos], this.elementsCount);
 
         //re-link nextAfterInsertionPos element (right)
         //[insertionPos |..] ==> [elementsCount | ..]
-        pointers[nextAfterInsertionPos] = KTypeLinkedList.setLinkBeforeNodeValue(pointers[nextAfterInsertionPos], this.elementsCount);
+        pointers[nextAfterInsertionPos] = setLinkBeforeNodeValue(pointers[nextAfterInsertionPos], this.elementsCount);
 
         //really add element to buffer at position elementsCount
         this.buffer[this.elementsCount] = e1;
@@ -826,24 +824,24 @@ public class KTypeLinkedList<KType>
         final long[] pointers = this.beforeAfterPointers;
 
         //A) Unlink removalPos properly
-        final int beforeRemovalPos = KTypeLinkedList.getLinkBefore(pointers[removalPos]);
-        final int afterRemovalPos = KTypeLinkedList.getLinkAfter(pointers[removalPos]);
+        final int beforeRemovalPos = getLinkBefore(pointers[removalPos]);
+        final int afterRemovalPos = getLinkAfter(pointers[removalPos]);
 
         //the element before element removalPos is now linked to afterRemovalPos :
         //[... | removalPos] ==> [... | afterRemovalPos]
-        pointers[beforeRemovalPos] = KTypeLinkedList.setLinkAfterNodeValue(pointers[beforeRemovalPos], afterRemovalPos);
+        pointers[beforeRemovalPos] = setLinkAfterNodeValue(pointers[beforeRemovalPos], afterRemovalPos);
 
         //the element after element removalPos is now linked to beforeRemovalPos :
         //[removalPos | ...] ==> [beforeRemovalPos | ...]
-        pointers[afterRemovalPos] = KTypeLinkedList.setLinkBeforeNodeValue(pointers[afterRemovalPos], beforeRemovalPos);
+        pointers[afterRemovalPos] = setLinkBeforeNodeValue(pointers[afterRemovalPos], beforeRemovalPos);
 
         //if the removed element is not the last of the buffer, move it to the "hole" created at removalPos
         if (removalPos != this.elementsCount - 1) {
             //B) To keep the buffer compact, take now the last buffer element and put it to  removalPos
             //keep the positions of the last buffer element, because we'll need to re-link it after
             //moving the element elementsCount - 1
-            final int beforeLastElementPos = KTypeLinkedList.getLinkBefore(pointers[this.elementsCount - 1]);
-            final int afterLastElementPos = KTypeLinkedList.getLinkAfter(pointers[this.elementsCount - 1]);
+            final int beforeLastElementPos = getLinkBefore(pointers[this.elementsCount - 1]);
+            final int afterLastElementPos = getLinkAfter(pointers[this.elementsCount - 1]);
 
             //To keep the buffer compact, take now the last buffer element and put it to  removalPos
             this.buffer[removalPos] = this.buffer[this.elementsCount - 1];
@@ -851,10 +849,10 @@ public class KTypeLinkedList<KType>
 
             //B-2) Re-link the elements that where neighbours of "elementsCount - 1" to point to removalPos element now
             //update the pointer of the before the last element = [... | elementsCount - 1] ==> [... | removalPos]
-            pointers[beforeLastElementPos] = KTypeLinkedList.setLinkAfterNodeValue(pointers[beforeLastElementPos], removalPos);
+            pointers[beforeLastElementPos] = setLinkAfterNodeValue(pointers[beforeLastElementPos], removalPos);
 
             //update the pointer of the after the last element = [... | elementsCount - 1] ==> [... | removalPos]
-            pointers[afterLastElementPos] = KTypeLinkedList.setLinkBeforeNodeValue(pointers[afterLastElementPos], removalPos);
+            pointers[afterLastElementPos] = setLinkBeforeNodeValue(pointers[afterLastElementPos], removalPos);
         }
 
         //for GC
@@ -864,7 +862,7 @@ public class KTypeLinkedList<KType>
 
         this.elementsCount--;
 
-        return KTypeLinkedList.getLinkAfter(pointers[beforeRemovalPos]);
+        return getLinkAfter(pointers[beforeRemovalPos]);
     }
 
     /**
@@ -909,7 +907,6 @@ public class KTypeLinkedList<KType>
 
             this.internalIndex = -1;
             this.cursor.index = -1;
-            this.cursor.value = KTypeLinkedList.this.defaultValue;
 
             this.buffer = Intrinsics.<KType[]> cast(KTypeLinkedList.this.buffer);
             this.pointers = KTypeLinkedList.this.beforeAfterPointers;
@@ -933,7 +930,7 @@ public class KTypeLinkedList<KType>
          */
         @Override
         public boolean hasNext() {
-            final int nextPos = KTypeLinkedList.getLinkAfter(this.pointers[this.internalPos]);
+            final int nextPos = getLinkAfter(this.pointers[this.internalPos]);
 
             //auto-release when hasNext() returns false;
             if (nextPos == KTypeLinkedList.TAIL_POSITION && this.iteratorPool != null && !this.isFree) {
@@ -952,7 +949,7 @@ public class KTypeLinkedList<KType>
         @Override
         public KTypeCursor<KType> next() {
             //search for the next position
-            final int nextPos = KTypeLinkedList.getLinkAfter(this.pointers[this.internalPos]);
+            final int nextPos = getLinkAfter(this.pointers[this.internalPos]);
 
             //we are at tail already.
             if (nextPos == KTypeLinkedList.TAIL_POSITION) {
@@ -993,7 +990,7 @@ public class KTypeLinkedList<KType>
          * with respect to the forward iteration. Always true if the list is empty.
          */
         public boolean isFirst() {
-            final int nextPos = KTypeLinkedList.getLinkAfter(this.pointers[KTypeLinkedList.HEAD_POSITION]);
+            final int nextPos = getLinkAfter(this.pointers[KTypeLinkedList.HEAD_POSITION]);
 
             return (nextPos == KTypeLinkedList.TAIL_POSITION) ? true : (nextPos == this.internalPos);
         }
@@ -1003,7 +1000,7 @@ public class KTypeLinkedList<KType>
          * with respect to the forward iteration. Always true if the list is empty.
          */
         public boolean isLast() {
-            final int nextPos = KTypeLinkedList.getLinkBefore(this.pointers[KTypeLinkedList.TAIL_POSITION]);
+            final int nextPos = getLinkBefore(this.pointers[KTypeLinkedList.TAIL_POSITION]);
 
             return (nextPos == KTypeLinkedList.HEAD_POSITION) ? true : (nextPos == this.internalPos);
         }
@@ -1017,7 +1014,6 @@ public class KTypeLinkedList<KType>
 
             //update cursor
             this.cursor.index = -1;
-            this.cursor.value = KTypeLinkedList.this.defaultValue;
 
             return this;
         }
@@ -1031,7 +1027,6 @@ public class KTypeLinkedList<KType>
 
             //update cursor
             this.cursor.index = this.internalIndex;
-            this.cursor.value = KTypeLinkedList.this.defaultValue;
 
             return this;
         }
@@ -1041,13 +1036,13 @@ public class KTypeLinkedList<KType>
          * returning itself for chaining. When "tail" is reached, gotoNext() stays in place, at tail.
          */
         public ValueIterator gotoNext() {
-            this.internalPos = KTypeLinkedList.getLinkAfter(this.pointers[this.internalPos]);
+            this.internalPos = getLinkAfter(this.pointers[this.internalPos]);
 
             if (this.internalPos == KTypeLinkedList.TAIL_POSITION) {
                 this.internalIndex = KTypeLinkedList.this.size();
                 //update cursor
                 this.cursor.index = this.internalIndex;
-                this.cursor.value = KTypeLinkedList.this.defaultValue;
+
             } else {
                 this.internalIndex++;
 
@@ -1064,12 +1059,12 @@ public class KTypeLinkedList<KType>
          * returning itself for chaining. When "head" is reached, gotoPrevious() stays in place, at head.
          */
         public ValueIterator gotoPrevious() {
-            this.internalPos = KTypeLinkedList.getLinkBefore(this.pointers[this.internalPos]);
+            this.internalPos = getLinkBefore(this.pointers[this.internalPos]);
 
             if (this.internalPos == KTypeLinkedList.HEAD_POSITION) {
                 this.internalIndex = -1;
                 this.cursor.index = this.internalIndex;
-                this.cursor.value = KTypeLinkedList.this.defaultValue;
+
             } else {
                 this.internalIndex--;
                 this.cursor.index = this.internalIndex;
@@ -1085,7 +1080,7 @@ public class KTypeLinkedList<KType>
          * Returns null if no such element exists.
          */
         public KTypeCursor<KType> getNext() {
-            final int nextPos = KTypeLinkedList.getLinkAfter(this.pointers[this.internalPos]);
+            final int nextPos = getLinkAfter(this.pointers[this.internalPos]);
 
             if (nextPos == KTypeLinkedList.TAIL_POSITION) {
                 return null;
@@ -1102,7 +1097,7 @@ public class KTypeLinkedList<KType>
          * Returns null if no such element exists.
          */
         public KTypeCursor<KType> getPrevious() {
-            final int beforePos = KTypeLinkedList.getLinkBefore(this.pointers[this.internalPos]);
+            final int beforePos = getLinkBefore(this.pointers[this.internalPos]);
 
             if (beforePos == KTypeLinkedList.HEAD_POSITION) {
                 return null;
@@ -1121,7 +1116,7 @@ public class KTypeLinkedList<KType>
          * (because there is no element left after)
          */
         public KTypeCursor<KType> removeNext() {
-            final int nextPos = KTypeLinkedList.getLinkAfter(this.pointers[this.internalPos]);
+            final int nextPos = getLinkAfter(this.pointers[this.internalPos]);
 
             if (nextPos == KTypeLinkedList.TAIL_POSITION) {
                 return null;
@@ -1143,7 +1138,7 @@ public class KTypeLinkedList<KType>
          * (because there is no element left before)
          */
         public KTypeCursor<KType> removePrevious() {
-            final int previousPos = KTypeLinkedList.getLinkBefore(this.pointers[this.internalPos]);
+            final int previousPos = getLinkBefore(this.pointers[this.internalPos]);
 
             if (previousPos == KTypeLinkedList.HEAD_POSITION) {
                 return null;
@@ -1176,7 +1171,7 @@ public class KTypeLinkedList<KType>
                     this.buffer = Intrinsics.<KType[]> cast(KTypeLinkedList.this.buffer);
                 }
 
-                final int beforePos = KTypeLinkedList.getLinkBefore(this.pointers[this.internalPos]);
+                final int beforePos = getLinkBefore(this.pointers[this.internalPos]);
 
                 //we insert after the previous
                 insertAfterPosNoCheck(e1, beforePos);
@@ -1208,20 +1203,18 @@ public class KTypeLinkedList<KType>
         }
 
         /**
-         * Set e1 to the current iterator position, without moving the iterator,
-         * while returning the previous value. If no such previous value exists, returns the default value.
+         * Set e1 to the current iterator (position), without moving the iterator.
          */
-        public KType set(final KType e1) {
-            KType elem = KTypeLinkedList.this.defaultValue;
+        public void set(final KType e1) {
 
             //protect the heads/tails
             if (this.internalPos != KTypeLinkedList.HEAD_POSITION && this.internalPos != KTypeLinkedList.TAIL_POSITION) {
-                elem = this.buffer[this.internalPos];
 
                 this.buffer[this.internalPos] = e1;
+                //update cursor value
+                this.cursor.value = e1;
             }
 
-            return elem;
         }
 
         /**
@@ -1276,7 +1269,6 @@ public class KTypeLinkedList<KType>
             this.internalIndex = KTypeLinkedList.this.size();
 
             this.cursor.index = KTypeLinkedList.this.size();
-            this.cursor.value = KTypeLinkedList.this.defaultValue;
 
             this.buffer = Intrinsics.<KType[]> cast(KTypeLinkedList.this.buffer);
             this.pointers = KTypeLinkedList.this.beforeAfterPointers;
@@ -1290,7 +1282,7 @@ public class KTypeLinkedList<KType>
          */
         @Override
         public boolean hasNext() {
-            final int nextPos = KTypeLinkedList.getLinkBefore(this.pointers[this.internalPos]);
+            final int nextPos = getLinkBefore(this.pointers[this.internalPos]);
 
             //auto-release when hasNext() returns false;
             if (nextPos == KTypeLinkedList.HEAD_POSITION && this.iteratorPool != null && !this.isFree) {
@@ -1309,7 +1301,7 @@ public class KTypeLinkedList<KType>
         @Override
         public KTypeCursor<KType> next() {
             //search for the next position
-            final int nextPos = KTypeLinkedList.getLinkBefore(this.pointers[this.internalPos]);
+            final int nextPos = getLinkBefore(this.pointers[this.internalPos]);
 
             //we are at tail already.
             if (nextPos == KTypeLinkedList.HEAD_POSITION) {
@@ -1451,7 +1443,7 @@ public class KTypeLinkedList<KType>
                 //this is the next position in the normal iteration direction, so we must go back one step
                 final int nextPos = removeAtPosNoCheck(this.internalPos);
 
-                this.internalPos = KTypeLinkedList.getLinkBefore(this.pointers[nextPos]);
+                this.internalPos = getLinkBefore(this.pointers[nextPos]);
 
                 this.internalIndex--;
                 //update cursor
@@ -1549,12 +1541,12 @@ public class KTypeLinkedList<KType>
 
         final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
 
-        int currentPos = KTypeLinkedList.getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
+        int currentPos = getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
 
         while (currentPos != KTypeLinkedList.TAIL_POSITION) {
             procedure.apply(buffer[currentPos]);
 
-            currentPos = KTypeLinkedList.getLinkAfter(pointers[currentPos]);
+            currentPos = getLinkAfter(pointers[currentPos]);
 
         } //end while
 
@@ -1570,14 +1562,14 @@ public class KTypeLinkedList<KType>
 
         final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
 
-        int currentPos = KTypeLinkedList.getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
+        int currentPos = getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
 
         while (currentPos != KTypeLinkedList.TAIL_POSITION) {
             if (!predicate.apply(buffer[currentPos])) {
                 break;
             }
 
-            currentPos = KTypeLinkedList.getLinkAfter(pointers[currentPos]);
+            currentPos = getLinkAfter(pointers[currentPos]);
 
         } //end while
 
@@ -1593,12 +1585,12 @@ public class KTypeLinkedList<KType>
 
         final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
 
-        int currentPos = KTypeLinkedList.getLinkBefore(pointers[KTypeLinkedList.TAIL_POSITION]);
+        int currentPos = getLinkBefore(pointers[KTypeLinkedList.TAIL_POSITION]);
 
         while (currentPos != KTypeLinkedList.HEAD_POSITION) {
             procedure.apply(buffer[currentPos]);
 
-            currentPos = KTypeLinkedList.getLinkBefore(pointers[currentPos]);
+            currentPos = getLinkBefore(pointers[currentPos]);
 
         } //end while
 
@@ -1614,14 +1606,14 @@ public class KTypeLinkedList<KType>
 
         final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
 
-        int currentPos = KTypeLinkedList.getLinkBefore(pointers[KTypeLinkedList.TAIL_POSITION]);
+        int currentPos = getLinkBefore(pointers[KTypeLinkedList.TAIL_POSITION]);
 
         while (currentPos != KTypeLinkedList.HEAD_POSITION) {
             if (!predicate.apply(buffer[currentPos])) {
                 break;
             }
 
-            currentPos = KTypeLinkedList.getLinkBefore(pointers[currentPos]);
+            currentPos = getLinkBefore(pointers[currentPos]);
 
         } //end while
 
@@ -1736,8 +1728,8 @@ public class KTypeLinkedList<KType>
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
             /*! #else
-                KTypeComparator<? super KType>
-            #end !*/
+                                                KTypeComparator<? super KType>
+                                            #end !*/
             comp) {
 
         if (endIndex - beginIndex > 1) {
@@ -1766,16 +1758,16 @@ public class KTypeLinkedList<KType>
             //a) rebuild head/tail
 
             //ties HEAD to the first element, and first element to HEAD
-            pointers[KTypeLinkedList.HEAD_POSITION] = KTypeLinkedList.getLinkNodeValue(KTypeLinkedList.HEAD_POSITION, 2);
-            pointers[2] = KTypeLinkedList.getLinkNodeValue(KTypeLinkedList.HEAD_POSITION, 3);
+            pointers[KTypeLinkedList.HEAD_POSITION] = getLinkNodeValue(KTypeLinkedList.HEAD_POSITION, 2);
+            pointers[2] = getLinkNodeValue(KTypeLinkedList.HEAD_POSITION, 3);
 
             for (int pos = 3; pos < elementsCount - 1; pos++) {
-                pointers[pos] = KTypeLinkedList.getLinkNodeValue(pos - 1, pos + 1);
+                pointers[pos] = getLinkNodeValue(pos - 1, pos + 1);
             }
 
             //ties the last element to tail, and tail to last element
-            pointers[elementsCount - 1] = KTypeLinkedList.getLinkNodeValue(elementsCount - 2, KTypeLinkedList.TAIL_POSITION);
-            pointers[KTypeLinkedList.TAIL_POSITION] = KTypeLinkedList.getLinkNodeValue(elementsCount - 1, KTypeLinkedList.TAIL_POSITION);
+            pointers[elementsCount - 1] = getLinkNodeValue(elementsCount - 2, KTypeLinkedList.TAIL_POSITION);
+            pointers[KTypeLinkedList.TAIL_POSITION] = getLinkNodeValue(elementsCount - 1, KTypeLinkedList.TAIL_POSITION);
         }
     }
 
@@ -1807,16 +1799,16 @@ public class KTypeLinkedList<KType>
             //a) rebuild head/tail
 
             //ties HEAD to the first element, and first element to HEAD
-            pointers[KTypeLinkedList.HEAD_POSITION] = KTypeLinkedList.getLinkNodeValue(KTypeLinkedList.HEAD_POSITION, 2);
-            pointers[2] = KTypeLinkedList.getLinkNodeValue(KTypeLinkedList.HEAD_POSITION, 3);
+            pointers[KTypeLinkedList.HEAD_POSITION] = getLinkNodeValue(KTypeLinkedList.HEAD_POSITION, 2);
+            pointers[2] = getLinkNodeValue(KTypeLinkedList.HEAD_POSITION, 3);
 
             for (int pos = 3; pos < elementsCount - 1; pos++) {
-                pointers[pos] = KTypeLinkedList.getLinkNodeValue(pos - 1, pos + 1);
+                pointers[pos] = getLinkNodeValue(pos - 1, pos + 1);
             }
 
             //ties the last element to tail, and tail to last element
-            pointers[elementsCount - 1] = KTypeLinkedList.getLinkNodeValue(elementsCount - 2, KTypeLinkedList.TAIL_POSITION);
-            pointers[KTypeLinkedList.TAIL_POSITION] = KTypeLinkedList.getLinkNodeValue(elementsCount - 1,
+            pointers[elementsCount - 1] = getLinkNodeValue(elementsCount - 2, KTypeLinkedList.TAIL_POSITION);
+            pointers[KTypeLinkedList.TAIL_POSITION] = getLinkNodeValue(elementsCount - 1,
                     KTypeLinkedList.TAIL_POSITION);
         }
     }
@@ -1870,7 +1862,7 @@ public class KTypeLinkedList<KType>
     @Override
     public void addLast(final KType e1) {
         ensureBufferSpace(1);
-        insertAfterPosNoCheck(e1, KTypeLinkedList.getLinkBefore(this.beforeAfterPointers[KTypeLinkedList.TAIL_POSITION]));
+        insertAfterPosNoCheck(e1, getLinkBefore(this.beforeAfterPointers[KTypeLinkedList.TAIL_POSITION]));
     }
 
     /**
@@ -1893,7 +1885,7 @@ public class KTypeLinkedList<KType>
         for (final KTypeCursor<? extends KType> cursor : iterable) {
             ensureBufferSpace(1);
             insertAfterPosNoCheck(cursor.value,
-                    KTypeLinkedList.getLinkBefore(this.beforeAfterPointers[KTypeLinkedList.TAIL_POSITION]));
+                    getLinkBefore(this.beforeAfterPointers[KTypeLinkedList.TAIL_POSITION]));
             size++;
         }
         return size;
@@ -1903,7 +1895,7 @@ public class KTypeLinkedList<KType>
     public KType removeFirst() {
         assert size() > 0;
 
-        final int removedPos = KTypeLinkedList.getLinkAfter(this.beforeAfterPointers[KTypeLinkedList.HEAD_POSITION]);
+        final int removedPos = getLinkAfter(this.beforeAfterPointers[KTypeLinkedList.HEAD_POSITION]);
 
         final KType elem = Intrinsics.<KType> cast(this.buffer[removedPos]);
 
@@ -1916,7 +1908,7 @@ public class KTypeLinkedList<KType>
     public KType removeLast() {
         assert size() > 0;
 
-        final int removedPos = KTypeLinkedList.getLinkBefore(this.beforeAfterPointers[KTypeLinkedList.TAIL_POSITION]);
+        final int removedPos = getLinkBefore(this.beforeAfterPointers[KTypeLinkedList.TAIL_POSITION]);
 
         final KType elem = Intrinsics.<KType> cast(this.buffer[removedPos]);
 
@@ -1929,17 +1921,17 @@ public class KTypeLinkedList<KType>
     public KType getFirst() {
         assert size() > 0;
 
-        return Intrinsics.<KType> cast(this.buffer[KTypeLinkedList.getLinkAfter(this.beforeAfterPointers[KTypeLinkedList.HEAD_POSITION])]);
+        return Intrinsics.<KType> cast(this.buffer[getLinkAfter(this.beforeAfterPointers[KTypeLinkedList.HEAD_POSITION])]);
     }
 
     @Override
     public KType getLast() {
         assert size() > 0;
 
-        return Intrinsics.<KType> cast(this.buffer[KTypeLinkedList.getLinkBefore(this.beforeAfterPointers[KTypeLinkedList.TAIL_POSITION])]);
+        return Intrinsics.<KType> cast(this.buffer[getLinkBefore(this.beforeAfterPointers[KTypeLinkedList.TAIL_POSITION])]);
     }
 
-    /*! #if ($TemplateOptions.declareInline("KTypeLinkedList.getLinkNodeValue(beforeIndex, afterIndex)",
+    /*! #if ($TemplateOptions.declareInline("getLinkNodeValue(beforeIndex, afterIndex)",
      "<*>==>((long) beforeIndex << 32) | afterIndex")) !*/
     /**
      * Builds a LinkList node value from its before an after links.
@@ -1949,38 +1941,38 @@ public class KTypeLinkedList<KType>
      * @param afterIndex
      * @return long
      */
-    private static long getLinkNodeValue(final int beforeIndex, final int afterIndex) {
+    private long getLinkNodeValue(final int beforeIndex, final int afterIndex) {
         return ((long) beforeIndex << 32) | afterIndex;
     }
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.declareInline("KTypeLinkedList.getLinkBefore(nodeValue)", "<*>==>(int) (nodeValue >> 32)")) !*/
-    private static int getLinkBefore(final long nodeValue) {
+    /*! #if ($TemplateOptions.declareInline("getLinkBefore(nodeValue)", "<*>==>(int) (nodeValue >> 32)")) !*/
+    private int getLinkBefore(final long nodeValue) {
         return (int) (nodeValue >> 32);
     }
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.declareInline("KTypeLinkedList.getLinkAfter(nodeValue)",
+    /*! #if ($TemplateOptions.declareInline("getLinkAfter(nodeValue)",
        "<*>==>(int) (nodeValue & 0x00000000FFFFFFFFL)")) !*/
-    private static int getLinkAfter(final long nodeValue) {
+    private int getLinkAfter(final long nodeValue) {
         return (int) (nodeValue & 0x00000000FFFFFFFFL);
     }
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.declareInline("KTypeLinkedList.setLinkBeforeNodeValue(nodeValue, newBefore)",
+    /*! #if ($TemplateOptions.declareInline("setLinkBeforeNodeValue(nodeValue, newBefore)",
      "<*>==>((long) newBefore << 32) | (nodeValue & 0x00000000FFFFFFFFL)")) !*/
-    private static long setLinkBeforeNodeValue(final long nodeValue, final int newBefore) {
+    private long setLinkBeforeNodeValue(final long nodeValue, final int newBefore) {
         return ((long) newBefore << 32) | (nodeValue & 0x00000000FFFFFFFFL);
     }
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.declareInline("KTypeLinkedList.setLinkAfterNodeValue(nodeValue, newAfter)",
+    /*! #if ($TemplateOptions.declareInline("setLinkAfterNodeValue(nodeValue, newAfter)",
       "<*>==> newAfter | (nodeValue & 0xFFFFFFFF00000000L)")) !*/
-    private static long setLinkAfterNodeValue(final long nodeValue, final int newAfter) {
+    private long setLinkAfterNodeValue(final long nodeValue, final int newAfter) {
         return newAfter | (nodeValue & 0xFFFFFFFF00000000L);
     }
     /*! #end !*/
