@@ -66,10 +66,10 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
             int count = 0;
             //check access by get()
             for (/*! #if ($TemplateOptions.KTypeGeneric) !*/final Object
-            /*! #else
+                    /*! #else
             final KType
             #end !*/
-            val : this.list.toArray()) {
+                    val : this.list.toArray()) {
 
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 TestUtils.assertEquals2(val, (Object) this.list.get(count));
@@ -314,10 +314,17 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertFalse(it.isFirst());
         Assert.assertFalse(it.isLast());
         Assert.assertFalse(it.isTail());
+
+        boolean hasException = false;
+        try {
+            it.getPrevious();
+        } catch (final NoSuchElementException e) {
+            hasException = true;
+        }
+        Assert.assertTrue(hasException);
+
         //obtain next
-        Assert.assertEquals(null, it.getPrevious());
-        Assert.assertEquals(0, castType(it.getNext().value));
-        Assert.assertEquals(0, it.getNext().index);
+        Assert.assertEquals(0, castType(it.getNext()));
 
         //Try to move backwards, we stay in head
         it.gotoPrevious();
@@ -326,10 +333,18 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertFalse(it.isFirst());
         Assert.assertFalse(it.isLast());
         Assert.assertFalse(it.isTail());
+
+        hasException = false;
+        try {
+            it.getPrevious();
+        } catch (final NoSuchElementException e) {
+            hasException = true;
+        }
+        Assert.assertTrue(hasException);
+
         //obtain next
-        Assert.assertEquals(null, it.getPrevious());
-        Assert.assertEquals(0, castType(it.getNext().value));
-        Assert.assertEquals(0, it.getNext().index);
+
+        Assert.assertEquals(0, castType(it.getNext()));
 
         //iteration 0
         it.gotoNext();
@@ -340,9 +355,15 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertFalse(it.isLast());
         Assert.assertFalse(it.isTail());
         //obtain previous / next
-        Assert.assertEquals(null, it.getPrevious());
-        Assert.assertEquals(11, castType(it.getNext().value));
-        Assert.assertEquals(1, it.getNext().index);
+        hasException = false;
+        try {
+            it.getPrevious();
+        } catch (final NoSuchElementException e) {
+            hasException = true;
+        }
+        Assert.assertTrue(hasException);
+
+        Assert.assertEquals(11, castType(it.getNext()));
 
         //iteration 1
         it.gotoNext();
@@ -353,10 +374,9 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertFalse(it.isLast());
         Assert.assertFalse(it.isTail());
         //obtain previous / next
-        Assert.assertEquals(0, castType(it.getPrevious().value));
-        Assert.assertEquals(0, it.getPrevious().index);
-        Assert.assertEquals(22, castType(it.getNext().value));
-        Assert.assertEquals(2, it.getNext().index);
+        Assert.assertEquals(0, castType(it.getPrevious()));
+
+        Assert.assertEquals(22, castType(it.getNext()));
 
         //iteration 2
         it.gotoNext();
@@ -367,10 +387,9 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertFalse(it.isLast());
         Assert.assertFalse(it.isTail());
         //obtain previous / next
-        Assert.assertEquals(11, castType(it.getPrevious().value));
-        Assert.assertEquals(1, it.getPrevious().index);
-        Assert.assertEquals(33, castType(it.getNext().value));
-        Assert.assertEquals(3, it.getNext().index);
+        Assert.assertEquals(11, castType(it.getPrevious()));
+
+        Assert.assertEquals(33, castType(it.getNext()));
 
         //iteration 3
         it.gotoNext();
@@ -381,10 +400,8 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertFalse(it.isLast());
         Assert.assertFalse(it.isTail());
         //obtain previous / next
-        Assert.assertEquals(22, castType(it.getPrevious().value));
-        Assert.assertEquals(2, it.getPrevious().index);
-        Assert.assertEquals(44, castType(it.getNext().value));
-        Assert.assertEquals(4, it.getNext().index);
+        Assert.assertEquals(22, castType(it.getPrevious()));
+        Assert.assertEquals(44, castType(it.getNext()));
 
         //iteration 4
         it.gotoNext();
@@ -395,10 +412,9 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertFalse(it.isLast());
         Assert.assertFalse(it.isTail());
         //obtain previous / next
-        Assert.assertEquals(33, castType(it.getPrevious().value));
-        Assert.assertEquals(3, it.getPrevious().index);
-        Assert.assertEquals(55, castType(it.getNext().value));
-        Assert.assertEquals(5, it.getNext().index);
+        Assert.assertEquals(33, castType(it.getPrevious()));
+
+        Assert.assertEquals(55, castType(it.getNext()));
 
         //iteration 5
         it.gotoNext();
@@ -409,9 +425,15 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertTrue(it.isLast());
         Assert.assertFalse(it.isTail());
         //obtain previous / next
-        Assert.assertEquals(44, castType(it.getPrevious().value));
-        Assert.assertEquals(4, it.getPrevious().index);
-        Assert.assertEquals(null, it.getNext());
+        Assert.assertEquals(44, castType(it.getPrevious()));
+
+        hasException = false;
+        try {
+            it.getNext();
+        } catch (final NoSuchElementException e) {
+            hasException = true;
+        }
+        Assert.assertTrue(hasException);
 
         //iteration 6
         it.gotoNext();
@@ -421,9 +443,15 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertFalse(it.isLast());
         Assert.assertTrue(it.isTail());
         //obtain previous / next
-        Assert.assertEquals(55, castType(it.getPrevious().value));
-        Assert.assertEquals(5, it.getPrevious().index);
-        Assert.assertEquals(null, it.getNext());
+        Assert.assertEquals(55, castType(it.getPrevious()));
+
+        hasException = false;
+        try {
+            it.getNext();
+        } catch (final NoSuchElementException e) {
+            hasException = true;
+        }
+        Assert.assertTrue(hasException);
 
         //iteration 7 : we are already at tail, we don't move further
         it.gotoNext();
@@ -433,9 +461,15 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertFalse(it.isLast());
         Assert.assertTrue(it.isTail());
         //obtain previous / next
-        Assert.assertEquals(55, castType(it.getPrevious().value));
-        Assert.assertEquals(5, it.getPrevious().index);
-        Assert.assertEquals(null, it.getNext());
+        Assert.assertEquals(55, castType(it.getPrevious()));
+
+        hasException = false;
+        try {
+            it.getNext();
+        } catch (final NoSuchElementException e) {
+            hasException = true;
+        }
+        Assert.assertTrue(hasException);
 
         //Goes back to head
         it.gotoHead();
@@ -445,9 +479,15 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertFalse(it.isLast());
         Assert.assertFalse(it.isTail());
         //obtain next
-        Assert.assertEquals(null, it.getPrevious());
-        Assert.assertEquals(0, castType(it.getNext().value));
-        Assert.assertEquals(0, it.getNext().index);
+        hasException = false;
+        try {
+            it.getPrevious();
+        } catch (final NoSuchElementException e) {
+            hasException = true;
+        }
+        Assert.assertTrue(hasException);
+
+        Assert.assertEquals(0, castType(it.getNext()));
 
         //Goes again to tail:
         it.gotoTail();
@@ -457,9 +497,19 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertFalse(it.isLast());
         Assert.assertTrue(it.isTail());
         //obtain previous / next
-        Assert.assertEquals(55, castType(it.getPrevious().value));
-        Assert.assertEquals(5, it.getPrevious().index);
-        Assert.assertEquals(null, it.getNext());
+        Assert.assertEquals(55, castType(it.getPrevious()));
+        hasException = false;
+        try {
+            it.getNext();
+        } catch (final NoSuchElementException e) {
+            hasException = true;
+        }
+        Assert.assertTrue(hasException);
+
+        //clear
+        this.list.clear();
+        Assert.assertTrue(it.isFirst());
+        Assert.assertTrue(it.isLast());
 
     }
 
@@ -478,9 +528,15 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertFalse(it.isLast());
         Assert.assertFalse(it.isTail());
         //obtain next
-        Assert.assertEquals(null, it.getPrevious());
-        Assert.assertEquals(55, castType(it.getNext().value));
-        Assert.assertEquals(5, it.getNext().index);
+        boolean hasException = false;
+        try {
+            it.getPrevious();
+        } catch (final NoSuchElementException e) {
+            hasException = true;
+        }
+        Assert.assertTrue(hasException);
+
+        Assert.assertEquals(55, castType(it.getNext()));
 
         //Try to move backwards, we stay in head
         it.gotoPrevious();
@@ -490,9 +546,15 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertFalse(it.isLast());
         Assert.assertFalse(it.isTail());
         //obtain next
-        Assert.assertEquals(null, it.getPrevious());
-        Assert.assertEquals(55, castType(it.getNext().value));
-        Assert.assertEquals(5, it.getNext().index);
+        hasException = false;
+        try {
+            it.getPrevious();
+        } catch (final NoSuchElementException e) {
+            hasException = true;
+        }
+        Assert.assertTrue(hasException);
+
+        Assert.assertEquals(55, castType(it.getNext()));
 
         //iteration 0
         it.gotoNext();
@@ -503,9 +565,14 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertFalse(it.isLast());
         Assert.assertFalse(it.isTail());
         //obtain previous / next
-        Assert.assertEquals(null, it.getPrevious());
-        Assert.assertEquals(44, castType(it.getNext().value));
-        Assert.assertEquals(4, it.getNext().index);
+        hasException = false;
+        try {
+            it.getPrevious();
+        } catch (final NoSuchElementException e) {
+            hasException = true;
+        }
+        Assert.assertTrue(hasException);
+        Assert.assertEquals(44, castType(it.getNext()));
 
         //iteration 1
         it.gotoNext();
@@ -516,10 +583,9 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertFalse(it.isLast());
         Assert.assertFalse(it.isTail());
         //obtain previous / next
-        Assert.assertEquals(55, castType(it.getPrevious().value));
-        Assert.assertEquals(5, it.getPrevious().index);
-        Assert.assertEquals(33, castType(it.getNext().value));
-        Assert.assertEquals(3, it.getNext().index);
+        Assert.assertEquals(55, castType(it.getPrevious()));
+
+        Assert.assertEquals(33, castType(it.getNext()));
 
         //iteration 2
         it.gotoNext();
@@ -530,10 +596,9 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertFalse(it.isLast());
         Assert.assertFalse(it.isTail());
         //obtain previous / next
-        Assert.assertEquals(44, castType(it.getPrevious().value));
-        Assert.assertEquals(4, it.getPrevious().index);
-        Assert.assertEquals(22, castType(it.getNext().value));
-        Assert.assertEquals(2, it.getNext().index);
+        Assert.assertEquals(44, castType(it.getPrevious()));
+
+        Assert.assertEquals(22, castType(it.getNext()));
 
         //iteration 3
         it.gotoNext();
@@ -544,10 +609,9 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertFalse(it.isLast());
         Assert.assertFalse(it.isTail());
         //obtain previous / next
-        Assert.assertEquals(33, castType(it.getPrevious().value));
-        Assert.assertEquals(3, it.getPrevious().index);
-        Assert.assertEquals(11, castType(it.getNext().value));
-        Assert.assertEquals(1, it.getNext().index);
+        Assert.assertEquals(33, castType(it.getPrevious()));
+
+        Assert.assertEquals(11, castType(it.getNext()));
 
         //iteration 4
         it.gotoNext();
@@ -558,11 +622,9 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertFalse(it.isLast());
         Assert.assertFalse(it.isTail());
         //obtain previous / next
-        Assert.assertEquals(22, castType(it.getPrevious().value));
-        Assert.assertEquals(2, it.getPrevious().index);
-        Assert.assertEquals(0, castType(it.getNext().value));
-        Assert.assertEquals(0, it.getNext().index);
+        Assert.assertEquals(22, castType(it.getPrevious()));
 
+        Assert.assertEquals(0, castType(it.getNext()));
         //iteration 5
         it.gotoNext();
         Assert.assertEquals(0, castType(it.cursor.value));
@@ -572,9 +634,15 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertTrue(it.isLast());
         Assert.assertFalse(it.isTail());
         //obtain previous / next
-        Assert.assertEquals(11, castType(it.getPrevious().value));
-        Assert.assertEquals(1, it.getPrevious().index);
-        Assert.assertEquals(null, it.getNext());
+        Assert.assertEquals(11, castType(it.getPrevious()));
+
+        hasException = false;
+        try {
+            it.getNext();
+        } catch (final NoSuchElementException e) {
+            hasException = true;
+        }
+        Assert.assertTrue(hasException);
 
         //iteration 6
         it.gotoNext();
@@ -584,9 +652,15 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertFalse(it.isLast());
         Assert.assertTrue(it.isTail());
         //obtain previous / next
-        Assert.assertEquals(0, castType(it.getPrevious().value));
-        Assert.assertEquals(0, it.getPrevious().index);
-        Assert.assertEquals(null, it.getNext());
+        Assert.assertEquals(0, castType(it.getPrevious()));
+
+        hasException = false;
+        try {
+            it.getNext();
+        } catch (final NoSuchElementException e) {
+            hasException = true;
+        }
+        Assert.assertTrue(hasException);
 
         //iteration 7 : we are already at tail, we don't move further
         it.gotoNext();
@@ -596,9 +670,15 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertFalse(it.isLast());
         Assert.assertTrue(it.isTail());
         //obtain previous / next
-        Assert.assertEquals(0, castType(it.getPrevious().value));
-        Assert.assertEquals(0, it.getPrevious().index);
-        Assert.assertEquals(null, it.getNext());
+        Assert.assertEquals(0, castType(it.getPrevious()));
+
+        hasException = false;
+        try {
+            it.getNext();
+        } catch (final NoSuchElementException e) {
+            hasException = true;
+        }
+        Assert.assertTrue(hasException);
 
         //Goes back to head
         it.gotoHead();
@@ -608,9 +688,15 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertFalse(it.isLast());
         Assert.assertFalse(it.isTail());
         //obtain next
-        Assert.assertEquals(null, it.getPrevious());
-        Assert.assertEquals(55, castType(it.getNext().value));
-        Assert.assertEquals(5, it.getNext().index);
+        hasException = false;
+        try {
+            it.getPrevious();
+        } catch (final NoSuchElementException e) {
+            hasException = true;
+        }
+        Assert.assertTrue(hasException);
+
+        Assert.assertEquals(55, castType(it.getNext()));
 
         //Goes again to tail:
         it.gotoTail();
@@ -620,9 +706,19 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         Assert.assertFalse(it.isLast());
         Assert.assertTrue(it.isTail());
         //obtain previous / next
-        Assert.assertEquals(0, castType(it.getPrevious().value));
-        Assert.assertEquals(0, it.getPrevious().index);
-        Assert.assertEquals(null, it.getNext());
+        Assert.assertEquals(0, castType(it.getPrevious()));
+        hasException = false;
+        try {
+            it.getNext();
+        } catch (final NoSuchElementException e) {
+            hasException = true;
+        }
+        Assert.assertTrue(hasException);
+
+        //clear
+        this.list.clear();
+        Assert.assertTrue(it.isFirst());
+        Assert.assertTrue(it.isLast());
     }
 
     /* */
@@ -728,9 +824,9 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         //move forward by 2 elements : 33
         it.gotoNext().gotoNext();
         //remove next = 20
-        KTypeCursor<KType> removed = it.removeNext();
-        Assert.assertEquals(5, removed.index);
-        Assert.assertEquals(20, castType(removed.value));
+        KType removed = it.removeNext();
+
+        Assert.assertEquals(20, castType(removed));
         // ==> list.add(asArray(112, 111,88, 3, 33, 11, 99, 100, 111, 22, 33, 44, 55,7, 9));
         //it still points to 33
         TestUtils.assertListEquals(this.list.toArray(), 112, 111, 88, 3, 33, /*20 */11, 99, 100, 111, 22, 33, 44, 55, 7, 9);
@@ -741,8 +837,8 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         it.gotoNext().gotoNext().gotoNext();
         //remove the previous = 99
         removed = it.removePrevious();
-        Assert.assertEquals(6, removed.index);
-        Assert.assertEquals(99, castType(removed.value));
+
+        Assert.assertEquals(99, castType(removed));
 
         TestUtils.assertListEquals(this.list.toArray(), 112, 111, 88, 3, 33, /*20 */11, /*99 */100, 111, 22, 33, 44, 55, 7, 9);
         //the iterator still points to 100
@@ -772,9 +868,9 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         {
             for (it = this.list.iterator().gotoNext(); !it.isTail(); it.gotoNext())
             {
-                if (it.getNext() != null && castType(it.getNext().value) == 88 ||
-                        it.getNext() != null && castType(it.getNext().value) == 99 ||
-                        it.getNext() != null && castType(it.getNext().value) == 55)
+                if (!it.isLast() && (castType(it.getNext()) == 88 ||
+                        castType(it.getNext()) == 99 ||
+                        castType(it.getNext()) == 55))
                 {
 
                     it.removeNext();
@@ -796,9 +892,8 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
             //try to iterate an empty list
             for (it = this.list.iterator().gotoNext(); !it.isTail(); it.gotoNext())
             {
-                it.delete();
-                //the for advanced itself, so go back one position
-                it.gotoPrevious();
+                //we must never enter this loop
+                Assert.fail();
             }
 
             Assert.assertEquals(0, this.list.size());
@@ -824,9 +919,9 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         {
             for (it = this.list.descendingIterator().gotoNext(); !it.isTail(); it.gotoNext())
             {
-                if (it.getNext() != null && castType(it.getNext().value) == 88 ||
-                        it.getNext() != null && castType(it.getNext().value) == 99 ||
-                        it.getNext() != null && castType(it.getNext().value) == 55)
+                if (!it.isLast() && (castType(it.getNext()) == 88 ||
+                        castType(it.getNext()) == 99 ||
+                        castType(it.getNext()) == 55))
                 {
 
                     it.removeNext();
@@ -915,9 +1010,9 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         //move forward by 2 elements : 33
         it.gotoNext().gotoNext();
         //remove next = 20
-        KTypeCursor<KType> removed = it.removeNext();
-        Assert.assertEquals(10, removed.index);
-        Assert.assertEquals(20, castType(removed.value));
+        KType removed = it.removeNext();
+
+        Assert.assertEquals(20, castType(removed));
         // ==> list.add(asArray(9, 7, 0, 11, 22, 33, 111, 100, 99, 44, 20, 33, 3,88,111,112));
         //it still points to 33
         TestUtils.assertListEquals(this.list.toArray(), 9, 7, 0, 11, 22, 33, 111, 100, 99, 44 /*20 */, 33, 3, 88, 111, 112);
@@ -928,8 +1023,8 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         it.gotoNext().gotoNext().gotoNext();
         //remove the previous = 99
         removed = it.removePrevious();
-        Assert.assertEquals(8, removed.index);
-        Assert.assertEquals(99, castType(removed.value));
+
+        Assert.assertEquals(99, castType(removed));
 
         TestUtils.assertListEquals(this.list.toArray(), 9, 7, 0, 11, 22, 33, 111, 100, /*99*/44 /*20 */, 33, 3, 88, 111, 112);
         //the iterator still points to 100
