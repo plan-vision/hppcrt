@@ -47,7 +47,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     protected VType defaultValue = Intrinsics.<VType> empty();
 
@@ -62,8 +62,8 @@ public class KTypeVTypeHashMap<KType, VType>
           KType []
           #else !*/
     Object[]
-    /*! #end !*/
-    keys;
+            /*! #end !*/
+            keys;
 
     /**
      * Hash-indexed array holding all values associated to the keys.
@@ -73,8 +73,8 @@ public class KTypeVTypeHashMap<KType, VType>
           VType []
           #else !*/
     Object[]
-    /*! #end !*/
-    values;
+            /*! #end !*/
+            values;
 
     /*! #if ($RH) !*/
     /**
@@ -934,25 +934,30 @@ public class KTypeVTypeHashMap<KType, VType>
             @SuppressWarnings("unchecked")
             final/* #end */
             KTypeVTypeMap<KType, VType> other = (KTypeVTypeMap<KType, VType>) obj;
-            if (other.size() == this.size()) {
-                final EntryIterator it = this.iterator();
 
-                while (it.hasNext()) {
-                    final KTypeVTypeCursor<KType, VType> c = it.next();
+            //must be of the same size
+            if (other.size() != this.size()) {
+                return false;
+            }
 
-                    if (other.containsKey(c.key)) {
-                        final VType v = other.get(c.key);
-                        if (Intrinsics.<VType> equals(c.value, v)) {
-                            continue;
-                        }
-                    }
+            final EntryIterator it = this.iterator();
+
+            while (it.hasNext()) {
+                final KTypeVTypeCursor<KType, VType> c = it.next();
+
+                if (!other.containsKey(c.key)) {
                     //recycle
                     it.release();
                     return false;
                 }
-                return true;
-            }
 
+                if (!Intrinsics.<VType> equals(c.value, other.get(c.key))) {
+                    //recycle
+                    it.release();
+                    return false;
+                }
+            } //end while
+            return true;
         }
         return false;
     }

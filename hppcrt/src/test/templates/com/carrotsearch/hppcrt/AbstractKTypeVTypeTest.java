@@ -6,19 +6,30 @@ import org.junit.Rule;
 import org.junit.rules.MethodRule;
 
 import com.carrotsearch.hppcrt.*;
-import com.carrotsearch.hppcrt.TestUtils;
 import com.carrotsearch.hppcrt.procedures.*;
 import com.carrotsearch.randomizedtesting.annotations.*;
 
 /**
  * Unit helpers for <code>KType</code> and <code>VType</code> pair containers
  */
+
+/*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
 /*! #if ($TemplateOptions.KTypeGeneric) !*/
 @SuppressWarnings("unchecked")
 /*! #end !*/
 /* ! ${TemplateOptions.generatedAnnotation} ! */
 public abstract class AbstractKTypeVTypeTest<KType, VType> extends AbstractKTypeTest<KType>
 {
+
+    /**
+     * valueE is special: its value is == null for generics, and == 0 for primitives.
+     */
+    /*! #if ($TemplateOptions.VTypeGeneric) !*/
+    protected VType valueE = null;
+    /*! #else
+    protected VType valueE = vcast(0);
+     #end !*/
+
     protected VType value0 = vcast(0);
     protected VType value1 = vcast(1);
     protected VType value2 = vcast(2);
@@ -75,7 +86,44 @@ public abstract class AbstractKTypeVTypeTest<KType, VType> extends AbstractKType
      */
     protected VType[] newvArray(final VType... elements)
     {
-        return elements;
+        final VType[] values = Intrinsics.<VType> newArray(elements.length);
+
+        for (int i = 0; i < elements.length; i++)
+        {
+            /*! #if ($TemplateOptions.VTypeGeneric) !*/
+            if (elements[i] != null)
+            {
+                values[i] = elements[i];
+            }
+            else
+            {
+                values[i] = null;
+            }
+            /*! #else
+                   values[i] =  (VType)elements[i];
+                #end !*/
+        }
+
+        return values;
+    }
+
+    /**
+     * Return true if VType is part of the array
+     */
+    public boolean isInVArray(final VType[] values, final VType expected) {
+
+        boolean inArray = false;
+
+        for (int i = 0; i < values.length; i++)
+        {
+            if (Intrinsics.<VType> equals(values[i], expected)) {
+
+                inArray = true;
+                break;
+            }
+        }
+
+        return inArray;
     }
 
     protected void assertSameMap(

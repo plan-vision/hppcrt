@@ -9,6 +9,7 @@ import static org.junit.Assert.*;
 
 import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.hash.BitMixer;
+import com.carrotsearch.hppcrt.heaps.KTypeHeapPriorityQueue;
 import com.carrotsearch.hppcrt.lists.*;
 import com.carrotsearch.hppcrt.TestUtils;
 import com.carrotsearch.hppcrt.cursors.*;
@@ -2522,6 +2523,64 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
             Assert.assertTrue("j = " + j, clonedContainer.equals(refContainer));
             Assert.assertTrue("j = " + j, copiedContainer.equals(refContainer));
         }
+    }
+
+    @Test
+    public void testDefaultValues() {
+
+        final VType[] EVEN_DEFAULT_VALUES = newvArray(this.valueE, this.value0, this.value2, this.value4, this.value6, this.value8);
+        final VType[] ODD_DEFAULT_VALUES = newvArray(this.value1, this.value3, this.value5, this.value7, this.value9);
+
+        checkAgainstDefaultValues(EVEN_DEFAULT_VALUES);
+
+        checkAgainstDefaultValues(ODD_DEFAULT_VALUES);
+    }
+
+    protected void checkAgainstDefaultValues(final VType[] defaultValuesForTest) {
+
+        int currentDefaultValueIndex = 0;
+
+        //recreate from scratch
+        this.map = createNewMapInstance();
+
+        final int NB_INSERTED_ELEMENTS = 126;
+
+        // Insert values "not in default set":
+        //- Check: get() on  existing key, NEVER returns the default value,
+        //- Check : get() on non-existing key returns the current default value
+        //- Check : on empty map returns the default value.
+
+        // by default, o/null
+        TestUtils.assertEquals2(this.valueE, this.map.getDefaultValue());
+
+        for (int ii = 11; ii < NB_INSERTED_ELEMENTS; ii++) {
+
+            if (!isInVArray(defaultValuesForTest, vcast(ii))) {
+
+                Assert.assertFalse(this.map.containsKey(cast(ii)));
+
+                //try to get ii, it is not in the map, return default value
+                TestUtils.assertEquals2(this.map.getDefaultValue(), this.map.get(cast(ii)));
+
+                //try to remove ii, which do not exist in map, so current value is returned
+                TestUtils.assertEquals2(this.map.getDefaultValue(), this.map.remove(cast(ii)));
+
+                //insert "not-defaulted" value, return the default value because the key wasn't there before:
+                TestUtils.assertEquals2(this.map.getDefaultValue(), this.map.put(cast(ii), vcast(ii)));
+
+                //insert another value, the previous value is now returned
+                TestUtils.assertEquals2(vcast(ii), this.map.put(cast(ii), vcast(ii + 1)));
+
+                //every 5 inserted elements, change the default value
+                if (ii % 5 == 0) {
+                    this.map.setDefaultValue(defaultValuesForTest[currentDefaultValueIndex]);
+
+                    TestUtils.assertEquals2(defaultValuesForTest[currentDefaultValueIndex], this.map.getDefaultValue());
+
+                    currentDefaultValueIndex = (currentDefaultValueIndex + 1) % defaultValuesForTest.length;
+                }
+            }
+        } //end for NB_INSERTED_ELEMENTS
     }
 
     protected KTypeVTypeMap<KType, VType> createMapWithOrderedData(final int size)

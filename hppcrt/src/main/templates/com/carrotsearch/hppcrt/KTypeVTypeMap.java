@@ -7,13 +7,13 @@ import com.carrotsearch.hppcrt.cursors.KTypeVTypeCursor;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public interface KTypeVTypeMap<KType, VType>
-        extends KTypeVTypeAssociativeContainer<KType, VType>
+extends KTypeVTypeAssociativeContainer<KType, VType>
 {
     /**
      * Place a given key and value in the container.
-     * @return Returns the value previously stored under the given key in the map if an equal key is part of the map, <b>and replaces the existing
-     *  value only </b> with the argument value. If no previous key existed,
-     * the default value is returned and the (key, value) pair is inserted.
+     * @return Returns the value previously stored under the given key, if an equal key is already in the map <b>and replaces the existing
+     *  value only </b> with the argument value. If the given key was not already in the map,
+     *  the given (key, value) pair is inserted in the map and the default value is returned.
      */
     VType put(KType key, VType value);
 
@@ -71,8 +71,8 @@ public interface KTypeVTypeMap<KType, VType>
     /*! #end !*/
 
     /**
-     * @return Returns the value associated with the given key or the default value
-     * for the value type, if the key is not associated with any value.
+     * @return Returns the value associated with the given key, or the default value
+     * if the key is not associated with any value.
      *
      */
     VType get(KType key);
@@ -96,8 +96,8 @@ public interface KTypeVTypeMap<KType, VType>
     int putAll(Iterable<? extends KTypeVTypeCursor<? extends KType, ? extends VType>> iterable);
 
     /**
-     * Remove all values at the given key. The default value for the key type is returned
-     * if the value does not exist in the map.
+     * Remove the (key, value) pair associated with the given key, and returns the assocaited value.
+     * The default value is returned if the key did not exist in the map.
      */
     VType remove(KType key);
 
@@ -119,5 +119,4 @@ public interface KTypeVTypeMap<KType, VType>
      * @return
      */
     void setDefaultValue(final VType defaultValue);
-
 }

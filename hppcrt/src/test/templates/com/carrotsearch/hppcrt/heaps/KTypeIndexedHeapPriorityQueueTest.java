@@ -2780,6 +2780,65 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         } //end for each key
     }
 
+    @Test
+    public void testDefaultValues() {
+
+        final KType[] EVEN_DEFAULT_VALUES = newArray(this.keyE, this.key0, this.key2, this.key4, this.key6, this.key8);
+        final KType[] ODD_DEFAULT_VALUES = newArray(this.key1, this.key3, this.key5, this.key7, this.key9);
+
+        checkAgainstDefaultValues(EVEN_DEFAULT_VALUES);
+
+        checkAgainstDefaultValues(ODD_DEFAULT_VALUES);
+    }
+
+    protected void checkAgainstDefaultValues(final KType[] defaultValuesForTest) {
+
+        int currentDefaultValueIndex = 0;
+
+        //recreate from scratch
+        final int NB_INSERTED_ELEMENTS = 126;
+
+        this.prioq = new KTypeIndexedHeapPriorityQueue<KType>(NB_INSERTED_ELEMENTS);
+
+
+        // Insert values "not in default set":
+        //- Check: get() on  existing key, NEVER returns the default value,
+        //- Check : get() on non-existing key returns the current default value
+        //- Check : on empty map returns the default value.
+
+        // by default, o/null
+        TestUtils.assertEquals2(this.keyE, this.prioq.getDefaultValue());
+
+        for (int ii = 11; ii < NB_INSERTED_ELEMENTS; ii++) {
+
+            if (!isInArray(defaultValuesForTest, cast(ii))) {
+
+                Assert.assertFalse(this.prioq.containsKey(ii));
+
+                //try to get ii, it is not in the map, return current default value
+                TestUtils.assertEquals2(this.prioq.getDefaultValue(), this.prioq.get(ii));
+
+                //try to remove ii, which do not exist in map, so current value is returned
+                TestUtils.assertEquals2(this.prioq.getDefaultValue(), this.prioq.remove(ii));
+
+                //insert "not-defaulted" value, return the default value because the key wasn't there before:
+                TestUtils.assertEquals2(this.prioq.getDefaultValue(), this.prioq.put(ii, cast(ii)));
+
+                //insert another value, the previous value is now returned
+                TestUtils.assertEquals2(cast(ii), this.prioq.put(ii, cast(ii + 1)));
+
+                //every 5 inserted elements, change the default value
+                if (ii % 5 == 0) {
+                    this.prioq.setDefaultValue(defaultValuesForTest[currentDefaultValueIndex]);
+
+                    TestUtils.assertEquals2(defaultValuesForTest[currentDefaultValueIndex], this.prioq.getDefaultValue());
+
+                    currentDefaultValueIndex = (currentDefaultValueIndex + 1) % defaultValuesForTest.length;
+                }
+            }
+        } //end for NB_INSERTED_ELEMENTS
+    }
+
     public void insertElements(final KTypeIndexedHeapPriorityQueue<KType> pq, final int... elements) {
         int i = 0;
         while (i < elements.length) {

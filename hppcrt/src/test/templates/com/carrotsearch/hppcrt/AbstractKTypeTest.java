@@ -159,6 +159,25 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
     }
 
     /**
+     * Return true if KType is part of the array
+     */
+    public boolean isInArray(final KType[] values, final KType expected) {
+
+        boolean inArray = false;
+
+        for (int i = 0; i < values.length; i++)
+        {
+            if (Intrinsics.<KType> equals(values[i], expected)) {
+
+                inArray = true;
+                break;
+            }
+        }
+
+        return inArray;
+    }
+
+    /**
      * Test natural ordering for a KTypeIndexedContainer between [startIndex; endIndex[, starting from original
      * @param expected
      * @param actual

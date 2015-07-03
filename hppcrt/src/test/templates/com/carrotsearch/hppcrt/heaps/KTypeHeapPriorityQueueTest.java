@@ -280,13 +280,13 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         insertElements(this.prioq, 0, 1, 2, 1, 4);
 
         Assert.assertEquals(3, this.prioq.removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeHeapPriorityQueueTest.this.key1 || v == KTypeHeapPriorityQueueTest.this.key2;
             };
-        }));
+                }));
 
         assertPrioQueueEquals(this.prioq, 0, 4);
     }
@@ -298,13 +298,13 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         insertElements(this.prioq, 0, 1, 2, 1, 0);
 
         Assert.assertEquals(2, this.prioq.retainAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeHeapPriorityQueueTest.this.key1 || v == KTypeHeapPriorityQueueTest.this.key2;
             };
-        }));
+                }));
 
         assertPrioQueueEquals(this.prioq, 1, 1, 2);
     }
@@ -321,7 +321,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size
             Assert.assertEquals(5, this.prioq.removeAll(new KTypePredicate<KType>()
-            {
+                    {
                 @Override
                 public boolean apply(final KType v)
                 {
@@ -330,7 +330,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
                     }
                     return v == KTypeHeapPriorityQueueTest.this.key1;
                 };
-            }));
+                    }));
 
             Assert.fail();
         } catch (final RuntimeException e)
@@ -1938,6 +1938,59 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         }
     }
 
+    @Test
+    public void testDefaultValueEmptyQueue() {
+
+        final KType[] EVEN_DEFAULT_VALUES = newArray(this.keyE, this.key0, this.key2, this.key4, this.key6, this.key8);
+        final KType[] ODD_DEFAULT_VALUES = newArray(this.key1, this.key3, this.key5, this.key7, this.key9);
+
+        checkAgainstDefaultValues(EVEN_DEFAULT_VALUES);
+
+        checkAgainstDefaultValues(ODD_DEFAULT_VALUES);
+    }
+
+    private void checkAgainstDefaultValues(final KType[] defaultValuesForTest) {
+
+        //recreate from scratch
+        this.prioq = new KTypeHeapPriorityQueue<KType>(126);
+
+        final int NB_INSERTED_ELEMENTS = 126;
+
+        //A) Insert values, then top() and popTop() NEVER returns the default value until the queue is empty.
+        for (int ii = 10 ; ii < NB_INSERTED_ELEMENTS; ii++) {
+
+            if (!isInArray(defaultValuesForTest, cast(ii))) {
+                //insert "not-defaulted" values
+                this.prioq.add(cast(ii));
+            }
+        }
+
+        //B)
+        while (this.prioq.size() > 0) {
+
+            Assert.assertFalse(isInArray(defaultValuesForTest, this.prioq.top()));
+            Assert.assertFalse(isInArray(defaultValuesForTest, this.prioq.popTop()));
+        }
+
+        TestUtils.assertEquals2(0, this.prioq.size());
+
+        //C) by default, o/null
+        TestUtils.assertEquals2(this.keyE, this.prioq.getDefaultValue());
+
+        TestUtils.assertEquals2(this.keyE, this.prioq.top());
+        TestUtils.assertEquals2(this.keyE, this.prioq.popTop());
+
+        //D) try different default values, change them dynamically
+        for (int ii = 0; ii < defaultValuesForTest.length; ii++) {
+
+            this.prioq.setDefaultValue(defaultValuesForTest[ii]);
+
+            TestUtils.assertEquals2(defaultValuesForTest[ii], this.prioq.getDefaultValue());
+
+            TestUtils.assertEquals2(defaultValuesForTest[ii], this.prioq.top());
+            TestUtils.assertEquals2(defaultValuesForTest[ii], this.prioq.popTop());
+        }
+    }
     /**
      * Check if the prio queue content is identical to a given sequence of elements.
      */

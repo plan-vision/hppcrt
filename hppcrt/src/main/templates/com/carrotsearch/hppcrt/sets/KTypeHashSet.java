@@ -43,8 +43,8 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeHashSet<KType>
-        extends AbstractKTypeCollection<KType>
-        implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
+extends AbstractKTypeCollection<KType>
+implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Hash-indexed array holding all set entries.
@@ -57,8 +57,8 @@ public class KTypeHashSet<KType>
           KType []
           #else !*/
     Object[]
-    /*! #end !*/
-    keys;
+            /*! #end !*/
+            keys;
 
     /*! #if ($RH) !*/
     /**
@@ -653,18 +653,21 @@ public class KTypeHashSet<KType>
             @SuppressWarnings("unchecked")
             final KTypeSet<KType> other = (KTypeSet<KType>) obj;
 
-            if (other.size() == this.size()) {
-                final EntryIterator it = this.iterator();
-
-                while (it.hasNext()) {
-                    if (!other.contains(it.next().value)) {
-                        //recycle
-                        it.release();
-                        return false;
-                    }
-                }
-                return true;
+            //must be of the same size
+            if (other.size() != this.size()) {
+                return false;
             }
+
+            final EntryIterator it = this.iterator();
+
+            while (it.hasNext()) {
+                if (!other.contains(it.next().value)) {
+                    //recycle
+                    it.release();
+                    return false;
+                }
+            }
+            return true;
         }
         return false;
     }
