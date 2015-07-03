@@ -122,7 +122,6 @@ public final class HashContainers
 
     /** */
     private static void checkPowerOfTwo(final int arraySize) {
-        // These are internals, we can just assert without retrying.
 
         if (BitUtil.nextHighestPowerOfTwo(arraySize) != arraySize) {
 
