@@ -40,20 +40,7 @@ public final class KTypeSort
      */
     public static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void quicksort(final KType[] table, final int beginIndex, final int endIndex)
     {
-        if (beginIndex < 0 || beginIndex >= table.length) {
-
-            throw new IndexOutOfBoundsException("Index beginIndex " + beginIndex + " out of bounds [" + 0 + ", " + table.length + "[.");
-        }
-
-        if (beginIndex >= endIndex) {
-
-            throw new IllegalArgumentException("Index beginIndex " + beginIndex + " is >= endIndex " + endIndex);
-        }
-
-        if (endIndex > table.length) {
-
-            throw new IndexOutOfBoundsException("Index endIndex " + endIndex + " out of bounds [" + 0 + ", " + table.length + "].");
-        }
+        KTypeSort.checkRanges(beginIndex, endIndex, table.length);
 
         if (endIndex - beginIndex > 1)
         {
@@ -91,22 +78,7 @@ public final class KTypeSort
     public static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void quicksort(final KTypeIndexedContainer<KType> table, final int beginIndex,
             final int endIndex)
     {
-        final int size = table.size();
-
-        if (beginIndex < 0 || beginIndex >= size) {
-
-            throw new IndexOutOfBoundsException("Index beginIndex " + beginIndex + " out of bounds [" + 0 + ", " + size + "[.");
-        }
-
-        if (beginIndex >= endIndex) {
-
-            throw new IllegalArgumentException("Index beginIndex " + beginIndex + " is >= endIndex " + endIndex);
-        }
-
-        if (endIndex > size) {
-
-            throw new IndexOutOfBoundsException("Index endIndex " + endIndex + " out of bounds [" + 0 + ", " + size + "].");
-        }
+        KTypeSort.checkRanges(beginIndex, endIndex, table.size());
 
         if (endIndex - beginIndex > 1)
         {
@@ -147,20 +119,7 @@ public final class KTypeSort
              #end !*/
             comp)
     {
-        if (beginIndex < 0 || beginIndex >= table.length) {
-
-            throw new IndexOutOfBoundsException("Index beginIndex " + beginIndex + " out of bounds [" + 0 + ", " + table.length + "[.");
-        }
-
-        if (beginIndex >= endIndex) {
-
-            throw new IllegalArgumentException("Index beginIndex " + beginIndex + " is >= endIndex " + endIndex);
-        }
-
-        if (endIndex > table.length) {
-
-            throw new IndexOutOfBoundsException("Index endIndex " + endIndex + " out of bounds [" + 0 + ", " + table.length + "].");
-        }
+        KTypeSort.checkRanges(beginIndex, endIndex, table.length);
 
         if (endIndex - beginIndex > 1)
         {
@@ -179,8 +138,8 @@ public final class KTypeSort
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
             /*! #else
-                                                                                    KTypeComparator<? super KType>
-                                                                            #end !*/
+                                                                                                            KTypeComparator<? super KType>
+                                                                                                    #end !*/
             comp)
     {
         KTypeSort.quicksort(table, 0, table.length, comp);
@@ -202,22 +161,7 @@ public final class KTypeSort
              #end !*/
             comp)
     {
-        final int size = table.size();
-
-        if (beginIndex < 0 || beginIndex >= size) {
-
-            throw new IndexOutOfBoundsException("Index beginIndex " + beginIndex + " out of bounds [" + 0 + ", " + size + "[.");
-        }
-
-        if (beginIndex >= endIndex) {
-
-            throw new IllegalArgumentException("Index beginIndex " + beginIndex + " is >= endIndex " + endIndex);
-        }
-
-        if (endIndex > size) {
-
-            throw new IndexOutOfBoundsException("Index endIndex " + endIndex + " out of bounds [" + 0 + ", " + size + "].");
-        }
+        KTypeSort.checkRanges(beginIndex, endIndex, table.size());
 
         if (endIndex - beginIndex > 1)
         {
@@ -236,8 +180,8 @@ public final class KTypeSort
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
     /*! #else
-            KTypeComparator<? super KType>
-            #end !*/
+                                    KTypeComparator<? super KType>
+                                    #end !*/
             comp)
     {
         KTypeSort.quicksort(table, 0, table.size(), comp);
@@ -1202,6 +1146,24 @@ public final class KTypeSort
         if (diffPivots)
         {
             KTypeSort.dualPivotQuicksort(a, less, great, comp);
+        }
+    }
+
+    private static void checkRanges(final int beginIndex, final int endIndex, final int size) {
+
+        if (beginIndex >= endIndex) {
+
+            throw new IllegalArgumentException("Index beginIndex " + beginIndex + " is >= endIndex " + endIndex);
+        }
+
+        if (beginIndex < 0 || beginIndex >= size) {
+
+            throw new IndexOutOfBoundsException("Index beginIndex " + beginIndex + " out of bounds [" + 0 + ", " + size + "[.");
+        }
+
+        if (endIndex > size) {
+
+            throw new IndexOutOfBoundsException("Index endIndex " + endIndex + " out of bounds [" + 0 + ", " + size + "].");
         }
     }
 }

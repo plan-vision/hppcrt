@@ -750,6 +750,11 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
     @Override
     public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure, final int fromIndex, final int toIndex) {
 
+        if (fromIndex >= toIndex) {
+
+            throw new IllegalArgumentException("Index fromIndex " + fromIndex + " is >= toIndex " + toIndex);
+        }
+
         final int endBufferPosInclusive = indexToBufferPosition(toIndex - 1); //must be a valid index
 
         internalForEach(procedure, indexToBufferPosition(fromIndex), oneRight(endBufferPosInclusive, this.buffer.length));
@@ -784,6 +789,11 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
      */
     @Override
     public <T extends KTypePredicate<? super KType>> T forEach(final T predicate, final int fromIndex, final int toIndex) {
+
+        if (fromIndex >= toIndex) {
+
+            throw new IllegalArgumentException("Index fromIndex " + fromIndex + " is >= toIndex " + toIndex);
+        }
 
         final int endBufferPosInclusive = indexToBufferPosition(toIndex - 1); //must be a valid index
 
@@ -1104,8 +1114,8 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
     /*! #else
-                                                                                                                                                                                                                                                                                                                                            KTypeComparator<? super KType>
-                                                                                                                                                                                                                                                                                                                                            #end !*/
+                                                                                                                                                                                                                                                                                                                                                    KTypeComparator<? super KType>
+                                                                                                                                                                                                                                                                                                                                                    #end !*/
     comp) {
 
         if (endIndex - beginIndex > 1) {

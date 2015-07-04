@@ -160,6 +160,16 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
         this.list.insert(1, this.k4);
 
         TestUtils.assertListEquals(this.list.toArray(), 2, 4, 1, 3);
+
+        //insert at the end :
+        this.list.insert(this.list.size(), this.k7);
+
+        TestUtils.assertListEquals(this.list.toArray(), 2, 4, 1, 3, 7);
+
+        //insert at the last position, shift the lest element to the right :
+        this.list.insert(this.list.size() - 1, this.k5);
+
+        TestUtils.assertListEquals(this.list.toArray(), 2, 4, 1, 3, 5, 7);
     }
 
     /* */

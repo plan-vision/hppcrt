@@ -236,6 +236,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * Add all elements from a range of given array to the list.
      */
     public void addLast(final KType[] elements, final int start, final int length) {
+
         assert length + start <= elements.length : "Length is smaller than required";
 
         ensureBufferSpace(length);
@@ -283,6 +284,8 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      */
     @Override
     public void insert(final int index, final KType e1) {
+
+        assert (index >= 0 && index <= size()) : "Index " + index + " out of bounds [" + 0 + ", " + size() + "].";
 
         ensureBufferSpace(1);
 
@@ -345,10 +348,15 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     @Override
     public void removeRange(final int fromIndex, final int toIndex) {
 
+        if (fromIndex >= toIndex) {
+
+            throw new IllegalArgumentException("Index fromIndex " + fromIndex + " is >= toIndex " + toIndex);
+        }
+
         //goto pos
         int currentPos = gotoIndex(fromIndex);
 
-        if (toIndex < fromIndex || toIndex > size()) {
+        if (toIndex > size()) {
 
             throw new IndexOutOfBoundsException("Index toIndex " + toIndex + " out of bounds [" + fromIndex + ", " + size() + "].");
         }
@@ -1530,10 +1538,15 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
 
     private void internalForEach(final KTypeProcedure<? super KType> procedure, final int fromIndex, final int toIndex) {
 
+        if (fromIndex >= toIndex) {
+
+            throw new IllegalArgumentException("Index fromIndex " + fromIndex + " is >= toIndex " + toIndex);
+        }
+
         //goto pos
         int currentPos = gotoIndex(fromIndex);
 
-        if (toIndex < fromIndex || toIndex > size()) {
+        if (toIndex > size()) {
 
             throw new IndexOutOfBoundsException("Index toIndex " + toIndex + " out of bounds [" + fromIndex + ", " + size() + "].");
         }
@@ -1579,10 +1592,15 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
 
     private void internalForEach(final KTypePredicate<? super KType> predicate, final int fromIndex, final int toIndex) {
 
+        if (fromIndex >= toIndex) {
+
+            throw new IllegalArgumentException("Index fromIndex " + fromIndex + " is >= toIndex " + toIndex);
+        }
+
         //goto pos
         int currentPos = gotoIndex(fromIndex);
 
-        if (toIndex < fromIndex || toIndex > size()) {
+        if (toIndex > size()) {
 
             throw new IndexOutOfBoundsException("Index toIndex " + toIndex + " out of bounds [" + fromIndex + ", " + size() + "].");
         }
@@ -1759,8 +1777,8 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
     /*! #else
-                                                                KTypeComparator<? super KType>
-                                                            #end !*/
+                                                                        KTypeComparator<? super KType>
+                                                                    #end !*/
     comp) {
 
         if (endIndex - beginIndex > 1) {
