@@ -3,6 +3,9 @@ package com.carrotsearch.hppcrt;
 import java.util.List;
 import java.util.RandomAccess;
 
+import com.carrotsearch.hppcrt.predicates.KTypePredicate;
+import com.carrotsearch.hppcrt.procedures.KTypeProcedure;
+
 /**
  * An indexed container provides random access to elements based on an
  * <code>index</code>. Indexes are zero-based.
@@ -77,4 +80,18 @@ public interface KTypeIndexedContainer<KType> extends KTypeCollection<KType>, Ra
      * <code>fromIndex</code>, inclusive, and <code>toIndex</code>, exclusive.
      */
     void removeRange(int fromIndex, int toIndex);
+
+    /**
+     * Applies <code>procedure</code> to a slice of the container,
+     * <code>fromIndex</code>, inclusive, to <code>toIndex</code>, exclusive.
+     */
+    <T extends KTypeProcedure<? super KType>> T forEach(final T procedure, final int fromIndex, final int toIndex);
+
+    /**
+     * Applies <code>predicate</code> to a slice of the container,
+     * <code>fromIndex</code>, inclusive, to <code>toIndex</code>,
+     * exclusive, or until predicate returns <code>false</code>.
+     */
+    <T extends KTypePredicate<? super KType>> T forEach(final T predicate, final int fromIndex, final int toIndex);
+
 }

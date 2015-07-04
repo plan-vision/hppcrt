@@ -1133,7 +1133,9 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
     @Test
     public void testNullKey()
     {
-        this.map.put(null, vcast(10));
+        TestUtils.assertEquals2(this.valueE, this.map.get(null));
+        TestUtils.assertEquals2(this.valueE, this.map.put(null, vcast(10)));
+
         TestUtils.assertEquals2(vcast(10), this.map.get(null));
         Assert.assertTrue(this.map.containsKey(null));
 
@@ -1148,7 +1150,7 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
     public void testNullValue()
     {
         this.map.put(this.key1, null);
-        Assert.assertEquals(null, this.map.get(this.key1));
+        Assert.assertEquals(this.valueE, this.map.get(this.key1));
         Assert.assertTrue(this.map.containsKey(this.key1));
         this.map.remove(this.key1);
         Assert.assertFalse(this.map.containsKey(this.key1));
@@ -2522,7 +2524,7 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
     @Test
     public void testDefaultValues() {
 
-        final VType[] EVEN_DEFAULT_VALUES = newvArray(this.valueE, this.value0, this.value2, this.value4, this.value6, this.value8);
+        final VType[] EVEN_DEFAULT_VALUES = newvArray(this.value2, this.value4, this.value6, this.value8);
         final VType[] ODD_DEFAULT_VALUES = newvArray(this.value1, this.value3, this.value5, this.value7, this.value9);
 
         checkAgainstDefaultValues(EVEN_DEFAULT_VALUES);
@@ -2547,6 +2549,17 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
         // by default, o/null
         TestUtils.assertEquals2(this.valueE, this.map.getDefaultValue());
 
+        Assert.assertFalse(this.map.containsKey(this.keyE));
+
+        //try to get ii, it is not in the map, return default value
+        TestUtils.assertEquals2(this.map.getDefaultValue(), this.map.get(this.keyE));
+
+        //try to remove ii, which do not exist in map, so current value is returned
+        TestUtils.assertEquals2(this.map.getDefaultValue(), this.map.remove(this.keyE));
+
+        //insert "not-defaulted" value, return the default value because the key wasn't there before:
+        TestUtils.assertEquals2(this.map.getDefaultValue(), this.map.put(this.keyE, vcast(NB_INSERTED_ELEMENTS)));
+
         for (int ii = 11; ii < NB_INSERTED_ELEMENTS; ii++) {
 
             if (!isInVArray(defaultValuesForTest, vcast(ii))) {
@@ -2565,11 +2578,31 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
                 //insert another value, the previous value is now returned
                 TestUtils.assertEquals2(vcast(ii), this.map.put(cast(ii), vcast(ii + 1)));
 
+                //Remove ii, previous value ii + 1 is returned
+                TestUtils.assertEquals2(vcast(ii + 1), this.map.remove(cast(ii)));
+
+                //try to remove again, which do not exist in map, so default value is returned
+                TestUtils.assertEquals2(this.map.getDefaultValue(), this.map.remove(cast(ii)));
+
+                //add again
+                TestUtils.assertEquals2(this.map.getDefaultValue(), this.map.put(cast(ii), vcast(ii + 1)));
+
                 //every 5 inserted elements, change the default value
                 if (ii % 5 == 0) {
                     this.map.setDefaultValue(defaultValuesForTest[currentDefaultValueIndex]);
-
                     TestUtils.assertEquals2(defaultValuesForTest[currentDefaultValueIndex], this.map.getDefaultValue());
+
+                    //try to remove keyE, returns the previous value
+                    TestUtils.assertEquals2(vcast(NB_INSERTED_ELEMENTS), this.map.remove(this.keyE));
+
+                    //try to get ii, it is not in the map, return default value
+                    TestUtils.assertEquals2(this.map.getDefaultValue(), this.map.get(this.keyE));
+
+                    //try to remove again, which do not exist in map, so default value is returned
+                    TestUtils.assertEquals2(this.map.getDefaultValue(), this.map.remove(this.keyE));
+
+                    //insert "not-defaulted" value, return the default value because the key wasn't there before:
+                    TestUtils.assertEquals2(this.map.getDefaultValue(), this.map.put(this.keyE, vcast(NB_INSERTED_ELEMENTS)));
 
                     currentDefaultValueIndex = (currentDefaultValueIndex + 1) % defaultValuesForTest.length;
                 }

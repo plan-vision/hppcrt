@@ -79,6 +79,12 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeIndexedContainerTest
         return concreteClass.valueIteratorPool.capacity();
     }
 
+    @Override
+    void insertAtHead(final KTypeIndexedContainer<KType> testList, final KType value) {
+        final KTypeArrayList<KType> concreteClass = (KTypeArrayList<KType>) (testList);
+        concreteClass.insert(0, value);
+    }
+
     //////////////////////////////////////
     /// Implementation-specific tests
     /////////////////////////////////////
@@ -343,5 +349,4 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeIndexedContainerTest
 
         return newArray;
     }
-
 }

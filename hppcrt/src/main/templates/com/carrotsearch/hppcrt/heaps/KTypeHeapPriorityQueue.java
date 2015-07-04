@@ -633,37 +633,47 @@ implements KTypePriorityQueue<KType>, Cloneable
                 return false;
             }
 
-            final int size = this.elementsCount;
-            final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
-            final KType[] otherbuffer = Intrinsics.<KType[]> cast(other.buffer);
-
-            //both heaps must have the same comparison criteria
-            if (this.comparator == null && other.comparator == null) {
-
-                for (int i = 1; i <= size; i++) {
-                    if (!Intrinsics.<KType> isCompEqualUnchecked(buffer[i], otherbuffer[i])) {
-                        return false;
-                    }
-                }
-
-                return true;
-            } else if (this.comparator != null && this.comparator.equals(other.comparator)) {
-
-                /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                final Comparator<? super KType> comp = this.comparator;
-                /*! #else
-                KTypeComparator<? super KType> comp = this.comparator;
-                #end !*/
-
-                for (int i = 1; i <= size; i++) {
-                    if (comp.compare(buffer[i], otherbuffer[i]) != 0) {
-                        return false;
-                    }
-                }
-
-                return true;
+            //If one comparator is null, and the other not, we cannot compare them.
+            if (this.comparator == null && other.comparator != null ||
+                    other.comparator == null && this.comparator != null) {
+                return false;
             }
 
+            if (this.comparator != null &&
+                    other.comparator != null &&
+                    !this.comparator.equals(other.comparator)) {
+
+                return false;
+            }
+
+            final ValueIterator it = this.iterator();
+            final ValueIterator itOther = other.iterator();
+
+            while (it.hasNext()) {
+
+                final KType myVal = it.next().value;
+                final KType otherVal = itOther.next().value;
+
+                if (this.comparator == null) {
+
+                    if (!Intrinsics.<KType> equals(myVal, otherVal)) {
+                        //recycle
+                        it.release();
+                        itOther.release();
+                        return false;
+                    }
+                } else {
+                    if (this.comparator.compare(myVal, otherVal) != 0) {
+                        //recycle
+                        it.release();
+                        itOther.release();
+                        return false;
+                    }
+                }
+            } //end while
+            itOther.release();
+
+            return true;
         }
 
         return false;
@@ -725,8 +735,8 @@ implements KTypePriorityQueue<KType>, Cloneable
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
             /*! #else
-                                                                                    public KTypeComparator<? super KType>
-                                                                            #end !*/
+                                            public KTypeComparator<? super KType>
+                                            #end !*/
             comparator() {
 
         return this.comparator;

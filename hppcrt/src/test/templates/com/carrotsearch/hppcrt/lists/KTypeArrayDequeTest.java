@@ -64,10 +64,10 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
             int count = 0;
             //check access by get()
             for (/*! #if ($TemplateOptions.KTypeGeneric) !*/final Object
-            /*! #else
+                    /*! #else
             final KType
             #end !*/
-            val : this.deque.toArray()) {
+                    val : this.deque.toArray()) {
 
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 TestUtils.assertEquals2(val, (Object) this.deque.get(count));
@@ -88,70 +88,6 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
                 /*! #end !*/
             }
         }
-    }
-
-    /**
-     * Try lots of combinations of size, range
-     */
-    @Test
-    public void testRemoveRange()
-    {
-        final ArrayList<Integer> referenceDeque = new ArrayList<Integer>();
-
-        final int TEST_SIZE = (int) 126;
-
-        final Random prng = new Random(0xBADCAFE);
-
-        final int NB_ITERATION = 50000;
-
-        for (int ii = 0; ii < NB_ITERATION; ii++) {
-
-            referenceDeque.clear();
-
-            //create deque of this size
-            final int dequeSize = prng.nextInt(TEST_SIZE);
-
-            if (dequeSize <= 0) {
-
-                continue;
-            }
-
-            final KTypeArrayDeque<KType> testQ = createDequeWithRandomData(dequeSize, 0xBADCAFE);
-
-            //will attempt to remove this range
-            final int upperRange = prng.nextInt(dequeSize);
-
-            if (upperRange <= 0) {
-                continue;
-            }
-
-            final int lowerRange = prng.nextInt(upperRange);
-
-            //Fill the reference JCF deque
-            for (int jj = 0; jj < testQ.size(); jj++) {
-
-                if (jj < lowerRange || jj >= upperRange) {
-                    referenceDeque.add(castType(testQ.get(jj)));
-                }
-            }
-
-            //Proceed to truncation
-            testQ.removeRange(lowerRange, upperRange);
-
-            //Check: testQ is the same as referenceDeque.
-
-            Assert.assertEquals(String.format("Iteration = %d, lower range %d, upper range %d", ii, lowerRange, upperRange),
-                    referenceDeque.size(), testQ.size());
-
-            for (int jj = 0; jj < testQ.size(); jj++) {
-
-                if (referenceDeque.get(jj).intValue() != castType(testQ.get(jj))) {
-
-                    Assert.assertEquals(String.format("Iteration = %d, index %d", ii, jj),
-                            referenceDeque.get(jj).intValue(), castType(testQ.get(jj)));
-                }
-            }
-        } //end for
     }
 
     /* */

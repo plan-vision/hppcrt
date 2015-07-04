@@ -5,11 +5,12 @@ import java.util.*;
 import org.junit.*;
 
 import com.carrotsearch.hppcrt.*;
-import com.carrotsearch.hppcrt.TestUtils;
 import com.carrotsearch.hppcrt.cursors.*;
 import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
+import com.carrotsearch.hppcrt.sets.AbstractKTypeHashSetTest;
 import com.carrotsearch.hppcrt.sets.KTypeHashSet;
+import com.carrotsearch.randomizedtesting.RandomizedContext;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.*;
 
@@ -53,6 +54,8 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
 
     abstract int getValuePoolCapacity(KTypeIndexedContainer<KType> testList);
 
+    abstract void insertAtHead(KTypeIndexedContainer<KType> testList, KType value);
+
     /**
      * Per-test fresh initialized instance.
      */
@@ -93,10 +96,10 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
             int count = 0;
             //check access by get()
             for (/*! #if ($TemplateOptions.KTypeGeneric) !*/final Object
-                    /*! #else
+            /*! #else
             final KType
             #end !*/
-                    val : this.list.toArray()) {
+            val : this.list.toArray()) {
 
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 TestUtils.assertEquals2(val, (Object) this.list.get(count));
@@ -186,29 +189,252 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
         TestUtils.assertListEquals(this.list.toArray(), 1, 4, 5, 7, 8);
     }
 
-    /* */
+    /**
+     * Try lots of combinations of size, range
+     */
     @Test
     public void testRemoveRange()
     {
-        addFromArray(this.list, asArray(0, 1, 2, 3, 4, 5, 6, 7));
+        final ArrayList<Integer> referenceDeque = new ArrayList<Integer>();
 
-        this.list.removeRange(0, 2);
-        TestUtils.assertListEquals(this.list.toArray(), 2, 3, 4, 5, 6, 7);
+        final int TEST_SIZE = (int) 126;
 
-        this.list.removeRange(3, 5);
-        TestUtils.assertListEquals(this.list.toArray(), 2, 3, 4, 7);
+        final Random prng = new Random(0xBADCAFE);
 
-        this.list.removeRange(1, 2);
-        TestUtils.assertListEquals(this.list.toArray(), 2, 4, 7);
+        final int NB_ITERATION = 50000;
 
-        this.list.removeRange(0, 1);
-        TestUtils.assertListEquals(this.list.toArray(), 4, 7);
+        for (int ii = 0; ii < NB_ITERATION; ii++) {
 
-        this.list.removeRange(1, 2);
-        TestUtils.assertListEquals(this.list.toArray(), 4);
+            referenceDeque.clear();
 
-        this.list.removeRange(0, 1);
-        Assert.assertEquals(0, this.list.size());
+            //create deque of this size
+            final int dequeSize = prng.nextInt(TEST_SIZE);
+
+            if (dequeSize <= 0) {
+
+                continue;
+            }
+
+            final KTypeIndexedContainer<KType> testQ = createIndexedContainerWithRandomData(dequeSize, 0xBADCAFE);
+
+            //will attempt to remove this range
+            final int upperRange = prng.nextInt(dequeSize);
+
+            if (upperRange <= 0) {
+                continue;
+            }
+
+            final int lowerRange = prng.nextInt(upperRange);
+
+            //Fill the reference JCF deque
+            for (int jj = 0; jj < testQ.size(); jj++) {
+
+                if (jj < lowerRange || jj >= upperRange) {
+                    referenceDeque.add(castType(testQ.get(jj)));
+                }
+            }
+
+            //Proceed to truncation
+            testQ.removeRange(lowerRange, upperRange);
+
+            //Check: testQ is the same as referenceDeque.
+
+            Assert.assertEquals(String.format("Iteration = %d, lower range %d, upper range %d", ii, lowerRange, upperRange),
+                    referenceDeque.size(), testQ.size());
+
+            for (int jj = 0; jj < testQ.size(); jj++) {
+
+                if (referenceDeque.get(jj).intValue() != castType(testQ.get(jj))) {
+
+                    Assert.assertEquals(String.format("Iteration = %d, index %d", ii, jj),
+                            referenceDeque.get(jj).intValue(), castType(testQ.get(jj)));
+                }
+            }
+        } //end for
+    }
+
+    /**
+     * forEach(procedure, slice) Try lots of combinations of size, range
+     */
+    @Test
+    public void testForEachProcedureRange()
+    {
+        final ArrayList<Integer> referenceList = new ArrayList<Integer>();
+
+        final ArrayList<Integer> procedureResult = new ArrayList<Integer>();
+
+        final int TEST_SIZE = (int) 126;
+
+        final Random prng = new Random(0xBADCAFE);
+
+        final int NB_ITERATION = 50000;
+
+        for (int ii = 0; ii < NB_ITERATION; ii++) {
+
+            referenceList.clear();
+            procedureResult.clear();
+
+            long expectedSum = 0;
+
+            //create deque of this size
+            final int dequeSize = prng.nextInt(TEST_SIZE);
+
+            if (dequeSize <= 0) {
+
+                continue;
+            }
+
+            final KTypeIndexedContainer<KType> testQ = createIndexedContainerWithRandomData(dequeSize, 0xBADCAFE);
+
+            //will attempt to remove this range
+            final int upperRange = prng.nextInt(dequeSize);
+
+            if (upperRange <= 0) {
+                continue;
+            }
+
+            final int lowerRange = prng.nextInt(upperRange);
+
+            //Fill the reference JCF deque
+            for (int jj = 0; jj < testQ.size(); jj++) {
+
+                if (jj >= lowerRange && jj < upperRange) {
+                    referenceList.add(castType(testQ.get(jj)));
+                    expectedSum += castType(testQ.get(jj));
+                }
+            }
+
+            //Execute the procedure: this one copies the range into procedureResult,
+            //and returns the sum of the values.
+            final long computedSum = testQ.forEach(new KTypeProcedure<KType>() {
+
+                long count = 0;
+
+                @Override
+                public void apply(final KType value) {
+
+                    procedureResult.add(castType(value));
+
+                    this.count += castType(value);
+                }
+
+            }, lowerRange, upperRange).count;
+
+            //Check : the sums are the same
+            Assert.assertEquals(expectedSum, computedSum);
+
+            //Check: procedureResult is the same as referenceList.
+            Assert.assertEquals(String.format("Iteration = %d, lower range %d, upper range %d", ii, lowerRange, upperRange),
+                    referenceList.size(), procedureResult.size());
+
+            for (int jj = 0; jj < procedureResult.size(); jj++) {
+
+                if (referenceList.get(jj).intValue() != procedureResult.get(jj).intValue()) {
+
+                    Assert.assertEquals(String.format("Iteration = %d, index %d", ii, jj),
+                            referenceList.get(jj).intValue(), procedureResult.get(jj).intValue());
+                }
+            }
+        } //end for
+    }
+
+    /**
+     * forEach(predicate, slice) Try lots of combinations of size, range
+     */
+    @Test
+    public void testForEachPredicateRange()
+    {
+        final ArrayList<Integer> referenceList = new ArrayList<Integer>();
+
+        final ArrayList<Integer> predicateResult = new ArrayList<Integer>();
+
+        final int TEST_SIZE = (int) 126;
+
+        final Random prng = RandomizedTest.getRandom();
+
+        final int NB_ITERATION = 50000;
+
+        for (int ii = 0; ii < NB_ITERATION; ii++) {
+
+            referenceList.clear();
+            predicateResult.clear();
+
+            long expectedSum = 0;
+
+            //create container
+            final int containerSize = prng.nextInt(TEST_SIZE);
+
+            if (containerSize <= 0) {
+
+                continue;
+            }
+
+            final KTypeIndexedContainer<KType> testQ = createIndexedContainerWithRandomData(containerSize, 0xBADCAFE);
+
+            //will attempt to remove this range
+            final int upperRange = prng.nextInt(containerSize);
+
+            if (upperRange <= 0) {
+                continue;
+            }
+
+            final int lowerRange = prng.nextInt(upperRange);
+
+            //stop at a random position between [lowerRange, upperRange[
+
+            final int stopRange = RandomizedTest.randomIntBetween(lowerRange, upperRange - 1);
+
+            //Fill the reference JCF deque
+            for (int jj = 0; jj < testQ.size(); jj++) {
+
+                if (jj >= lowerRange && jj <= stopRange) {
+                    referenceList.add(castType(testQ.get(jj)));
+                    expectedSum += castType(testQ.get(jj));
+                }
+            }
+
+            //Execute the predicate: this one copies the [lowerRange, stopRange] elements into procedureResult,
+            //and returns the sum of the values.
+            final long computedSum = testQ.forEach(new KTypePredicate<KType>() {
+
+                long count = 0;
+
+                long nbIterations = 0;
+
+                @Override
+                public boolean apply(final KType value) {
+
+                    this.nbIterations++;
+
+                    predicateResult.add(castType(value));
+
+                    this.count += castType(value);
+
+                    if (this.nbIterations > (stopRange - lowerRange)) {
+                        return false;
+                    }
+
+                    return true;
+                }
+
+            }, lowerRange, upperRange).count;
+
+            //Check : the sums are the same
+            Assert.assertEquals("Iteration = " + ii, expectedSum, computedSum);
+
+            //Check: procedureResult is the same as referenceList.
+            Assert.assertEquals(String.format("Iteration = %d, lower range %d, upper range %d", ii, lowerRange, upperRange),
+                    referenceList.size(), predicateResult.size());
+
+            for (int jj = 0; jj < predicateResult.size(); jj++) {
+
+                if (referenceList.get(jj).intValue() != predicateResult.get(jj).intValue()) {
+
+                    Assert.assertEquals(String.format("Iteration = %d, index %d", ii, jj),
+                            referenceList.get(jj).intValue(), predicateResult.get(jj).intValue());
+                }
+            }
+        } //end for
     }
 
     /* */
@@ -327,13 +553,13 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
         addFromArray(this.list, newArray(this.k0, this.k1, this.k2, this.k1, this.k4));
 
         Assert.assertEquals(3, this.list.removeAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return v == AbstractKTypeIndexedContainerTest.this.key1 || v == AbstractKTypeIndexedContainerTest.this.key2;
             };
-                }));
+        }));
 
         TestUtils.assertListEquals(this.list.toArray(), 0, 4);
     }
@@ -345,25 +571,25 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
         addFromArray(this.list, newArray(this.k0, this.k1, this.k2, this.k1, this.k4));
 
         Assert.assertEquals(5, this.list.removeAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return true;
             };
-                }));
+        }));
 
         Assert.assertEquals(0, this.list.size());
 
         //try again
         Assert.assertEquals(0, this.list.removeAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return true;
             };
-                }));
+        }));
 
         Assert.assertEquals(0, this.list.size());
     }
@@ -375,13 +601,13 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
         addFromArray(this.list, newArray(this.k0, this.k1, this.k2, this.k1, this.k0));
 
         Assert.assertEquals(2, this.list.retainAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return v == AbstractKTypeIndexedContainerTest.this.key1 || v == AbstractKTypeIndexedContainerTest.this.key2;
             };
-                }));
+        }));
 
         TestUtils.assertListEquals(this.list.toArray(), 1, 2, 1);
     }
@@ -398,7 +624,7 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size
             Assert.assertEquals(5, this.list.removeAll(new KTypePredicate<KType>()
-                    {
+            {
                 @Override
                 public boolean apply(final KType v)
                 {
@@ -407,7 +633,7 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
                     }
                     return v == AbstractKTypeIndexedContainerTest.this.key1;
                 };
-                    }));
+            }));
             Assert.fail();
         } catch (final RuntimeException e)
         {
@@ -418,7 +644,7 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
         }
 
         // And check if the list is in consistent state.
-        TestUtils.assertListEquals(this.list.toArray(), 0, this.key2, this.key1, 4);
+        TestUtils.assertListEquals(this.list.toArray(), this.k0, this.k2, this.k1, this.k4);
         Assert.assertEquals(4, this.list.size());
     }
 
@@ -1214,5 +1440,34 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
         }
 
         return newArray;
+    }
+
+    protected KTypeIndexedContainer<KType> createIndexedContainerWithRandomData(final int size, final long randomSeed)
+    {
+        final Random prng = new Random(randomSeed);
+
+        final KTypeIndexedContainer<KType> newDeque = createNewInstance();
+
+        while (newDeque.size() < size)
+        {
+            final KType newValueToInsert = cast(prng.nextInt(size));
+            final boolean insertInTail = prng.nextInt() % 7 == 0;
+            final boolean deleteHead = prng.nextInt() % 17 == 0;
+
+            if (deleteHead && !newDeque.isEmpty())
+            {
+                newDeque.remove(0);
+            }
+            else if (insertInTail)
+            {
+                newDeque.add(newValueToInsert);
+            }
+            else
+            {
+                insertAtHead(newDeque, newValueToInsert);
+            }
+        }
+
+        return newDeque;
     }
 }

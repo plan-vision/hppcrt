@@ -517,6 +517,39 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
     /* */
     @Test
+    public void testRemoveAllWithPredicate()
+    {
+        this.prioq.put(0, this.key1);
+        this.prioq.put(1, this.key1);
+        this.prioq.put(2, this.key2);
+        this.prioq.put(3, this.key3); // remove key = 3
+        this.prioq.put(4, this.k0);
+        this.prioq.put(5, this.key3);
+        this.prioq.put(6, this.key4); //remove value = 4
+        this.prioq.put(7, this.key5);
+        this.prioq.put(8, this.key4); //remove value = 4
+        this.prioq.put(9, this.key4); //remove value = 4
+        this.prioq.put(10, this.key9);
+        this.prioq.put(11, this.key1);
+
+        Assert.assertEquals(12, this.prioq.size());
+
+        final int nbRemoved = this.prioq.removeAll(new IntKTypePredicate<KType>()
+        {
+            @Override
+            public boolean apply(final int key, final KType value)
+            {
+                return value == KTypeIndexedHeapPriorityQueueTest.this.key4 || key == 3;
+            }
+        });
+
+        Assert.assertEquals(4, nbRemoved);
+        Assert.assertEquals(8, this.prioq.size());
+        assertPrioQueueEquals(this.prioq, 0, 1, 1, 1, 2, 2, 4, 0, 5, 3, 7, 5, 10, 9, 11, 1);
+    }
+
+    /* */
+    @Test
     public void testRemoveAllWithPredicateValues() {
         insertElements(this.prioq, 0, 0, 1, 1, 2, 2, 11, 1, 44, 4);
 

@@ -73,6 +73,13 @@ public class KTypeArrayDequeAsIndexedContainerTest<KType> extends AbstractKTypeI
         return concreteClass.valueIteratorPool.capacity();
     }
 
+    @Override
+    void insertAtHead(final KTypeIndexedContainer<KType> testList, final KType value) {
+        final KTypeArrayDeque<KType> concreteClass = (KTypeArrayDeque<KType>) (testList);
+        concreteClass.addFirst(value);
+
+    }
+
     //////////////////////////////////////
     /// Implementation-specific customization
     /////////////////////////////////////
@@ -89,10 +96,10 @@ public class KTypeArrayDequeAsIndexedContainerTest<KType> extends AbstractKTypeI
             int count = 0;
             //check access by get()
             for (/*! #if ($TemplateOptions.KTypeGeneric) !*/final Object
-                    /*! #else
+            /*! #else
             final KType
             #end !*/
-                    val : arrayDeque.toArray()) {
+            val : arrayDeque.toArray()) {
 
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 TestUtils.assertEquals2(val, (Object) arrayDeque.get(count));
@@ -131,4 +138,5 @@ public class KTypeArrayDequeAsIndexedContainerTest<KType> extends AbstractKTypeI
     {
         return (index + 1 == modulus) ? 0 : index + 1;
     }
+
 }

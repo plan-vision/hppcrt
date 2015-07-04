@@ -1511,18 +1511,8 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      */
     @Override
     public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure) {
-        final long[] pointers = this.beforeAfterPointers;
 
-        final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
-
-        int currentPos = getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
-
-        while (currentPos != KTypeLinkedList.TAIL_POSITION) {
-            procedure.apply(buffer[currentPos]);
-
-            currentPos = getLinkAfter(pointers[currentPos]);
-
-        } //end while
+        forEach(procedure, 0, this.size());
 
         return procedure;
     }
@@ -1531,23 +1521,89 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * {@inheritDoc}
      */
     @Override
-    public <T extends KTypePredicate<? super KType>> T forEach(final T predicate) {
+    public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure, final int fromIndex, final int toIndex) {
+
+        internalForEach(procedure, fromIndex, toIndex);
+
+        return procedure;
+    }
+
+    private void internalForEach(final KTypeProcedure<? super KType> procedure, final int fromIndex, final int toIndex) {
+
+        //goto pos
+        int currentPos = gotoIndex(fromIndex);
+
+        if (toIndex < fromIndex || toIndex > size()) {
+
+            throw new IndexOutOfBoundsException("Index toIndex " + toIndex + " out of bounds [" + fromIndex + ", " + size() + "].");
+        }
+
         final long[] pointers = this.beforeAfterPointers;
 
         final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
 
-        int currentPos = getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
+        //start reading size elements...
+        final int size = toIndex - fromIndex;
+        int count = 0;
 
-        while (currentPos != KTypeLinkedList.TAIL_POSITION) {
+        while (count < size) {
+
+            procedure.apply(buffer[currentPos]);
+
+            currentPos = getLinkAfter(pointers[currentPos]);
+            count++;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T extends KTypePredicate<? super KType>> T forEach(final T predicate) {
+
+        forEach(predicate, 0, this.size());
+
+        return predicate;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T extends KTypePredicate<? super KType>> T forEach(final T predicate, final int fromIndex, final int toIndex) {
+
+        internalForEach(predicate, fromIndex, toIndex);
+
+        return predicate;
+    }
+
+    private void internalForEach(final KTypePredicate<? super KType> predicate, final int fromIndex, final int toIndex) {
+
+        //goto pos
+        int currentPos = gotoIndex(fromIndex);
+
+        if (toIndex < fromIndex || toIndex > size()) {
+
+            throw new IndexOutOfBoundsException("Index toIndex " + toIndex + " out of bounds [" + fromIndex + ", " + size() + "].");
+        }
+
+        final long[] pointers = this.beforeAfterPointers;
+
+        final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
+
+        //start reading size elements...
+        final int size = toIndex - fromIndex;
+        int count = 0;
+
+        while (count < size) {
+
             if (!predicate.apply(buffer[currentPos])) {
                 break;
             }
 
             currentPos = getLinkAfter(pointers[currentPos]);
-
-        } //end while
-
-        return predicate;
+            count++;
+        }
     }
 
     /**
@@ -1703,8 +1759,8 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
     /*! #else
-                                                KTypeComparator<? super KType>
-                                            #end !*/
+                                                                KTypeComparator<? super KType>
+                                                            #end !*/
     comp) {
 
         if (endIndex - beginIndex > 1) {

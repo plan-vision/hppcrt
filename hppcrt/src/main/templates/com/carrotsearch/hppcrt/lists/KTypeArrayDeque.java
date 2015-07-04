@@ -740,18 +740,31 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
      */
     @Override
     public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure) {
-        forEach(procedure, this.head, this.tail);
+        internalForEach(procedure, this.head, this.tail);
+        return procedure;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure, final int fromIndex, final int toIndex) {
+
+        final int endBufferPosInclusive = indexToBufferPosition(toIndex - 1); //must be a valid index
+
+        internalForEach(procedure, indexToBufferPosition(fromIndex), oneRight(endBufferPosInclusive, this.buffer.length));
+
         return procedure;
     }
 
     /**
      * Applies <code>procedure</code> to a slice of the deque,
-     * <code>fromIndex</code>, inclusive, to <code>toIndex</code>,
+     * <code>fromIndexBuffer</code>, inclusive, to <code>toIndexBuffer</code>,
      * exclusive, indices are in {@link #buffer} array.
      */
-    private void forEach(final KTypeProcedure<? super KType> procedure, final int fromIndex, final int toIndex) {
+    private void internalForEach(final KTypeProcedure<? super KType> procedure, final int fromIndexBuffer, final int toIndexBuffer) {
         final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
-        for (int i = fromIndex; i != toIndex; i = oneRight(i, buffer.length)) {
+        for (int i = fromIndexBuffer; i != toIndexBuffer; i = oneRight(i, buffer.length)) {
             procedure.apply(buffer[i]);
         }
     }
@@ -761,17 +774,37 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
      */
     @Override
     public <T extends KTypePredicate<? super KType>> T forEach(final T predicate) {
-        final int fromIndex = this.head;
-        final int toIndex = this.tail;
+        internalForEach(predicate, this.head, this.tail);
+
+        return predicate;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T extends KTypePredicate<? super KType>> T forEach(final T predicate, final int fromIndex, final int toIndex) {
+
+        final int endBufferPosInclusive = indexToBufferPosition(toIndex - 1); //must be a valid index
+
+        internalForEach(predicate, indexToBufferPosition(fromIndex), oneRight(endBufferPosInclusive, this.buffer.length));
+
+        return predicate;
+    }
+
+    /**
+     * Applies <code>predicate</code> to a slice of the deque,
+     * <code>fromIndexBuffer</code>, inclusive, to <code>toIndexBuffer</code>,
+     * exclusive, indices are in {@link #buffer} array.
+     */
+    private void internalForEach(final KTypePredicate<? super KType> predicate, final int fromIndexBuffer, final int toIndexBuffer) {
 
         final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
-        for (int i = fromIndex; i != toIndex; i = oneRight(i, buffer.length)) {
+        for (int i = fromIndexBuffer; i != toIndexBuffer; i = oneRight(i, buffer.length)) {
             if (!predicate.apply(buffer[i])) {
                 break;
             }
         }
-
-        return predicate;
     }
 
     /**
@@ -1071,8 +1104,8 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
     /*! #else
-                                                                                                                                                                                                                                                                                                            KTypeComparator<? super KType>
-                                                                                                                                                                                                                                                                                                            #end !*/
+                                                                                                                                                                                                                                                                                                                                            KTypeComparator<? super KType>
+                                                                                                                                                                                                                                                                                                                                            #end !*/
     comp) {
 
         if (endIndex - beginIndex > 1) {
@@ -1214,7 +1247,7 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
             return;
         }
 
-        long nbToBeRemoved = toBufferIndex - fromBufferIndex;
+        long nbToBeRemoved = (long) toBufferIndex - fromBufferIndex;
 
         //fold the value
         if (nbToBeRemoved < 0) {

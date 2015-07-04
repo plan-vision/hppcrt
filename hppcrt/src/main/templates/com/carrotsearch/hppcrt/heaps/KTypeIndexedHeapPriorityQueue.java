@@ -47,8 +47,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
           KType []
           #else !*/
     Object[]
-            /*! #end !*/
-            buffer;
+    /*! #end !*/
+    buffer;
 
     /**
      * Internal array for storing index to buffer position matching
@@ -138,7 +138,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
      * @see BoundedProportionalArraySizingStrategy
      */
     public KTypeIndexedHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp
-            /*! #else
+    /*! #else
     KTypeComparator<? super KType> comp
     #end !*/)
     {
@@ -357,6 +357,9 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
         return initialSize - this.elementsCount;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int removeAll(final IntKTypePredicate<? super KType> predicate) {
 
@@ -779,76 +782,48 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
                 return false;
             }
 
-            //Iterate over the smallest pq buffer of the two.
-            int[] pqBuffer, otherPqBuffer;
-            KType[] buffer, otherBuffer;
-
-            if (this.pq.length < other.pq.length) {
-                pqBuffer = this.pq;
-                otherPqBuffer = other.pq;
-                buffer = Intrinsics.<KType[]> cast(this.buffer);
-                otherBuffer = Intrinsics.<KType[]> cast(other.buffer);
-            } else {
-                pqBuffer = other.pq;
-                otherPqBuffer = this.pq;
-                buffer = Intrinsics.<KType[]> cast(other.buffer);
-                otherBuffer = Intrinsics.<KType[]> cast(this.buffer);
+            //If one comparator is null, and the other not, we cannot compare them.
+            if (this.comparator == null && other.comparator != null ||
+                    other.comparator == null && this.comparator != null) {
+                return false;
             }
 
-            final int pqBufferSize = pqBuffer.length;
-            final KType currentValue, otherValue;
-            int currentIndex, otherIndex;
+            if (this.comparator != null &&
+                    other.comparator != null &&
+                    !this.comparator.equals(other.comparator)) {
 
-            //Both have null comparators
-            if (this.comparator == null && other.comparator == null) {
-                for (int i = 0; i < pqBufferSize; i++) {
-                    currentIndex = pqBuffer[i];
+                return false;
+            }
 
-                    if (currentIndex > 0) {
-                        //check that currentIndex exists in otherBuffer at the same i
-                        otherIndex = otherPqBuffer[i];
+            //these are both maps, so iterate like maps !
+            final EntryIterator it = this.iterator();
 
-                        if (otherIndex <= 0) {
-                            return false;
-                        }
+            while (it.hasNext()) {
+                final IntKTypeCursor<KType> c = it.next();
 
-                        //compare both elements with Comparable, or natural ordering
-                        if (!Intrinsics.<KType> isCompEqualUnchecked(buffer[currentIndex], otherBuffer[otherIndex])) {
-                            return false;
-                        }
-                    }
+                if (!other.containsKey(c.key)) {
+                    //recycle
+                    it.release();
+                    return false;
                 }
 
-                return true;
+                if (this.comparator == null) {
 
-            } else if (this.comparator != null && this.comparator.equals(other.comparator)) {
-
-                /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                final Comparator<? super KType> comp = this.comparator;
-                /*! #else
-                KTypeComparator<? super KType> comp = this.comparator;
-                #end !*/
-
-                for (int i = 0; i < pqBufferSize; i++) {
-                    currentIndex = pqBuffer[i];
-
-                    if (currentIndex > 0) {
-                        //check that currentIndex exists in otherBuffer
-                        otherIndex = otherPqBuffer[i];
-
-                        if (otherIndex <= 0) {
-                            return false;
-                        }
-
-                        //compare both elements with Comparator
-                        if (comp.compare(buffer[i], otherBuffer[i]) != 0) {
-                            return false;
-                        }
+                    if (!Intrinsics.<KType> equals(c.value, other.get(c.key))) {
+                        //recycle
+                        it.release();
+                        return false;
                     }
-                } //end for
+                } else {
 
-                return true;
-            } //end else comparator
+                    if (this.comparator.compare(c.value, other.get(c.key)) != 0) {
+                        //recycle
+                        it.release();
+                        return false;
+                    }
+                }
+            } //end while
+            return true;
         }
 
         return false;
@@ -1372,10 +1347,10 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
      */
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
-    /*! #else
-                                                                                                    public KTypeComparator<? super KType>
-                                                                                                    #end !*/
-    comparator() {
+            /*! #else
+                                                                                                                            public KTypeComparator<? super KType>
+                                                                                                                            #end !*/
+            comparator() {
 
         return this.comparator;
     }
@@ -1531,22 +1506,22 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
             //swap k and its parent
             parent = k >> 1;
 
-        //swap k and parent
-        tmp = buffer[k];
-        buffer[k] = buffer[parent];
-        buffer[parent] = tmp;
+            //swap k and parent
+            tmp = buffer[k];
+            buffer[k] = buffer[parent];
+            buffer[parent] = tmp;
 
-        //swap references
-        indexK = qp[k];
-        indexParent = qp[parent];
+            //swap references
+            indexK = qp[k];
+            indexParent = qp[parent];
 
-        pq[indexK] = parent;
-        pq[indexParent] = k;
+            pq[indexK] = parent;
+            pq[indexParent] = k;
 
-        qp[k] = indexParent;
-        qp[parent] = indexK;
+            qp[k] = indexParent;
+            qp[parent] = indexK;
 
-        k = parent;
+            k = parent;
         }
     }
 
@@ -1574,22 +1549,22 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
             //swap k and its parent
             parent = k >> 1;
 
-        //swap k and parent
-        tmp = buffer[k];
-        buffer[k] = buffer[parent];
-        buffer[parent] = tmp;
+            //swap k and parent
+            tmp = buffer[k];
+            buffer[k] = buffer[parent];
+            buffer[parent] = tmp;
 
-        //swap references
-        indexK = qp[k];
-        indexParent = qp[parent];
+            //swap references
+            indexK = qp[k];
+            indexParent = qp[parent];
 
-        pq[indexK] = parent;
-        pq[indexParent] = k;
+            pq[indexK] = parent;
+            pq[indexParent] = k;
 
-        qp[k] = indexParent;
-        qp[parent] = indexK;
+            qp[k] = indexParent;
+            qp[parent] = indexK;
 
-        k = parent;
+            k = parent;
         }
     }
 

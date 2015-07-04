@@ -6,9 +6,10 @@ import java.util.Random;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.rules.MethodRule;
+import org.junit.runner.RunWith;
 
 import com.carrotsearch.hppcrt.strategies.*;
-import com.carrotsearch.randomizedtesting.RandomizedTest;
+import com.carrotsearch.randomizedtesting.RandomizedRunner;
 
 /*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
 /**
@@ -18,7 +19,8 @@ import com.carrotsearch.randomizedtesting.RandomizedTest;
 /*! #if ($TemplateOptions.KTypeGeneric) !*/
 @SuppressWarnings("unchecked")
 /*! #end !*/
-public abstract class AbstractKTypeTest<KType> extends RandomizedTest
+@RunWith(RandomizedRunner.class)
+public abstract class AbstractKTypeTest<KType>
 {
     /**
      * Require assertions for all tests.

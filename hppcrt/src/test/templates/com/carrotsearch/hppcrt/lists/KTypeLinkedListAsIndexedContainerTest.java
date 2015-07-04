@@ -12,7 +12,6 @@ import com.carrotsearch.hppcrt.cursors.*;
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeLinkedListAsIndexedContainerTest<KType> extends AbstractKTypeIndexedContainerTest<KType>
 {
-
     @Override
     protected KTypeIndexedContainer<KType> createNewInstance(final int initialCapacity) {
 
@@ -74,6 +73,12 @@ public class KTypeLinkedListAsIndexedContainerTest<KType> extends AbstractKTypeI
         return concreteClass.valueIteratorPool.capacity();
     }
 
+    @Override
+    void insertAtHead(final KTypeIndexedContainer<KType> testList, final KType value) {
+        final KTypeLinkedList<KType> concreteClass = (KTypeLinkedList<KType>) (testList);
+        concreteClass.addFirst(value);
+    }
+
     //////////////////////////////////////
     /// Implementation-specific tests for LinkedLists
     /////////////////////////////////////
@@ -88,10 +93,10 @@ public class KTypeLinkedListAsIndexedContainerTest<KType> extends AbstractKTypeI
             int count = 0;
             //check access by get()
             for (/*! #if ($TemplateOptions.KTypeGeneric) !*/final Object
-                    /*! #else
+            /*! #else
             final KType
             #end !*/
-                    val : this.list.toArray()) {
+            val : this.list.toArray()) {
 
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 TestUtils.assertEquals2(val, (Object) this.list.get(count));
@@ -148,4 +153,5 @@ public class KTypeLinkedListAsIndexedContainerTest<KType> extends AbstractKTypeI
         }
         Assert.assertEquals(0, count);
     }
+
 }
