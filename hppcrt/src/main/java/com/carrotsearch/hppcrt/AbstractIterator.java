@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 /**
  * Simplifies the implementation of iterators a bit. Modeled loosely
  * after Google Guava's API.
+ * @param <E>
  */
 public abstract class AbstractIterator<E> implements Iterator<E>
 {

@@ -50,6 +50,7 @@ public final class Intrinsics
      * @param <T>
      * @return
      */
+    @SuppressWarnings("cast")
     public static <T> T empty()
     {
         /*! #if($TemplateOptions.VType)

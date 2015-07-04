@@ -37,7 +37,7 @@ public interface KTypeSet<KType> extends KTypeCollection<KType>
      * Remove all elements of the set matching key. Returns true
      * if key was present in the set and has been successfully removed.
      * This is indeed an alias for {@code KTypeCollection.removeAll(key) > 0}
-     * @see KTypeCollection#removeAll(key)
+     * @see KTypeCollection#removeAll
      */
     boolean remove(KType key);
 }

@@ -98,6 +98,7 @@ extends KTypeVTypeAssociativeContainer<KType, VType>
     /**
      * Remove the (key, value) pair associated with the given key, and returns the assocaited value.
      * The default value is returned if the key did not exist in the map.
+     * @param key
      */
     VType remove(KType key);
 
@@ -115,8 +116,6 @@ extends KTypeVTypeAssociativeContainer<KType, VType>
     /**
      * Set the "default value" value to be used in containers methods returning
      * "default value"
-     * 
-     * @return
      */
     void setDefaultValue(final VType defaultValue);
 }

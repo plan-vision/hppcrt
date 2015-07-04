@@ -52,7 +52,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeCustomHashMap<KType, VType>
-implements KTypeVTypeMap<KType, VType>, Cloneable
+        implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     protected VType defaultValue = Intrinsics.<VType> empty();
 
@@ -67,8 +67,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
           KType []
           #else !*/
     Object[]
-            /*! #end !*/
-            keys;
+    /*! #end !*/
+    keys;
 
     /**
      * Hash-indexed array holding all values associated to the keys.
@@ -78,8 +78,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
           VType []
           #else !*/
     Object[]
-            /*! #end !*/
-            values;
+    /*! #end !*/
+    values;
 
     /*! #if ($RH) !*/
     /**
@@ -344,6 +344,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      * @return Returns the current value associated with <code>key</code> (after
      *         changes).
      */
+    @SuppressWarnings({ "cast" })
     @Override
     public VType putOrAdd(final KType key, VType putValue, final VType incrementValue) {
 
@@ -950,6 +951,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("unchecked")
     @Override
     public boolean equals(final Object obj) {
 
@@ -1752,7 +1754,6 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     /**
      * Set the "default value" value to be used
      * in containers methods returning "default value"
-     * @return
      */
     @Override
     public void setDefaultValue(final VType defaultValue) {

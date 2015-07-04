@@ -459,7 +459,7 @@ public class KTypeArrayList<KType>
      * Trim the internal buffer to the current size.
      */
     /* #if ($TemplateOptions.KTypeGeneric) */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "cast" })
     /* #end */
     public void trimToSize() {
         if (size() != this.buffer.length) {
@@ -482,7 +482,7 @@ public class KTypeArrayList<KType>
      * Sets the number of stored elements to zero and releases the internal storage array.
      */
     /* #if ($TemplateOptions.KTypeGeneric) */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "cast" })
     /* #end */
     public void release() {
         this.buffer = (KType[]) KTypeArrays.EMPTY;
@@ -620,7 +620,7 @@ public class KTypeArrayList<KType>
      * Returns an iterator over the values of this list.
      * The iterator is implemented as a cursor and it returns <b>the same cursor instance</b>
      * on every call to {@link Iterator#next()} (to avoid boxing of primitive types). To
-     * read the current value, or index in the list's {@link #buffer} (which also matches index as in {@link #get(index)}), use the cursor's public
+     * read the current value, or index in the list's {@link #buffer} (which also matches index as in {@link #get(int)}), use the cursor's public
      * fields. An example is shown below.
      * 
      * <pre>
@@ -823,8 +823,8 @@ public class KTypeArrayList<KType>
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
             /*! #else
-                    KTypeComparator<? super KType>
-                    #end !*/
+                            KTypeComparator<? super KType>
+                            #end !*/
             comp) {
 
         if (endIndex - beginIndex > 1) {

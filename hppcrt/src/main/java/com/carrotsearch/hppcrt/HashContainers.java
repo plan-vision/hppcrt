@@ -31,6 +31,7 @@ public final class HashContainers
     /**
      * Compute and return the maximum number of elements (inclusive) that can be
      * stored in a hash container for a given load factor.
+     * @param loadFactor
      */
     public static int maxElements(final double loadFactor) {
 
@@ -133,6 +134,7 @@ public final class HashContainers
      * <p>
      * Compute a unique identifier associated with Object instance, valid in the
      * same process.
+     * @param instance
      */
     public static int computeUniqueIdentifier(final Object instance) {
         final long longId = System.identityHashCode(instance) ^ Containers.randomSeed64();

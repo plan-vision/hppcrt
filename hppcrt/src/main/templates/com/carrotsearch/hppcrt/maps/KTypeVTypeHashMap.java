@@ -321,6 +321,7 @@ public class KTypeVTypeHashMap<KType, VType>
      * @return Returns the current value associated with <code>key</code> (after
      *         changes).
      */
+    @SuppressWarnings("cast")
     @Override
     public VType putOrAdd(final KType key, VType putValue, final VType incrementValue) {
 
@@ -1704,8 +1705,6 @@ public class KTypeVTypeHashMap<KType, VType>
     /**
      * Set the "default value" value to be used in containers methods returning
      * "default value"
-     * 
-     * @return
      */
     @Override
     public void setDefaultValue(final VType defaultValue) {

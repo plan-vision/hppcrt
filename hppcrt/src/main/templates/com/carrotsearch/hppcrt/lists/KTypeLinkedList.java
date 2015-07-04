@@ -893,7 +893,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * <pre>
      * <b>
      * Important: NEVER USE java.util.Iterator methods directly, only use the specialized methods instead !
-     * {@link Iterator#hashNext()} and {@link Iterator#next()} are only for enhanced-loop support, using them
+     * {@link Iterator#hasNext()} and {@link Iterator#next()} are only for enhanced-loop support, using them
      * directly will lead to unpredictable results !
      * </b>
      * </pre>
@@ -1244,7 +1244,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * <pre>
      * <b>
      * Important: NEVER USE java.util.Iterator methods directly, only use the specialized methods instead !
-     * {@link Iterator#hashNext()} and {@link Iterator#next()} are only for enhanced-loop support, using them
+     * {@link Iterator#hasNext()} and {@link Iterator#next()} are only for enhanced-loop support, using them
      * directly will lead to unpredictable results !
      * </b>
      * </pre>
@@ -1446,7 +1446,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     /**
      * The iterator is implemented as a cursor and it returns <b>the same cursor instance</b>
      * on every call, to avoid boxing of primitive types. To
-     * read the current value, or index as in {@link #get(index)}, use the cursor's public
+     * read the current value, or index as in {@link #get(int)}, use the cursor's public
      * fields.
      * The iterator points to "head", such as ValueIterator.gotoNext()
      * is the first element of the list.
@@ -1488,7 +1488,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * is the last element of the list, since it is a "reversed" iteration.
      * The iterator is implemented as a cursor and it returns <b>the same cursor instance</b>
      * on every call to avoid boxing of primitive types. To
-     * read the current value, or index as in {@link #get(index)}, use the cursor's public
+     * read the current value, or index as in {@link #get(int)}, use the cursor's public
      * fields. An example is shown below.
      *
      * * <pre>
@@ -1739,6 +1739,9 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * <p><b>
      * WARNING: This method runs in O(n*n*log(n)). Consider yourself warned.
      * </b></p>
+     *
+     * @param beginIndex the start index to be sorted
+     * @param endIndex the end index to be sorted (excluded)
      * 
     #if ($TemplateOptions.KTypeGeneric)
      * <p><b>
@@ -1747,8 +1750,6 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * @throws ClassCastException if the list contains elements that are not mutually Comparable.
     #end
      * 
-     * @param beginIndex the start index to be sorted
-     * @param endIndex the end index to be sorted (excluded)
      */
     public void sort(final int beginIndex, final int endIndex) {
 
@@ -1777,8 +1778,8 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
     /*! #else
-                                                                        KTypeComparator<? super KType>
-                                                                    #end !*/
+                                                                                                KTypeComparator<? super KType>
+                                                                                            #end !*/
     comp) {
 
         if (endIndex - beginIndex > 1) {
