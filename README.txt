@@ -25,7 +25,7 @@ That means in particular using the enhanced for loop without any dynamic allocat
 
 * [Object|primitives]Arrays as a complement of java.util.Arrays for in-place buffer manipulation : reverse, rotate...etc. 
 
-* Native and optimized in-place sort methods for ArrayLists, LinkedLists, ArrayDeques, Stacks.
+* Native and optimized in-place sort methods for ArrayLists, LinkedLists, and ArrayDeques.
 
 * Custom hashing strategies to override the usual equals()/hashCode() in Hash containers, in specific CustomHash containers.
 

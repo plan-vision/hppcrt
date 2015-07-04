@@ -5,10 +5,8 @@ import org.junit.Test;
 
 import com.carrotsearch.hppcrt.lists.IntArrayDeque;
 import com.carrotsearch.hppcrt.lists.IntArrayList;
-import com.carrotsearch.hppcrt.lists.IntStack;
 import com.carrotsearch.hppcrt.lists.ObjectArrayDeque;
 import com.carrotsearch.hppcrt.lists.ObjectArrayList;
-import com.carrotsearch.hppcrt.lists.ObjectStack;
 import com.carrotsearch.hppcrt.maps.IntIntHashMap;
 import com.carrotsearch.hppcrt.maps.IntObjectHashMap;
 import com.carrotsearch.hppcrt.maps.ObjectIntHashMap;
@@ -82,22 +80,12 @@ public class APIExpectationsTest extends RandomizedTest
         final Number[] result2 = l1.toArray(Number.class);
         Assert.assertEquals(Number[].class, result2.getClass());
         Assert.assertArrayEquals(new Number[] { 1, 2, 3 }, result2);
-
-        //To test if overriden toArray() from Stack works too:
-        final ObjectStack<Integer> l2 = ObjectStack.from(1, 2, 3, 4);
-        final Integer[] result3 = l2.toArray(Integer.class);
-        Assert.assertArrayEquals(new Integer[] { 4, 3, 2, 1 }, result3);
-
-        final Number[] result4 = l2.toArray(Number.class);
-        Assert.assertEquals(Number[].class, result4.getClass());
-        Assert.assertArrayEquals(new Number[] { 4, 3, 2, 1 }, result4);
     }
 
     @Test
     public void testPrimitiveToArray()
     {
         this.t1 = IntArrayList.from(1, 2, 3).toArray();
-        this.t1 = IntStack.from(1, 2, 3).toArray();
         this.t1 = IntArrayDeque.from(1, 2, 3).toArray();
         this.t1 = IntHashSet.from(1, 2, 3).toArray();
 
@@ -112,10 +100,6 @@ public class APIExpectationsTest extends RandomizedTest
         final IntArrayList v1 = IntArrayList.newInstance();
         final ObjectArrayList<Integer> v2 = ObjectArrayList.newInstance();
         final ObjectArrayList<Long> v3 = ObjectArrayList.newInstance();
-
-        final IntStack v4 = IntStack.newInstance();
-        final ObjectStack<Integer> v5 = ObjectStack.newInstance();
-        final ObjectStack<Long> v6 = ObjectStack.newInstance();
 
         final IntHashSet v7 = IntHashSet.newInstance();
         final ObjectHashSet<Integer> v8 = ObjectHashSet.newInstance();
@@ -134,7 +118,6 @@ public class APIExpectationsTest extends RandomizedTest
     public void testObjectToArray()
     {
         isObjectArray(ObjectArrayList.from(1, 2, 3).toArray());
-        isObjectArray(ObjectStack.from(1, 2, 3).toArray());
         isObjectArray(ObjectArrayDeque.from(1, 2, 3).toArray());
         isObjectArray(ObjectHashSet.from(1, 2, 3).toArray());
 
@@ -146,7 +129,6 @@ public class APIExpectationsTest extends RandomizedTest
     public void testWithClassToArray()
     {
         isIntegerArray(ObjectArrayList.from(1, 2, 3).toArray(Integer.class));
-        isIntegerArray(ObjectStack.from(1, 2, 3).toArray(Integer.class));
         isIntegerArray(ObjectArrayDeque.from(1, 2, 3).toArray(Integer.class));
         isIntegerArray(ObjectHashSet.from(1, 2, 3).toArray(Integer.class));
 
