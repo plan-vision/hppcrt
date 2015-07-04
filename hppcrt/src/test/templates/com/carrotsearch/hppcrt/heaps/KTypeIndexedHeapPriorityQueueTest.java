@@ -4,9 +4,6 @@ import java.util.*;
 
 import org.junit.*;
 
-import static com.carrotsearch.hppcrt.TestUtils.*;
-import static org.junit.Assert.*;
-
 import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.hash.BitMixer;
 import com.carrotsearch.hppcrt.lists.*;
@@ -2799,7 +2796,6 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         final int NB_INSERTED_ELEMENTS = 126;
 
         this.prioq = new KTypeIndexedHeapPriorityQueue<KType>(NB_INSERTED_ELEMENTS);
-
 
         // Insert values "not in default set":
         //- Check: get() on  existing key, NEVER returns the default value,

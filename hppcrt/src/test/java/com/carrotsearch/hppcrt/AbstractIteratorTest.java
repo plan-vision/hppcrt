@@ -9,8 +9,6 @@ import java.util.NoSuchElementException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 /**
  * 
  */
@@ -68,8 +66,7 @@ public class AbstractIteratorTest
         {
             i.next();
             Assert.fail();
-        }
-        catch (final NoSuchElementException e)
+        } catch (final NoSuchElementException e)
         {
             // expected.
         }
@@ -86,8 +83,9 @@ public class AbstractIteratorTest
     private static <T> List<T> addAll(final Iterator<T> i)
     {
         final List<T> t = new ArrayList<T>();
-        while (i.hasNext())
+        while (i.hasNext()) {
             t.add(i.next());
+        }
         return t;
     }
 }

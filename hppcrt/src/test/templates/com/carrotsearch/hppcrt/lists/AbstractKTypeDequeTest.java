@@ -4,18 +4,11 @@ import java.util.*;
 
 import org.junit.*;
 
-import static com.carrotsearch.hppcrt.TestUtils.*;
-import static org.junit.Assert.*;
-
 import com.carrotsearch.hppcrt.*;
-import com.carrotsearch.hppcrt.lists.*;
 import com.carrotsearch.hppcrt.TestUtils;
 import com.carrotsearch.hppcrt.cursors.*;
 import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
-import com.carrotsearch.hppcrt.sets.KTypeHashSet;
-import com.carrotsearch.randomizedtesting.RandomizedTest;
-import com.carrotsearch.randomizedtesting.annotations.*;
 
 /*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
 /**

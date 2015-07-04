@@ -17,7 +17,7 @@ import com.carrotsearch.hppcrt.procedures.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public interface KTypeVTypeAssociativeContainer<KType, VType>
-extends Iterable<KTypeVTypeCursor<KType, VType>>
+        extends Iterable<KTypeVTypeCursor<KType, VType>>
 {
     /**
      * Returns a cursor over the entries (key-value pairs) in this map. The iterator is
@@ -112,7 +112,7 @@ extends Iterable<KTypeVTypeCursor<KType, VType>>
 
     /**
      * Returns a collection view of all values present in this container. The returned collection is a view
-     * over the key set and any modifications (if allowed) introduced to the collection will
+     * over the value set and any modifications (if allowed) introduced to the collection will
      * propagate to the associative container immediately.
      */
     KTypeCollection<VType> values();

@@ -1,23 +1,10 @@
 package com.carrotsearch.hppcrt.sets;
 
-import java.util.*;
-
 import org.junit.*;
 
-import static com.carrotsearch.hppcrt.TestUtils.*;
-import static org.junit.Assert.*;
-
 import com.carrotsearch.hppcrt.*;
-import com.carrotsearch.hppcrt.hash.MurmurHash3;
-import com.carrotsearch.hppcrt.lists.*;
+
 import com.carrotsearch.hppcrt.TestUtils;
-import com.carrotsearch.hppcrt.cursors.*;
-import com.carrotsearch.hppcrt.predicates.*;
-import com.carrotsearch.hppcrt.procedures.*;
-import com.carrotsearch.hppcrt.sets.*;
-import com.carrotsearch.hppcrt.sorting.*;
-import com.carrotsearch.randomizedtesting.RandomizedTest;
-import com.carrotsearch.randomizedtesting.annotations.*;
 
 /*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
 /**

@@ -1143,6 +1143,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     }
 
     /**
+     * {@inheritDoc}
      * @return a new KeysCollection view of the keys of this map.
      */
     @Override
@@ -1357,7 +1358,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     }
 
     /**
-     *  @return a new ValuesCollection view of the values of this map.
+     * {@inheritDoc}
+     * @return a new ValuesCollection view of the values of this map.
      */
     @Override
     public ValuesCollection values() {

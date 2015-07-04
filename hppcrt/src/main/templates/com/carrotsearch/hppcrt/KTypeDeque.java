@@ -1,14 +1,11 @@
-package com.carrotsearch.hppcrt.lists;
+package com.carrotsearch.hppcrt;
 
 import java.util.Iterator;
 import java.util.List;
 
-import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.cursors.*;
 import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
-import com.carrotsearch.hppcrt.sorting.*;
-import com.carrotsearch.hppcrt.strategies.*;
 
 /**
  * A double-sided queue of <code>KType</code>s.
@@ -89,31 +86,4 @@ public interface KTypeDeque<KType> extends KTypeCollection<KType>
      * returns <code>true</code>. The iteration is interrupted otherwise.
      */
     public <T extends KTypePredicate<? super KType>> T descendingForEach(T predicate);
-
-    /**
-     * Compares the specified object with this deque for equality. Returns
-     * <tt>true</tt> if and only if the specified object is also a
-     * {@link ObjectDeque}, and all corresponding
-     * pairs of elements acquired from forward iterators are the same. In other words, two indexed
-     * containers are defined to be equal if they contain the same elements in the same
-     * order of iteration.
-     * <p>
-     * Note that, unlike in {@link List}, deques may be of different types and still
-     * return <code>true</code> from {@link #equals}. This may be dangerous if you use
-     * different hash functions in two containers, but don't override the default
-     * implementation of {@link #equals}. It is the programmer's responsibility to
-     * enforcing these contracts properly.
-     * </p>
-     */
-    @Override
-    public boolean equals(Object obj);
-
-    /**
-     * @return A hash code of elements stored in the deque. The hash code
-     * is defined identically to {@link List#hashCode()} (should be implemented
-     * with the same algorithm), replacing forward index loop with a forward iterator
-     * loop.
-     */
-    @Override
-    public int hashCode();
 }

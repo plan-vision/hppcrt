@@ -1,6 +1,5 @@
-package com.carrotsearch.hppcrt.heaps;
+package com.carrotsearch.hppcrt;
 
-import com.carrotsearch.hppcrt.KTypeCollection;
 
 /**
  * A Priority queue of <code>KType</code>s.

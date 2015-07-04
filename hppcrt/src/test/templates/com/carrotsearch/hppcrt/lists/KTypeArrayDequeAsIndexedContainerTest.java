@@ -1,22 +1,8 @@
 package com.carrotsearch.hppcrt.lists;
 
-import java.util.*;
-
 import org.junit.*;
 
-import static com.carrotsearch.hppcrt.TestUtils.*;
-import static org.junit.Assert.*;
-
 import com.carrotsearch.hppcrt.*;
-import com.carrotsearch.hppcrt.cursors.*;
-import com.carrotsearch.hppcrt.predicates.*;
-import com.carrotsearch.hppcrt.procedures.*;
-import com.carrotsearch.hppcrt.sets.*;
-import com.carrotsearch.hppcrt.sorting.*;
-import com.carrotsearch.hppcrt.strategies.*;
-import com.carrotsearch.randomizedtesting.RandomizedRunner;
-import com.carrotsearch.randomizedtesting.RandomizedTest;
-import com.carrotsearch.randomizedtesting.annotations.Repeat;
 
 /*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
 /**
@@ -103,10 +89,10 @@ public class KTypeArrayDequeAsIndexedContainerTest<KType> extends AbstractKTypeI
             int count = 0;
             //check access by get()
             for (/*! #if ($TemplateOptions.KTypeGeneric) !*/final Object
-            /*! #else
+                    /*! #else
             final KType
             #end !*/
-            val : arrayDeque.toArray()) {
+                    val : arrayDeque.toArray()) {
 
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 TestUtils.assertEquals2(val, (Object) arrayDeque.get(count));

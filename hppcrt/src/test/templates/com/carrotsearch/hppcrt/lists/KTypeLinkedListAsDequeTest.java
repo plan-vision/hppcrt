@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import com.carrotsearch.hppcrt.Intrinsics;
 import com.carrotsearch.hppcrt.KTypeContainer;
+import com.carrotsearch.hppcrt.KTypeDeque;
 import com.carrotsearch.hppcrt.TestUtils;
 import com.carrotsearch.hppcrt.cursors.KTypeCursor;
 

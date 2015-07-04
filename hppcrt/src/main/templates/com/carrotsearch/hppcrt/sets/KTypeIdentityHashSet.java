@@ -1,11 +1,7 @@
 package com.carrotsearch.hppcrt.sets;
 
 import com.carrotsearch.hppcrt.*;
-import com.carrotsearch.hppcrt.cursors.*;
-import com.carrotsearch.hppcrt.predicates.*;
-import com.carrotsearch.hppcrt.procedures.*;
 import com.carrotsearch.hppcrt.strategies.*;
-import com.carrotsearch.hppcrt.hash.*;
 
 /*! ${TemplateOptions.doNotGenerateKType( "BYTE", "CHAR", "SHORT", "INT", "LONG", "FLOAT", "DOUBLE")} !*/
 /**
@@ -21,7 +17,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeIdentityHashSet<KType>
-extends KTypeCustomHashSet<KType>
+        extends KTypeCustomHashSet<KType>
 {
     private static final KTypeIdentityHash<Object> IDENTITY_EQUALITY = new KTypeIdentityHash<Object>();
 

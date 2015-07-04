@@ -1,11 +1,7 @@
 package com.carrotsearch.hppcrt.maps;
 
 import com.carrotsearch.hppcrt.*;
-import com.carrotsearch.hppcrt.cursors.*;
-import com.carrotsearch.hppcrt.predicates.*;
-import com.carrotsearch.hppcrt.procedures.*;
 import com.carrotsearch.hppcrt.strategies.*;
-import com.carrotsearch.hppcrt.hash.*;
 
 /*! ${TemplateOptions.doNotGenerateKType("BYTE", "CHAR", "SHORT", "INT", "LONG", "FLOAT", "DOUBLE")} !*/
 /**
@@ -26,7 +22,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeVTypeIdentityHashMap<KType, VType>
-        extends KTypeVTypeCustomHashMap<KType, VType>
+extends KTypeVTypeCustomHashMap<KType, VType>
 {
     private static final KTypeIdentityHash<Object> IDENTITY_EQUALITY = new KTypeIdentityHash<Object>();
 
@@ -174,7 +170,7 @@ public final class KTypeVTypeIdentityHashMap<KType, VType>
      */
     public static final <KType, VType> KTypeVTypeIdentityHashMap<KType, VType> from(final KTypeVTypeAssociativeContainer<KType, VType> container,
             final KTypeHashingStrategy<? super KType> hashStrategy)
-            {
+    {
         throw new RuntimeException("Identity hash from(KTypeVTypeAssociativeContainer, strategy) usage logical error");
-            }
+    }
 }

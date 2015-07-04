@@ -2,7 +2,7 @@ package com.carrotsearch.hppcrt.sorting;
 
 import java.util.Comparator;
 
-import com.carrotsearch.hppcrt.Intrinsics;
+import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.strategies.*;
 import com.carrotsearch.hppcrt.KTypeIndexedContainer;
 
@@ -178,10 +178,10 @@ public final class KTypeSort
     public static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void quicksort(final KType[] table,
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
-            /*! #else
+    /*! #else
                                                                             KTypeComparator<? super KType>
                                                                     #end !*/
-            comp)
+    comp)
     {
         KTypeSort.quicksort(table, 0, table.length, comp);
     }
@@ -235,10 +235,10 @@ public final class KTypeSort
     public static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void quicksort(final KTypeIndexedContainer<KType> table,
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
-    /*! #else
-                                                            KTypeComparator<? super KType>
-                                                            #end !*/
-            comp)
+            /*! #else
+                                                                    KTypeComparator<? super KType>
+                                                                    #end !*/
+    comp)
     {
         KTypeSort.quicksort(table, 0, table.size(), comp);
     }

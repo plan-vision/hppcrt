@@ -4,17 +4,11 @@ import java.util.*;
 
 import org.junit.*;
 
-import static com.carrotsearch.hppcrt.TestUtils.*;
-import static org.junit.Assert.*;
-
 import com.carrotsearch.hppcrt.*;
-import com.carrotsearch.hppcrt.lists.*;
 import com.carrotsearch.hppcrt.TestUtils;
 import com.carrotsearch.hppcrt.cursors.*;
-import com.carrotsearch.hppcrt.maps.*;
 import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
-import com.carrotsearch.hppcrt.sets.*;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.*;
 
@@ -151,13 +145,13 @@ public class KTypeIdentityHashSetTest<KType> extends AbstractKTypeTest<KType>
         this.set.add(asArrayObjects(this.k0, this.k1, this.k2));
 
         Assert.assertEquals(1, this.set.removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeIdentityHashSetTest.this.key1;
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEqualsByReference(this.set.toArray(), this.k0, this.key2);
     }
@@ -169,13 +163,13 @@ public class KTypeIdentityHashSetTest<KType> extends AbstractKTypeTest<KType>
         this.set.add(asArrayObjects(this.keyE, this.k1, this.k2, this.key4));
 
         Assert.assertEquals(2, this.set.removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return (v == KTypeIdentityHashSetTest.this.k1) || (v == KTypeIdentityHashSetTest.this.keyE);
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEqualsByReference(this.set.toArray(), this.key2, this.key4);
     }
@@ -192,7 +186,7 @@ public class KTypeIdentityHashSetTest<KType> extends AbstractKTypeTest<KType>
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size + 1
             Assert.assertEquals(10, this.set.removeAll(new KTypePredicate<KType>()
-            {
+                    {
                 @Override
                 public boolean apply(final KType v)
                 {
@@ -201,7 +195,7 @@ public class KTypeIdentityHashSetTest<KType> extends AbstractKTypeTest<KType>
                     }
                     return v == KTypeIdentityHashSetTest.this.key2 || v == KTypeIdentityHashSetTest.this.key9 || v == KTypeIdentityHashSetTest.this.key5;
                 };
-            }));
+                    }));
 
             Assert.fail();
         } catch (final RuntimeException e)
@@ -226,13 +220,13 @@ public class KTypeIdentityHashSetTest<KType> extends AbstractKTypeTest<KType>
         this.set.add(asArrayObjects(this.k0, this.k1, this.k2, this.k3, this.k4, this.k5));
 
         Assert.assertEquals(4, this.set.retainAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeIdentityHashSetTest.this.key1 || v == KTypeIdentityHashSetTest.this.key2;
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEqualsByReference(this.set.toArray(), this.key1, this.key2);
     }
@@ -244,13 +238,13 @@ public class KTypeIdentityHashSetTest<KType> extends AbstractKTypeTest<KType>
         this.set.add(asArrayObjects(this.keyE, this.k1, this.k2, this.k3, this.k4, this.k5));
 
         Assert.assertEquals(4, this.set.retainAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == KTypeIdentityHashSetTest.this.keyE || v == KTypeIdentityHashSetTest.this.k3;
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEqualsByReference(this.set.toArray(), this.keyE, this.k3);
     }

@@ -1,6 +1,6 @@
 package com.carrotsearch.hppcrt.strategies;
 
-import com.carrotsearch.hppcrt.Intrinsics;
+import com.carrotsearch.hppcrt.*;
 
 /*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
 /**

@@ -1,13 +1,8 @@
 package com.carrotsearch.hppcrt;
 
 import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.rules.MethodRule;
 
-import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.procedures.*;
-import com.carrotsearch.randomizedtesting.annotations.*;
 
 /**
  * Unit helpers for <code>KType</code> and <code>VType</code> pair containers
@@ -134,13 +129,13 @@ public abstract class AbstractKTypeVTypeTest<KType, VType> extends AbstractKType
         Assert.assertEquals(c1.size(), c2.size());
 
         c1.forEach(new KTypeVTypeProcedure<KType, VType>()
-                {
+        {
             @Override
             public void apply(final KType key, final VType value)
             {
                 Assert.assertTrue(c2.containsKey(key));
                 TestUtils.assertEquals2(value, c2.get(key));
             }
-                });
+        });
     }
 }

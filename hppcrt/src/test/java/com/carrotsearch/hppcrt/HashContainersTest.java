@@ -3,10 +3,7 @@ package com.carrotsearch.hppcrt;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.carrotsearch.hppcrt.hash.MurmurHash3;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
-
-import static com.carrotsearch.hppcrt.HashContainers.*;
 
 public class HashContainersTest extends RandomizedTest
 {
@@ -26,8 +23,7 @@ public class HashContainersTest extends RandomizedTest
             // This should be impossible because it'd create a negative-sized array.
             HashContainers.minBufferSize(maxCapacity + 2, HashContainers.MAX_LOAD_FACTOR);
             Assert.fail();
-        }
-        catch (final BufferAllocationException e) {
+        } catch (final BufferAllocationException e) {
             // Expected.
         }
     }

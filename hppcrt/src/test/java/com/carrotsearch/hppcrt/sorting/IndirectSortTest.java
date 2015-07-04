@@ -1,7 +1,5 @@
 package com.carrotsearch.hppcrt.sorting;
 
-import static org.junit.Assert.assertTrue;
-
 import java.util.Arrays;
 import java.util.Random;
 
@@ -9,7 +7,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.carrotsearch.hppcrt.XorShift128P;
-import com.carrotsearch.hppcrt.strategies.*;
 
 /**
  * Test cases for {@link IndirectSort}.
@@ -26,10 +23,12 @@ public class IndirectSortTest
         @Override
         public int compare(final int a, final int b)
         {
-            if (a < b)
+            if (a < b) {
                 return -1;
-            if (a > b)
+            }
+            if (a > b) {
                 return 1;
+            }
             return 0;
         }
     }
@@ -83,9 +82,9 @@ public class IndirectSortTest
     private static void sortCertification(final Algorithm algorithm)
     {
         final int[] n_values =
-            {
+        {
                 100, 1023, 1024, 1025, 1024 * 32
-            };
+        };
 
         for (final int n : n_values)
         {
@@ -121,26 +120,26 @@ public class IndirectSortTest
         {
             switch (dist)
             {
-                case ORDERED:
-                    x[i] = i;
-                    break;
-                case SAWTOOTH:
-                    x[i] = i % m;
-                    break;
-                case RANDOM:
-                    x[i] = rand.nextInt() % m;
-                    break;
-                case STAGGER:
-                    x[i] = (i * m + i) % n;
-                    break;
-                case PLATEAU:
-                    x[i] = Math.min(i, m);
-                    break;
-                case SHUFFLE:
-                    x[i] = (rand.nextInt() % m) != 0 ? (j += 2) : (k += 2);
-                    break;
-                default:
-                    throw new RuntimeException();
+            case ORDERED:
+                x[i] = i;
+                break;
+            case SAWTOOTH:
+                x[i] = i % m;
+                break;
+            case RANDOM:
+                x[i] = rand.nextInt() % m;
+                break;
+            case STAGGER:
+                x[i] = (i * m + i) % n;
+                break;
+            case PLATEAU:
+                x[i] = Math.min(i, m);
+                break;
+            case SHUFFLE:
+                x[i] = (rand.nextInt() % m) != 0 ? (j += 2) : (k += 2);
+                break;
+            default:
+                throw new RuntimeException();
             }
         }
 
@@ -157,8 +156,9 @@ public class IndirectSortTest
     private static int[] dither(int[] x)
     {
         x = IndirectSortTest.copy(x);
-        for (int i = 0; i < x.length; i++)
+        for (int i = 0; i < x.length; i++) {
             x[i] += i % 5;
+        }
         return x;
     }
 
@@ -189,21 +189,21 @@ public class IndirectSortTest
         final int[] order;
         switch (algo)
         {
-            case MERGESORT:
-                order = IndirectSort.mergesort(0, x.length, c);
-                break;
-            case MERGESORT_RT:
-                order = new int[x.length];
-                final int[] tmp = new int[x.length];
-                IndirectSort.mergesort(0, x.length, c, tmp, order);
-                break;
-            case QUICKSORT:
-                order = new int[x.length];
-                IndirectSort.quicksort(0, x.length, c, order);
-                break;
-            default:
-                Assert.fail();
-                throw new RuntimeException();
+        case MERGESORT:
+            order = IndirectSort.mergesort(0, x.length, c);
+            break;
+        case MERGESORT_RT:
+            order = new int[x.length];
+            final int[] tmp = new int[x.length];
+            IndirectSort.mergesort(0, x.length, c, tmp, order);
+            break;
+        case QUICKSORT:
+            order = new int[x.length];
+            IndirectSort.quicksort(0, x.length, c, order);
+            break;
+        default:
+            Assert.fail();
+            throw new RuntimeException();
         }
 
         IndirectSortTest.assertOrder(order, x.length, c);
@@ -347,8 +347,9 @@ public class IndirectSortTest
         final Random rnd = new XorShift128P(0xdeadbeef);
         final int[] data = new int[10000];
 
-        for (int i = 0; i < data.length; i++)
+        for (int i = 0; i < data.length; i++) {
             data[i] = rnd.nextInt(0x100);
+        }
 
         final int[] order = IndirectSort.mergesort(0, data.length, new IndirectComparator()
         {

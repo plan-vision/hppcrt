@@ -1,7 +1,6 @@
 package com.carrotsearch.hppcrt.sorting;
 
 import java.util.Comparator;
-import com.carrotsearch.hppcrt.strategies.*;
 
 /**
  * Sorting routines that return an array of sorted indices implied by a given comparator

@@ -29,7 +29,7 @@ import com.carrotsearch.hppcrt.strategies.*;
 /*! #set( $DEBUG = false) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType>
-        implements KTypePriorityQueue<KType>, Cloneable
+implements KTypePriorityQueue<KType>, Cloneable
 {
     /**
      * Internal array for storing the priority queue.
@@ -41,8 +41,8 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
               KType []
               #else !*/
     Object[]
-            /*! #end !*/
-            buffer;
+    /*! #end !*/
+    buffer;
 
     /**
      * Number of elements in the queue.
@@ -158,7 +158,7 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
      * @see BoundedProportionalArraySizingStrategy
      */
     public KTypeHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp
-            /*! #else
+    /*! #else
     KTypeComparator<? super KType> comp
     #end !*/)
     {
@@ -206,7 +206,7 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
      * Create a heap from elements of another container (constructor shortcut)
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeHeapPriorityQueue<KType> from(final KTypeContainer<KType> container) {
+            KTypeHeapPriorityQueue<KType> from(final KTypeContainer<KType> container) {
         return new KTypeHeapPriorityQueue<KType>(container);
     }
 
@@ -215,7 +215,7 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
      * <code>KType</code>.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeHeapPriorityQueue<KType> from(final KType... elements) {
+            KTypeHeapPriorityQueue<KType> from(final KType... elements) {
         final KTypeHeapPriorityQueue<KType> heap = new KTypeHeapPriorityQueue<KType>(elements.length);
 
         for (final KType elem : elements) {
@@ -724,10 +724,10 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
      */
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
-    /*! #else
-                                                                            public KTypeComparator<? super KType>
-                                                                    #end !*/
-    comparator() {
+            /*! #else
+                                                                                    public KTypeComparator<? super KType>
+                                                                            #end !*/
+            comparator() {
 
         return this.comparator;
     }
@@ -837,11 +837,11 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
             //swap k and its parent
             parent = k >> 1;
 
-        tmp = buffer[k];
-        buffer[k] = buffer[parent];
-        buffer[parent] = tmp;
+            tmp = buffer[k];
+            buffer[k] = buffer[parent];
+            buffer[parent] = tmp;
 
-        k = parent;
+            k = parent;
         }
     }
 
@@ -864,11 +864,11 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
         while (k > 1 && comp.compare(buffer[k >> 1], buffer[k]) > 0) {
             //swap k and its parent
             parent = k >> 1;
-        tmp = buffer[k];
-        buffer[k] = buffer[parent];
-        buffer[parent] = tmp;
+            tmp = buffer[k];
+            buffer[k] = buffer[parent];
+            buffer[parent] = tmp;
 
-        k = parent;
+            k = parent;
         }
     }
 
