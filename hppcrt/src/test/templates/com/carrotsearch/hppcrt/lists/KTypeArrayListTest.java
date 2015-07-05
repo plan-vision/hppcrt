@@ -336,6 +336,119 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeIndexedContainerTest
         assertOrder(comparatorListOriginal, comparatorList, lowerRange, upperRange);
     }
 
+    //////////////////////////////////////////////
+    // Stack-like methods
+    //////////////////////////////////////////////
+    /* */
+    @Test
+    public void testPush1()
+    {
+        this.arrayList.pushLast(this.key1);
+        Assert.assertEquals(1, this.arrayList.size());
+        TestUtils.assertEquals2(this.key1, this.arrayList.peekLast());
+        TestUtils.assertEquals2(this.key1, this.arrayList.popLast());
+        Assert.assertEquals(0, this.arrayList.size());
+    }
+
+    /* */
+    @Test
+    public void testPush2()
+    {
+        this.arrayList.pushLast(this.key1, this.key3);
+        Assert.assertEquals(2, this.arrayList.size());
+        TestUtils.assertEquals2(this.key3, this.arrayList.peekLast());
+        TestUtils.assertEquals2(this.key3, this.arrayList.get(1));
+        TestUtils.assertEquals2(this.key1, this.arrayList.get(0));
+        TestUtils.assertEquals2(this.key3, this.arrayList.popLast());
+        TestUtils.assertEquals2(this.key1, this.arrayList.popLast());
+        Assert.assertEquals(0, this.arrayList.size());
+    }
+
+    /* */
+    @Test
+    public void testPush3()
+    {
+        this.arrayList.pushLast(this.key1, this.key3, this.key5);
+        TestUtils.assertListEquals(this.arrayList.toArray(), 1, 3, 5);
+        TestUtils.assertEquals2(this.key5, this.arrayList.peekLast());
+    }
+
+    /* */
+    @Test
+    public void testPush4()
+    {
+        this.arrayList.pushLast(this.key1, this.key3, this.key5, this.key7);
+        TestUtils.assertListEquals(this.arrayList.toArray(), 1, 3, 5, 7);
+        TestUtils.assertEquals2(this.key7, this.arrayList.peekLast());
+    }
+
+    /* */
+    @Test
+    public void testPushArray()
+    {
+        this.arrayList.pushLast(asArray(1, 2, 3, 4, 5), 1, 3);
+        Assert.assertEquals(3, this.arrayList.size());
+        TestUtils.assertEquals2(this.key2, this.arrayList.get(0));
+        TestUtils.assertEquals2(this.key3, this.arrayList.get(1));
+        TestUtils.assertEquals2(this.key4, this.arrayList.get(2));
+    }
+
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    /* */
+    @Test
+    public void testNullify()
+    {
+        this.arrayList.pushLast(asArray(1, 2, 3, 4));
+        this.arrayList.popLast();
+        this.arrayList.discardLast();
+        this.arrayList.discardLast(2);
+        Assert.assertEquals(0, this.arrayList.size());
+    }
+
+    /*! #end !*/
+
+    /* */
+    @Test
+    public void testDiscard()
+    {
+        this.arrayList.pushLast(this.key1, this.key3);
+        Assert.assertEquals(2, this.arrayList.size());
+
+        this.arrayList.discardLast();
+        Assert.assertEquals(1, this.arrayList.size());
+
+        this.arrayList.pushLast(this.key4);
+        Assert.assertEquals(2, this.arrayList.size());
+
+        TestUtils.assertEquals2(1, this.arrayList.get(0));
+        TestUtils.assertEquals2(4, this.arrayList.get(1));
+
+        this.arrayList.discardLast(2);
+        Assert.assertEquals(0, this.arrayList.size());
+
+        this.arrayList.pushLast(this.key5, this.key6, this.key7, this.key8, this.key0);
+
+        this.arrayList.discardLast(3);
+        TestUtils.assertListEquals(this.arrayList.toArray(), 5, 6);
+    }
+
+    /* */
+    @Test(expected = AssertionError.class)
+    public void testGetAssertions()
+    {
+        this.arrayList.pushLast(this.key1);
+        this.arrayList.popLast();
+        this.arrayList.get(0);
+    }
+
+    /* */
+    @Test(expected = AssertionError.class)
+    public void testDiscardAssertions()
+    {
+        this.arrayList.pushLast(this.key1);
+        this.arrayList.discardLast(2);
+    }
+
     private KTypeArrayList<KType> createArrayListWithRandomData(final int size, final long currentSeed)
     {
         final Random prng = new Random(currentSeed);

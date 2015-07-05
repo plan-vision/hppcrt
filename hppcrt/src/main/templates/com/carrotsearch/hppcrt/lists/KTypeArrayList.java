@@ -15,6 +15,9 @@ import com.carrotsearch.hppcrt.strategies.*;
  * An array-backed list of KTypes. A single array is used to store and manipulate
  * all elements. Reallocations are governed by a {@link ArraySizingStrategy}
  * and may be expensive if they move around really large chunks of memory.
+ * It also has some dedicated methods to easily push, pop, and discard elements
+ * from the end of the array, emulating so a {@linkplain Stack java.util.Stack}.
+ * (see "Stack-emulating methods)
  * 
 #if ($TemplateOptions.KTypeGeneric)
  * A brief comparison of the API against the Java Collections framework:
@@ -51,7 +54,7 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayList<KType>
-        extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, Cloneable
+extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, Cloneable
 {
     /**
      * Internal array for storing the list. The array may be larger than the current size
@@ -65,8 +68,8 @@ public class KTypeArrayList<KType>
           KType []
           #else !*/
     Object[]
-    /*! #end !*/
-    buffer;
+            /*! #end !*/
+            buffer;
 
     /**
      * Current number of elements stored in {@link #buffer}.
@@ -169,6 +172,9 @@ public class KTypeArrayList<KType>
 
     /**
      * Add all elements from a range of given array to the list.
+     * @param elements
+     * @param start
+     * @param length
      */
     public void add(final KType[] elements, final int start, final int length) {
         assert length >= 0 : "Length must be >= 0";
@@ -182,6 +188,7 @@ public class KTypeArrayList<KType>
      * Vararg-signature method for adding elements at the end of the list.
      * <p><b>This method is handy, but costly if used in tight loops (anonymous
      * array passing)</b></p>
+     * @param elements
      */
     public void add(final KType... elements) {
         add(elements, 0, elements.length);
@@ -189,6 +196,8 @@ public class KTypeArrayList<KType>
 
     /**
      * Adds all elements from another container.
+     * @param container
+     * @return the number of elements added from the container
      */
     public int addAll(final KTypeContainer<? extends KType> container) {
         return addAll((Iterable<? extends KTypeCursor<? extends KType>>) container);
@@ -196,6 +205,8 @@ public class KTypeArrayList<KType>
 
     /**
      * Adds all elements from another iterable.
+     * @param iterable
+     * @return the number of elements added from the iterable
      */
     public int addAll(final Iterable<? extends KTypeCursor<? extends KType>> iterable) {
         int size = 0;
@@ -743,7 +754,7 @@ public class KTypeArrayList<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayList<KType> newInstance() {
+    KTypeArrayList<KType> newInstance() {
         return new KTypeArrayList<KType>();
     }
 
@@ -752,7 +763,7 @@ public class KTypeArrayList<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayList<KType> newInstance(final int initialCapacity) {
+    KTypeArrayList<KType> newInstance(final int initialCapacity) {
         return new KTypeArrayList<KType>(initialCapacity);
     }
 
@@ -761,7 +772,7 @@ public class KTypeArrayList<KType>
      * <code>KType</code>.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayList<KType> from(final KType... elements) {
+    KTypeArrayList<KType> from(final KType... elements) {
         final KTypeArrayList<KType> list = new KTypeArrayList<KType>(elements.length);
         list.add(elements);
         return list;
@@ -771,7 +782,7 @@ public class KTypeArrayList<KType>
      * Create a list from elements of another container.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayList<KType> from(final KTypeContainer<KType> container) {
+    KTypeArrayList<KType> from(final KTypeContainer<KType> container) {
         return new KTypeArrayList<KType>(container);
     }
 
@@ -822,10 +833,10 @@ public class KTypeArrayList<KType>
     public void sort(final int beginIndex, final int endIndex,
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
-            /*! #else
-                            KTypeComparator<? super KType>
-                            #end !*/
-            comp) {
+    /*! #else
+                                                            KTypeComparator<? super KType>
+                                                            #end !*/
+    comp) {
 
         if (endIndex - beginIndex > 1) {
             KTypeSort.quicksort(Intrinsics.<KType[]> cast(this.buffer), beginIndex, endIndex, comp);
@@ -849,6 +860,139 @@ public class KTypeArrayList<KType>
             #end !*/
             comp) {
         sort(0, this.elementsCount, comp);
+    }
+
+    ///////////////////////////////////////////////////////////////////////
+    // Stack-like methods
+    ///////////////////////////////////////////////////////////////////////
+    /**
+     * Stack emulating method: Adds one KType at the end of the array,
+     * equivalent of {@link #add(KType)}
+     * @param e1
+     */
+    public void pushLast(final KType e1) {
+        add(e1);
+    }
+
+    /**
+     * Stack emulating method: Adds two KTypes at the end of the array,
+     * synonym of {@link #add(KType, KType)}
+     * @param e1
+     * @param e2
+     */
+    public void pushLast(final KType e1, final KType e2) {
+        add(e1, e2);
+    }
+
+    /**
+     * Stack emulating method: Adds three KTypes at the end of the array
+     * @param e1
+     * @param e2
+     * @param e3
+     */
+    public void pushLast(final KType e1, final KType e2, final KType e3) {
+        ensureBufferSpace(3);
+        this.buffer[this.elementsCount++] = e1;
+        this.buffer[this.elementsCount++] = e2;
+        this.buffer[this.elementsCount++] = e3;
+    }
+
+    /**
+     * Stack emulating method: Adds four KTypes at the end of the array
+     * @param e1
+     * @param e2
+     * @param e3
+     * @param e4
+     */
+    public void pushLast(final KType e1, final KType e2, final KType e3, final KType e4) {
+        ensureBufferSpace(4);
+        this.buffer[this.elementsCount++] = e1;
+        this.buffer[this.elementsCount++] = e2;
+        this.buffer[this.elementsCount++] = e3;
+        this.buffer[this.elementsCount++] = e4;
+    }
+
+    /**
+     * Stack emulating method: Add a range of array elements at the end of array,
+     * synonym of {@link #add(KType[], int, int)}
+     */
+    public void pushLast(final KType[] elements, final int start, final int len) {
+        add(elements, start, len);
+    }
+
+    /**
+     * Stack emulating method: Vararg-signature method for pushing elements at the end of the array.
+     * <p>
+     * <b>This method is handy, but costly if used in tight loops (anonymous array
+     * passing)</b>
+     * </p>
+     */
+    public final void pushLast(final KType... elements) {
+        add(elements, 0, elements.length);
+    }
+
+    /**
+     * Stack emulating method: Pushes all elements from another container at the end of the array,
+     * synonym of {@link #addAll(KTypeContainer)}
+     */
+    public int pushAllLast(final KTypeContainer<? extends KType> container) {
+        return addAll(container);
+    }
+
+    /**
+     * Stack emulating method: Pushes all elements from another iterable to the end of the array,
+     * synonym of {@link #addAll(Iterable)}
+     * @param iterable
+     */
+    public int pushAllLast(final Iterable<? extends KTypeCursor<? extends KType>> iterable) {
+        return addAll(iterable);
+    }
+
+    /**
+     * Stack emulating method: Discard an arbitrary number of elements from the end of the array.
+     * @param count
+     */
+    public void discardLast(final int count) {
+        assert this.elementsCount >= count;
+
+        this.elementsCount -= count;
+        /* #if ($TemplateOptions.KTypeGeneric) */
+        Arrays.fill(this.buffer, this.elementsCount, this.elementsCount + count, null);
+        /* #end */
+    }
+
+    /**
+     * Stack emulating method: Discard the last element of the array.
+     */
+    public void discardLast() {
+        assert this.elementsCount > 0;
+
+        this.elementsCount--;
+        /* #if ($TemplateOptions.KTypeGeneric) */
+        this.buffer[this.elementsCount] = null;
+        /* #end */
+    }
+
+    /**
+     * Stack emulating method: Discard the last element of the array, and return it.
+     */
+    public KType popLast() {
+        assert this.elementsCount > 0;
+
+        final KType v = Intrinsics.<KType> cast(this.buffer[--this.elementsCount]);
+        /* #if ($TemplateOptions.KTypeGeneric) */
+        this.buffer[this.elementsCount] = null;
+        /* #end */
+        return v;
+    }
+
+    /**
+     * Stack emulating method: Peek at the last element on the array.
+     */
+    public KType peekLast() {
+
+        assert this.elementsCount > 0;
+        return Intrinsics.<KType> cast(this.buffer[this.elementsCount - 1]);
     }
 
     private void checkRangeBounds(final int beginIndex, final int endIndex) {
