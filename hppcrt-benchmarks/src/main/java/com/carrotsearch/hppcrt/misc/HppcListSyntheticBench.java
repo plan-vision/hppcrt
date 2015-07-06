@@ -512,14 +512,13 @@ public class HppcListSyntheticBench
                 //remove by iterator
                 try
                 {
-                    while (!it.isTail())
+                    while (it.hasAfter())
                     {
-                        it.delete();
+                        it.removeNext();
                     }
 
                     sum = list.size();
-                }
-                finally
+                } finally
                 {
                     it.release();
                 }
@@ -599,19 +598,18 @@ public class HppcListSyntheticBench
                 final LongLinkedList linkedlist = (LongLinkedList) list;
 
                 //remove by reversed iterator
-                final LongLinkedList.DescendingValueIterator it = linkedlist.descendingIterator().gotoNext();
+                final LongLinkedList.DescendingValueIterator it = linkedlist.descendingIterator();
 
                 //remove by iterator
                 try
                 {
-                    while (!it.isTail())
+                    while (it.hasAfter())
                     {
-                        it.delete();
+                        it.removeNext();
                     }
 
                     sum = list.size();
-                }
-                finally
+                } finally
                 {
                     it.release();
                 }
@@ -663,7 +661,7 @@ public class HppcListSyntheticBench
 
     }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /**
      * main
      */

@@ -889,31 +889,13 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     }
 
     /**
-     * A specialized iterator implementation for {@link ObjectLinkedList#iterator}s.
+     * A specialized iterator implementation for {@link KTypeLinkedList#iterator}s.
      * <pre>
      * <b>
      * Important: NEVER USE java.util.Iterator methods directly, only use the specialized methods instead !
      * {@link Iterator#hasNext()} and {@link Iterator#next()} are only for enhanced-loop support, using them
      * directly will lead to unpredictable results !
      * </b>
-     * </pre>
-     * Iteration example:
-     * <pre>
-     *   KTypeLinkedList.ValueIterator it = null;
-     *   try
-     *   {
-     *       for (it = list.iterator().gotoNext(); !it.isTail(); it.gotoNext())
-     *       {
-     *
-     *          // do something
-     *       }
-     *   }
-     *   finally
-     *   {
-     *       //do not forget to release the iterator !
-     *       it.release();
-     *   }
-     * </pre>
      */
     public class ValueIterator extends AbstractIterator<KTypeCursor<KType>>
     {
@@ -954,46 +936,33 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
         }
 
         ///////////////////////// Forward iteration methods //////////////////////////////////////
+
         /**
-         * True is iterator points to the "head", i.e such as gotoNext() point to the first
-         * element, with respect to the forward iteration.
-         * 
+         * Analog to {@link #hasNext()}, returns true if there is an element after the current position,
+         * with respect to the forward iteration. Always false if the list is empty. (i.e no next element)
+         * @see #hasBefore()
          */
-        public boolean isHead() {
-            return this.internalPos == KTypeLinkedList.HEAD_POSITION;
+        public boolean hasAfter() {
+            final int nextPos = getLinkAfter(this.pointers[this.internalPos]);
+
+            return (nextPos != KTypeLinkedList.TAIL_POSITION);
         }
 
         /**
-         * True is iterator points to the "tail", i.e such as gotoPrevious() point to the last
-         * element, with respect to the forward iteration.
-         * 
+         * Inverse of {@link #hasAfter()}, i.e. returns true if there is an element before the current position,
+         * with respect to the forward iteration. Always false if the list is empty. (i.e no previous element)
+         * @see #hasAfter()
          */
-        public boolean isTail() {
-            return this.internalPos == KTypeLinkedList.TAIL_POSITION;
+        public boolean hasBefore() {
+            final int beforePos = getLinkBefore(this.pointers[this.internalPos]);
+
+            return (beforePos != KTypeLinkedList.HEAD_POSITION);
         }
 
         /**
-         * True if the iterator points to the first element
-         * with respect to the forward iteration. Always true if the list is empty. (i.e no previous element)
-         */
-        public boolean isFirst() {
-            final int nextPos = getLinkAfter(this.pointers[KTypeLinkedList.HEAD_POSITION]);
-
-            return (nextPos == KTypeLinkedList.TAIL_POSITION) ? true : (nextPos == this.internalPos);
-        }
-
-        /**
-         * True if the iterator points to the last element
-         * with respect to the forward iteration. Always true if the list is empty. (i.e no next element)
-         */
-        public boolean isLast() {
-            final int beforePos = getLinkBefore(this.pointers[KTypeLinkedList.TAIL_POSITION]);
-
-            return (beforePos == KTypeLinkedList.HEAD_POSITION) ? true : (beforePos == this.internalPos);
-        }
-
-        /**
-         * Move the iterator to the "head", returning itself for chaining.
+         * Reset the iterator to the "head", returning itself for chaining.
+         * Head is such that gotoHead().gotoNext() points to the first element of the list, with respect to the forward iteration.
+         * (if the list is not empty)
          */
         public ValueIterator gotoHead() {
 
@@ -1006,7 +975,9 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
         }
 
         /**
-         * Move the iterator to the "tail", returning itself for chaining.
+         * Reset the iterator to the "tail", returning itself for chaining.
+         * Tail is such that gotoTail().gotoPrevious() points to the last element of the list, with respect to the forward iteration.
+         * (if the list is not empty)
          */
         public ValueIterator gotoTail() {
 
@@ -1019,8 +990,8 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
         }
 
         /**
-         * Move the iterator to the next element, with respect to the forward iteration,
-         * returning itself for chaining. When "tail" is reached, gotoNext() stays in place, at tail.
+         * Analog to {@link #next() }, move the iterator to the next element, with respect to the forward iteration,
+         * returning itself for chaining.
          */
         public ValueIterator gotoNext() {
 
@@ -1043,7 +1014,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
 
         /**
          * Move the iterator to the previous element, with respect to the forward iteration,
-         * returning itself for chaining. When "head" is reached, gotoPrevious() stays in place, at head.
+         * returning itself for chaining.
          */
         public ValueIterator gotoPrevious() {
 
@@ -1240,31 +1211,13 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     }
 
     /**
-     * A specialized iterator implementation for {@link ObjectLinkedList#descendingIterator()}s.
+     * A specialized iterator implementation for {@link KTypeLinkedList#descendingIterator()}s.
      * <pre>
      * <b>
      * Important: NEVER USE java.util.Iterator methods directly, only use the specialized methods instead !
      * {@link Iterator#hasNext()} and {@link Iterator#next()} are only for enhanced-loop support, using them
      * directly will lead to unpredictable results !
      * </b>
-     * </pre>
-     * Iteration example:
-     * <pre>
-     *   KTypeLinkedList.DescendingValueIterator it = null;
-     *   try
-     *   {
-     *       for (it = list.iterator().gotoNext(); !it.isTail(); it.gotoNext())
-     *       {
-     *
-     *          // do something
-     *       }
-     *   }
-     *   finally
-     *   {
-     *       //do not forget to release the iterator !
-     *       it.release();
-     *   }
-     * </pre>
      */
     public final class DescendingValueIterator extends ValueIterator
     {
@@ -1302,32 +1255,16 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
          * {@inheritDoc}
          */
         @Override
-        public boolean isHead() {
-            return super.isTail();
+        public boolean hasAfter() {
+            return super.hasBefore();
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        public boolean isTail() {
-            return super.isHead();
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean isFirst() {
-            return super.isLast();
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean isLast() {
-            return super.isFirst();
+        public boolean hasBefore() {
+            return super.hasAfter();
         }
 
         /**
@@ -1461,9 +1398,9 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * 
      * <pre>
      * ValueIterator it = list.iterator();
-     * while (!it.isTail())
+     * while (it.hasAfter())
      * {
-     * final KTypeCursor c = it.gotoNext();
+     * final KTypeCursor c = it.gotoNext().cursor;
      * System.out.println(&quot;buffer index=&quot;
      * + c.index + &quot; value=&quot; + c.value);
      * }
@@ -1493,9 +1430,9 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      *
      * * <pre>
      * DescendingValueIterator it = list.descendingIterator();
-     * while (!it.isTail())
+     * while (it.hasAfter())
      * {
-     * final KTypeCursor c = it.gotoNext();
+     * final KTypeCursor c = it.gotoNext().cursor;
      * System.out.println(&quot;buffer index=&quot;
      * + c.index + &quot; value=&quot; + c.value);
      * }
@@ -1778,8 +1715,8 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
     /*! #else
-                                                                                                KTypeComparator<? super KType>
-                                                                                            #end !*/
+                                                                                                                        KTypeComparator<? super KType>
+                                                                                                                    #end !*/
     comp) {
 
         if (endIndex - beginIndex > 1) {

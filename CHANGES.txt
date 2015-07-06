@@ -8,6 +8,7 @@ HPPCRT-40: Remove DoubleLinkedIntSet and BitSet
 HPPCRT-41: Remove senseless key types for CustomHash containers. Now CustomHash are only generated for int, long, Object keys.  
 HPPCRT-42: Remove all Boolean containers versions. Usage for them is either uncommon, or can be easily emulated with the other containers.  
 HPPCRT-43: Remove Stacks. Replaced by adding a few stack-emulating methods to KTypeArrayList.
+HPPCRT-44: Simplify LinkedList iteration. Removed isFirst(), isLast(), isHead(), isTail() iterator methods and replace them by hasAfter()/ hashBefore().
 HPPC-140: On maps, values() and keys() returns a full-fledged Collection. Indeed, keys() and values() already returned Collection from a long time in HPPC-RT. 
 Still, rename the retuned types from KeysContainer/ValuesContainer into KeysCollection/ValuesCollection to stress on that fact.
 
