@@ -21,7 +21,7 @@ public abstract class AbstractIterator<E> implements Iterator<E>
      * true if the iterator is in the pool (i.e free)
      * else it means it is in use, somewhere outside the pool
      */
-    protected boolean isFree = true;
+    private boolean isFree = true;
 
     /**
      * The next element to be returned from {@link #next()} if
@@ -32,7 +32,7 @@ public abstract class AbstractIterator<E> implements Iterator<E>
     /**
      * The {@link IteratorPool} the iterator comes from, if any. (if != null).
      */
-    protected IteratorPool<E, AbstractIterator<E>> iteratorPool = null;
+    private IteratorPool<E, AbstractIterator<E>> iteratorPool = null;
 
     /**
      * {@inheritDoc}
@@ -99,8 +99,9 @@ public abstract class AbstractIterator<E> implements Iterator<E>
 
     /**
      * Associate the pool the iterator instance came from.
+     * (package visibility only)
      */
-    public final void setPool(final IteratorPool<E, AbstractIterator<E>> pool)
+    final void setPool(final IteratorPool<E, AbstractIterator<E>> pool)
     {
         this.iteratorPool = pool;
     }
@@ -108,8 +109,9 @@ public abstract class AbstractIterator<E> implements Iterator<E>
     /**
      * reset state of the Iterator, so it is ready to iterate
      * again, just as in a new creation.
+     * (package visibility only)
      */
-    public final void resetState()
+    final void resetState()
     {
         this.state = AbstractIterator.NOT_CACHED;
     }
@@ -117,8 +119,9 @@ public abstract class AbstractIterator<E> implements Iterator<E>
     /**
      * Call to notify the iterator is now borrowed, i.e
      * no longer in in its associated pool (if any)
+     * (package visibility only)
      */
-    public final void setBorrowed()
+    final void setBorrowed()
     {
         this.isFree = false;
     }
@@ -145,13 +148,4 @@ public abstract class AbstractIterator<E> implements Iterator<E>
             this.isFree = true;
         }
     }
-
-    /**
-     * @return The pool associated with this current instance of iterator, if any. (!= null)
-     */
-    public final IteratorPool<E, AbstractIterator<E>> getPool() {
-
-        return this.iteratorPool;
-    }
-
 }
