@@ -5,6 +5,7 @@ import java.util.*;
 import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.cursors.*;
 import com.carrotsearch.hppcrt.hash.BitMixer;
+import com.carrotsearch.hppcrt.lists.KTypeLinkedList.ValueIterator;
 import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
 import com.carrotsearch.hppcrt.sorting.*;
@@ -966,51 +967,49 @@ extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexe
     @SuppressWarnings("unchecked")
     /*! #end !*/
     public boolean equals(final Object obj) {
+
         if (obj != null) {
+
             if (obj == this) {
                 return true;
             }
 
-            if (obj instanceof KTypeDeque<?>) {
+            if (obj instanceof KTypeLinkedList<?>) { //Access by index is slow, iterate by iterator when the other is a linked list
 
-                final KTypeDeque<KType> other = (KTypeDeque<KType>) obj;
+                final KTypeLinkedList<?> other = (KTypeLinkedList<?>) obj;
 
                 if (other.size() != this.size()) {
 
                     return false;
                 }
 
-                final int fromIndex = this.head;
-                final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
-                int i = fromIndex;
-
-                //request a pooled iterator
-                final Iterator<KTypeCursor<KType>> it = other.iterator();
-
-                KTypeCursor<KType> c;
+                final ValueIterator it = this.iterator();
+                final KTypeLinkedList<KType>.ValueIterator itOther = (KTypeLinkedList<KType>.ValueIterator) other.iterator();
 
                 while (it.hasNext()) {
-                    c = it.next();
 
-                    if (!Intrinsics.<KType> equals(c.value, buffer[i])) {
-                        //if iterator was pooled, recycled it
-                        if (it instanceof AbstractIterator<?>) {
-                            ((AbstractIterator<?>) it).release();
-                        }
+                    final KType myVal = it.next().value;
+                    final KType otherVal = itOther.next().value;
+
+                    if (!Intrinsics.<KType> equals(myVal, otherVal)) {
+                        //recycle
+                        it.release();
+                        itOther.release();
 
                         return false;
                     }
-                    i = oneRight(i, buffer.length);
-                }
+                } //end while
 
+                itOther.release();
                 return true;
-
-            } //end if KTypeDeque
+            }
             else if (obj instanceof KTypeIndexedContainer<?>) {
+                //we can compare with any KTypeIndexedContainer :
                 final KTypeIndexedContainer<?> other = (KTypeIndexedContainer<?>) obj;
                 return other.size() == this.size() && allIndexesEqual(this, (KTypeIndexedContainer<KType>) other, this.size());
             }
         }
+
         return false;
     }
 

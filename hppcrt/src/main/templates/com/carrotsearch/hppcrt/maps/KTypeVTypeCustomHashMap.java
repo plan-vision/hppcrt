@@ -52,7 +52,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeCustomHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     protected VType defaultValue = Intrinsics.<VType> empty();
 
@@ -67,8 +67,8 @@ public class KTypeVTypeCustomHashMap<KType, VType>
           KType []
           #else !*/
     Object[]
-    /*! #end !*/
-    keys;
+            /*! #end !*/
+            keys;
 
     /**
      * Hash-indexed array holding all values associated to the keys.
@@ -78,8 +78,8 @@ public class KTypeVTypeCustomHashMap<KType, VType>
           VType []
           #else !*/
     Object[]
-    /*! #end !*/
-    values;
+            /*! #end !*/
+            values;
 
     /*! #if ($RH) !*/
     /**
@@ -988,7 +988,9 @@ public class KTypeVTypeCustomHashMap<KType, VType>
                     return false;
                 }
 
-                if (!Intrinsics.<VType> equals(c.value, other.get(c.key))) {
+                final VType otherValue = other.get(c.key);
+
+                if (!Intrinsics.<VType> equals(c.value, otherValue)) {
                     //recycle
                     it.release();
                     return false;

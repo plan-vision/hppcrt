@@ -47,7 +47,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     protected VType defaultValue = Intrinsics.<VType> empty();
 
@@ -62,8 +62,8 @@ public class KTypeVTypeHashMap<KType, VType>
           KType []
           #else !*/
     Object[]
-    /*! #end !*/
-    keys;
+            /*! #end !*/
+            keys;
 
     /**
      * Hash-indexed array holding all values associated to the keys.
@@ -73,8 +73,8 @@ public class KTypeVTypeHashMap<KType, VType>
           VType []
           #else !*/
     Object[]
-    /*! #end !*/
-    values;
+            /*! #end !*/
+            values;
 
     /*! #if ($RH) !*/
     /**
@@ -934,7 +934,7 @@ public class KTypeVTypeHashMap<KType, VType>
             /* #if ($TemplateOptions.AnyGeneric) */
             @SuppressWarnings("unchecked")
             final/* #end */
-            KTypeVTypeMap<KType, VType> other = (KTypeVTypeMap<KType, VType>) obj;
+            KTypeVTypeHashMap<KType, VType> other = (KTypeVTypeHashMap<KType, VType>) obj;
 
             //must be of the same size
             if (other.size() != this.size()) {
@@ -952,7 +952,9 @@ public class KTypeVTypeHashMap<KType, VType>
                     return false;
                 }
 
-                if (!Intrinsics.<VType> equals(c.value, other.get(c.key))) {
+                final VType otherValue = other.get(c.key);
+
+                if (!Intrinsics.<VType> equals(c.value, otherValue)) {
                     //recycle
                     it.release();
                     return false;

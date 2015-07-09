@@ -1115,6 +1115,101 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
     @SuppressWarnings("unchecked")
     /*! #end !*/
     @Test
+    public void testEquals()
+    {
+        final KTypeVTypeMap<KType, VType> l0 = createNewMapInstance();
+        Assert.assertEquals(0, l0.hashCode());
+        Assert.assertEquals(l0, createNewMapInstance());
+
+        final KTypeVTypeMap<KType, VType> l1 = getFromArrays(
+                newArray(this.key1, this.key2, this.key3),
+                newvArray(this.value1, this.value2, this.value3));
+
+        final KTypeVTypeMap<KType, VType> l2 = getFromArrays(
+                newArray(this.key2, this.key1, this.key3),
+                newvArray(this.value2, this.value1, this.value3));
+
+        final KTypeVTypeMap<KType, VType> l3 = getFromArrays(
+                newArray(this.key1, this.key2),
+                newvArray(this.value2, this.value1));
+
+        Assert.assertEquals(l1.hashCode(), l2.hashCode());
+        Assert.assertEquals(l1, l2);
+        Assert.assertEquals(l2, l1);
+
+        Assert.assertFalse(l1.equals(l3));
+        Assert.assertFalse(l3.equals(l1));
+        Assert.assertFalse(l2.equals(l3));
+        Assert.assertFalse(l3.equals(l2));
+        Assert.assertTrue(l2.equals(l1));
+        Assert.assertTrue(l1.equals(l2));
+
+        Assert.assertFalse(l1.equals(null));
+        Assert.assertFalse(l2.equals(null));
+        Assert.assertFalse(l3.equals(null));
+
+        l1.put(this.keyE, this.value3);
+        l2.put(this.keyE, this.value3);
+
+        Assert.assertEquals(l1.hashCode(), l2.hashCode());
+        Assert.assertEquals(l1, l2);
+        Assert.assertEquals(l2, l1);
+
+        //Change the value on existing keys, no longer equals
+        l2.put(this.keyE, this.value7);
+        Assert.assertNotEquals(l1, l2);
+        Assert.assertNotEquals(l2, l1);
+
+        l1.put(this.keyE, this.value7);
+        Assert.assertEquals(l1, l2);
+        Assert.assertEquals(l2, l1);
+        Assert.assertEquals(l1.hashCode(), l2.hashCode());
+
+        l2.put(this.key2, this.value6);
+        Assert.assertNotEquals(l1, l2);
+        Assert.assertNotEquals(l2, l1);
+
+        l1.put(this.key2, this.value6);
+        Assert.assertEquals(l1, l2);
+        Assert.assertEquals(l2, l1);
+        Assert.assertEquals(l1.hashCode(), l2.hashCode());
+
+        l2.remove(this.keyE);
+        Assert.assertNotEquals(l1, l2);
+        Assert.assertNotEquals(l2, l1);
+
+        l1.remove(this.keyE);
+        Assert.assertEquals(l1, l2);
+        Assert.assertEquals(l2, l1);
+        Assert.assertEquals(l1.hashCode(), l2.hashCode());
+
+        l2.remove(this.key3);
+        Assert.assertNotEquals(l1, l2);
+        Assert.assertNotEquals(l2, l1);
+
+        l1.remove(this.key3);
+        Assert.assertEquals(l1, l2);
+        Assert.assertEquals(l2, l1);
+        Assert.assertEquals(l1.hashCode(), l2.hashCode());
+
+        l2.clear();
+        Assert.assertNotEquals(l1, l2);
+        Assert.assertNotEquals(l2, l1);
+
+        l1.clear();
+        Assert.assertEquals(l1, l2);
+        Assert.assertEquals(l2, l1);
+        Assert.assertEquals(l1.hashCode(), l2.hashCode());
+
+        Assert.assertFalse(l1.equals(null));
+        Assert.assertFalse(l2.equals(null));
+        Assert.assertFalse(l3.equals(null));
+    }
+
+    /*! #if ($TemplateOptions.VTypeGeneric) !*/
+    @SuppressWarnings("unchecked")
+    /*! #end !*/
+    @Test
     public void testBug_HPPC37()
     {
         final KTypeVTypeMap<KType, VType> l1 = getFromArrays(

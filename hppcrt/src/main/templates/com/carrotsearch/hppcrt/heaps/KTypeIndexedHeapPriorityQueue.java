@@ -808,16 +808,19 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
                     return false;
                 }
 
+                final KType mineValue = c.value;
+                final KType otherValue = other.get(c.key);
+
                 if (this.comparator == null) {
 
-                    if (!Intrinsics.<KType> equals(c.value, other.get(c.key))) {
+                    if (!Intrinsics.<KType> equals(mineValue, otherValue)) {
                         //recycle
                         it.release();
                         return false;
                     }
                 } else {
 
-                    if (this.comparator.compare(c.value, other.get(c.key)) != 0) {
+                    if (this.comparator.compare(mineValue, otherValue) != 0) {
                         //recycle
                         it.release();
                         return false;

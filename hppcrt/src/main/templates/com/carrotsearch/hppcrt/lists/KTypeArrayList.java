@@ -5,6 +5,7 @@ import java.util.*;
 import com.carrotsearch.hppcrt.*;
 import com.carrotsearch.hppcrt.cursors.*;
 import com.carrotsearch.hppcrt.hash.BitMixer;
+import com.carrotsearch.hppcrt.lists.KTypeLinkedList.ValueIterator;
 import com.carrotsearch.hppcrt.predicates.*;
 import com.carrotsearch.hppcrt.procedures.*;
 import com.carrotsearch.hppcrt.sorting.*;
@@ -553,10 +554,42 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
                 return true;
             }
 
+            //optimized for KTypeArrayList
             if (obj instanceof KTypeArrayList<?>) {
+
                 final KTypeArrayList<?> other = (KTypeArrayList<?>) obj;
                 return other.size() == this.size() && rangeEquals(other.buffer, this.buffer, size());
-            } else if (obj instanceof KTypeIndexedContainer<?>) {
+
+            } else if (obj instanceof KTypeLinkedList<?>) { //Access by index is slow, iterate by iterator when the other is a linked list
+
+                final KTypeLinkedList<?> other = (KTypeLinkedList<?>) obj;
+
+                if (other.size() != this.size()) {
+
+                    return false;
+                }
+
+                final ValueIterator it = this.iterator();
+                final KTypeLinkedList<KType>.ValueIterator itOther = (KTypeLinkedList<KType>.ValueIterator) other.iterator();
+
+                while (it.hasNext()) {
+
+                    final KType myVal = it.next().value;
+                    final KType otherVal = itOther.next().value;
+
+                    if (!Intrinsics.<KType> equals(myVal, otherVal)) {
+                        //recycle
+                        it.release();
+                        itOther.release();
+
+                        return false;
+                    }
+                } //end while
+
+                itOther.release();
+                return true;
+            }
+            else if (obj instanceof KTypeIndexedContainer<?>) {
                 final KTypeIndexedContainer<?> other = (KTypeIndexedContainer<?>) obj;
                 return other.size() == this.size() && allIndexesEqual(this, (KTypeIndexedContainer<KType>) other, this.size());
             }
@@ -585,7 +618,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     /**
      * Compare index-aligned KTypeIndexedContainer objects
      */
-    final protected boolean allIndexesEqual(final KTypeIndexedContainer<KType> b1, final KTypeIndexedContainer<KType> b2,
+    private boolean allIndexesEqual(final KTypeIndexedContainer<KType> b1, final KTypeIndexedContainer<KType> b2,
             final int length) {
         for (int i = 0; i < length; i++) {
             final KType o1 = b1.get(i);

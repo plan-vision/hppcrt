@@ -214,13 +214,13 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
         addFromArray(this.set, newArray(this.k0, this.k1, this.k2));
 
         Assert.assertEquals(1, this.set.removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == AbstractKTypeHashSetTest.this.k1;
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.k0, this.k2);
     }
@@ -232,13 +232,13 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
         addFromArray(this.set, this.keyE, this.key1, this.key2, this.key4);
 
         Assert.assertEquals(2, this.set.removeAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return (v == AbstractKTypeHashSetTest.this.key1) || (v == AbstractKTypeHashSetTest.this.keyE);
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.key2, this.key4);
     }
@@ -255,7 +255,7 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size + 1
             Assert.assertEquals(10, this.set.removeAll(new KTypePredicate<KType>()
-            {
+                    {
                 @Override
                 public boolean apply(final KType v)
                 {
@@ -264,7 +264,7 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
                     }
                     return v == AbstractKTypeHashSetTest.this.key2 || v == AbstractKTypeHashSetTest.this.key9 || v == AbstractKTypeHashSetTest.this.key5;
                 };
-            }));
+                    }));
 
             Assert.fail();
         } catch (final RuntimeException e)
@@ -289,13 +289,13 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
         addFromArray(this.set, newArray(this.k0, this.k1, this.k2, this.k3, this.k4, this.k5));
 
         Assert.assertEquals(4, this.set.retainAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == AbstractKTypeHashSetTest.this.key1 || v == AbstractKTypeHashSetTest.this.key2;
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.key1, this.key2);
     }
@@ -307,13 +307,13 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
         addFromArray(this.set, newArray(this.keyE, this.k1, this.k2, this.k3, this.k4, this.k5));
 
         Assert.assertEquals(4, this.set.retainAll(new KTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final KType v)
             {
                 return v == AbstractKTypeHashSetTest.this.keyE || v == AbstractKTypeHashSetTest.this.k3;
             };
-        }));
+                }));
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.keyE, this.k3);
     }
@@ -471,6 +471,101 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
 
     }
 
+    /* */
+    @Test
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    @SuppressWarnings("unchecked")
+    /*! #end !*/
+    public void testEquals()
+    {
+        final KTypeSet<KType> l0 = getFrom();
+        Assert.assertEquals(l0, createNewSetInstance());
+
+        KTypeSet<KType> l1 = getFrom(this.k1, this.k2, this.k3, this.k4, this.k5);
+        KTypeSet<KType> l2 = getFrom(this.k2, this.k1);
+
+        Assert.assertNotEquals(l1, l2);
+        Assert.assertNotEquals(l2, l1);
+
+        Assert.assertFalse(l1.equals(null));
+        Assert.assertFalse(l2.equals(null));
+
+        l2.add(this.k5);
+        Assert.assertNotEquals(l1, l2);
+        Assert.assertNotEquals(l2, l1);
+
+        l2.add(this.k4);
+        Assert.assertNotEquals(l1, l2);
+        Assert.assertNotEquals(l2, l1);
+
+        l2.add(this.k3);
+        Assert.assertEquals(l1, l2);
+        Assert.assertEquals(l2, l1);
+        //Check consistency with hashCode:
+        Assert.assertEquals(l1.hashCode(), l2.hashCode());
+
+        l1.add(this.keyE);
+        Assert.assertNotEquals(l1, l2);
+        Assert.assertNotEquals(l2, l1);
+
+        l2.add(this.keyE);
+
+        Assert.assertEquals(l1, l2);
+        Assert.assertEquals(l2, l1);
+        //Check consistency with hashCode:
+        Assert.assertEquals(l1.hashCode(), l2.hashCode());
+
+        l2.remove(this.keyE);
+
+        Assert.assertNotEquals(l1, l2);
+        Assert.assertNotEquals(l2, l1);
+
+        l2.add(this.keyE);
+
+        Assert.assertEquals(l1, l2);
+        Assert.assertEquals(l2, l1);
+        //Check consistency with hashCode:
+        Assert.assertEquals(l1.hashCode(), l2.hashCode());
+
+        l2.remove(this.k7); //not present, sets are still OK
+        Assert.assertEquals(l1, l2);
+        Assert.assertEquals(l2, l1);
+        //Check consistency with hashCode:
+        Assert.assertEquals(l1.hashCode(), l2.hashCode());
+
+        l2.remove(this.k2);
+
+        Assert.assertNotEquals(l1, l2);
+        Assert.assertNotEquals(l2, l1);
+
+        l1.remove(this.k2);
+        Assert.assertEquals(l1, l2);
+        Assert.assertEquals(l2, l1);
+        //Check consistency with hashCode:
+        Assert.assertEquals(l1.hashCode(), l2.hashCode());
+
+        l1.add(this.k7);
+        Assert.assertNotEquals(l1, l2);
+        Assert.assertNotEquals(l2, l1);
+
+        l2.clear();
+        Assert.assertNotEquals(l1, l2);
+        Assert.assertNotEquals(l2, l1);
+
+        l1.clear();
+        Assert.assertEquals(l1, l2);
+        Assert.assertEquals(l2, l1);
+        //Check consistency with hashCode:
+        Assert.assertEquals(l1.hashCode(), l2.hashCode());
+
+        //Same size, different contents
+        l1 = getFrom(this.k1, this.k2, this.k3, this.k4, this.k5);
+        l2 = getFrom(this.k2, this.k1, this.key5, this.key6, this.key7);
+
+        Assert.assertNotEquals(l1, l2);
+        Assert.assertNotEquals(l2, l1);
+    }
+
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     @SuppressWarnings("unchecked")
     @Test
@@ -507,10 +602,10 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
     {
         Assume.assumeTrue(
                 int[].class.isInstance(getKeys(this.set)) ||
-                        short[].class.isInstance(getKeys(this.set)) ||
-                        byte[].class.isInstance(getKeys(this.set)) ||
-                        long[].class.isInstance(getKeys(this.set)) ||
-                        Object[].class.isInstance(getKeys(this.set)));
+                short[].class.isInstance(getKeys(this.set)) ||
+                byte[].class.isInstance(getKeys(this.set)) ||
+                long[].class.isInstance(getKeys(this.set)) ||
+                Object[].class.isInstance(getKeys(this.set)));
 
         addFromArray(this.set, this.key1, this.key2);
         String asString = this.set.toString();

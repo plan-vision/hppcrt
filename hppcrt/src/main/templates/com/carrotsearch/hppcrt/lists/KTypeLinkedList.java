@@ -662,102 +662,50 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     @SuppressWarnings("unchecked")
     /*! #end !*/
     public boolean equals(final Object obj) {
+
         if (obj != null) {
             if (obj == this) {
                 return true;
             }
 
-            final long[] pointers = this.beforeAfterPointers;
-            final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
+            //we can compare any list, i.e any KTypeIndexedContainer or KTypeDeque, that is where elements
+            //are implicitly ordered as a list. On the other hand, iterate as simple KTypeContainer !
+            if (!(obj instanceof KTypeDeque<?> || obj instanceof KTypeIndexedContainer<?>)) {
 
-            if (obj instanceof KTypeLinkedList<?>) {
-                final KTypeLinkedList<?> other = (KTypeLinkedList<?>) obj;
-
-                if (other.size() != this.size()) {
-                    return false;
-                }
-
-                final long[] pointersOther = other.beforeAfterPointers;
-                final KType[] bufferOther = (KType[]) other.buffer;
-
-                //compare index/index
-                int currentPos = getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
-                int currentPosOther = getLinkAfter(pointersOther[KTypeLinkedList.HEAD_POSITION]);
-
-                while (currentPos != KTypeLinkedList.TAIL_POSITION && currentPosOther != KTypeLinkedList.TAIL_POSITION) {
-                    if (!Intrinsics.<KType> equals(buffer[currentPos], bufferOther[currentPosOther])) {
-                        return false;
-                    }
-
-                    //increment both
-                    currentPos = getLinkAfter(pointers[currentPos]);
-                    currentPosOther = getLinkAfter(pointersOther[currentPosOther]);
-                }
-
-                return true;
-            } else if (obj instanceof KTypeDeque<?>) {
-
-                final KTypeDeque<KType> other = (KTypeDeque<KType>) obj;
-
-                if (other.size() != this.size()) {
-                    return false;
-                }
-
-                //compare index/index
-                int currentPos = getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
-
-                //request a pooled iterator
-                final Iterator<KTypeCursor<KType>> it = other.iterator();
-
-                KTypeCursor<KType> c;
-
-                //iterate over the linkedList
-                while (currentPos != KTypeLinkedList.TAIL_POSITION) {
-                    c = it.next();
-
-                    if (!Intrinsics.<KType> equals(buffer[currentPos], c.value)) {
-                        //if iterator was pooled, recycled it
-                        if (it instanceof AbstractIterator<?>) {
-                            ((AbstractIterator<?>) it).release();
-                        }
-
-                        return false;
-                    }
-
-                    //increment both
-                    currentPos = getLinkAfter(pointers[currentPos]);
-                } //end while
-
-                //if iterator was pooled, recycled it
-                if (it instanceof AbstractIterator<?>) {
-                    ((AbstractIterator<?>) it).release();
-                }
-
-                return true;
-            } else if (obj instanceof KTypeIndexedContainer<?>) {
-
-                final KTypeIndexedContainer<KType> other = (KTypeIndexedContainer<KType>) obj;
-
-                if (other.size() != this.size()) {
-                    return false;
-                }
-
-                //compare index/index
-                int currentPos = getLinkAfter(pointers[KTypeLinkedList.HEAD_POSITION]);
-                int index = 0;
-
-                while (currentPos != KTypeLinkedList.TAIL_POSITION) {
-                    if (!Intrinsics.<KType> equals(buffer[currentPos], other.get(index))) {
-                        return false;
-                    }
-
-                    //increment both
-                    currentPos = getLinkAfter(pointers[currentPos]);
-                    index++;
-                }
-
-                return true;
+                return false;
             }
+
+            final KTypeContainer<KType> other = (KTypeContainer<KType>) obj;
+
+            if (other.size() != this.size()) {
+
+                return false;
+            }
+
+            final ValueIterator it = this.iterator();
+            final Iterator<KTypeCursor<KType>> itOther = other.iterator();
+
+            while (it.hasNext()) {
+
+                final KType myVal = it.next().value;
+                final KType otherVal = itOther.next().value;
+
+                if (!Intrinsics.<KType> equals(myVal, otherVal)) {
+                    //recycle
+                    it.release();
+
+                    if (itOther instanceof AbstractIterator<?>) {
+                        ((AbstractIterator<?>) itOther).release();
+                    }
+                    return false;
+                }
+            } //end while
+
+            if (itOther instanceof AbstractIterator<?>) {
+                ((AbstractIterator<?>) itOther).release();
+            }
+
+            return true;
         }
         return false;
     }
