@@ -701,10 +701,12 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
 
         Assert.assertEquals(COUNT, testPQ.size());
         Assert.assertEquals(COUNT, testPQ2.size());
+        Assert.assertEquals(testPQ.hashCode(), testPQ2.hashCode());
 
         //B) compare both
         Assert.assertTrue(testPQ.equals(testPQ2));
         Assert.assertTrue(testPQ2.equals(testPQ));
+        Assert.assertEquals(testPQ.hashCode(), testPQ2.hashCode());
 
         //Add in one, not in the other
         testPQ.add(this.k5);
@@ -714,6 +716,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         testPQ2.add(this.k5);
         Assert.assertEquals(testPQ, testPQ2);
         Assert.assertEquals(testPQ2, testPQ);
+        Assert.assertEquals(testPQ.hashCode(), testPQ2.hashCode());
 
         testPQ2.popTop();
         Assert.assertNotEquals(testPQ, testPQ2);
@@ -722,6 +725,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         testPQ.popTop();
         Assert.assertEquals(testPQ, testPQ2);
         Assert.assertEquals(testPQ2, testPQ);
+        Assert.assertEquals(testPQ.hashCode(), testPQ2.hashCode());
 
         //Same size, different contents
         //Add in one, not in the other
@@ -864,6 +868,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         //same instance , by reference
         Assert.assertTrue(testPQ.equals(testPQSameInstance));
         Assert.assertTrue(testPQSameInstance.equals(testPQ));
+        Assert.assertEquals(testPQ.hashCode(), testPQSameInstance.hashCode());
 
         Assert.assertFalse(testPQ.equals(null));
         Assert.assertFalse(testPQSameInstance.equals(null));
@@ -875,6 +880,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         //different instances, but properly compared because instances are equals() = true
         Assert.assertTrue(testPQSame.equals(testPQSame2));
         Assert.assertTrue(testPQSame2.equals(testPQSame));
+        Assert.assertEquals(testPQSame.hashCode(), testPQSame2.hashCode());
 
         testPQSame.add(this.k9);
         Assert.assertNotEquals(testPQSame, testPQSame2);
@@ -883,6 +889,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         testPQSame2.add(this.k9);
         Assert.assertEquals(testPQSame, testPQSame2);
         Assert.assertEquals(testPQSame2, testPQSame);
+        Assert.assertEquals(testPQSame.hashCode(), testPQSame2.hashCode());
 
         testPQSame2.popTop();
         Assert.assertNotEquals(testPQSame, testPQSame2);
@@ -891,6 +898,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         testPQSame.popTop();
         Assert.assertEquals(testPQSame, testPQSame2);
         Assert.assertEquals(testPQSame2, testPQSame);
+        Assert.assertEquals(testPQSame.hashCode(), testPQSame2.hashCode());
 
         //same size, different contents
         testPQSame.add(this.k8);

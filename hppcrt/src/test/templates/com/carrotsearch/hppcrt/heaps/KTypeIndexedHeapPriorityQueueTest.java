@@ -1274,6 +1274,8 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
             testPQ2.put(i, cast(randomInt));
         } //end for
 
+        Assert.assertEquals(testPQ.hashCode(), testPQ2.hashCode());
+
         Assert.assertFalse(testPQ.equals(null));
         Assert.assertFalse(testPQ2.equals(null));
 
@@ -1283,6 +1285,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         //B) compare both
         Assert.assertEquals(testPQ, testPQ2);
         Assert.assertEquals(testPQ2, testPQ);
+        Assert.assertEquals(testPQ.hashCode(), testPQ2.hashCode());
 
         //Add in one, not in the other
         testPQ.put(COUNT + 2, this.k3);
@@ -1292,6 +1295,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         testPQ2.put(COUNT + 2, this.k3);
         Assert.assertEquals(testPQ, testPQ2);
         Assert.assertEquals(testPQ2, testPQ);
+        Assert.assertEquals(testPQ.hashCode(), testPQ2.hashCode());
 
         //same key, different values
         testPQ.put(COUNT + 2, this.k3);
@@ -1303,6 +1307,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         testPQ.put(COUNT + 2, this.k4);
         Assert.assertEquals(testPQ, testPQ2);
         Assert.assertEquals(testPQ2, testPQ);
+        Assert.assertEquals(testPQ.hashCode(), testPQ2.hashCode());
 
         testPQ.popTop();
         Assert.assertNotEquals(testPQ, testPQ2);
@@ -1311,6 +1316,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         testPQ2.popTop();
         Assert.assertEquals(testPQ, testPQ2);
         Assert.assertEquals(testPQ2, testPQ);
+        Assert.assertEquals(testPQ.hashCode(), testPQ2.hashCode());
 
         testPQ.remove(COUNT + 2);
         Assert.assertNotEquals(testPQ, testPQ2);
@@ -1319,6 +1325,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         testPQ2.remove(COUNT + 2);
         Assert.assertEquals(testPQ, testPQ2);
         Assert.assertEquals(testPQ2, testPQ);
+        Assert.assertEquals(testPQ.hashCode(), testPQ2.hashCode());
 
         //same size, different keys
         testPQ.put(COUNT + 5, this.k3);
@@ -1442,6 +1449,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         //same instance , by reference
         Assert.assertEquals(testPQ, testPQ2);
         Assert.assertEquals(testPQ2, testPQ);
+        Assert.assertEquals(testPQ.hashCode(), testPQ2.hashCode());
 
         //different instances, diff by default
         Assert.assertNotEquals(testPQ, testPQOtherInstance);
@@ -1450,6 +1458,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         //different instances, but properly compared because instances are equals() = true
         Assert.assertEquals(testPQSame, testPQSame2);
         Assert.assertEquals(testPQSame2, testPQSame);
+        Assert.assertEquals(testPQSame.hashCode(), testPQSame2.hashCode());
 
         Assert.assertFalse(testPQ.equals(null));
         Assert.assertFalse(testPQ2.equals(null));
@@ -1460,6 +1469,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         //B) compare both
         Assert.assertEquals(testPQ, testPQ2);
         Assert.assertEquals(testPQ2, testPQ);
+        Assert.assertEquals(testPQ.hashCode(), testPQ2.hashCode());
 
         //Add in one, not in the other
         testPQ.put(COUNT + 2, this.k3);
@@ -1469,6 +1479,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         testPQ2.put(COUNT + 2, this.k3);
         Assert.assertEquals(testPQ, testPQ2);
         Assert.assertEquals(testPQ2, testPQ);
+        Assert.assertEquals(testPQ.hashCode(), testPQ2.hashCode());
 
         //same key, different values
         testPQ.put(COUNT + 2, this.k3);
@@ -1480,6 +1491,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         testPQ.put(COUNT + 2, this.k4);
         Assert.assertEquals(testPQ, testPQ2);
         Assert.assertEquals(testPQ2, testPQ);
+        Assert.assertEquals(testPQ.hashCode(), testPQ2.hashCode());
 
         testPQ.popTop();
         Assert.assertNotEquals(testPQ, testPQ2);
@@ -1488,6 +1500,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         testPQ2.popTop();
         Assert.assertEquals(testPQ, testPQ2);
         Assert.assertEquals(testPQ2, testPQ);
+        Assert.assertEquals(testPQ.hashCode(), testPQ2.hashCode());
 
         testPQ.remove(COUNT + 2);
         Assert.assertNotEquals(testPQ, testPQ2);
@@ -1496,6 +1509,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         testPQ2.remove(COUNT + 2);
         Assert.assertEquals(testPQ, testPQ2);
         Assert.assertEquals(testPQ2, testPQ);
+        Assert.assertEquals(testPQ.hashCode(), testPQ2.hashCode());
 
         //same size, different keys
         testPQ.put(COUNT + 5, this.k3);

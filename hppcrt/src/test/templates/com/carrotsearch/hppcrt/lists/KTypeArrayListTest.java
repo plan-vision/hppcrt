@@ -336,6 +336,100 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeIndexedContainerTest
         assertOrder(comparatorListOriginal, comparatorList, lowerRange, upperRange);
     }
 
+    /* */
+    @Test
+    public void testEqualsVsLinkedList()
+    {
+        this.arrayList.add(this.key1, this.key2, this.key3, this.key4, this.key5);
+
+        final KTypeLinkedList<KType> other = KTypeLinkedList.newInstance();
+
+        Assert.assertNotEquals(this.arrayList, other);
+        Assert.assertNotEquals(other, this.arrayList);
+
+        other.add(this.key1);
+        Assert.assertNotEquals(this.arrayList, other);
+        Assert.assertNotEquals(other, this.arrayList);
+
+        other.add(this.key2, this.key3);
+        Assert.assertNotEquals(this.arrayList, other);
+        Assert.assertNotEquals(other, this.arrayList);
+
+        other.add(this.key4, this.key5);
+        Assert.assertEquals(this.arrayList, other);
+        Assert.assertEquals(other, this.arrayList);
+        Assert.assertEquals(this.arrayList.hashCode(), other.hashCode());
+
+        //they are the same
+        //modify index 2 original this.key3
+        other.set(2, this.key4);
+        Assert.assertNotEquals(this.arrayList, other);
+        Assert.assertNotEquals(other, this.arrayList);
+
+        //re-establish
+        other.set(2, this.key3);
+        Assert.assertEquals(this.arrayList, other);
+        Assert.assertEquals(other, this.arrayList);
+        Assert.assertEquals(this.arrayList.hashCode(), other.hashCode());
+
+        //modify
+        other.addFirst(this.k8);
+        Assert.assertNotEquals(this.arrayList, other);
+        Assert.assertNotEquals(other, this.arrayList);
+
+        this.arrayList.insert(0, this.k8);
+        Assert.assertEquals(this.arrayList, other);
+        Assert.assertEquals(other, this.arrayList);
+        Assert.assertEquals(this.arrayList.hashCode(), other.hashCode());
+    }
+
+    /* */
+    @Test
+    public void testEqualsVsArrayDeque()
+    {
+        this.arrayList.add(this.key1, this.key2, this.key3, this.key4, this.key5);
+
+        final KTypeArrayDeque<KType> other = KTypeArrayDeque.newInstance();
+
+        Assert.assertNotEquals(this.arrayList, other);
+        Assert.assertNotEquals(other, this.arrayList);
+
+        other.add(this.key1);
+        Assert.assertNotEquals(this.arrayList, other);
+        Assert.assertNotEquals(other, this.arrayList);
+
+        other.addLast(this.key2, this.key3);
+        Assert.assertNotEquals(this.arrayList, other);
+        Assert.assertNotEquals(other, this.arrayList);
+
+        other.addLast(this.key4, this.key5);
+        Assert.assertEquals(this.arrayList, other);
+        Assert.assertEquals(other, this.arrayList);
+        Assert.assertEquals(this.arrayList.hashCode(), other.hashCode());
+
+        //they are the same
+        //modify index 2 original this.key3
+        other.set(2, this.key4);
+        Assert.assertNotEquals(this.arrayList, other);
+        Assert.assertNotEquals(other, this.arrayList);
+
+        //re-establish
+        other.set(2, this.key3);
+        Assert.assertEquals(this.arrayList, other);
+        Assert.assertEquals(other, this.arrayList);
+        Assert.assertEquals(this.arrayList.hashCode(), other.hashCode());
+
+        //modify
+        other.addFirst(this.k8);
+        Assert.assertNotEquals(this.arrayList, other);
+        Assert.assertNotEquals(other, this.arrayList);
+
+        this.arrayList.insert(0, this.k8);
+        Assert.assertEquals(this.arrayList, other);
+        Assert.assertEquals(other, this.arrayList);
+        Assert.assertEquals(this.arrayList.hashCode(), other.hashCode());
+    }
+
     //////////////////////////////////////////////
     // Stack-like methods
     //////////////////////////////////////////////

@@ -5,7 +5,6 @@ import java.util.*;
 import org.junit.*;
 
 import com.carrotsearch.hppcrt.*;
-import com.carrotsearch.hppcrt.TestUtils;
 import com.carrotsearch.hppcrt.strategies.*;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
@@ -226,6 +225,100 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
         comparatorDequeOriginal = createDequeWithRandomData(TEST_SIZE, currentSeed);
         comparatorDeque.sort(lowerRange, upperRange, comp);
         assertOrder(comparatorDequeOriginal, comparatorDeque, lowerRange, upperRange);
+    }
+
+    /* */
+    @Test
+    public void testEqualsVsArrayList()
+    {
+        this.deque.addLast(this.key1, this.key2, this.key3, this.key4, this.key5);
+
+        final KTypeArrayList<KType> other = KTypeArrayList.newInstance();
+
+        Assert.assertNotEquals(this.deque, other);
+        Assert.assertNotEquals(other, this.deque);
+
+        other.add(this.key1);
+        Assert.assertNotEquals(this.deque, other);
+        Assert.assertNotEquals(other, this.deque);
+
+        other.add(this.key2, this.key3);
+        Assert.assertNotEquals(this.deque, other);
+        Assert.assertNotEquals(other, this.deque);
+
+        other.add(this.key4, this.key5);
+        Assert.assertEquals(this.deque, other);
+        Assert.assertEquals(other, this.deque);
+        Assert.assertEquals(this.deque.hashCode(), other.hashCode());
+
+        //they are the same
+        //modify index 2 original this.key3
+        other.set(2, this.key4);
+        Assert.assertNotEquals(this.deque, other);
+        Assert.assertNotEquals(other, this.deque);
+
+        //re-establish
+        other.set(2, this.key3);
+        Assert.assertEquals(this.deque, other);
+        Assert.assertEquals(other, this.deque);
+        Assert.assertEquals(this.deque.hashCode(), other.hashCode());
+
+        //modify
+        other.insert(0, this.k8);
+        Assert.assertNotEquals(this.deque, other);
+        Assert.assertNotEquals(other, this.deque);
+
+        this.deque.addFirst(this.k8);
+        Assert.assertEquals(this.deque, other);
+        Assert.assertEquals(other, this.deque);
+        Assert.assertEquals(this.deque.hashCode(), other.hashCode());
+    }
+
+    /* */
+    @Test
+    public void testEqualsVsLinkedList()
+    {
+        this.deque.addLast(this.key1, this.key2, this.key3, this.key4, this.key5);
+
+        final KTypeLinkedList<KType> other = KTypeLinkedList.newInstance();
+
+        Assert.assertNotEquals(this.deque, other);
+        Assert.assertNotEquals(other, this.deque);
+
+        other.add(this.key1);
+        Assert.assertNotEquals(this.deque, other);
+        Assert.assertNotEquals(other, this.deque);
+
+        other.add(this.key2, this.key3);
+        Assert.assertNotEquals(this.deque, other);
+        Assert.assertNotEquals(other, this.deque);
+
+        other.add(this.key4, this.key5);
+        Assert.assertEquals(this.deque, other);
+        Assert.assertEquals(other, this.deque);
+        Assert.assertEquals(this.deque.hashCode(), other.hashCode());
+
+        //they are the same
+        //modify index 2 original this.key3
+        other.set(2, this.key4);
+        Assert.assertNotEquals(this.deque, other);
+        Assert.assertNotEquals(other, this.deque);
+
+        //re-establish
+        other.set(2, this.key3);
+        Assert.assertEquals(this.deque, other);
+        Assert.assertEquals(other, this.deque);
+        Assert.assertEquals(this.deque.hashCode(), other.hashCode());
+
+        //modify
+        other.insert(0, this.k8);
+        Assert.assertNotEquals(this.deque, other);
+        Assert.assertNotEquals(other, this.deque);
+
+        this.deque.addFirst(this.k8);
+        Assert.assertEquals(this.deque, other);
+        Assert.assertEquals(other, this.deque);
+        Assert.assertEquals(this.deque.hashCode(), other.hashCode());
     }
 
     private KTypeArrayDeque<KType> createDequeWithRandomData(final int size, final long randomSeed)

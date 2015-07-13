@@ -5,7 +5,6 @@ import java.util.*;
 import org.junit.*;
 
 import com.carrotsearch.hppcrt.*;
-import com.carrotsearch.hppcrt.TestUtils;
 import com.carrotsearch.hppcrt.strategies.*;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
@@ -57,10 +56,10 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
             int count = 0;
             //check access by get()
             for (/*! #if ($TemplateOptions.KTypeGeneric) !*/final Object
-                    /*! #else
+            /*! #else
             final KType
             #end !*/
-                    val : this.list.toArray()) {
+            val : this.list.toArray()) {
 
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 TestUtils.assertEquals2(val, (Object) this.list.get(count));
@@ -234,6 +233,100 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
         comparatorListOriginal = createLinkedListWithRandomData(TEST_SIZE, currentSeed);
         comparatorList.sort(lowerRange, upperRange, comp);
         assertOrder(comparatorListOriginal, comparatorList, lowerRange, upperRange);
+    }
+
+    /* */
+    @Test
+    public void testEqualsVsArrayList()
+    {
+        this.list.add(this.key1, this.key2, this.key3, this.key4, this.key5);
+
+        final KTypeArrayList<KType> other = KTypeArrayList.newInstance();
+
+        Assert.assertNotEquals(this.list, other);
+        Assert.assertNotEquals(other, this.list);
+
+        other.add(this.key1);
+        Assert.assertNotEquals(this.list, other);
+        Assert.assertNotEquals(other, this.list);
+
+        other.add(this.key2, this.key3);
+        Assert.assertNotEquals(this.list, other);
+        Assert.assertNotEquals(other, this.list);
+
+        other.add(this.key4, this.key5);
+        Assert.assertEquals(this.list, other);
+        Assert.assertEquals(other, this.list);
+        Assert.assertEquals(this.list.hashCode(), other.hashCode());
+
+        //they are the same
+        //modify index 2 original this.key3
+        other.set(2, this.key4);
+        Assert.assertNotEquals(this.list, other);
+        Assert.assertNotEquals(other, this.list);
+
+        //re-establish
+        other.set(2, this.key3);
+        Assert.assertEquals(this.list, other);
+        Assert.assertEquals(other, this.list);
+        Assert.assertEquals(this.list.hashCode(), other.hashCode());
+
+        //modify
+        other.insert(0, this.k8);
+        Assert.assertNotEquals(this.list, other);
+        Assert.assertNotEquals(other, this.list);
+
+        this.list.insert(0, this.k8);
+        Assert.assertEquals(this.list, other);
+        Assert.assertEquals(other, this.list);
+        Assert.assertEquals(this.list.hashCode(), other.hashCode());
+    }
+
+    /* */
+    @Test
+    public void testEqualsVsArrayDeque()
+    {
+        this.list.add(this.key1, this.key2, this.key3, this.key4, this.key5);
+
+        final KTypeArrayDeque<KType> other = KTypeArrayDeque.newInstance();
+
+        Assert.assertNotEquals(this.list, other);
+        Assert.assertNotEquals(other, this.list);
+
+        other.add(this.key1);
+        Assert.assertNotEquals(this.list, other);
+        Assert.assertNotEquals(other, this.list);
+
+        other.addLast(this.key2, this.key3);
+        Assert.assertNotEquals(this.list, other);
+        Assert.assertNotEquals(other, this.list);
+
+        other.addLast(this.key4, this.key5);
+        Assert.assertEquals(this.list, other);
+        Assert.assertEquals(other, this.list);
+        Assert.assertEquals(this.list.hashCode(), other.hashCode());
+
+        //they are the same
+        //modify index 2 original this.key3
+        other.set(2, this.key4);
+        Assert.assertNotEquals(this.list, other);
+        Assert.assertNotEquals(other, this.list);
+
+        //re-establish
+        other.set(2, this.key3);
+        Assert.assertEquals(this.list, other);
+        Assert.assertEquals(other, this.list);
+        Assert.assertEquals(this.list.hashCode(), other.hashCode());
+
+        //modify
+        other.addFirst(this.k8);
+        Assert.assertNotEquals(this.list, other);
+        Assert.assertNotEquals(other, this.list);
+
+        this.list.insert(0, this.k8);
+        Assert.assertEquals(this.list, other);
+        Assert.assertEquals(other, this.list);
+        Assert.assertEquals(this.list.hashCode(), other.hashCode());
     }
 
     private KTypeLinkedList<KType> createLinkedListWithRandomData(final int size, final long randomSeed)

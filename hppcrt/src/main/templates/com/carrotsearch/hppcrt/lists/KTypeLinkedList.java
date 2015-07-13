@@ -683,7 +683,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
             }
 
             final ValueIterator it = this.iterator();
-            final Iterator<KTypeCursor<KType>> itOther = other.iterator();
+            final AbstractIterator<KTypeCursor<KType>> itOther = (AbstractIterator<KTypeCursor<KType>>) other.iterator();
 
             while (it.hasNext()) {
 
@@ -693,17 +693,12 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
                 if (!Intrinsics.<KType> equals(myVal, otherVal)) {
                     //recycle
                     it.release();
-
-                    if (itOther instanceof AbstractIterator<?>) {
-                        ((AbstractIterator<?>) itOther).release();
-                    }
+                    itOther.release();
                     return false;
                 }
             } //end while
 
-            if (itOther instanceof AbstractIterator<?>) {
-                ((AbstractIterator<?>) itOther).release();
-            }
+            itOther.release();
 
             return true;
         }
@@ -1663,8 +1658,8 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
     /*! #else
-                                                                                                                        KTypeComparator<? super KType>
-                                                                                                                    #end !*/
+                                                                                                                                KTypeComparator<? super KType>
+                                                                                                                            #end !*/
     comp) {
 
         if (endIndex - beginIndex > 1) {
