@@ -1268,17 +1268,63 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         for (int i = 0; i < COUNT; i++) {
             //use a Random number on a small enough range so that it can be exactly represented
             //in Float or Double with no conversion error back and forth.
-            final int randomInt = prng.nextInt(1000 * 1000);
+            final int randomInt = prng.nextInt((int) (0.4 * COUNT));
 
             testPQ.put(i, cast(randomInt));
             testPQ2.put(i, cast(randomInt));
         } //end for
 
+        Assert.assertFalse(testPQ.equals(null));
+        Assert.assertFalse(testPQ2.equals(null));
+
         Assert.assertEquals(COUNT, testPQ.size());
         Assert.assertEquals(COUNT, testPQ2.size());
 
         //B) compare both
-        Assert.assertTrue(testPQ.equals(testPQ2));
+        Assert.assertEquals(testPQ, testPQ2);
+        Assert.assertEquals(testPQ2, testPQ);
+
+        //Add in one, not in the other
+        testPQ.put(COUNT + 2, this.k3);
+        Assert.assertNotEquals(testPQ, testPQ2);
+        Assert.assertNotEquals(testPQ2, testPQ);
+
+        testPQ2.put(COUNT + 2, this.k3);
+        Assert.assertEquals(testPQ, testPQ2);
+        Assert.assertEquals(testPQ2, testPQ);
+
+        //same key, different values
+        testPQ.put(COUNT + 2, this.k3);
+        testPQ2.put(COUNT + 2, this.k4);
+        Assert.assertNotEquals(testPQ, testPQ2);
+        Assert.assertNotEquals(testPQ2, testPQ);
+
+        //replace by the same value, now OK
+        testPQ.put(COUNT + 2, this.k4);
+        Assert.assertEquals(testPQ, testPQ2);
+        Assert.assertEquals(testPQ2, testPQ);
+
+        testPQ.popTop();
+        Assert.assertNotEquals(testPQ, testPQ2);
+        Assert.assertNotEquals(testPQ2, testPQ);
+
+        testPQ2.popTop();
+        Assert.assertEquals(testPQ, testPQ2);
+        Assert.assertEquals(testPQ2, testPQ);
+
+        testPQ.remove(COUNT + 2);
+        Assert.assertNotEquals(testPQ, testPQ2);
+        Assert.assertNotEquals(testPQ2, testPQ);
+
+        testPQ2.remove(COUNT + 2);
+        Assert.assertEquals(testPQ, testPQ2);
+        Assert.assertEquals(testPQ2, testPQ);
+
+        //same size, different keys
+        testPQ.put(COUNT + 5, this.k3);
+        testPQ2.put(COUNT + 10, this.k3);
+        Assert.assertNotEquals(testPQ, testPQ2);
+        Assert.assertNotEquals(testPQ2, testPQ);
     }
 
     @Test
@@ -1369,7 +1415,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
         //A) fill COUNT random values in prio-queue
         final KTypeIndexedHeapPriorityQueue<KType> testPQ = new KTypeIndexedHeapPriorityQueue<KType>(compIndepinstance, 10);
-        final KTypeIndexedHeapPriorityQueue<KType> testPQSameInstance = new KTypeIndexedHeapPriorityQueue<KType>(
+        final KTypeIndexedHeapPriorityQueue<KType> testPQ2 = new KTypeIndexedHeapPriorityQueue<KType>(
                 compIndepinstance, 25);
         final KTypeIndexedHeapPriorityQueue<KType> testPQOtherInstance = new KTypeIndexedHeapPriorityQueue<KType>(
                 compIndepinstance2, 1000);
@@ -1384,7 +1430,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
             final int randomInt = prng.nextInt(1000 * 1000);
 
             testPQ.put(i, cast(randomInt));
-            testPQSameInstance.put(i, cast(randomInt));
+            testPQ2.put(i, cast(randomInt));
             testPQOtherInstance.put(i, cast(randomInt));
             testPQSame.put(i, cast(randomInt));
             testPQSame2.put(i, cast(randomInt));
@@ -1394,13 +1440,68 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         //B) compare both
 
         //same instance , by reference
-        Assert.assertTrue(testPQ.equals(testPQSameInstance));
+        Assert.assertEquals(testPQ, testPQ2);
+        Assert.assertEquals(testPQ2, testPQ);
 
         //different instances, diff by default
-        Assert.assertFalse(testPQ.equals(testPQOtherInstance));
+        Assert.assertNotEquals(testPQ, testPQOtherInstance);
+        Assert.assertNotEquals(testPQOtherInstance, testPQ);
 
         //different instances, but properly compared because instances are equals() = true
-        Assert.assertTrue(testPQSame.equals(testPQSame2));
+        Assert.assertEquals(testPQSame, testPQSame2);
+        Assert.assertEquals(testPQSame2, testPQSame);
+
+        Assert.assertFalse(testPQ.equals(null));
+        Assert.assertFalse(testPQ2.equals(null));
+
+        Assert.assertEquals(COUNT, testPQ.size());
+        Assert.assertEquals(COUNT, testPQ2.size());
+
+        //B) compare both
+        Assert.assertEquals(testPQ, testPQ2);
+        Assert.assertEquals(testPQ2, testPQ);
+
+        //Add in one, not in the other
+        testPQ.put(COUNT + 2, this.k3);
+        Assert.assertNotEquals(testPQ, testPQ2);
+        Assert.assertNotEquals(testPQ2, testPQ);
+
+        testPQ2.put(COUNT + 2, this.k3);
+        Assert.assertEquals(testPQ, testPQ2);
+        Assert.assertEquals(testPQ2, testPQ);
+
+        //same key, different values
+        testPQ.put(COUNT + 2, this.k3);
+        testPQ2.put(COUNT + 2, this.k4);
+        Assert.assertNotEquals(testPQ, testPQ2);
+        Assert.assertNotEquals(testPQ2, testPQ);
+
+        //replace by the same value, now OK
+        testPQ.put(COUNT + 2, this.k4);
+        Assert.assertEquals(testPQ, testPQ2);
+        Assert.assertEquals(testPQ2, testPQ);
+
+        testPQ.popTop();
+        Assert.assertNotEquals(testPQ, testPQ2);
+        Assert.assertNotEquals(testPQ2, testPQ);
+
+        testPQ2.popTop();
+        Assert.assertEquals(testPQ, testPQ2);
+        Assert.assertEquals(testPQ2, testPQ);
+
+        testPQ.remove(COUNT + 2);
+        Assert.assertNotEquals(testPQ, testPQ2);
+        Assert.assertNotEquals(testPQ2, testPQ);
+
+        testPQ2.remove(COUNT + 2);
+        Assert.assertEquals(testPQ, testPQ2);
+        Assert.assertEquals(testPQ2, testPQ);
+
+        //same size, different keys
+        testPQ.put(COUNT + 5, this.k3);
+        testPQ2.put(COUNT + 10, this.k3);
+        Assert.assertNotEquals(testPQ, testPQ2);
+        Assert.assertNotEquals(testPQ2, testPQ);
     }
 
     @Repeat(iterations = 10)

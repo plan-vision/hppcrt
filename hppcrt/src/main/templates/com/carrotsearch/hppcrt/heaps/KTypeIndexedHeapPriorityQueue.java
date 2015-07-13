@@ -437,7 +437,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
         if (key < 0) {
 
-            throw new IllegalArgumentException("Keys must be >= 0, is " + key);
+            throw new IllegalArgumentException("Keys must be >= 0, but is " + key);
         }
 
         //1) Key already present, insert new value
@@ -766,6 +766,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     @SuppressWarnings("unchecked")
     /* #end */
     public boolean equals(final Object obj) {
+
         if (obj != null) {
             if (obj == this) {
                 return true;
@@ -784,14 +785,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
             }
 
             //If one comparator is null, and the other not, we cannot compare them.
-            if (this.comparator == null && other.comparator != null ||
-                    other.comparator == null && this.comparator != null) {
-                return false;
-            }
-
-            if (this.comparator != null &&
-                    other.comparator != null &&
-                    !this.comparator.equals(other.comparator)) {
+            if (!((this.comparator == null && other.comparator == null) || (this.comparator != null && this.comparator.equals(other.comparator)))) {
 
                 return false;
             }
@@ -1352,8 +1346,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
     /*! #else
-                                                                                                                            public KTypeComparator<? super KType>
-                                                                                                                            #end !*/
+                                                                                                                                            public KTypeComparator<? super KType>
+                                                                                                                                            #end !*/
     comparator() {
 
         return this.comparator;

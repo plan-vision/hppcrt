@@ -29,7 +29,7 @@ import com.carrotsearch.hppcrt.strategies.*;
 /*! #set( $DEBUG = false) !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType>
-implements KTypePriorityQueue<KType>, Cloneable
+        implements KTypePriorityQueue<KType>, Cloneable
 {
     /**
      * Internal array for storing the priority queue.
@@ -41,8 +41,8 @@ implements KTypePriorityQueue<KType>, Cloneable
               KType []
               #else !*/
     Object[]
-    /*! #end !*/
-    buffer;
+            /*! #end !*/
+            buffer;
 
     /**
      * Number of elements in the queue.
@@ -158,7 +158,7 @@ implements KTypePriorityQueue<KType>, Cloneable
      * @see BoundedProportionalArraySizingStrategy
      */
     public KTypeHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp
-    /*! #else
+            /*! #else
     KTypeComparator<? super KType> comp
     #end !*/)
     {
@@ -206,7 +206,7 @@ implements KTypePriorityQueue<KType>, Cloneable
      * Create a heap from elements of another container (constructor shortcut)
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeHeapPriorityQueue<KType> from(final KTypeContainer<KType> container) {
+    KTypeHeapPriorityQueue<KType> from(final KTypeContainer<KType> container) {
         return new KTypeHeapPriorityQueue<KType>(container);
     }
 
@@ -215,7 +215,7 @@ implements KTypePriorityQueue<KType>, Cloneable
      * <code>KType</code>.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeHeapPriorityQueue<KType> from(final KType... elements) {
+    KTypeHeapPriorityQueue<KType> from(final KType... elements) {
         final KTypeHeapPriorityQueue<KType> heap = new KTypeHeapPriorityQueue<KType>(elements.length);
 
         for (final KType elem : elements) {
@@ -634,14 +634,7 @@ implements KTypePriorityQueue<KType>, Cloneable
             }
 
             //If one comparator is null, and the other not, we cannot compare them.
-            if (this.comparator == null && other.comparator != null ||
-                    other.comparator == null && this.comparator != null) {
-                return false;
-            }
-
-            if (this.comparator != null &&
-                    other.comparator != null &&
-                    !this.comparator.equals(other.comparator)) {
+            if (!((this.comparator == null && other.comparator == null) || (this.comparator != null && this.comparator.equals(other.comparator)))) {
 
                 return false;
             }
@@ -734,10 +727,10 @@ implements KTypePriorityQueue<KType>, Cloneable
      */
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
-            /*! #else
+    /*! #else
                                             public KTypeComparator<? super KType>
                                             #end !*/
-            comparator() {
+    comparator() {
 
         return this.comparator;
     }
@@ -847,11 +840,11 @@ implements KTypePriorityQueue<KType>, Cloneable
             //swap k and its parent
             parent = k >> 1;
 
-            tmp = buffer[k];
-            buffer[k] = buffer[parent];
-            buffer[parent] = tmp;
+        tmp = buffer[k];
+        buffer[k] = buffer[parent];
+        buffer[parent] = tmp;
 
-            k = parent;
+        k = parent;
         }
     }
 
@@ -874,11 +867,11 @@ implements KTypePriorityQueue<KType>, Cloneable
         while (k > 1 && comp.compare(buffer[k >> 1], buffer[k]) > 0) {
             //swap k and its parent
             parent = k >> 1;
-            tmp = buffer[k];
-            buffer[k] = buffer[parent];
-            buffer[parent] = tmp;
+        tmp = buffer[k];
+        buffer[k] = buffer[parent];
+        buffer[parent] = tmp;
 
-            k = parent;
+        k = parent;
         }
     }
 
