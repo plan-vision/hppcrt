@@ -70,9 +70,10 @@
          
         <version.maven-antrun-plugin>1.8</version.maven-antrun-plugin>
         <version.ant>1.9.4</version.ant>
+		
+		<version.antlr>4.5</version.antlr>
 
         <version.randomizedtesting>2.1.14</version.randomizedtesting>
-        <version.antlr>4.5</version.antlr>
        
         <version.maven-clean-plugin>2.6.1</version.maven-clean-plugin>
         <version.maven-compiler-plugin>3.3</version.maven-compiler-plugin>
@@ -81,16 +82,17 @@
         <version.maven-deploy-plugin>2.8.2</version.maven-deploy-plugin>
         <version.maven-install-plugin>2.5.2</version.maven-install-plugin>
         <version.maven-jar-plugin>2.6</version.maven-jar-plugin>
-        <version.maven-shade-plugin>2.4</version.maven-shade-plugin>  
+        <version.maven-shade-plugin>2.4.1</version.maven-shade-plugin>  
         <version.maven-resources-plugin>2.7</version.maven-resources-plugin>
         <version.maven-surefire-plugin>2.18.1</version.maven-surefire-plugin>
         
         <version.maven-enforcer-plugin>1.4</version.maven-enforcer-plugin>
 		<version.maven-javadoc-plugin>2.10.3</version.maven-javadoc-plugin>
         <version.maven-source-plugin>2.4</version.maven-source-plugin>
-       
-        <version.build-helper-maven-plugin>1.9.1</version.build-helper-maven-plugin>
-
+		
+		<version.build-helper-maven-plugin>1.9.1</version.build-helper-maven-plugin>
+		<version.animal-sniffer-maven-plugin>1.14</version.animal-sniffer-maven-plugin>
+		 
         <version.maven.api>3.2.3</version.maven.api>
         
         <!-- Never deploy automatically -->
@@ -261,6 +263,12 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
                     <version>${version.build-helper-maven-plugin}</version>
+                </plugin>
+				
+				 <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>animal-sniffer-maven-plugin</artifactId>
+                    <version>${version.animal-sniffer-maven-plugin}</version>
                 </plugin>
 
                 <plugin>

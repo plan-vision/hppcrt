@@ -24,7 +24,7 @@
   up execution. The Realtime fork intend of extending collections while tweaking and optimizations to remove any dynamic allocations at runtime,
   and low variance execution times. 
 	</description>
-
+	
 	<!-- Dependencies. -->
 	<dependencies>
 		<dependency>
@@ -43,10 +43,10 @@
 	</dependencies>
 
 	<properties>
-		<retrotranslator.version>1.2.9</retrotranslator.version>
-		<backport-util-concurrent.version>3.1</backport-util-concurrent.version>
+		<version.retrotranslator>1.2.9</version.retrotranslator>
+		<version.backport-util-concurrent>3.1</version.backport-util-concurrent>
 	</properties>
-
+	
 	<!-- Build tuning. -->
 	<build>
 		<defaultGoal>install</defaultGoal>
@@ -118,19 +118,19 @@
 					<dependency>
 						<groupId>net.sf.retrotranslator</groupId>
 						<artifactId>retrotranslator-transformer</artifactId>
-						<version>${retrotranslator.version}</version>
+						<version>${version.retrotranslator}</version>
 					</dependency>
 
 					<dependency>
 						<groupId>net.sf.retrotranslator</groupId>
 						<artifactId>retrotranslator-runtime</artifactId>
-						<version>${retrotranslator.version}</version>
+						<version>${version.retrotranslator}</version>
 					</dependency>
 
 					<dependency>
 						<groupId>backport-util-concurrent</groupId>
 						<artifactId>backport-util-concurrent</artifactId>
-						<version>${backport-util-concurrent.version}</version>
+						<version>${version.backport-util-concurrent}</version>
 					</dependency>
 				</dependencies>
 			</plugin>
@@ -182,8 +182,30 @@
 					</execution>
 				</executions>
 			</plugin>
-            
-			<!-- Lib tests themselves are Java 7 level while the final lib is still 1.6 -->
+			
+			<!-- Project in general is Java 7 level while the final lib is still 1.6 -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>animal-sniffer-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>check-java-api</id>
+						<phase>test</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<configuration>
+							<signature>
+								<groupId>org.codehaus.mojo.signature
+								</groupId>
+								<artifactId>java16</artifactId>
+								<version>1.0</version>
+							</signature>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -191,8 +213,8 @@
 				<configuration>
 					<source>${lib.hppcrt.source}</source>
 					<target>${lib.hppcrt.source}</target>
-					<testSource>${project.source}</testSource>
-					<testTarget>${project.source}</testTarget>
+					<testSource>${lib.hppcrt.source}</testSource>
+					<testTarget>${lib.hppcrt.source}</testTarget>
 					<compilerArgs>
 						<arg>-Xlint</arg>
 					</compilerArgs>
@@ -253,15 +275,14 @@
 
 							<!-- Attach a simple listener. -->
 							<listeners>
-								<report-text  showThrowable="false" 
-											showStackTraces="false" 
-											showOutput="onError"
-											showStatusOk="false"
-											showStatusError="false"
-											showStatusFailure="false"
-											showStatusIgnored="false"
-
-											showSuiteSummary="true" />
+								<report-text showThrowable="false" 
+											 showStackTraces="false" 
+											 showOutput="onError"
+											 showStatusOk="false"
+											 showStatusError="false"
+											 showStatusFailure="false"
+											 showStatusIgnored="false"
+											 showSuiteSummary="true" />
 
 								<report-json file="${project.build.directory}/surefire-reports/test-results.html" />
 								<report-ant-xml dir="${project.build.directory}/surefire-reports/" mavenExtensions="true" />
