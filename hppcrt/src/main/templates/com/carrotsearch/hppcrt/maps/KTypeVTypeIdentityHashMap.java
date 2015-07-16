@@ -27,8 +27,8 @@ public final class KTypeVTypeIdentityHashMap<KType, VType>
     private static final KTypeIdentityHash<Object> IDENTITY_EQUALITY = new KTypeIdentityHash<Object>();
 
     /**
-     * Default constructor: Creates a hash map with the default capacity of {@value Containers#DEFAULT_EXPECTED_ELEMENTS},
-     * load factor of {@value HashContainers#DEFAULT_LOAD_FACTOR}.
+     * Default constructor: Creates a hash map with the default capacity of {@link Containers#DEFAULT_EXPECTED_ELEMENTS},
+     * load factor of {@link HashContainers#DEFAULT_LOAD_FACTOR}.
      * 
      * <p>See class notes about hash distribution importance.</p>
      */
@@ -39,7 +39,7 @@ public final class KTypeVTypeIdentityHashMap<KType, VType>
 
     /**
      * Creates a hash map with the given initial capacity, default load factor of
-     * {@value HashContainers#DEFAULT_LOAD_FACTOR}.
+     * {@link HashContainers#DEFAULT_LOAD_FACTOR}.
      * 
      * @param initialCapacity Initial capacity (greater than zero and automatically
      *            rounded to the next power of two).

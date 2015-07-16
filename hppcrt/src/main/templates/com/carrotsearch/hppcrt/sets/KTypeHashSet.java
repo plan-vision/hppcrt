@@ -102,8 +102,8 @@ public class KTypeHashSet<KType>
     private final int perturbation = HashContainers.computeUniqueIdentifier(this);
 
     /**
-     * Default constructor: Creates a hash set with the default capacity of {@value Containers#DEFAULT_EXPECTED_ELEMENTS},
-     * load factor of {@value HashContainers#DEFAULT_LOAD_FACTOR}.
+     * Default constructor: Creates a hash set with the default capacity of {@link Containers#DEFAULT_EXPECTED_ELEMENTS},
+     * load factor of {@link HashContainers#DEFAULT_LOAD_FACTOR}.
      */
     public KTypeHashSet() {
         this(Containers.DEFAULT_EXPECTED_ELEMENTS, HashContainers.DEFAULT_LOAD_FACTOR);
@@ -111,7 +111,7 @@ public class KTypeHashSet<KType>
 
     /**
      * Creates a hash set with the given capacity,
-     * load factor of {@value HashContainers#DEFAULT_LOAD_FACTOR}.
+     * load factor of {@link HashContainers#DEFAULT_LOAD_FACTOR}.
      */
     public KTypeHashSet(final int initialCapacity) {
         this(initialCapacity, HashContainers.DEFAULT_LOAD_FACTOR);

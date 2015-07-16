@@ -118,8 +118,8 @@ public class KTypeCustomHashSet<KType>
     protected final KTypeHashingStrategy<? super KType> hashStrategy;
 
     /**
-     * Creates a hash set with the default capacity of {@value Containers#DEFAULT_EXPECTED_ELEMENTS},
-     * load factor of {@value HashContainers#DEFAULT_LOAD_FACTOR}, using the hashStrategy as {@link KTypeHashingStrategy}
+     * Creates a hash set with the default capacity of {@link Containers#DEFAULT_EXPECTED_ELEMENTS},
+     * load factor of {@link HashContainers#DEFAULT_LOAD_FACTOR}, using the hashStrategy as {@link KTypeHashingStrategy}
      */
     public KTypeCustomHashSet(final KTypeHashingStrategy<? super KType> hashStrategy) {
         this(Containers.DEFAULT_EXPECTED_ELEMENTS, HashContainers.DEFAULT_LOAD_FACTOR, hashStrategy);
@@ -127,7 +127,7 @@ public class KTypeCustomHashSet<KType>
 
     /**
      * Creates a hash set with the given capacity,
-     * load factor of {@value HashContainers#DEFAULT_LOAD_FACTOR}, using the hashStrategy as {@link KTypeHashingStrategy}
+     * load factor of {@link HashContainers#DEFAULT_LOAD_FACTOR}, using the hashStrategy as {@link KTypeHashingStrategy}
      */
     public KTypeCustomHashSet(final int initialCapacity, final KTypeHashingStrategy<? super KType> hashStrategy) {
         this(initialCapacity, HashContainers.DEFAULT_LOAD_FACTOR, hashStrategy);

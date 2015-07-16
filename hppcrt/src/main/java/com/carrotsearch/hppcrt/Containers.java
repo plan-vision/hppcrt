@@ -12,8 +12,9 @@ public final class Containers
 
     /**
      * The default number of expected elements for containers.
+     * (power-of-two to accommodate special containers also)
      */
-    public final static int DEFAULT_EXPECTED_ELEMENTS = 4;
+    public final static int DEFAULT_EXPECTED_ELEMENTS = 1 << 3;
 
     /**
      * External initial seed value. We do not care about multiple assignments so

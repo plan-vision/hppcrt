@@ -122,8 +122,8 @@ public class KTypeVTypeHashMap<KType, VType>
     private final int perturbation = HashContainers.computeUniqueIdentifier(this);
 
     /**
-     * Default constructor: Creates a hash map with the default capacity of {@value Containers#DEFAULT_EXPECTED_ELEMENTS},
-     * load factor of {@value HashContainers#DEFAULT_LOAD_FACTOR}.
+     * Default constructor: Creates a hash map with the default capacity of {@link Containers#DEFAULT_EXPECTED_ELEMENTS},
+     * load factor of {@link HashContainers#DEFAULT_LOAD_FACTOR}.
      * 
      * <p>See class notes about hash distribution importance.</p>
      */
@@ -133,7 +133,7 @@ public class KTypeVTypeHashMap<KType, VType>
 
     /**
      * Creates a hash map with the given initial capacity, default load factor of
-     * {@value HashContainers#DEFAULT_LOAD_FACTOR}.
+     * {@link HashContainers#DEFAULT_LOAD_FACTOR}.
      * 
      * <p>See class notes about hash distribution importance.</p>
      * 

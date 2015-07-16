@@ -22,8 +22,8 @@ public final class KTypeIdentityHashSet<KType>
     private static final KTypeIdentityHash<Object> IDENTITY_EQUALITY = new KTypeIdentityHash<Object>();
 
     /**
-     * Creates a hash set with the default capacity of {@value Containers#DEFAULT_EXPECTED_ELEMENTS},
-     * load factor of {@value HashContainers#DEFAULT_LOAD_FACTOR}.
+     * Creates a hash set with the default capacity of {@link Containers#DEFAULT_EXPECTED_ELEMENTS},
+     * load factor of {@link HashContainers#DEFAULT_LOAD_FACTOR}.
      */
     public KTypeIdentityHashSet()
     {
@@ -32,7 +32,7 @@ public final class KTypeIdentityHashSet<KType>
 
     /**
      * Creates a hash set with the given capacity,
-     * load factor of {@value HashContainers#DEFAULT_LOAD_FACTOR}.
+     * load factor of {@link HashContainers#DEFAULT_LOAD_FACTOR}.
      */
     public KTypeIdentityHashSet(final int initialCapacity)
     {
