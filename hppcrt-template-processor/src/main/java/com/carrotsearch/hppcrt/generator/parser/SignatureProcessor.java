@@ -11,6 +11,7 @@ import java.util.concurrent.Future;
 
 import javax.swing.JDialog;
 
+import org.antlr.v4.gui.Trees;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BufferedTokenStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -233,7 +234,7 @@ public class SignatureProcessor
     private void displayParseTree(final ParserRuleContext ctx, final String title) {
 
         //show AST in GUI
-        final Future<JDialog> dialog = ctx.inspect(this.parser);
+        final Future<JDialog> dialog = Trees.inspect(ctx, this.parser);
 
         try {
             dialog.get().setTitle(title);

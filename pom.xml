@@ -71,7 +71,7 @@
         <version.maven-antrun-plugin>1.8</version.maven-antrun-plugin>
         <version.ant>1.9.4</version.ant>
 		
-		<version.antlr>4.5</version.antlr>
+		<version.antlr>4.5.1</version.antlr>
 
         <version.randomizedtesting>2.1.14</version.randomizedtesting>
        

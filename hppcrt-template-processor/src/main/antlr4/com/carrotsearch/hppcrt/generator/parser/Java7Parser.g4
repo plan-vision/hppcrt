@@ -26,6 +26,12 @@
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/*
+Modified Java.g4 from antlr4/grammars-v4,
+separated Lexer an Parser, renamed to Java7Parser.g4/Java7Lexer.g4
+for HPPC-RT usage.
+*/
+
 parser grammar Java7Parser;
 
 options { tokenVocab=Java7Lexer; }
@@ -555,7 +561,7 @@ createdName
 identifierTypeOrDiamondPair
     :   Identifier typeArgumentsOrDiamond?
     ;
-
+    
 innerCreator
     :   Identifier nonWildcardTypeArgumentsOrDiamond? classCreatorRest
     ;
