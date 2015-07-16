@@ -22,12 +22,12 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeVTypeIdentityHashMap<KType, VType>
-extends KTypeVTypeCustomHashMap<KType, VType>
+        extends KTypeVTypeCustomHashMap<KType, VType>
 {
     private static final KTypeIdentityHash<Object> IDENTITY_EQUALITY = new KTypeIdentityHash<Object>();
 
     /**
-     * Creates a hash map with the default capacity of {@value Containers#DEFAULT_EXPECTED_ELEMENTS},
+     * Default constructor: Creates a hash map with the default capacity of {@value Containers#DEFAULT_EXPECTED_ELEMENTS},
      * load factor of {@value HashContainers#DEFAULT_LOAD_FACTOR}.
      * 
      * <p>See class notes about hash distribution importance.</p>
@@ -170,7 +170,7 @@ extends KTypeVTypeCustomHashMap<KType, VType>
      */
     public static final <KType, VType> KTypeVTypeIdentityHashMap<KType, VType> from(final KTypeVTypeAssociativeContainer<KType, VType> container,
             final KTypeHashingStrategy<? super KType> hashStrategy)
-    {
+            {
         throw new RuntimeException("Identity hash from(KTypeVTypeAssociativeContainer, strategy) usage logical error");
-    }
+            }
 }

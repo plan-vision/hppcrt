@@ -34,7 +34,7 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeLinkedList<KType>
-extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, KTypeDeque<KType>, Cloneable
+        extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, KTypeDeque<KType>, Cloneable
 {
     /**
      * Internal array for storing the list. The array may be larger than the current size
@@ -48,8 +48,8 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
           KType []
           #else !*/
     Object[]
-            /*! #end !*/
-            buffer;
+    /*! #end !*/
+    buffer;
 
     /**
      * Represent the before / after nodes for each element of the buffer,
@@ -95,7 +95,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     protected final IteratorPool<KTypeCursor<KType>, DescendingValueIterator> descendingValueIteratorPool;
 
     /**
-     * Create with default sizing strategy and initial capacity for storing
+     * Default constructor: Create with default sizing strategy and initial capacity for storing
      * {@link Containers#DEFAULT_EXPECTED_ELEMENTS} elements.
      * 
      * @see BoundedProportionalArraySizingStrategy
@@ -1581,7 +1581,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeLinkedList<KType> newInstance() {
+            KTypeLinkedList<KType> newInstance() {
         return new KTypeLinkedList<KType>();
     }
 
@@ -1590,7 +1590,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeLinkedList<KType> newInstance(final int initialCapacity) {
+            KTypeLinkedList<KType> newInstance(final int initialCapacity) {
         return new KTypeLinkedList<KType>(initialCapacity);
     }
 
@@ -1599,7 +1599,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * The elements are copied from the argument to the internal buffer.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeLinkedList<KType> from(final KType... elements) {
+            KTypeLinkedList<KType> from(final KType... elements) {
         final KTypeLinkedList<KType> list = new KTypeLinkedList<KType>(elements.length);
         list.add(elements);
         return list;
@@ -1609,7 +1609,7 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
      * Create a list from elements of another container.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-    KTypeLinkedList<KType> from(final KTypeContainer<KType> container) {
+            KTypeLinkedList<KType> from(final KTypeContainer<KType> container) {
         return new KTypeLinkedList<KType>(container);
     }
 
@@ -1657,10 +1657,10 @@ extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, 
     public void sort(final int beginIndex, final int endIndex,
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
-    /*! #else
-                                                                                                                                KTypeComparator<? super KType>
-                                                                                                                            #end !*/
-    comp) {
+            /*! #else
+                                                                                                                                        KTypeComparator<? super KType>
+                                                                                                                                    #end !*/
+            comp) {
 
         if (endIndex - beginIndex > 1) {
             KTypeSort.quicksort(this, beginIndex, endIndex, comp);

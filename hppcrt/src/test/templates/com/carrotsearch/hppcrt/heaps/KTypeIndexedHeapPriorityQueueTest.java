@@ -104,7 +104,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
     /* */
     @Before
     public void initialize() {
-        this.prioq = new KTypeIndexedHeapPriorityQueue<KType>(0);
+        this.prioq = new KTypeIndexedHeapPriorityQueue<KType>();
         this.prioqNaturalComparator = new KTypeIndexedHeapPriorityQueue<KType>(this.NATURAL_COMPARATOR);
         this.prioqInverseComparator = new KTypeIndexedHeapPriorityQueue<KType>(this.INVERSE_COMPARATOR);
     }
@@ -535,13 +535,13 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         Assert.assertEquals(12, this.prioq.size());
 
         final int nbRemoved = this.prioq.removeAll(new IntKTypePredicate<KType>()
-        {
+                {
             @Override
             public boolean apply(final int key, final KType value)
             {
                 return value == KTypeIndexedHeapPriorityQueueTest.this.key4 || key == 3;
             }
-        });
+                });
 
         Assert.assertEquals(4, nbRemoved);
         Assert.assertEquals(8, this.prioq.size());

@@ -147,6 +147,23 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     /**
+     * Default constructor: create with a default
+     * numbers of elements ({@value Containers#DEFAULT_EXPECTED_ELEMENTS}),
+     * using the Comparable natural ordering
+     */
+    /*! #else !*/
+    /**
+     * Default constructor: create with a default
+     * numbers of elements ({@value Containers#DEFAULT_EXPECTED_ELEMENTS}),
+     * using the natural ordering of <code>KType</code>s.
+     */
+    /*! #end !*/
+    public KTypeIndexedHeapPriorityQueue() {
+        this(null, Containers.DEFAULT_EXPECTED_ELEMENTS);
+    }
+
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    /**
      * Create with an initial capacity,
      * using the Comparable natural ordering
      */
@@ -435,10 +452,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     @Override
     public KType put(final int key, final KType element) {
 
-        if (key < 0) {
-
-            throw new IllegalArgumentException("Keys must be >= 0, but is " + key);
-        }
+        assert key >= 0 : "Keys must be >= 0, but is " + key;
 
         //1) Key already present, insert new value
         if (key < this.pq.length && this.pq[key] > 0) {
@@ -1346,8 +1360,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
     /*! #else
-                                                                                                                                            public KTypeComparator<? super KType>
-                                                                                                                                            #end !*/
+                                                                                                                                                    public KTypeComparator<? super KType>
+                                                                                                                                                    #end !*/
     comparator() {
 
         return this.comparator;

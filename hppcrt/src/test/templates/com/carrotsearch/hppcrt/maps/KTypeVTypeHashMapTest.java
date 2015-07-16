@@ -12,6 +12,16 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeHashM
     @Override
     protected KTypeVTypeMap<KType, VType> createNewMapInstance(final int initialCapacity, final double loadFactor) {
 
+        if (initialCapacity == 0 && loadFactor == HashContainers.DEFAULT_LOAD_FACTOR) {
+
+            return new KTypeVTypeHashMap<KType, VType>();
+
+        } else if (loadFactor == HashContainers.DEFAULT_LOAD_FACTOR) {
+
+            return new KTypeVTypeHashMap<KType, VType>(initialCapacity);
+        }
+
+        //generic case
         return new KTypeVTypeHashMap<KType, VType>(initialCapacity, loadFactor);
     }
 

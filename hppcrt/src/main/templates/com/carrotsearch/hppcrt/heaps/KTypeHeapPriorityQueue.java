@@ -152,8 +152,9 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
     }
 
     /**
-     * Create with default sizing strategy and initial capacity for storing
-     * {@value Containers#DEFAULT_EXPECTED_ELEMENTS} elements.
+     * Create with default sizing strategy and initial capacity
+     * ({@value Containers#DEFAULT_EXPECTED_ELEMENTS})
+     * using a specific Comparator.
      * 
      * @see BoundedProportionalArraySizingStrategy
      */
@@ -163,6 +164,23 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
     #end !*/)
     {
         this(comp, Containers.DEFAULT_EXPECTED_ELEMENTS);
+    }
+
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    /**
+     * Default constructor: create with a default
+     * numbers of elements ({@value Containers#DEFAULT_EXPECTED_ELEMENTS}),
+     * using the Comparable natural ordering.
+     */
+    /*! #else !*/
+    /**
+     * Default constructor: create with a default
+     * numbers of elements ({@value Containers#DEFAULT_EXPECTED_ELEMENTS}),
+     * using the natural ordering of <code>KType</code>s.
+     */
+    /*! #end !*/
+    public KTypeHeapPriorityQueue() {
+        this(null, Containers.DEFAULT_EXPECTED_ELEMENTS);
     }
 
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
@@ -728,8 +746,8 @@ public class KTypeHeapPriorityQueue<KType> extends AbstractKTypeCollection<KType
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
     /*! #else
-                                            public KTypeComparator<? super KType>
-                                            #end !*/
+                                                                            public KTypeComparator<? super KType>
+                                                                            #end !*/
     comparator() {
 
         return this.comparator;

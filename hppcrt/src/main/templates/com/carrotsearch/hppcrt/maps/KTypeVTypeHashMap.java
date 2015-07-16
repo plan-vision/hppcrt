@@ -47,7 +47,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeHashMap<KType, VType>
-implements KTypeVTypeMap<KType, VType>, Cloneable
+        implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     protected VType defaultValue = Intrinsics.<VType> empty();
 
@@ -62,8 +62,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
           KType []
           #else !*/
     Object[]
-            /*! #end !*/
-            keys;
+    /*! #end !*/
+    keys;
 
     /**
      * Hash-indexed array holding all values associated to the keys.
@@ -73,8 +73,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
           VType []
           #else !*/
     Object[]
-            /*! #end !*/
-            values;
+    /*! #end !*/
+    values;
 
     /*! #if ($RH) !*/
     /**
@@ -122,7 +122,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     private final int perturbation = HashContainers.computeUniqueIdentifier(this);
 
     /**
-     * Creates a hash map with the default capacity of {@value Containers#DEFAULT_EXPECTED_ELEMENTS},
+     * Default constructor: Creates a hash map with the default capacity of {@value Containers#DEFAULT_EXPECTED_ELEMENTS},
      * load factor of {@value HashContainers#DEFAULT_LOAD_FACTOR}.
      * 
      * <p>See class notes about hash distribution importance.</p>

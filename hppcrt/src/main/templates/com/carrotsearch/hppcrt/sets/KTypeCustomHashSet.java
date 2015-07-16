@@ -138,13 +138,14 @@ public class KTypeCustomHashSet<KType>
      */
     public KTypeCustomHashSet(final int initialCapacity, final double loadFactor,
             final KTypeHashingStrategy<? super KType> hashStrategy) {
+
         //only accept not-null strategies.
-        if (hashStrategy != null) {
-            this.hashStrategy = hashStrategy;
-        } else {
+        if (hashStrategy == null) {
 
             throw new IllegalArgumentException("KTypeOpenCustomHashSet() cannot have a null hashStrategy !");
         }
+
+        this.hashStrategy = hashStrategy;
 
         this.loadFactor = loadFactor;
         //take into account of the load factor to guarantee no reallocations before reaching  initialCapacity.

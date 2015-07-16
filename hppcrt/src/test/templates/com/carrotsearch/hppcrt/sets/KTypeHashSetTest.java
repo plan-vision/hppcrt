@@ -16,6 +16,16 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeHashSetTest<KType>
     @Override
     protected KTypeSet<KType> createNewSetInstance(final int initialCapacity, final double loadFactor) {
 
+        if (initialCapacity == 0 && loadFactor == HashContainers.DEFAULT_LOAD_FACTOR) {
+
+            return new KTypeHashSet<KType>();
+
+        } else if (loadFactor == HashContainers.DEFAULT_LOAD_FACTOR) {
+
+            return new KTypeHashSet<KType>(initialCapacity);
+        }
+
+        //generic case
         return new KTypeHashSet<KType>(initialCapacity, loadFactor);
     }
 
