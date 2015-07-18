@@ -8,7 +8,7 @@ import com.carrotsearch.hppcrt.hash.MurmurHash3;
 
 public final class Containers
 {
-    final public static int NB_OF_PROCESSORS = Runtime.getRuntime().availableProcessors();
+    public final static int NB_OF_PROCESSORS = Runtime.getRuntime().availableProcessors();
 
     /**
      * The default number of expected elements for containers.
@@ -28,6 +28,13 @@ public final class Containers
      * Unique marker for {@link #testsSeedProperty}.
      */
     private final static String NOT_AVAILABLE = "";
+
+    /**
+     * No instances.
+     */
+    private Containers() {
+        //nothing
+    }
 
     /**
      * Provides a (possibly) random initial seed for randomized stuff.

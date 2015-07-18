@@ -7,6 +7,13 @@ package com.carrotsearch.hppcrt.hash;
 public final class BitMixer
 {
 
+    /**
+     * No instances.
+     */
+    private BitMixer() {
+        //nothing
+    }
+
     // Don't bother mixing very small key domains much.
     public static int mix(final byte key) {
         return key * PhiMix.INT_PHI;

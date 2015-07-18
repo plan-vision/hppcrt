@@ -22,7 +22,7 @@
   Fundamental data structures (maps, sets, lists, queues, heaps, sorts) generated for
   combinations of object and primitive types to conserve JVM memory and speed
   up execution. The Realtime fork intends to extend the existing collections, by tweaking to remove any dynamic allocations at runtime,
-  and to obtain low variance execution times whatever the inputs. 
+  and to obtain low variance execution times whatever the input nature. 
 	</description>
 	
 	<!-- Dependencies. -->

@@ -29,6 +29,13 @@ public final class HashContainers
     public final static double MAX_LOAD_FACTOR = 90.0 / 100.0;
 
     /**
+     * No instances.
+     */
+    private HashContainers() {
+        //nothing
+    }
+
+    /**
      * Compute and return the maximum number of elements (inclusive) that can be
      * stored in a hash container for a given load factor.
      * @param loadFactor

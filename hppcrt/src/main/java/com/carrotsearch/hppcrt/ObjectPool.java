@@ -100,7 +100,6 @@ public class ObjectPool<E>
                 //construct and add the additional objects
                 for (int i = 0; i < nbAddedObjects; i++)
                 {
-
                     this.arrayPool[i] = this.factory.create();
 
                     //update structures
