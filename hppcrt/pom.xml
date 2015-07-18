@@ -19,10 +19,10 @@
 	<name>HPPC-RT Collections</name>
 	<description>High Performance Primitive Collections Realtime
  (fork of HPPC from Carrotsearch)
-  Fundamental data structures (maps, sets, lists, stacks, queues, heaps, sorts) generated for
+  Fundamental data structures (maps, sets, lists, queues, heaps, sorts) generated for
   combinations of object and primitive types to conserve JVM memory and speed
-  up execution. The Realtime fork intend of extending collections while tweaking and optimizations to remove any dynamic allocations at runtime,
-  and low variance execution times. 
+  up execution. The Realtime fork intends to extend the existing collections, by tweaking to remove any dynamic allocations at runtime,
+  and to obtain low variance execution times whatever the inputs. 
 	</description>
 	
 	<!-- Dependencies. -->

@@ -69,11 +69,11 @@
         <version.junit>4.12</version.junit>
          
         <version.maven-antrun-plugin>1.8</version.maven-antrun-plugin>
-        <version.ant>1.9.4</version.ant>
+        <version.ant>1.9.6</version.ant>
 		
 		<version.antlr>4.5.1</version.antlr>
 
-        <version.randomizedtesting>2.1.14</version.randomizedtesting>
+        <version.randomizedtesting>2.1.16</version.randomizedtesting>
        
         <version.maven-clean-plugin>2.6.1</version.maven-clean-plugin>
         <version.maven-compiler-plugin>3.3</version.maven-compiler-plugin>
