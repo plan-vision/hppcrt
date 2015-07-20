@@ -137,10 +137,10 @@ public final class KTypeSort
     public static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void quicksort(final KType[] table,
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
-            /*! #else
+    /*! #else
                                                                                                             KTypeComparator<? super KType>
                                                                                                     #end !*/
-            comp)
+    comp)
     {
         KTypeSort.quicksort(table, 0, table.length, comp);
     }
@@ -179,10 +179,10 @@ public final class KTypeSort
     public static/*! #if ($TemplateOptions.KTypeGeneric) !*/<KType> /*! #end !*/void quicksort(final KTypeIndexedContainer<KType> table,
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
-    /*! #else
-                                    KTypeComparator<? super KType>
-                                    #end !*/
-            comp)
+            /*! #else
+                                            KTypeComparator<? super KType>
+                                            #end !*/
+    comp)
     {
         KTypeSort.quicksort(table, 0, table.size(), comp);
     }
@@ -1151,14 +1151,14 @@ public final class KTypeSort
 
     private static void checkRanges(final int beginIndex, final int endIndex, final int size) {
 
-        if (beginIndex >= endIndex) {
+        if (beginIndex > endIndex) {
 
-            throw new IllegalArgumentException("Index beginIndex " + beginIndex + " is >= endIndex " + endIndex);
+            throw new IllegalArgumentException("Index beginIndex " + beginIndex + " is > endIndex " + endIndex);
         }
 
-        if (beginIndex < 0 || beginIndex >= size) {
+        if (beginIndex < 0) {
 
-            throw new IndexOutOfBoundsException("Index beginIndex " + beginIndex + " out of bounds [" + 0 + ", " + size + "[.");
+            throw new IndexOutOfBoundsException("Index beginIndex < 0");
         }
 
         if (endIndex > size) {

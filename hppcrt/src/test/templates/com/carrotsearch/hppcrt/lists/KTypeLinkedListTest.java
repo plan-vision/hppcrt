@@ -56,10 +56,10 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
             int count = 0;
             //check access by get()
             for (/*! #if ($TemplateOptions.KTypeGeneric) !*/final Object
-            /*! #else
+                    /*! #else
             final KType
             #end !*/
-            val : this.list.toArray()) {
+                    val : this.list.toArray()) {
 
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 TestUtils.assertEquals2(val, (Object) this.list.get(count));
@@ -176,7 +176,6 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
     /**
      * The beast is slow, don't do too much
      */
-    @Repeat(iterations = 20)
     @Test
     public void testSort()
     {
@@ -201,38 +200,42 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
             }
         };
 
-        final int TEST_SIZE = (int) 1e3;
+        final int TEST_SIZE = (int) 20;
+        final int NB_ITERATIONS = (int) 1e5;
 
         //get a new seed for the current iteration
         final long currentSeed = RandomizedTest.randomLong();
 
-        final int upperRange = RandomizedTest.randomInt(TEST_SIZE);
-        final int lowerRange = RandomizedTest.randomInt(upperRange);
+        for (int ii = 0; ii < NB_ITERATIONS; ii++) {
 
-        //A) Sort an array of random values of primitive types
+            final int upperRange = RandomizedTest.randomInt(TEST_SIZE);
+            final int lowerRange = RandomizedTest.randomInt(upperRange);
 
-        //A-1) full sort
-        KTypeLinkedList<KType> primitiveList = createLinkedListWithRandomData(TEST_SIZE, currentSeed);
-        KTypeLinkedList<KType> primitiveListOriginal = createLinkedListWithRandomData(TEST_SIZE, currentSeed);
-        primitiveList.sort();
-        assertOrder(primitiveListOriginal, primitiveList, 0, primitiveListOriginal.size());
-        //A-2) Partial sort
-        primitiveList = createLinkedListWithRandomData(TEST_SIZE, currentSeed);
-        primitiveListOriginal = createLinkedListWithRandomData(TEST_SIZE, currentSeed);
-        primitiveList.sort(lowerRange, upperRange);
-        assertOrder(primitiveListOriginal, primitiveList, lowerRange, upperRange);
+            //A) Sort an array of random values of primitive types
 
-        //B) Sort with Comparator
-        //B-1) Full sort
-        KTypeLinkedList<KType> comparatorList = createLinkedListWithRandomData(TEST_SIZE, currentSeed);
-        KTypeLinkedList<KType> comparatorListOriginal = createLinkedListWithRandomData(TEST_SIZE, currentSeed);
-        comparatorList.sort(comp);
-        assertOrder(comparatorListOriginal, comparatorList, 0, comparatorListOriginal.size());
-        //B-2) Partial sort
-        comparatorList = createLinkedListWithRandomData(TEST_SIZE, currentSeed);
-        comparatorListOriginal = createLinkedListWithRandomData(TEST_SIZE, currentSeed);
-        comparatorList.sort(lowerRange, upperRange, comp);
-        assertOrder(comparatorListOriginal, comparatorList, lowerRange, upperRange);
+            //A-1) full sort
+            KTypeLinkedList<KType> primitiveList = createLinkedListWithRandomData(TEST_SIZE, currentSeed);
+            KTypeLinkedList<KType> primitiveListOriginal = createLinkedListWithRandomData(TEST_SIZE, currentSeed);
+            primitiveList.sort();
+            assertOrder(primitiveListOriginal, primitiveList, 0, primitiveListOriginal.size());
+            //A-2) Partial sort
+            primitiveList = createLinkedListWithRandomData(TEST_SIZE, currentSeed);
+            primitiveListOriginal = createLinkedListWithRandomData(TEST_SIZE, currentSeed);
+            primitiveList.sort(lowerRange, upperRange);
+            assertOrder(primitiveListOriginal, primitiveList, lowerRange, upperRange);
+
+            //B) Sort with Comparator
+            //B-1) Full sort
+            KTypeLinkedList<KType> comparatorList = createLinkedListWithRandomData(TEST_SIZE, currentSeed);
+            KTypeLinkedList<KType> comparatorListOriginal = createLinkedListWithRandomData(TEST_SIZE, currentSeed);
+            comparatorList.sort(comp);
+            assertOrder(comparatorListOriginal, comparatorList, 0, comparatorListOriginal.size());
+            //B-2) Partial sort
+            comparatorList = createLinkedListWithRandomData(TEST_SIZE, currentSeed);
+            comparatorListOriginal = createLinkedListWithRandomData(TEST_SIZE, currentSeed);
+            comparatorList.sort(lowerRange, upperRange, comp);
+            assertOrder(comparatorListOriginal, comparatorList, lowerRange, upperRange);
+        }
     }
 
     /* */

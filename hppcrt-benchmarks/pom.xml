@@ -5,13 +5,13 @@
     <parent>
         <groupId>com.github.vsonnier</groupId>
         <artifactId>hppcrt-parent</artifactId>
-        <version>0.7.0</version>
+        <version>0.7.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <!-- Project info. -->
     <artifactId>hppcrt-benchmarks</artifactId>
-    <version>0.7.0</version>
+    <version>0.7.1</version>
     <packaging>jar</packaging>
 
     <name>HPPC-RT Benchmarks</name>
@@ -24,7 +24,7 @@
         <commons-lang.version>2.6</commons-lang.version>
         
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jmh.version>1.10.2</jmh.version>
+        <jmh.version>1.10.3</jmh.version>
         <javac.target>1.7</javac.target>
         <uberjar.name>benchmarks</uberjar.name>
         

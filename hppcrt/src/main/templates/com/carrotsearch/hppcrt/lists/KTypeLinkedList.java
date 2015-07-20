@@ -348,18 +348,14 @@ public class KTypeLinkedList<KType>
     @Override
     public void removeRange(final int fromIndex, final int toIndex) {
 
-        if (fromIndex >= toIndex) {
+        checkRangeBounds(fromIndex, toIndex);
 
-            throw new IllegalArgumentException("Index fromIndex " + fromIndex + " is >= toIndex " + toIndex);
+        if (fromIndex == toIndex) {
+            return; //nothing to do
         }
 
         //goto pos
         int currentPos = gotoIndex(fromIndex);
-
-        if (toIndex > size()) {
-
-            throw new IndexOutOfBoundsException("Index toIndex " + toIndex + " out of bounds [" + fromIndex + ", " + size() + "].");
-        }
 
         //start removing size elements...
         final int size = toIndex - fromIndex;
@@ -1418,18 +1414,14 @@ public class KTypeLinkedList<KType>
 
     private void internalForEach(final KTypeProcedure<? super KType> procedure, final int fromIndex, final int toIndex) {
 
-        if (fromIndex >= toIndex) {
+        checkRangeBounds(fromIndex, toIndex);
 
-            throw new IllegalArgumentException("Index fromIndex " + fromIndex + " is >= toIndex " + toIndex);
+        if (fromIndex == toIndex) {
+            return; //nothing to do
         }
 
         //goto pos
         int currentPos = gotoIndex(fromIndex);
-
-        if (toIndex > size()) {
-
-            throw new IndexOutOfBoundsException("Index toIndex " + toIndex + " out of bounds [" + fromIndex + ", " + size() + "].");
-        }
 
         final long[] pointers = this.beforeAfterPointers;
 
@@ -1472,18 +1464,14 @@ public class KTypeLinkedList<KType>
 
     private void internalForEach(final KTypePredicate<? super KType> predicate, final int fromIndex, final int toIndex) {
 
-        if (fromIndex >= toIndex) {
+        checkRangeBounds(fromIndex, toIndex);
 
-            throw new IllegalArgumentException("Index fromIndex " + fromIndex + " is >= toIndex " + toIndex);
+        if (fromIndex == toIndex) {
+            return; //nothing to do
         }
 
         //goto pos
         int currentPos = gotoIndex(fromIndex);
-
-        if (toIndex > size()) {
-
-            throw new IndexOutOfBoundsException("Index toIndex " + toIndex + " out of bounds [" + fromIndex + ", " + size() + "].");
-        }
 
         final long[] pointers = this.beforeAfterPointers;
 
@@ -1633,9 +1621,7 @@ public class KTypeLinkedList<KType>
      */
     public void sort(final int beginIndex, final int endIndex) {
 
-        if (endIndex - beginIndex > 1) {
-            KTypeSort.quicksort(this, beginIndex, endIndex);
-        }
+        KTypeSort.quicksort(this, beginIndex, endIndex);
     }
 
     /**
@@ -1658,13 +1644,11 @@ public class KTypeLinkedList<KType>
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
             /*! #else
-                                                                                                                                        KTypeComparator<? super KType>
-                                                                                                                                    #end !*/
+                    KTypeComparator<? super KType>
+                    #end !*/
             comp) {
 
-        if (endIndex - beginIndex > 1) {
-            KTypeSort.quicksort(this, beginIndex, endIndex, comp);
-        }
+        KTypeSort.quicksort(this, beginIndex, endIndex, comp);
     }
 
     /**
@@ -1859,6 +1843,24 @@ public class KTypeLinkedList<KType>
         assert size() > 0;
 
         return Intrinsics.<KType> cast(this.buffer[getLinkBefore(this.beforeAfterPointers[KTypeLinkedList.TAIL_POSITION])]);
+    }
+
+    private void checkRangeBounds(final int beginIndex, final int endIndex) {
+
+        if (beginIndex > endIndex) {
+
+            throw new IllegalArgumentException("Index beginIndex " + beginIndex + " is > endIndex " + endIndex);
+        }
+
+        if (beginIndex < 0) {
+
+            throw new IndexOutOfBoundsException("Index beginIndex < 0");
+        }
+
+        if (endIndex > size()) {
+
+            throw new IndexOutOfBoundsException("Index endIndex " + endIndex + " out of bounds [" + 0 + ", " + size() + "].");
+        }
     }
 
     /*! #if ($TemplateOptions.declareInline("getLinkNodeValue(beforeIndex, afterIndex)",

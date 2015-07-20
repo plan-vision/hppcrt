@@ -52,7 +52,7 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayDeque<KType>
-        extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexedContainer<KType>, Cloneable
+extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, KTypeIndexedContainer<KType>, Cloneable
 {
     /**
      * Internal array for storing elements.
@@ -65,8 +65,8 @@ public class KTypeArrayDeque<KType>
           KType []
           #else !*/
     Object[]
-    /*! #end !*/
-    buffer;
+            /*! #end !*/
+            buffer;
 
     /**
      * The index of the element at the head of the deque or an
@@ -751,14 +751,18 @@ public class KTypeArrayDeque<KType>
     @Override
     public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure, final int fromIndex, final int toIndex) {
 
-        if (fromIndex >= toIndex) {
+        checkRangeBounds(fromIndex, toIndex);
 
-            throw new IllegalArgumentException("Index fromIndex " + fromIndex + " is >= toIndex " + toIndex);
+        if (fromIndex == toIndex) {
+
+            return procedure; //nothing to do
         }
+
+        final int bufferPositionStart = indexToBufferPosition(fromIndex);
 
         final int endBufferPosInclusive = indexToBufferPosition(toIndex - 1); //must be a valid index
 
-        internalForEach(procedure, indexToBufferPosition(fromIndex), oneRight(endBufferPosInclusive, this.buffer.length));
+        internalForEach(procedure, bufferPositionStart, oneRight(endBufferPosInclusive, this.buffer.length));
 
         return procedure;
     }
@@ -791,14 +795,18 @@ public class KTypeArrayDeque<KType>
     @Override
     public <T extends KTypePredicate<? super KType>> T forEach(final T predicate, final int fromIndex, final int toIndex) {
 
-        if (fromIndex >= toIndex) {
+        checkRangeBounds(fromIndex, toIndex);
 
-            throw new IllegalArgumentException("Index fromIndex " + fromIndex + " is >= toIndex " + toIndex);
+        if (fromIndex == toIndex) {
+
+            return predicate; //nothing to do
         }
+
+        final int bufferPositionStart = indexToBufferPosition(fromIndex);
 
         final int endBufferPosInclusive = indexToBufferPosition(toIndex - 1); //must be a valid index
 
-        internalForEach(predicate, indexToBufferPosition(fromIndex), oneRight(endBufferPosInclusive, this.buffer.length));
+        internalForEach(predicate, bufferPositionStart, oneRight(endBufferPosInclusive, this.buffer.length));
 
         return predicate;
     }
@@ -1035,7 +1043,7 @@ public class KTypeArrayDeque<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayDeque<KType> newInstance() {
+    KTypeArrayDeque<KType> newInstance() {
         return new KTypeArrayDeque<KType>();
     }
 
@@ -1044,7 +1052,7 @@ public class KTypeArrayDeque<KType>
      * instead of using a constructor).
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayDeque<KType> newInstance(final int initialCapacity) {
+    KTypeArrayDeque<KType> newInstance(final int initialCapacity) {
         return new KTypeArrayDeque<KType>(initialCapacity);
     }
 
@@ -1052,7 +1060,7 @@ public class KTypeArrayDeque<KType>
      * Create a new deque by pushing a variable number of arguments to the end of it.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayDeque<KType> from(final KType... elements) {
+    KTypeArrayDeque<KType> from(final KType... elements) {
         final KTypeArrayDeque<KType> coll = new KTypeArrayDeque<KType>(elements.length);
         coll.addLast(elements);
         return coll;
@@ -1062,7 +1070,7 @@ public class KTypeArrayDeque<KType>
      * Create a new deque by pushing a variable number of arguments to the end of it.
      */
     public static/* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */
-            KTypeArrayDeque<KType> from(final KTypeContainer<KType> container) {
+    KTypeArrayDeque<KType> from(final KTypeContainer<KType> container) {
         return new KTypeArrayDeque<KType>(container);
     }
 
@@ -1081,21 +1089,27 @@ public class KTypeArrayDeque<KType>
      */
     public void sort(final int beginIndex, final int endIndex) {
 
-        if (endIndex - beginIndex > 1) {
-            //Fast path : if the actual indices matching [beginIndex; endIndex[
-            //in the underlying buffer are in increasing order (means there is no folding of buffer in the interval),
-            // use quicksort array version directly.
-            final int bufferPosStart = indexToBufferPosition(beginIndex);
-            final int bufferPosEndInclusive = indexToBufferPosition(endIndex - 1); //must be a valid index
+        checkRangeBounds(beginIndex, endIndex);
 
-            if (bufferPosEndInclusive > bufferPosStart) {
+        if (beginIndex == endIndex) {
 
-                KTypeSort.quicksort(this.buffer, bufferPosStart, bufferPosEndInclusive + 1);
-            } else {
-                //Use the slower KTypeIndexedContainer sort
-                KTypeSort.quicksort(this, beginIndex, endIndex);
-            }
+            return; //nothing to do
         }
+
+        //Fast path : if the actual indices matching [beginIndex; endIndex[
+        //in the underlying buffer are in increasing order (means there is no folding of buffer in the interval),
+        // use quicksort array version directly.
+        final int bufferPosStart = indexToBufferPosition(beginIndex);
+        final int bufferPosEndInclusive = indexToBufferPosition(endIndex - 1); //must be a valid index
+
+        if (bufferPosEndInclusive > bufferPosStart) {
+
+            KTypeSort.quicksort(this.buffer, bufferPosStart, bufferPosEndInclusive + 1);
+        } else {
+            //Use the slower KTypeIndexedContainer sort
+            KTypeSort.quicksort(this, beginIndex, endIndex);
+        }
+
     }
 
     /**
@@ -1112,26 +1126,32 @@ public class KTypeArrayDeque<KType>
     public void sort(final int beginIndex, final int endIndex,
             /*! #if ($TemplateOptions.KTypeGeneric) !*/
             final Comparator<? super KType>
-            /*! #else
-                                                                                                                                                                                                                                                                                                                                                            KTypeComparator<? super KType>
-                                                                                                                                                                                                                                                                                                                                                            #end !*/
-            comp) {
+    /*! #else
+                                                    KTypeComparator<? super KType>
+                                                    #end !*/
+    comp) {
 
-        if (endIndex - beginIndex > 1) {
-            //Fast path : if the actual indices matching [beginIndex; endIndex[
-            //in the underlying buffer are in increasing order (means there is no folding of buffer in the interval),
-            // use quicksort array version directly.
-            final int bufferPosStart = indexToBufferPosition(beginIndex);
-            final int bufferPosEndInclusive = indexToBufferPosition(endIndex - 1); //must be valid indices
+        checkRangeBounds(beginIndex, endIndex);
 
-            if (bufferPosEndInclusive > bufferPosStart) {
+        if (beginIndex == endIndex) {
 
-                KTypeSort.quicksort(Intrinsics.<KType[]> cast(this.buffer), bufferPosStart, bufferPosEndInclusive + 1, comp);
-            } else {
-                //Use the slower KTypeIndexedContainer sort
-                KTypeSort.quicksort(this, beginIndex, endIndex, comp);
-            }
+            return; //nothing to do
         }
+
+        //Fast path : if the actual indices matching [beginIndex; endIndex[
+        //in the underlying buffer are in increasing order (means there is no folding of buffer in the interval),
+        // use quicksort array version directly.
+        final int bufferPosStart = indexToBufferPosition(beginIndex);
+        final int bufferPosEndInclusive = indexToBufferPosition(endIndex - 1); //must be valid indices
+
+        if (bufferPosEndInclusive > bufferPosStart) {
+
+            KTypeSort.quicksort(Intrinsics.<KType[]> cast(this.buffer), bufferPosStart, bufferPosEndInclusive + 1, comp);
+        } else {
+            //Use the slower KTypeIndexedContainer sort
+            KTypeSort.quicksort(this, beginIndex, endIndex, comp);
+        }
+
     }
 
     /**
@@ -1298,12 +1318,15 @@ public class KTypeArrayDeque<KType>
     @Override
     public void removeRange(final int fromIndex, final int toIndex) {
 
-        if (fromIndex >= toIndex) {
+        checkRangeBounds(fromIndex, toIndex);
 
-            throw new IllegalArgumentException("Index fromIndex " + fromIndex + " is >= toIndex " + toIndex);
+        if (fromIndex == toIndex) {
+
+            return; //nothing to do
         }
 
         final int bufferPositionStart = indexToBufferPosition(fromIndex);
+
         final int bufferPositionEndInclusive = indexToBufferPosition(toIndex - 1); //must be a valid index
 
         removeBufferIndicesRange(bufferPositionStart, oneRight(bufferPositionEndInclusive, this.buffer.length));
@@ -1358,6 +1381,24 @@ public class KTypeArrayDeque<KType>
         }
 
         return (int) bufferPos;
+    }
+
+    private void checkRangeBounds(final int beginIndex, final int endIndex) {
+
+        if (beginIndex > endIndex) {
+
+            throw new IllegalArgumentException("Index beginIndex " + beginIndex + " is > endIndex " + endIndex);
+        }
+
+        if (beginIndex < 0) {
+
+            throw new IndexOutOfBoundsException("Index beginIndex < 0");
+        }
+
+        if (endIndex > size()) {
+
+            throw new IndexOutOfBoundsException("Index endIndex " + endIndex + " out of bounds [" + 0 + ", " + size() + "].");
+        }
     }
 
     /*! #if ($TemplateOptions.declareInline("oneLeft(index, modulus)", "<*>==>(index >= 1) ? index - 1 : modulus - 1")) !*/

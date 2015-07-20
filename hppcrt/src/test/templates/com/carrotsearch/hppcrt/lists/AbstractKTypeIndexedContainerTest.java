@@ -200,18 +200,19 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
     }
 
     /**
-     * Try lots of combinations of size, range
+     * Try lots of combinations of size, range,
+     * validity is 0 <= from <= to <= size()
      */
     @Test
     public void testRemoveRange()
     {
         final ArrayList<Integer> referenceDeque = new ArrayList<Integer>();
 
-        final int TEST_SIZE = (int) 126;
+        final int TEST_SIZE = (int) 55;
 
         final Random prng = new Random(0xBADCAFE);
 
-        final int NB_ITERATION = 50000;
+        final int NB_ITERATION = 200000;
 
         for (int ii = 0; ii < NB_ITERATION; ii++) {
 
@@ -220,26 +221,20 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
             //create deque of this size
             final int dequeSize = prng.nextInt(TEST_SIZE);
 
-            if (dequeSize <= 0) {
-
-                continue;
-            }
-
             final KTypeIndexedContainer<KType> testQ = createIndexedContainerWithRandomData(dequeSize, 0xBADCAFE);
 
             //will attempt to remove this range
-            final int upperRange = prng.nextInt(dequeSize);
+            final int upperRange = prng.nextInt(dequeSize + 1);
 
-            if (upperRange <= 0) {
-                continue;
-            }
-
-            final int lowerRange = prng.nextInt(upperRange);
+            final int lowerRange = prng.nextInt(upperRange + 1);
 
             //Fill the reference JCF deque
             for (int jj = 0; jj < testQ.size(); jj++) {
 
-                if (jj < lowerRange || jj >= upperRange) {
+                if (upperRange == lowerRange) {
+                    referenceDeque.add(castType(testQ.get(jj))); //no removal at all
+                }
+                else if (jj < lowerRange || jj >= upperRange) {
                     referenceDeque.add(castType(testQ.get(jj)));
                 }
             }
@@ -265,6 +260,7 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
 
     /**
      * forEach(procedure, slice) Try lots of combinations of size, range
+     * validity is 0 <= from <= to <= size()
      */
     @Test
     public void testForEachProcedureRange()
@@ -273,11 +269,11 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
 
         final ArrayList<Integer> procedureResult = new ArrayList<Integer>();
 
-        final int TEST_SIZE = (int) 126;
+        final int TEST_SIZE = (int) 55;
 
         final Random prng = new Random(0xBADCAFE);
 
-        final int NB_ITERATION = 50000;
+        final int NB_ITERATION = 200000;
 
         for (int ii = 0; ii < NB_ITERATION; ii++) {
 
@@ -289,26 +285,21 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
             //create deque of this size
             final int dequeSize = prng.nextInt(TEST_SIZE);
 
-            if (dequeSize <= 0) {
-
-                continue;
-            }
-
             final KTypeIndexedContainer<KType> testQ = createIndexedContainerWithRandomData(dequeSize, 0xBADCAFE);
 
             //will attempt to remove this range
-            final int upperRange = prng.nextInt(dequeSize);
+            final int upperRange = prng.nextInt(dequeSize + 1);
 
-            if (upperRange <= 0) {
-                continue;
-            }
-
-            final int lowerRange = prng.nextInt(upperRange);
+            final int lowerRange = prng.nextInt(upperRange + 1);
 
             //Fill the reference JCF deque
             for (int jj = 0; jj < testQ.size(); jj++) {
 
-                if (jj >= lowerRange && jj < upperRange) {
+                if (lowerRange == upperRange) {
+                    expectedSum = 0;
+                    break;
+                }
+                else if (jj >= lowerRange && jj < upperRange) {
                     referenceList.add(castType(testQ.get(jj)));
                     expectedSum += castType(testQ.get(jj));
                 }
@@ -350,7 +341,9 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
 
     /**
      * forEach(predicate, slice) Try lots of combinations of size, range
+     * validity is 0 <= from <= to <= size()
      */
+    @Seed("6EB81D6F6E68EBF")
     @Test
     public void testForEachPredicateRange()
     {
@@ -358,11 +351,11 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
 
         final ArrayList<Integer> predicateResult = new ArrayList<Integer>();
 
-        final int TEST_SIZE = (int) 126;
+        final int TEST_SIZE = (int) 55;
 
         final Random prng = RandomizedTest.getRandom();
 
-        final int NB_ITERATION = 50000;
+        final int NB_ITERATION = 200000;
 
         for (int ii = 0; ii < NB_ITERATION; ii++) {
 
@@ -374,30 +367,31 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
             //create container
             final int containerSize = prng.nextInt(TEST_SIZE);
 
-            if (containerSize <= 0) {
-
-                continue;
-            }
-
             final KTypeIndexedContainer<KType> testQ = createIndexedContainerWithRandomData(containerSize, 0xBADCAFE);
 
             //will attempt to remove this range
-            final int upperRange = prng.nextInt(containerSize);
+            final int upperRange = prng.nextInt(containerSize + 1);
 
-            if (upperRange <= 0) {
-                continue;
-            }
-
-            final int lowerRange = prng.nextInt(upperRange);
+            final int lowerRange = prng.nextInt(upperRange + 1);
 
             //stop at a random position between [lowerRange, upperRange[
+            final int stopRange; //stopRange is included, i.e computations goes from [lowerRange; stopRange] !
 
-            final int stopRange = RandomizedTest.randomIntBetween(lowerRange, upperRange - 1);
+            if (upperRange - lowerRange <= 1) {
+                stopRange = lowerRange;
+            } else {
+
+                stopRange = RandomizedTest.randomIntBetween(lowerRange, upperRange - 1);
+            }
 
             //Fill the reference JCF deque
             for (int jj = 0; jj < testQ.size(); jj++) {
 
-                if (jj >= lowerRange && jj <= stopRange) {
+                if (lowerRange == upperRange) {
+                    expectedSum = 0;
+                    break;
+                }
+                else if (jj >= lowerRange && jj <= stopRange) { //stopRange is included into the computation
                     referenceList.add(castType(testQ.get(jj)));
                     expectedSum += castType(testQ.get(jj));
                 }
@@ -409,20 +403,21 @@ public abstract class AbstractKTypeIndexedContainerTest<KType> extends AbstractK
 
                 long count = 0;
 
-                long nbIterations = 0;
+                int currentRange = lowerRange;
 
                 @Override
                 public boolean apply(final KType value) {
 
-                    this.nbIterations++;
-
+                    //execute
                     predicateResult.add(castType(value));
 
                     this.count += castType(value);
 
-                    if (this.nbIterations > (stopRange - lowerRange)) {
+                    if (this.currentRange >= stopRange) { //stopRange computation is included, then iteration stops
                         return false;
                     }
+
+                    this.currentRange++;
 
                     return true;
                 }

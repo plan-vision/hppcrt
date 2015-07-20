@@ -43,7 +43,6 @@ public class KTypeSortTest<KType> extends AbstractKTypeTest<KType>
         sortCertification(Algorithm.QUICKSORT_COMPARATOR);
     }
 
-    @Repeat(iterations = 200)
     @Test
     public void testRandomizedSort()
     {
@@ -68,43 +67,42 @@ public class KTypeSortTest<KType> extends AbstractKTypeTest<KType>
             }
         };
 
-        final int TEST_SIZE = (int) 1e4;
+        final int TEST_SIZE = (int) 50;
+        final int NB_ITERATIONS = (int) 1e6;
 
         //get a new seed for the current iteration
         final long currentSeed = RandomizedTest.randomLong();
 
-        final int upperRange = RandomizedTest.randomInt(TEST_SIZE);
+        for (int ii = 0; ii < NB_ITERATIONS; ii++) {
 
-        if (upperRange <= 0) {
-            return;
+            final int upperRange = RandomizedTest.randomInt(TEST_SIZE);
+            final int lowerRange = RandomizedTest.randomInt(upperRange);
+
+            //A) Sort an array of random values of primitive types
+
+            //A-1) full sort
+            KType[] primitiveList = createArrayWithComparableRandomData(TEST_SIZE, currentSeed);
+            KType[] primitiveListOriginal = createArrayWithComparableRandomData(TEST_SIZE, currentSeed);
+            KTypeSort.quicksort(primitiveList);
+            assertOrder(primitiveListOriginal, primitiveList, 0, primitiveList.length);
+            //A-2) Partial sort
+            primitiveList = createArrayWithComparableRandomData(TEST_SIZE, currentSeed);
+            primitiveListOriginal = createArrayWithComparableRandomData(TEST_SIZE, currentSeed);
+            KTypeSort.quicksort(primitiveList, lowerRange, upperRange);
+            assertOrder(primitiveListOriginal, primitiveList, lowerRange, upperRange);
+
+            //B) Sort with Comparator
+            //B-1) Full sort
+            KType[] comparatorList = createArrayWithComparableRandomData(TEST_SIZE, currentSeed);
+            KType[] comparatorListOriginal = createArrayWithComparableRandomData(TEST_SIZE, currentSeed);
+            KTypeSort.quicksort(comparatorList, comp);
+            assertOrder(comparatorListOriginal, comparatorList, 0, comparatorList.length);
+            //B-2) Partial sort
+            comparatorList = createArrayWithComparableRandomData(TEST_SIZE, currentSeed);
+            comparatorListOriginal = createArrayWithComparableRandomData(TEST_SIZE, currentSeed);
+            KTypeSort.quicksort(comparatorList, lowerRange, upperRange, comp);
+            assertOrder(comparatorListOriginal, comparatorList, lowerRange, upperRange);
         }
-
-        final int lowerRange = RandomizedTest.randomInt(upperRange - 1);
-
-        //A) Sort an array of random values of primitive types
-
-        //A-1) full sort
-        KType[] primitiveList = createArrayWithComparableRandomData(TEST_SIZE, currentSeed);
-        KType[] primitiveListOriginal = createArrayWithComparableRandomData(TEST_SIZE, currentSeed);
-        KTypeSort.quicksort(primitiveList);
-        assertOrder(primitiveListOriginal, primitiveList, 0, primitiveList.length);
-        //A-2) Partial sort
-        primitiveList = createArrayWithComparableRandomData(TEST_SIZE, currentSeed);
-        primitiveListOriginal = createArrayWithComparableRandomData(TEST_SIZE, currentSeed);
-        KTypeSort.quicksort(primitiveList, lowerRange, upperRange);
-        assertOrder(primitiveListOriginal, primitiveList, lowerRange, upperRange);
-
-        //B) Sort with Comparator
-        //B-1) Full sort
-        KType[] comparatorList = createArrayWithComparableRandomData(TEST_SIZE, currentSeed);
-        KType[] comparatorListOriginal = createArrayWithComparableRandomData(TEST_SIZE, currentSeed);
-        KTypeSort.quicksort(comparatorList, comp);
-        assertOrder(comparatorListOriginal, comparatorList, 0, comparatorList.length);
-        //B-2) Partial sort
-        comparatorList = createArrayWithComparableRandomData(TEST_SIZE, currentSeed);
-        comparatorListOriginal = createArrayWithComparableRandomData(TEST_SIZE, currentSeed);
-        KTypeSort.quicksort(comparatorList, lowerRange, upperRange, comp);
-        assertOrder(comparatorListOriginal, comparatorList, lowerRange, upperRange);
     }
 
     ///////////////////////////////////////////////////////////

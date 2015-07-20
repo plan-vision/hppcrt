@@ -1,3 +1,7 @@
+[0.7.1]
+** Bug fixes
+HPPCRT-45: API with intervals arguments is inconsistent with JDK conventions.
+
 [0.7.0]
 This release fix important bugs, and align on some refactorings or changes of HPPC v0.7.1, hence the version number.
 

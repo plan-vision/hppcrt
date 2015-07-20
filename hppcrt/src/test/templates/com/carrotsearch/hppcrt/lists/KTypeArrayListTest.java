@@ -277,7 +277,6 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeIndexedContainerTest
                 this.arrayList.buffer.length <= count + maxGrowth);
     }
 
-    @Repeat(iterations = 100)
     @Test
     public void testSort()
     {
@@ -302,38 +301,42 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeIndexedContainerTest
             }
         };
 
-        final int TEST_SIZE = (int) 1e4;
+        final int TEST_SIZE = (int) 50;
+        final int NB_ITERATIONS = (int) 1e5;
 
         //get a new seed for the current iteration
         final long currentSeed = RandomizedTest.randomLong();
 
-        final int upperRange = RandomizedTest.randomInt(TEST_SIZE);
-        final int lowerRange = RandomizedTest.randomInt(upperRange);
+        for (int ii = 0; ii < NB_ITERATIONS; ii++) {
 
-        //A) Sort an array of random values of primitive types
+            final int upperRange = RandomizedTest.randomInt(TEST_SIZE);
+            final int lowerRange = RandomizedTest.randomInt(upperRange);
 
-        //A-1) full sort
-        KTypeArrayList<KType> primitiveList = createArrayListWithRandomData(TEST_SIZE, currentSeed);
-        KTypeArrayList<KType> primitiveListOriginal = createArrayListWithRandomData(TEST_SIZE, currentSeed);
-        primitiveList.sort();
-        assertOrder(primitiveListOriginal, primitiveList, 0, primitiveList.size());
-        //A-2) Partial sort
-        primitiveList = createArrayListWithRandomData(TEST_SIZE, currentSeed);
-        primitiveListOriginal = createArrayListWithRandomData(TEST_SIZE, currentSeed);
-        primitiveList.sort(lowerRange, upperRange);
-        assertOrder(primitiveListOriginal, primitiveList, lowerRange, upperRange);
+            //A) Sort an array of random values of primitive types
 
-        //B) Sort with Comparator
-        //B-1) Full sort
-        KTypeArrayList<KType> comparatorList = createArrayListWithRandomData(TEST_SIZE, currentSeed);
-        KTypeArrayList<KType> comparatorListOriginal = createArrayListWithRandomData(TEST_SIZE, currentSeed);
-        comparatorList.sort(comp);
-        assertOrder(comparatorListOriginal, comparatorList, 0, comparatorList.size());
-        //B-2) Partial sort
-        comparatorList = createArrayListWithRandomData(TEST_SIZE, currentSeed);
-        comparatorListOriginal = createArrayListWithRandomData(TEST_SIZE, currentSeed);
-        comparatorList.sort(lowerRange, upperRange, comp);
-        assertOrder(comparatorListOriginal, comparatorList, lowerRange, upperRange);
+            //A-1) full sort
+            KTypeArrayList<KType> primitiveList = createArrayListWithRandomData(TEST_SIZE, currentSeed);
+            KTypeArrayList<KType> primitiveListOriginal = createArrayListWithRandomData(TEST_SIZE, currentSeed);
+            primitiveList.sort();
+            assertOrder(primitiveListOriginal, primitiveList, 0, primitiveList.size());
+            //A-2) Partial sort
+            primitiveList = createArrayListWithRandomData(TEST_SIZE, currentSeed);
+            primitiveListOriginal = createArrayListWithRandomData(TEST_SIZE, currentSeed);
+            primitiveList.sort(lowerRange, upperRange);
+            assertOrder(primitiveListOriginal, primitiveList, lowerRange, upperRange);
+
+            //B) Sort with Comparator
+            //B-1) Full sort
+            KTypeArrayList<KType> comparatorList = createArrayListWithRandomData(TEST_SIZE, currentSeed);
+            KTypeArrayList<KType> comparatorListOriginal = createArrayListWithRandomData(TEST_SIZE, currentSeed);
+            comparatorList.sort(comp);
+            assertOrder(comparatorListOriginal, comparatorList, 0, comparatorList.size());
+            //B-2) Partial sort
+            comparatorList = createArrayListWithRandomData(TEST_SIZE, currentSeed);
+            comparatorListOriginal = createArrayListWithRandomData(TEST_SIZE, currentSeed);
+            comparatorList.sort(lowerRange, upperRange, comp);
+            assertOrder(comparatorListOriginal, comparatorList, lowerRange, upperRange);
+        }
     }
 
     /* */
