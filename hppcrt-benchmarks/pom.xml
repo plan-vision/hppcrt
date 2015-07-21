@@ -5,13 +5,13 @@
     <parent>
         <groupId>com.github.vsonnier</groupId>
         <artifactId>hppcrt-parent</artifactId>
-        <version>0.7.1</version>
+        <version>0.7.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <!-- Project info. -->
     <artifactId>hppcrt-benchmarks</artifactId>
-    <version>0.7.1</version>
+    <version>0.7.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>HPPC-RT Benchmarks</name>
