@@ -529,8 +529,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             throw new BufferAllocationException(
                     "Not enough memory to allocate buffers to grow from %d -> %d elements",
                     e,
-                    this.keys.length,
-                    capacity);
+                    (this.keys == null) ? 0 : this.keys.length,
+                            capacity);
         }
     }
 
@@ -1803,19 +1803,19 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     /*! #end !*/
 
     /*! #if ($TemplateOptions.declareInline("REHASH(strategy, value)",
-    "<*,*>==>MurmurHash3.mix(strategy.computeHashCode(value) , this.perturbation )")) !*/
+    "<*,*>==>BitMixer.mix(strategy.computeHashCode(value) , this.perturbation )")) !*/
     /**
      * (actual method is inlined in generated code)
      */
     private int REHASH(final KTypeHashingStrategy<? super KType> strategy, final KType value) {
 
-        return MurmurHash3.mix(strategy.computeHashCode(value), this.perturbation);
+        return BitMixer.mix(strategy.computeHashCode(value), this.perturbation);
     }
 
     /*! #end !*/
 
     /*! #if ($TemplateOptions.declareInline("REHASH2(strategy, value, perturb)",
-    "<*,*>==>MurmurHash3.mix(strategy.computeHashCode(value) , perturb)")) !*/
+    "<*,*>==>BitMixer.mix(strategy.computeHashCode(value) , perturb)")) !*/
     /**
      * REHASH2 method for rehashing the keys with perturbation seed as parameter
      * (inlined in generated code)
@@ -1823,7 +1823,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      */
     private int REHASH2(final KTypeHashingStrategy<? super KType> strategy, final KType value, final int perturb) {
 
-        return MurmurHash3.mix(strategy.computeHashCode(value), perturb);
+        return BitMixer.mix(strategy.computeHashCode(value), perturb);
     }
     /*! #end !*/
 }

@@ -19,7 +19,7 @@ import com.carrotsearch.randomizedtesting.annotations.*;
 
 /*! #import("com/carrotsearch/hppcrt/Intrinsics.java") !*/
 /**
- * Unit tests for {@link KTypeHeapPriorityQueue}.
+ * Unit tests for {@link KTypeIndexedHeapPriorityQueue}.
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
@@ -535,13 +535,13 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
         Assert.assertEquals(12, this.prioq.size());
 
         final int nbRemoved = this.prioq.removeAll(new IntKTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final int key, final KType value)
             {
                 return value == KTypeIndexedHeapPriorityQueueTest.this.key4 || key == 3;
             }
-                });
+        });
 
         Assert.assertEquals(4, nbRemoved);
         Assert.assertEquals(8, this.prioq.size());
@@ -1529,7 +1529,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
           final int COUNT = (int) (126 * 0.5);
         #end !*/
 
-        //A) fill COUNT random values in prio-queue
+        //A) fill COUNT values in prio-queue
         final KTypeIndexedHeapPriorityQueue<KType> testPQ = new KTypeIndexedHeapPriorityQueue<KType>(10);
 
         for (int i = 0; i < COUNT; i++) {
@@ -1571,6 +1571,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
     @Test
     public void testUpdateTopPriorityComparable() {
+
         /*! #if ($TemplateOptions.isKType("GENERIC", "int", "long", "float", "double")) !*/
         final int COUNT = (int) 1e4;
         /*! #elseif($TemplateOptions.isKType("short", "char"))
@@ -1579,7 +1580,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
           final int COUNT = (int) (126 * 0.5);
         #end !*/
 
-        //A) fill COUNT random values in prio-queue
+        //A) fill COUNT values in prio-queue
         final KTypeIndexedHeapPriorityQueue<KType> testPQ = new KTypeIndexedHeapPriorityQueue<KType>(10);
 
         for (int i = 0; i < COUNT; i++) {
@@ -1618,6 +1619,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
     @Repeat(iterations = 10)
     @Test
     public void testUpdatePriorityComparable() {
+
         /*! #if ($TemplateOptions.isKType("GENERIC", "int", "long", "float", "double")) !*/
         final int COUNT = (int) 1e4;
         /*! #elseif($TemplateOptions.isKType("short", "char"))
@@ -1626,7 +1628,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
           final int COUNT = (int) (126 * 0.5);
         #end !*/
 
-        //A) fill COUNT random values in prio-queue
+        //A) fill COUNT values in prio-queue
         final KTypeIndexedHeapPriorityQueue<KType> testPQ = new KTypeIndexedHeapPriorityQueue<KType>(10);
 
         for (int i = 0; i < COUNT; i++) {
@@ -1687,6 +1689,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
     @Repeat(iterations = 10)
     @Test
     public void testUpdatePrioritiesComparator() {
+
         //INVERSE natural ordering comparator, so it will create a MAX priority queue !
         final Comparator<? super TestHolder> comp = new Comparator<TestHolder>() {
 
@@ -1704,7 +1707,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
           final int COUNT = (int) (126 * 0.5);
         #end !*/
 
-        //A) fill COUNT random values in prio-queue
+        //A) fill COUNT values in prio-queue
         final KTypeIndexedHeapPriorityQueue<TestHolder> testPQ = new KTypeIndexedHeapPriorityQueue<TestHolder>(comp, 10);
 
         for (int i = 0; i < COUNT; i++) {
@@ -1749,6 +1752,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
     @Repeat(iterations = 10)
     @Test
     public void testUpdatePriorityComparator() {
+
         //INVERSE natural ordering comparator, so it will create a MAX priority queue !
         final Comparator<? super TestHolder> comp = new Comparator<TestHolder>() {
 
@@ -1766,7 +1770,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
           final int COUNT = (int) (126 * 0.5);
         #end !*/
 
-        //A) fill COUNT random values in prio-queue
+        //A) fill COUNT values in prio-queue
         final KTypeIndexedHeapPriorityQueue<TestHolder> testPQ = new KTypeIndexedHeapPriorityQueue<TestHolder>(comp, 10);
 
         for (int i = 0; i < COUNT; i++) {
@@ -1824,6 +1828,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
     @Test
     public void testUpdateTopPriorityComparator() {
+
         //INVERSE natural ordering comparator, so it will create a MAX priority queue !
         final Comparator<? super TestHolder> comp = new Comparator<TestHolder>() {
 
@@ -1841,7 +1846,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
           final int COUNT = (int) (126 * 0.5);
         #end !*/
 
-        //A) fill COUNT random values in prio-queue
+        //A) fill COUNT values in prio-queue
         final KTypeIndexedHeapPriorityQueue<TestHolder> testPQ = new KTypeIndexedHeapPriorityQueue<TestHolder>(comp, 10);
 
         for (int i = 0; i < COUNT; i++) {
@@ -1904,7 +1909,13 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
 
         final Random prng = RandomizedTest.getRandom();
 
+        /*! #if ($TemplateOptions.isKType("GENERIC", "int", "long", "float", "double")) !*/
         final int COUNT = (int) 1e4;
+        /*! #elseif($TemplateOptions.isKType("short", "char"))
+         final int COUNT = (int) 1e3;
+        #else
+          final int COUNT = (int) (126 * 0.5);
+        #end !*/
 
         //A) fill COUNT random values in prio-queue
         final KTypeIndexedHeapPriorityQueue<KType> testPQ = new KTypeIndexedHeapPriorityQueue<KType>(comp, 10);
@@ -1923,7 +1934,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
                 testPQ.put(index, cast(value));
             }
 
-            if (i % 27001 == 0) {
+            if (i % 11 == 0) {
                 KTypeIndexedHeapPriorityQueueTest.checkConsistency(this.prioq);
                 Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
             }
@@ -1973,7 +1984,7 @@ public class KTypeIndexedHeapPriorityQueueTest<KType> extends AbstractKTypeTest<
             Assert.assertTrue(testPQ.topKey() != -1);
             Assert.assertEquals(castType(expected_next), castType(testPQ.get(testPQ.topKey())));
 
-            if (i % 31117 == 0) {
+            if (i % 11 == 0) {
                 KTypeIndexedHeapPriorityQueueTest.checkConsistency(this.prioq);
                 Assert.assertTrue(KTypeIndexedHeapPriorityQueueTest.isMinHeap(this.prioq));
             }

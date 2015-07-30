@@ -47,7 +47,7 @@ import com.carrotsearch.hppcrt.hash.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeHashMap<KType, VType>
-        implements KTypeVTypeMap<KType, VType>, Cloneable
+implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     protected VType defaultValue = Intrinsics.<VType> empty();
 
@@ -62,8 +62,8 @@ public class KTypeVTypeHashMap<KType, VType>
           KType []
           #else !*/
     Object[]
-    /*! #end !*/
-    keys;
+            /*! #end !*/
+            keys;
 
     /**
      * Hash-indexed array holding all values associated to the keys.
@@ -73,8 +73,8 @@ public class KTypeVTypeHashMap<KType, VType>
           VType []
           #else !*/
     Object[]
-    /*! #end !*/
-    values;
+            /*! #end !*/
+            values;
 
     /*! #if ($RH) !*/
     /**
@@ -502,8 +502,8 @@ public class KTypeVTypeHashMap<KType, VType>
             throw new BufferAllocationException(
                     "Not enough memory to allocate buffers to grow from %d -> %d elements",
                     e,
-                    this.keys.length,
-                    capacity);
+                    (this.keys == null) ? 0 : this.keys.length,
+                            capacity);
         }
     }
 
@@ -1753,11 +1753,8 @@ public class KTypeVTypeHashMap<KType, VType>
     /*! #end !*/
 
     /*! #if ($TemplateOptions.declareInline("REHASH(value)",
-    "<Object,*>==>MurmurHash3.mix(value.hashCode() , this.perturbation)",
-    "<byte,*>==>PhiMix.mix(value , this.perturbation)",
-    "<char,*>==>PhiMix.mix(value , this.perturbation)",
-    "<short,*>==>PhiMix.mix(value , this.perturbation)",
-    "<*,*>==>MurmurHash3.mix(value , this.perturbation)")) !*/
+    "<Object,*>==>BitMixer.mix(value.hashCode() , this.perturbation)",
+    "<*,*>==>BitMixer.mix(value , this.perturbation)")) !*/
     /**
      * REHASH method for rehashing the keys.
      * (inlined in generated code)
@@ -1765,17 +1762,14 @@ public class KTypeVTypeHashMap<KType, VType>
      */
     private int REHASH(final KType value) {
 
-        return MurmurHash3.mix(value.hashCode(), this.perturbation);
+        return BitMixer.mix(value.hashCode(), this.perturbation);
     }
 
     /*! #end !*/
 
     /*! #if ($TemplateOptions.declareInline("REHASH2(value, perturb)",
-    "<Object,*>==>MurmurHash3.mix(value.hashCode() , perturb)",
-    "<byte,*>==>PhiMix.mix(value , perturb)",
-    "<char,*>==>PhiMix.mix(value , perturb)",
-    "<short,*>==>PhiMix.mix(value , perturb)",
-    "<*,*>==>MurmurHash3.mix(value , perturb)")) !*/
+    "<Object,*>==>BitMixer.mix(value.hashCode() , perturb)",
+    "<*,*>==>BitMixer.mix(value , perturb)")) !*/
     /**
      * REHASH2 method for rehashing the keys with perturbation seed as parameter
      * (inlined in generated code)
@@ -1783,7 +1777,7 @@ public class KTypeVTypeHashMap<KType, VType>
      */
     private int REHASH2(final KType value, final int perturb) {
 
-        return MurmurHash3.mix(value.hashCode(), perturb);
+        return BitMixer.mix(value.hashCode(), perturb);
     }
     /*! #end !*/
 }

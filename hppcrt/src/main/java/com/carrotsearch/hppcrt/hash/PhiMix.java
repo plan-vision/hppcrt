@@ -65,22 +65,6 @@ public final class PhiMix
     }
 
     /**
-     * Mix an int perturbated by a seed.
-     * 
-     * @param k
-     *          an integer.
-     * @param seed
-     *          a perturbation value
-     * @return a int hash value obtained by mixing the bits of {@code k}.
-     */
-    public static int mix(int k, final int seed) {
-
-        k ^= seed;
-        final int h = k * PhiMix.INT_PHI;
-        return h ^ (h >> 16);
-    }
-
-    /**
      * The inverse of {@link #mix32(int)}. This method is mainly useful to create
      * unit tests.
      * 

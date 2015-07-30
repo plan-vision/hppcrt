@@ -6,7 +6,6 @@ package com.carrotsearch.hppcrt.hash;
  */
 public final class BitMixer
 {
-
     /**
      * No instances.
      */
@@ -15,73 +14,189 @@ public final class BitMixer
     }
 
     // Don't bother mixing very small key domains much.
-    public static int mix(final byte key) {
-        return key * PhiMix.INT_PHI;
+    /**
+     * Mix a byte.
+     * 
+     * @param k
+     *          a byte.
+     * @return an int hash value obtained by mixing the bits of {@code k}.
+     */
+    public static int mix(final byte k) {
+        return k * PhiMix.INT_PHI;
     }
 
-    public static int mix(final byte key, final int seed) {
-        return (key ^ seed) * PhiMix.INT_PHI;
+    /**
+     * Mix a byte perturbated by a seed.
+     * 
+     * @param k
+     *          a byte.
+     * @param seed
+     *          a perturbation value
+     * @return an int hash value obtained by mixing the bits of {@code k}.
+     */
+    public static int mix(final byte k, final int seed) {
+        return (k ^ seed) * PhiMix.INT_PHI;
     }
 
-    public static int mix(final short key) {
-        return PhiMix.mix32(key);
+    /**
+     * Mix a short.
+     * 
+     * @param k
+     *          a short.
+     * @return an int hash value obtained by mixing the bits of {@code k}.
+     */
+    public static int mix(final short k) {
+        return PhiMix.mix32(k);
     }
 
-    public static int mix(final short key, final int seed) {
-        return PhiMix.mix32(key ^ seed);
+    /**
+     * Mix a short perturbated by a seed.
+     * 
+     * @param k
+     *          a short.
+     * @param seed
+     *          a perturbation value
+     * @return an int hash value obtained by mixing the bits of {@code k}.
+     */
+    public static int mix(final short k, final int seed) {
+        return PhiMix.mix32(k ^ seed);
     }
 
-    public static int mix(final char key) {
-        return PhiMix.mix32(key);
+    /**
+     * Mix a char.
+     * 
+     * @param k
+     *          a char.
+     * @return an int hash value obtained by mixing the bits of {@code k}.
+     */
+    public static int mix(final char k) {
+        return PhiMix.mix32(k);
     }
 
-    public static int mix(final char key, final int seed) {
-        return PhiMix.mix32(key ^ seed);
+    /**
+     * Mix a char perturbated by a seed.
+     * 
+     * @param k
+     *          a char.
+     * @param seed
+     *          a perturbation value
+     * @return an int hash value obtained by mixing the bits of {@code k}.
+     */
+    public static int mix(final char k, final int seed) {
+        return PhiMix.mix32(k ^ seed);
     }
 
     // Better mix for larger key domains.
+    /**
+     * Mix an int.
+     * 
+     * @param k
+     *          an integer.
+     * @param seed
+     *          a perturbation value
+     * @return an int hash value obtained by mixing the bits of {@code k}.
+     */
     public static int mix(final int key) {
         return MurmurHash3.mix32(key);
     }
 
-    public static int mix(final int key, final int seed) {
-        return MurmurHash3.mix32(key ^ seed);
+    /**
+     * Mix an int perturbated by a seed.
+     * 
+     * @param k
+     *          an integer.
+     * @param seed
+     *          a perturbation value
+     * @return an int hash value obtained by mixing the bits of {@code k}.
+     */
+    public static int mix(final int k, final int seed) {
+        return MurmurHash3.mix32(k ^ seed);
     }
 
-    public static int mix(final float key) {
-        return MurmurHash3.mix32(Float.floatToIntBits(key));
+    /**
+     * Mix a float.
+     * 
+     * @param x
+     *          a float.
+     * @param seed
+     *          a perturbation value
+     * @return an int hash value obtained by mixing the bits of {@code x}.
+     */
+    public static int mix(final float x) {
+        return MurmurHash3.mix32(Float.floatToIntBits(x));
     }
 
-    public static int mix(final float key, final int seed) {
-        return MurmurHash3.mix32(Float.floatToIntBits(key) ^ seed);
+    /**
+     * Mix a float perturbated by a seed.
+     * 
+     * @param x
+     *          a float.
+     * @param seed
+     *          a perturbation value
+     * @return an int hash value obtained by mixing the bits of {@code x}.
+     */
+    public static int mix(final float x, final int seed) {
+        return MurmurHash3.mix32(Float.floatToIntBits(x) ^ seed);
     }
 
-    public static int mix(final double key) {
-        return (int) MurmurHash3.mix64(Double.doubleToLongBits(key));
+    /**
+     * Mix a double.
+     * 
+     * @param x
+     *          a double.
+     * @return an int hash value obtained by mixing the bits of {@code x}.
+     */
+    public static int mix(final double x) {
+        return (int) MurmurHash3.mix64(Double.doubleToLongBits(x));
     }
 
-    public static int mix(final double key, final int seed) {
-        return (int) MurmurHash3.mix64(Double.doubleToLongBits(key) ^ seed);
+    /**
+     * Mix a double perturbated by a seed.
+     * 
+     * @param x
+     *          a double.
+     * @param seed
+     *          a perturbation value
+     * @return a int hash value obtained by mixing the bits of {@code x}.
+     */
+    public static int mix(final double x, final int seed) {
+        return (int) MurmurHash3.mix64(Double.doubleToLongBits(x) ^ seed);
     }
 
-    public static int mix(final long key) {
-        return (int) MurmurHash3.mix64(key);
+    /**
+     * Mix a long.
+     * 
+     * @param z
+     *          a long integer.
+     * @param seed
+     *          a perturbation value
+     * @return an int hash value obtained by mixing the bits of {@code z}.
+     */
+    public static int mix(final long z) {
+        return (int) MurmurHash3.mix64(z);
     }
 
-    public static int mix(final boolean key) {
-        return key ? MurmurHash3.HASH_1 : MurmurHash3.HASH_0;
+    /**
+     * Mix a long perturbated by a seed.
+     * 
+     * @param z
+     *          a long integer.
+     * @param seed
+     *          a perturbation value
+     * @return an int hash value obtained by mixing the bits of {@code z}.
+     */
+    public static int mix(final long z, final int seed) {
+        return (int) MurmurHash3.mix64(z ^ seed);
     }
 
-    public static int mix(final long key, final int seed) {
-        return (int) MurmurHash3.mix64(key ^ seed);
-    }
-
+    /**
+     * Mix an Object instance {@link hashCode()}.
+     * 
+     * @param key
+     *          an Object instnce.
+     * @return an int hash value obtained by mixing the bits of {@code key.hashCode()}, or 0 if key is null.
+     */
     public static int mix(final Object key) {
         return key == null ? 0 : MurmurHash3.mix32(key.hashCode());
     }
-
-    public static int mix(final Object key, final int seed) {
-        return key == null ? 0 : MurmurHash3.mix32(key.hashCode() ^ seed);
-    }
-
 }
