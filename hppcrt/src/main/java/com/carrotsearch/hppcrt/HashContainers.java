@@ -136,17 +136,4 @@ public final class HashContainers
             throw new IllegalArgumentException("arraySize must be a power of two !");
         }
     }
-
-    /**
-     * <p>
-     * Compute a unique identifier associated with Object instance, valid in the
-     * same process.
-     * @param instance
-     */
-    public static int computeUniqueIdentifier(final Object instance) {
-        final long longId = System.identityHashCode(instance) ^ Containers.randomSeed64();
-
-        //fold to 32 bit
-        return (int) ((longId >>> 32) ^ longId);
-    }
 }

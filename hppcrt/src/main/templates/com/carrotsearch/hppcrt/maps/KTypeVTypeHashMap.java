@@ -116,10 +116,10 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     private int resizeAt;
 
     /**
-     * Per-instance, per-allocation size perturbation
+     * Per-instance size perturbation
      * introduced in rehashing to create a unique key distribution.
      */
-    private final int perturbation = HashContainers.computeUniqueIdentifier(this);
+    private final int perturbation = Containers.randomSeed32();
 
     /**
      * Default constructor: Creates a hash map with the default capacity of {@link Containers#DEFAULT_EXPECTED_ELEMENTS},

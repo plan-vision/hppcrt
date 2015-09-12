@@ -96,10 +96,10 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
     private int resizeAt;
 
     /**
-     * Per-instance, per-allocation size perturbation
+     * Per-instance perturbation
      * introduced in rehashing to create a unique key distribution.
      */
-    private final int perturbation = HashContainers.computeUniqueIdentifier(this);
+    private final int perturbation = Containers.randomSeed32();
 
     /**
      * Default constructor: Creates a hash set with the default capacity of {@link Containers#DEFAULT_EXPECTED_ELEMENTS},

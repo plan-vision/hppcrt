@@ -4,6 +4,7 @@ import java.security.PrivilegedAction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.carrotsearch.hppcrt.hash.BitMixer;
 import com.carrotsearch.hppcrt.hash.MurmurHash3;
 
 public final class Containers
@@ -17,12 +18,11 @@ public final class Containers
     public final static int DEFAULT_EXPECTED_ELEMENTS = 1 << 3;
 
     /**
-     * External initial seed value. We do not care about multiple assignments so
-     * not volatile.
+     * External initial seed value.
      * 
      * @see #randomSeed64()
      */
-    private static String testsSeedProperty;
+    private static volatile String testsSeedProperty;
 
     /**
      * Unique marker for {@link #testsSeedProperty}.
@@ -37,13 +37,13 @@ public final class Containers
     }
 
     /**
-     * Provides a (possibly) random initial seed for randomized stuff.
+     * Provides a (possibly) random initial seed for randomized stuff, 64 bit version.
      * 
      * If <code>tests.seed</code> property is available and accessible, the
      * returned value will be derived from the value of that property and will be
      * constant to ensure reproducibility in presence of the randomized testing
-     * package.
-     * 
+     * package, which sets this property.
+     * Full random values are returned if either <code>tests.seed</code> is not available, or is set to "" (empty String).
      * @see "https://github.com/carrotsearch/randomizedtesting"
      */
     public static long randomSeed64() {
@@ -73,6 +73,27 @@ public final class Containers
             //     even for very short time-spans (new Object's address from a TLAB).
             initialSeed = System.nanoTime() ^ System.identityHashCode(new Object());
         }
+
         return MurmurHash3.mix64(initialSeed);
+    }
+
+    /**
+     * Same as {@link #randomSeed64()}, but returns 32 bit
+     */
+    public static int randomSeed32() {
+
+        final long longId = Containers.randomSeed64();
+
+        //fold to 32 bit, try to preserve maximum information
+        return (int) ((longId >>> 32) ^ longId);
+    }
+
+    /**
+     * Call this in order to make {@link #randomSeed64()} or {@link #randomSeed32()}
+     * re-read the <code>tests.seed</code> property which control their random number generation.
+     */
+    public static void forceReloadTestProperty() {
+
+        Containers.testsSeedProperty = null;
     }
 }
