@@ -3,17 +3,18 @@ package com.carrotsearch.hppcrt.implementations;
 import java.util.Arrays;
 import java.util.Random;
 
-import com.carrotsearch.hppc.IntIntHashMap;
 import com.carrotsearch.hppcrt.XorShift128P;
+import com.carrotsearch.hppcrt.maps.IntIntHashMap;
 
-public class HppcIntIntMap extends MapImplementation<com.carrotsearch.hppc.IntIntHashMap>
+public class HppcrtIntIntMap extends MapImplementation<IntIntHashMap>
 {
     private int[] insertKeys;
     private int[] containsKeys;
     private int[] removedKeys;
     private int[] insertValues;
 
-    protected HppcIntIntMap(final int size, final float loadFactor) {
+    protected HppcrtIntIntMap(final int size, final float loadFactor)
+    {
         super(new IntIntHashMap(size, loadFactor));
     }
 
@@ -68,7 +69,8 @@ public class HppcIntIntMap extends MapImplementation<com.carrotsearch.hppc.IntIn
     }
 
     @Override
-    public int benchContainKeys() {
+    public int benchContainKeys()
+    {
         final IntIntHashMap instance = this.instance;
 
         int count = 0;

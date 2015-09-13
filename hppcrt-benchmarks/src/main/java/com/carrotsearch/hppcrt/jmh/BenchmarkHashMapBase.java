@@ -43,9 +43,12 @@ public class BenchmarkHashMapBase
     })
     public int targetSize;
 
-    //use 0.5 as default since GS is hardcoded to 0.5, for fair comparison.
+    /**
+     * Use 0.75 because its standard to HPPC, HPPCRT, Fastutil
+     * and their implementation is very close.
+     */
     @Param({
-        "0.5"
+        "0.75"
     })
     public float loadFactor;
 

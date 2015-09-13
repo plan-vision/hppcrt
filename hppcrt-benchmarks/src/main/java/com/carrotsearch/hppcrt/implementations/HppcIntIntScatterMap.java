@@ -4,17 +4,18 @@ import java.util.Arrays;
 import java.util.Random;
 
 import com.carrotsearch.hppc.IntIntHashMap;
+import com.carrotsearch.hppc.IntIntScatterMap;
 import com.carrotsearch.hppcrt.XorShift128P;
 
-public class HppcIntIntMap extends MapImplementation<com.carrotsearch.hppc.IntIntHashMap>
+public class HppcIntIntScatterMap extends MapImplementation<com.carrotsearch.hppc.IntIntScatterMap>
 {
     private int[] insertKeys;
     private int[] containsKeys;
     private int[] removedKeys;
     private int[] insertValues;
 
-    protected HppcIntIntMap(final int size, final float loadFactor) {
-        super(new IntIntHashMap(size, loadFactor));
+    protected HppcIntIntScatterMap(final int size, final float loadFactor) {
+        super(new IntIntScatterMap(size, loadFactor));
     }
 
     /**
@@ -103,7 +104,7 @@ public class HppcIntIntMap extends MapImplementation<com.carrotsearch.hppc.IntIn
     @Override
     public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
 
-        this.instance = ((IntIntHashMap) toCloneFrom.instance).clone();
+        this.instance = (IntIntScatterMap) ((IntIntScatterMap) toCloneFrom.instance).clone();
 
     }
 }

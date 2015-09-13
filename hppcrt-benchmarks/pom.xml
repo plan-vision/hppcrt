@@ -28,6 +28,7 @@
         <javac.target>1.7</javac.target>
         <uberjar.name>benchmarks</uberjar.name>
         
+        <hppc.version>0.7.1</hppc.version>
         <fastutil.version>7.0.6</fastutil.version>
         <gs.version>6.2.0</gs.version>
         <koloboke.version>0.6.7</koloboke.version>
@@ -36,16 +37,18 @@
 
     <!-- Dependencies. -->
     <dependencies>
-        <dependency>
-            <groupId>com.github.vsonnier</groupId>
-            <artifactId>hppcrt</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        
 
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${version.junit}</version>
+        </dependency>
+        
+         <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant</artifactId>
+            <version>${version.ant}</version>
         </dependency>
         
         <dependency>
@@ -77,8 +80,23 @@
             <artifactId>jmh-generator-annprocess</artifactId>
             <version>${jmh.version}</version>
             <scope>provided</scope>
-        </dependency>  
+        </dependency>
 
+        <!-- Me -->
+        <dependency>
+            <groupId>com.github.vsonnier</groupId>
+            <artifactId>hppcrt</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <!-- Original HPPC -->
+        <dependency>
+            <groupId>com.carrotsearch</groupId>
+            <artifactId>hppc</artifactId>
+            <version>${hppc.version}</version>
+        </dependency>        
+
+        <!-- Fastutil -->
         <dependency>
             <groupId>it.unimi.dsi</groupId>
             <artifactId>fastutil</artifactId>
@@ -110,16 +128,13 @@
         	<version>${gs.version}</version>
         </dependency>
         
-        <dependency>
-            <groupId>org.apache.ant</groupId>
-            <artifactId>ant</artifactId>
-            <version>${version.ant}</version>
-        </dependency>
+        <!-- Javolution -->
         <dependency>
             <groupId>org.javolution</groupId>
             <artifactId>javolution-core-java</artifactId>
             <version>${javolution.version}</version>
         </dependency>
+     
     </dependencies>
 
     <!-- Build tuning. -->

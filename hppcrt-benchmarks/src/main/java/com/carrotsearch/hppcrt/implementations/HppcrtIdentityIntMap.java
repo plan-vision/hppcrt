@@ -2,19 +2,19 @@ package com.carrotsearch.hppcrt.implementations;
 
 import java.util.Random;
 
-import com.carrotsearch.hppc.ObjectIntHashMap;
 import com.carrotsearch.hppcrt.XorShift128P;
+import com.carrotsearch.hppcrt.maps.ObjectIntIdentityHashMap;
 
-public class HppcObjectIntMap extends MapImplementation<com.carrotsearch.hppc.ObjectIntHashMap<MapImplementation.ComparableInt>>
+public class HppcrtIdentityIntMap extends MapImplementation<ObjectIntIdentityHashMap<MapImplementation.ComparableInt>>
 {
-
     private ComparableInt[] insertKeys;
     private ComparableInt[] containsKeys;
     private ComparableInt[] removedKeys;
     private int[] insertValues;
 
-    protected HppcObjectIntMap(final int size, final float loadFactor) {
-        super(new ObjectIntHashMap<ComparableInt>(size, loadFactor));
+    protected HppcrtIdentityIntMap(final int size, final float loadFactor)
+    {
+        super(new ObjectIntIdentityHashMap<ComparableInt>(size, loadFactor));
     }
 
     /**
@@ -33,23 +33,23 @@ public class HppcObjectIntMap extends MapImplementation<com.carrotsearch.hppc.Ob
         this.insertValues = new int[keysToInsert.length];
 
         //Auto box into Integers, they must have the same length anyway.
-        for (int i = 0; i < keysToInsert.length; i++) {
+        for (int ii = 0; ii < keysToInsert.length; ii++) {
 
-            this.insertKeys[i] = new ComparableInt(keysToInsert[i], hashQ);
+            this.insertKeys[ii] = new ComparableInt(keysToInsert[ii], hashQ);
 
-            this.insertValues[i] = prng.nextInt();
+            this.insertValues[ii] = prng.nextInt();
         }
 
-        //Auto box into Integers
-        for (int i = 0; i < keysForContainsQuery.length; i++) {
+        //Auto box into Integers, they must have the same length anyway.
+        for (int ii = 0; ii < keysForContainsQuery.length; ii++) {
 
-            this.containsKeys[i] = new ComparableInt(keysForContainsQuery[i], hashQ);
+            this.containsKeys[ii] = new ComparableInt(keysForContainsQuery[ii], hashQ);
         }
 
-        //Auto box into Integers
-        for (int i = 0; i < keysForRemovalQuery.length; i++) {
+        //Auto box into Integers, they must have the same length anyway.
+        for (int ii = 0; ii < keysForRemovalQuery.length; ii++) {
 
-            this.removedKeys[i] = new ComparableInt(keysForRemovalQuery[i], hashQ);
+            this.removedKeys[ii] = new ComparableInt(keysForRemovalQuery[ii], hashQ);
         }
     }
 
@@ -67,7 +67,7 @@ public class HppcObjectIntMap extends MapImplementation<com.carrotsearch.hppc.Ob
     @Override
     public int benchPutAll() {
 
-        final ObjectIntHashMap<ComparableInt> instance = this.instance;
+        final ObjectIntIdentityHashMap<ComparableInt> instance = this.instance;
         final int[] values = this.insertValues;
 
         int count = 0;
@@ -83,8 +83,9 @@ public class HppcObjectIntMap extends MapImplementation<com.carrotsearch.hppc.Ob
     }
 
     @Override
-    public int benchContainKeys() {
-        final ObjectIntHashMap<ComparableInt> instance = this.instance;
+    public int benchContainKeys()
+    {
+        final ObjectIntIdentityHashMap<ComparableInt> instance = this.instance;
 
         int count = 0;
 
@@ -101,7 +102,7 @@ public class HppcObjectIntMap extends MapImplementation<com.carrotsearch.hppc.Ob
     @Override
     public int benchRemoveKeys() {
 
-        final ObjectIntHashMap<ComparableInt> instance = this.instance;
+        final ObjectIntIdentityHashMap<ComparableInt> instance = this.instance;
 
         int count = 0;
 
@@ -115,11 +116,17 @@ public class HppcObjectIntMap extends MapImplementation<com.carrotsearch.hppc.Ob
         return count;
     }
 
+    @Override
+    public boolean isIdentityMap() {
+
+        return true;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
 
-        this.instance = ((ObjectIntHashMap<MapImplementation.ComparableInt>) toCloneFrom.instance).clone();
+        this.instance = ((ObjectIntIdentityHashMap<ComparableInt>) toCloneFrom.instance).clone();
 
     }
 }

@@ -2,10 +2,10 @@ package com.carrotsearch.hppcrt.implementations;
 
 import java.util.Random;
 
+import com.carrotsearch.hppc.ObjectIntIdentityHashMap;
 import com.carrotsearch.hppcrt.XorShift128P;
-import com.carrotsearch.hppcrt.maps.ObjectIntIdentityHashMap;
 
-public class HppcIdentityIntMap extends MapImplementation<ObjectIntIdentityHashMap<MapImplementation.ComparableInt>>
+public class HppcIdentityIntMap extends MapImplementation<com.carrotsearch.hppc.ObjectIntIdentityHashMap<MapImplementation.ComparableInt>>
 {
     private ComparableInt[] insertKeys;
     private ComparableInt[] containsKeys;
@@ -83,8 +83,7 @@ public class HppcIdentityIntMap extends MapImplementation<ObjectIntIdentityHashM
     }
 
     @Override
-    public int benchContainKeys()
-    {
+    public int benchContainKeys() {
         final ObjectIntIdentityHashMap<ComparableInt> instance = this.instance;
 
         int count = 0;
@@ -126,7 +125,7 @@ public class HppcIdentityIntMap extends MapImplementation<ObjectIntIdentityHashM
     @Override
     public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
 
-        this.instance = ((ObjectIntIdentityHashMap<ComparableInt>) toCloneFrom.instance).clone();
+        this.instance = (ObjectIntIdentityHashMap<MapImplementation.ComparableInt>) ((ObjectIntIdentityHashMap<ComparableInt>) toCloneFrom.instance).clone();
 
     }
 }

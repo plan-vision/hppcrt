@@ -2,10 +2,10 @@ package com.carrotsearch.hppcrt.implementations;
 
 import java.util.Random;
 
-import com.carrotsearch.hppc.ObjectIntHashMap;
 import com.carrotsearch.hppcrt.XorShift128P;
+import com.carrotsearch.hppcrt.maps.ObjectIntHashMap;
 
-public class HppcObjectIntMap extends MapImplementation<com.carrotsearch.hppc.ObjectIntHashMap<MapImplementation.ComparableInt>>
+public class HppcrtObjectIntMap extends MapImplementation<ObjectIntHashMap<MapImplementation.ComparableInt>>
 {
 
     private ComparableInt[] insertKeys;
@@ -13,7 +13,8 @@ public class HppcObjectIntMap extends MapImplementation<com.carrotsearch.hppc.Ob
     private ComparableInt[] removedKeys;
     private int[] insertValues;
 
-    protected HppcObjectIntMap(final int size, final float loadFactor) {
+    protected HppcrtObjectIntMap(final int size, final float loadFactor)
+    {
         super(new ObjectIntHashMap<ComparableInt>(size, loadFactor));
     }
 
@@ -83,7 +84,8 @@ public class HppcObjectIntMap extends MapImplementation<com.carrotsearch.hppc.Ob
     }
 
     @Override
-    public int benchContainKeys() {
+    public int benchContainKeys()
+    {
         final ObjectIntHashMap<ComparableInt> instance = this.instance;
 
         int count = 0;

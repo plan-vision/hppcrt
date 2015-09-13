@@ -5,12 +5,26 @@ package com.carrotsearch.hppcrt.implementations;
  */
 public enum HashMapImplementations
 {
-    HPPC_INT_INT
+    HPPCRT_INT_INT
     {
         @Override
         public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
+            return new HppcrtIntIntMap(size, loadFactor);
+        }
+    },
+
+    HPPC_INT_INT {
+        @Override
+        public MapImplementation<?> getInstance(final int size, final float loadFactor) {
             return new HppcIntIntMap(size, loadFactor);
+        }
+    },
+
+    HPPC_SCATTER_INT_INT {
+        @Override
+        public MapImplementation<?> getInstance(final int size, final float loadFactor) {
+            return new HppcIntIntScatterMap(size, loadFactor);
         }
     },
 
@@ -32,7 +46,7 @@ public enum HashMapImplementations
         }
     },
 
-    GS_INT_INT
+    GS_INT_INT_FACTOR_05
     {
         @Override
         public MapImplementation<?> getInstance(final int size, final float loadFactor)
@@ -50,11 +64,39 @@ public enum HashMapImplementations
         }
     },
 
-    HPPC_OBJ_INT
+    HPPCRT_OBJ_INT
     {
         @Override
         public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
+            return new HppcrtObjectIntMap(size, loadFactor);
+        }
+
+        @Override
+        public boolean isHashQualityApplicable() {
+
+            return true;
+        }
+    },
+
+    HPPCRT_OBJ_INT_STRATEGY
+    {
+        @Override
+        public MapImplementation<?> getInstance(final int size, final float loadFactor)
+        {
+            return new HppcrtObjectIntCustomMap(size, loadFactor);
+        }
+
+        @Override
+        public boolean isHashQualityApplicable() {
+
+            return true;
+        }
+    },
+
+    HPPC_OBJ_INT {
+        @Override
+        public MapImplementation<?> getInstance(final int size, final float loadFactor) {
             return new HppcObjectIntMap(size, loadFactor);
         }
 
@@ -65,12 +107,10 @@ public enum HashMapImplementations
         }
     },
 
-    HPPC_OBJ_INT_STRATEGY
-    {
+    HPPC_SCATTER_OBJ_INT {
         @Override
-        public MapImplementation<?> getInstance(final int size, final float loadFactor)
-        {
-            return new HppcObjectIntCustomMap(size, loadFactor);
+        public MapImplementation<?> getInstance(final int size, final float loadFactor) {
+            return new HppcObjectIntScatterMap(size, loadFactor);
         }
 
         @Override
@@ -110,7 +150,7 @@ public enum HashMapImplementations
         }
     },
 
-    GS_OBJ_INT
+    GS_OBJ_INT_FACTOR_05
     {
         @Override
         public MapImplementation<?> getInstance(final int size, final float loadFactor)
@@ -125,11 +165,27 @@ public enum HashMapImplementations
         }
     },
 
-    HPPC_IDENTITY_INT
+    HPPCRT_IDENTITY_INT
     {
         @Override
         public MapImplementation<?> getInstance(final int size, final float loadFactor)
         {
+            return new HppcrtIdentityIntMap(size, loadFactor);
+        }
+
+        /**
+         * Distribution is irrelevant to Object identity (or so we assume...)
+         */
+        @Override
+        public boolean isDistributionApplicable() {
+
+            return false;
+        }
+    },
+
+    HPPC_IDENTITY_INT {
+        @Override
+        public MapImplementation<?> getInstance(final int size, final float loadFactor) {
             return new HppcIdentityIntMap(size, loadFactor);
         }
 
