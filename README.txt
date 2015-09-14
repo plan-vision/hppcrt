@@ -27,8 +27,6 @@ That means in particular using the enhanced for loop without any dynamic allocat
 
 * Native and optimized in-place sort methods for ArrayLists, LinkedLists, and ArrayDeques.
 
-* Custom hashing strategies to override the usual equals()/hashCode() in Hash containers, in specific CustomHash containers.
-
 * Heaps : Priority queues, and Indexed (a.k.a indirect) priority queues.
 
 * Double linked-lists, supporting all operations common to lists and dequeues, with rich bi-derectional iterating methods.
