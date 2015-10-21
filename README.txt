@@ -45,7 +45,7 @@ Stable version is available on Maven:
 <dependency>
     <groupId>com.github.vsonnier</groupId>
     <artifactId>hppcrt</artifactId>
-    <version>0.7.1</version>
+    <version>0.7.2</version>
 </dependency>
 ````
 

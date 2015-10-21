@@ -15,11 +15,9 @@ import com.carrotsearch.hppcrt.lists.IntArrayList;
 import com.carrotsearch.hppcrt.lists.LongArrayList;
 import com.carrotsearch.hppcrt.lists.ObjectArrayList;
 import com.carrotsearch.hppcrt.maps.IntLongHashMap;
-import com.carrotsearch.hppcrt.maps.ObjectLongCustomHashMap;
 import com.carrotsearch.hppcrt.maps.ObjectLongHashMap;
 import com.carrotsearch.hppcrt.maps.ObjectLongIdentityHashMap;
 import com.carrotsearch.hppcrt.procedures.LongProcedure;
-import com.carrotsearch.hppcrt.strategies.ObjectHashingStrategy;
 
 public final class HppcMapSyntheticBench
 {
@@ -137,25 +135,7 @@ public final class HppcMapSyntheticBench
         }
     }
 
-    /**
-     * Testing for strategies
-     */
-    private final ObjectHashingStrategy<ComparableInt> INTHOLDER_TRIVIAL_STRATEGY = new ObjectHashingStrategy<ComparableInt>() {
-
-        @Override
-        public int computeHashCode(final ComparableInt o)
-        {
-            return o.value;
-        }
-
-        @Override
-        public boolean equals(final ComparableInt o1, final ComparableInt o2)
-        {
-            return o1.value == o2.value;
-        }
-    };
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /**
      * Constructor
      */
@@ -732,14 +712,6 @@ public final class HppcMapSyntheticBench
                     getKind, HASH_QUALITY.BAD, dis);
             System.gc();
         }
-
-        // use specialized strategy to overcome the bad hash behaviour above.
-        runMapIntegerObjectLong("ObjectLongOpenCustomHashMap with strategy",
-                ObjectLongCustomHashMap.<ComparableInt> newInstance(
-                        HppcMapSyntheticBench.COUNT, HashContainers.DEFAULT_LOAD_FACTOR,
-                        this.INTHOLDER_TRIVIAL_STRATEGY),
-                        HppcMapSyntheticBench.COUNT, HashContainers.DEFAULT_LOAD_FACTOR, getKind, HASH_QUALITY.BAD, Distribution.HIGHBITS);
-        System.gc();
     }
 
     public void runMapIterationBench()
@@ -756,26 +728,26 @@ public final class HppcMapSyntheticBench
 
         switch (disKind)
         {
-            case RANDOM:
-                generator = disGene.RANDOM;
-                break;
+        case RANDOM:
+            generator = disGene.RANDOM;
+            break;
 
-            case CONTIGUOUS:
-                generator = disGene.LINEAR;
-                break;
+        case CONTIGUOUS:
+            generator = disGene.LINEAR;
+            break;
 
-            case HIGHBITS:
-                generator = disGene.HIGHBITS;
-                break;
+        case HIGHBITS:
+            generator = disGene.HIGHBITS;
+            break;
 
-            default:
-                throw new RuntimeException();
+        default:
+            throw new RuntimeException();
         }
 
         return generator;
     }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /**
      * main
      */

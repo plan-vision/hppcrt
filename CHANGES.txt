@@ -1,3 +1,7 @@
+[0.7.2]
+** API-breaking changes
+HPPCRT-46: Remove CurstomHash and replace by equals/hashCode overrides in normal hash containers.
+
 [0.7.1]
 ** Bug fixes
 HPPCRT-45: API with intervals arguments is inconsistent with JDK conventions.

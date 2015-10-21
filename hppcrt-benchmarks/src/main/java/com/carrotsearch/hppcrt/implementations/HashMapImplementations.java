@@ -79,20 +79,6 @@ public enum HashMapImplementations
         }
     },
 
-    HPPCRT_OBJ_INT_STRATEGY
-    {
-        @Override
-        public MapImplementation<?> getInstance(final int size, final float loadFactor)
-        {
-            return new HppcrtObjectIntCustomMap(size, loadFactor);
-        }
-
-        @Override
-        public boolean isHashQualityApplicable() {
-
-            return true;
-        }
-    },
 
     HPPC_OBJ_INT {
         @Override

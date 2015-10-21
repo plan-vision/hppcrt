@@ -10,16 +10,33 @@ import com.carrotsearch.hppcrt.strategies.*;
  *
  * The difference with {@link KTypeHashSet} is that it uses direct Object reference equality for comparison and
  * direct "address" {@link System#identityHashCode(Object)} for hashCode(), instead of using
- * the built-in hashCode() /  equals().
+ * the built-in {@link #hashCode()} /  {@link #equals(Object)}.
  * 
  * <p>This implementation supports <code>null</code> keys.</p>
  *
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeIdentityHashSet<KType>
-        extends KTypeCustomHashSet<KType>
+extends KTypeHashSet<KType>
 {
-    private static final KTypeIdentityHash<Object> IDENTITY_EQUALITY = new KTypeIdentityHash<Object>();
+    /**
+     * Hash customization to only consider the identity hash code.
+     */
+    @Override
+    protected final int hashKey(final KType key) {
+
+        return System.identityHashCode(key);
+    }
+
+    /**
+     * Equality customization to only consider object identity, comparing
+     * instances directly by ==.
+     */
+    @Override
+    protected final boolean equalKeys(final KType a, final KType b) {
+
+        return (a == b);
+    }
 
     /**
      * Creates a hash set with the default capacity of {@link Containers#DEFAULT_EXPECTED_ELEMENTS},
@@ -42,10 +59,9 @@ public final class KTypeIdentityHashSet<KType>
     /**
      * Creates a hash set with the given capacity and load factor.
      */
-    @SuppressWarnings({ "cast", "unchecked" })
     public KTypeIdentityHashSet(final int initialCapacity, final double loadFactor)
     {
-        super(initialCapacity, loadFactor, (KTypeIdentityHash<KType>) KTypeIdentityHashSet.IDENTITY_EQUALITY);
+        super(initialCapacity, loadFactor);
     }
 
     /**
@@ -105,41 +121,5 @@ public final class KTypeIdentityHashSet<KType>
     public static <KType> KTypeIdentityHashSet<KType> newInstance(final int initialCapacity, final double loadFactor)
     {
         return new KTypeIdentityHashSet<KType>(initialCapacity, loadFactor);
-    }
-
-    /**
-     * Inherited from KTypeOpenCustomHashSet, DO NOT USE, throws RuntimeException
-     * @throws RuntimeException
-     */
-    public static <KType> KTypeIdentityHashSet<KType> from(final KTypeHashingStrategy<? super KType> hashStrategy, final KType... elements)
-    {
-        throw new RuntimeException("Identity hash from(strategy, ...elements) usage logical error");
-    }
-
-    /**
-     * Inherited from KTypeOpenCustomHashSet, DO NOT USE, throws RuntimeException
-     * @throws RuntimeException
-     */
-    public static final <KType> KTypeIdentityHashSet<KType> from(final KTypeContainer<KType> container, final KTypeHashingStrategy<? super KType> hashStrategy)
-    {
-        throw new RuntimeException("Identity hash from(KTypeContainer, strategy) usage logical error");
-    }
-
-    /**
-     * Inherited from KTypeOpenCustomHashSet, DO NOT USE, throws RuntimeException
-     * @throws RuntimeException
-     */
-    public static final <KType> KTypeIdentityHashSet<KType> newInstance(final KTypeHashingStrategy<? super KType> hashStrategy)
-    {
-        throw new RuntimeException("Identity hash newInstance(strategy) usage logical error");
-    }
-
-    /**
-     * Inherited from KTypeOpenCustomHashSet, DO NOT USE, throws RuntimeException
-     * @throws RuntimeException
-     */
-    public static final <KType> KTypeIdentityHashSet<KType> newInstance(final int initialCapacity, final double loadFactor, final KTypeHashingStrategy<? super KType> hashStrategy)
-    {
-        throw new RuntimeException("Identity hash newInstance(strategy) usage logical error");
     }
 }

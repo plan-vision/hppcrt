@@ -10,7 +10,7 @@ import com.carrotsearch.hppcrt.strategies.*;
  *
  * The difference with {@link KTypeVTypeHashMap} is that it uses direct Object reference equality for comparison and
  * direct "address" {@link System#identityHashCode(Object)} for hashCode(), instead of using
- * the built-in hashCode() /  equals().
+ * the built-in {@link #hashCode()} /  {@link #equals(Object)}.
  * 
  * <p>This implementation supports <code>null</code> keys.</p>
  * 
@@ -22,9 +22,26 @@ import com.carrotsearch.hppcrt.strategies.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeVTypeIdentityHashMap<KType, VType>
-        extends KTypeVTypeCustomHashMap<KType, VType>
+extends KTypeVTypeHashMap<KType, VType>
 {
-    private static final KTypeIdentityHash<Object> IDENTITY_EQUALITY = new KTypeIdentityHash<Object>();
+    /**
+     * Hash customization to only consider the identity hash code.
+     */
+    @Override
+    protected final int hashKey(final KType key) {
+
+        return System.identityHashCode(key);
+    }
+
+    /**
+     * Equality customization to only consider object identity, comparing
+     * instances directly by ==.
+     */
+    @Override
+    protected final boolean equalKeys(final KType a, final KType b) {
+
+        return (a == b);
+    }
 
     /**
      * Default constructor: Creates a hash map with the default capacity of {@link Containers#DEFAULT_EXPECTED_ELEMENTS},
@@ -60,10 +77,9 @@ public final class KTypeVTypeIdentityHashMap<KType, VType>
      * 
      * 
      */
-    @SuppressWarnings({ "cast", "unchecked" })
     public KTypeVTypeIdentityHashMap(final int initialCapacity, final double loadFactor)
     {
-        super(initialCapacity, loadFactor, (KTypeIdentityHash<KType>) KTypeVTypeIdentityHashMap.IDENTITY_EQUALITY);
+        super(initialCapacity, loadFactor);
     }
 
     /**
@@ -136,41 +152,4 @@ public final class KTypeVTypeIdentityHashMap<KType, VType>
     {
         return new KTypeVTypeIdentityHashMap<KType, VType>(initialCapacity, loadFactor);
     }
-
-    /**
-     * Inherited from KTypeVTypeOpenCustomHashMap, DO NOT USE, throws RuntimeException
-     * @throws RuntimeException
-     */
-    public static final <KType, VType> KTypeVTypeIdentityHashMap<KType, VType> newInstance(final KTypeHashingStrategy<? super KType> hashStrategy)
-    {
-        throw new RuntimeException("Identity hash newInstance(strategy) usage logical error");
-    }
-
-    /**
-     * Inherited from KTypeVTypeOpenCustomHashMap, DO NOT USE, throws RuntimeException
-     * @throws RuntimeException
-     */
-    public static final <KType, VType> KTypeVTypeIdentityHashMap<KType, VType> newInstance(final int initialCapacity, final double loadFactor, final KTypeHashingStrategy<? super KType> hashStrategy)
-    {
-        throw new RuntimeException("Identity hash newInstance(capacity, loadfactor, strategy) usage logical error");
-    }
-
-    /**
-     * Inherited from KTypeVTypeOpenCustomHashMap, DO NOT USE, throws RuntimeException
-     * @throws RuntimeException
-     */
-    public static final <KType, VType> KTypeVTypeIdentityHashMap<KType, VType> from(final KType[] keys, final VType[] values, final KTypeHashingStrategy<? super KType> hashStrategy)
-    {
-        throw new RuntimeException("Identity hash from(keys,values,strategy) usage logical error");
-    }
-
-    /**
-     * Inherited from KTypeVTypeOpenCustomHashMap, DO NOT USE, throws RuntimeException
-     * @throws RuntimeException
-     */
-    public static final <KType, VType> KTypeVTypeIdentityHashMap<KType, VType> from(final KTypeVTypeAssociativeContainer<KType, VType> container,
-            final KTypeHashingStrategy<? super KType> hashStrategy)
-            {
-        throw new RuntimeException("Identity hash from(KTypeVTypeAssociativeContainer, strategy) usage logical error");
-            }
 }

@@ -16,6 +16,13 @@ import com.carrotsearch.hppcrt.hash.*;
  * A hash map of <code>KType</code> to <code>VType</code>, implemented using open
  * addressing with linear probing for collision resolution.
  * 
+#if ($TemplateOptions.KTypeGeneric)
+ * <p> In addition, the hashing strategy can be changed
+ * by overriding ({@link #equalKeys(Object, Object)} and {@link #hashKey(Object)}) together,
+ * which then replaces the usual ({@link #equals(Object)} and {@link #hashCode()}) from the keys themselves.
+ * This is useful to define the equivalence of keys when the user has no control over the keys implementation.
+ * </p>
+#end
  * <p>
  * The internal buffers of this implementation ({@link #keys}, {@link #values}),
  * are always allocated to the nearest size that is a power of two. When
@@ -121,6 +128,45 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      */
     private final int perturbation = Containers.randomSeed32();
 
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+
+    /**
+     * Override this method, together with {@link #equalKeys(Object, Object)}
+     * to customize the hashing strategy. Note that this method is guaranteed
+     * to be called with a non-null key argument.
+     * By default, this method calls key.{@link #hashCode()}.
+     * @param key KType to be hashed.
+     * @return the hashed value of key, following the same semantic
+     * as {@link #hashCode()};
+     * @see #hashCode()
+     * @see #equalKeys(Object, Object)
+     */
+    protected int hashKey(final KType key) {
+
+        //default maps on Object.hashCode()
+        return key.hashCode();
+    }
+
+    /**
+     * Override this method together with {@link #hashKey(Object)}
+     * to customize the hashing strategy. Note that this method is guaranteed
+     * to be called with both non-null arguments.
+     * By default, this method calls a.{@link #equals(b)}.
+     * @param a not-null KType to be compared
+     * @param b not-null KType to be compared
+     * @return true if a and b are considered equal, following the same
+     * semantic as {@link #equals(Object)}.
+     * @see #equals(Object)
+     * @see #hashKey(Object)
+     */
+    protected boolean equalKeys(final KType a, final KType b) {
+
+        //default maps on Object.equals()
+        return Intrinsics.<KType> equalsNotNull(a, b);
+    }
+
+    /*! #end !*/
+
     /**
      * Default constructor: Creates a hash map with the default capacity of {@link Containers#DEFAULT_EXPECTED_ELEMENTS},
      * load factor of {@link HashContainers#DEFAULT_LOAD_FACTOR}.
@@ -208,7 +254,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         while (!Intrinsics.<KType> isEmpty(existing = keys[slot])) {
 
-            if (Intrinsics.<KType> equalsNotNull(key, existing)) {
+            if (KEYEQUALS(key, existing)) {
                 final VType oldValue = Intrinsics.<VType> cast(this.values[slot]);
                 values[slot] = value;
 
@@ -546,7 +592,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         while (!Intrinsics.<KType> isEmpty(existing = keys[slot])
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/) {
 
-            if (Intrinsics.<KType> equalsNotNull(key, existing)) {
+            if (KEYEQUALS(key, existing)) {
 
                 final VType value = Intrinsics.<VType> cast(this.values[slot]);
 
@@ -786,7 +832,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         while (!Intrinsics.<KType> isEmpty(existing = keys[slot])
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/) {
 
-            if (Intrinsics.<KType> equalsNotNull(key, existing)) {
+            if (KEYEQUALS(key, existing)) {
 
                 return Intrinsics.<VType> cast(this.values[slot]);
             }
@@ -826,7 +872,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         while (!Intrinsics.<KType> isEmpty(existing = keys[slot])
                 /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/) {
 
-            if (Intrinsics.<KType> equalsNotNull(key, existing)) {
+            if (KEYEQUALS(key, existing)) {
                 return true;
             }
             slot = (slot + 1) & mask;
@@ -1753,7 +1799,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     /*! #end !*/
 
     /*! #if ($TemplateOptions.declareInline("REHASH(value)",
-    "<Object,*>==>BitMixer.mix(value.hashCode() , this.perturbation)",
+    "<Object,*>==>BitMixer.mix(hashKey(value) , this.perturbation)",
     "<*,*>==>BitMixer.mix(value , this.perturbation)")) !*/
     /**
      * REHASH method for rehashing the keys.
@@ -1762,13 +1808,13 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      */
     private int REHASH(final KType value) {
 
-        return BitMixer.mix(value.hashCode(), this.perturbation);
+        return BitMixer.mix(hashKey(value), this.perturbation);
     }
 
     /*! #end !*/
 
     /*! #if ($TemplateOptions.declareInline("REHASH2(value, perturb)",
-    "<Object,*>==>BitMixer.mix(value.hashCode() , perturb)",
+    "<Object,*>==>BitMixer.mix(hashKey(value) , perturb)",
     "<*,*>==>BitMixer.mix(value , perturb)")) !*/
     /**
      * REHASH2 method for rehashing the keys with perturbation seed as parameter
@@ -1777,7 +1823,19 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
      */
     private int REHASH2(final KType value, final int perturb) {
 
-        return BitMixer.mix(value.hashCode(), perturb);
+        return BitMixer.mix(hashKey(value), perturb);
+    }
+    /*! #end !*/
+
+    /*! #if ($TemplateOptions.declareInline("KEYEQUALS(key1, key2)",
+    "<Object,*>==>equalKeys(key1, key2)",
+    "<*,*>==>Intrinsics.<KType> equalsNotNull(key1, key2)")) !*/
+    /**
+     * macro which hides the applied equality criteria
+     */
+    private boolean KEYEQUALS(final KType key1, final KType key2) {
+
+        return equalKeys(key1, key2);
     }
     /*! #end !*/
 }

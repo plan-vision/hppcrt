@@ -71,7 +71,6 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeHashM
 
     @Override
     protected KTypeVTypeMap<KType, VType> getFromArrays(final KType[] keys, final VType[] values) {
-        final KTypeVTypeHashMap<KType, VType> concreteClass = (KTypeVTypeHashMap<KType, VType>) (this.map);
 
         return KTypeVTypeHashMap.from(Intrinsics.<KType[]> cast(keys),
                 Intrinsics.<VType[]> cast(values));
