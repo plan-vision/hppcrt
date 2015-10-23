@@ -179,7 +179,7 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
 
     @Override
     int getEntryPoolSize(final KTypeVTypeMap<KType, VType> testMap) {
-        final KTypeVTypeHashMap<KType, VType> concreteClass = (KTypeVTypeHashMap<KType, VType>) (testMap);
+        final KTypeVTypeCustomizedHashMap<KType, VType> concreteClass = (KTypeVTypeCustomizedHashMap<KType, VType>) (testMap);
 
         return concreteClass.entryIteratorPool.size();
     }
@@ -187,35 +187,35 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
     @Override
     int getKeysPoolSize(final KTypeCollection<KType> keys) {
 
-        final KTypeVTypeHashMap<KType, VType>.KeysCollection concreteClass = (KTypeVTypeHashMap<KType, VType>.KeysCollection) (keys);
+        final KTypeVTypeCustomizedHashMap<KType, VType>.KeysCollection concreteClass = (KTypeVTypeCustomizedHashMap<KType, VType>.KeysCollection) (keys);
 
         return concreteClass.keyIteratorPool.size();
     }
 
     @Override
     int getValuesPoolSize(final KTypeCollection<VType> values) {
-        final KTypeVTypeHashMap<KType, VType>.ValuesCollection concreteClass = (KTypeVTypeHashMap<KType, VType>.ValuesCollection) (values);
+        final KTypeVTypeCustomizedHashMap<KType, VType>.ValuesCollection concreteClass = (KTypeVTypeCustomizedHashMap<KType, VType>.ValuesCollection) (values);
 
         return concreteClass.valuesIteratorPool.size();
     }
 
     @Override
     int getEntryPoolCapacity(final KTypeVTypeMap<KType, VType> testMap) {
-        final KTypeVTypeHashMap<KType, VType> concreteClass = (KTypeVTypeHashMap<KType, VType>) (testMap);
+        final KTypeVTypeCustomizedHashMap<KType, VType> concreteClass = (KTypeVTypeCustomizedHashMap<KType, VType>) (testMap);
 
         return concreteClass.entryIteratorPool.capacity();
     }
 
     @Override
     int getKeysPoolCapacity(final KTypeCollection<KType> keys) {
-        final KTypeVTypeHashMap<KType, VType>.KeysCollection concreteClass = (KTypeVTypeHashMap<KType, VType>.KeysCollection) (keys);
+        final KTypeVTypeCustomizedHashMap<KType, VType>.KeysCollection concreteClass = (KTypeVTypeCustomizedHashMap<KType, VType>.KeysCollection) (keys);
 
         return concreteClass.keyIteratorPool.capacity();
     }
 
     @Override
     int getValuesPoolCapacity(final KTypeCollection<VType> values) {
-        final KTypeVTypeHashMap<KType, VType>.ValuesCollection concreteClass = (KTypeVTypeHashMap<KType, VType>.ValuesCollection) (values);
+        final KTypeVTypeCustomizedHashMap<KType, VType>.ValuesCollection concreteClass = (KTypeVTypeCustomizedHashMap<KType, VType>.ValuesCollection) (values);
 
         return concreteClass.valuesIteratorPool.capacity();
     }
@@ -233,15 +233,15 @@ public class KTypeVTypeCustomHashMapTest<KType, VType> extends AbstractKTypeVTyp
         final int TEST_SIZE = (int) 100e3;
 
 
-        final KTypeVTypeHashMap<KType, VType> refMap = createCustomizedMapWithRandomData(TEST_SIZE, TEST_SEED);
-        KTypeVTypeHashMap<KType, VType> refMap2 = createCustomizedMapWithRandomData(TEST_SIZE, TEST_SEED);
+        final KTypeVTypeCustomizedHashMap<KType, VType> refMap = createCustomizedMapWithRandomData(TEST_SIZE, TEST_SEED);
+        KTypeVTypeCustomizedHashMap<KType, VType> refMap2 = createCustomizedMapWithRandomData(TEST_SIZE, TEST_SEED);
 
         //Both are constructed with the same KTypeVTypeCustomizedHashMap type, should be equals.
         Assert.assertEquals(refMap, refMap2);
 
         //b) Clone the above. All sets are now identical.
-        KTypeVTypeHashMap<KType, VType> refMapclone = refMap.clone();
-        KTypeVTypeHashMap<KType, VType> refMap2clone = refMap2.clone();
+        KTypeVTypeCustomizedHashMap<KType, VType> refMapclone = refMap.clone();
+        KTypeVTypeCustomizedHashMap<KType, VType> refMap2clone = refMap2.clone();
 
         Assert.assertEquals(refMap, refMapclone);
         Assert.assertEquals(refMapclone, refMap2);

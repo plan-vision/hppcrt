@@ -208,14 +208,14 @@ public class KTypeCustomHashSetTest<KType> extends AbstractKTypeHashSetTest<KTyp
         final int TEST_SIZE = (int) 100e3;
 
 
-        final KTypeHashSet<KType> refSet = createCustomizedMapWithRandomData(TEST_SIZE, TEST_SEED);
-        KTypeHashSet<KType> refSet2 = createCustomizedMapWithRandomData(TEST_SIZE, TEST_SEED);
+        final KTypeCustomizedHashSet<KType> refSet = createCustomizedMapWithRandomData(TEST_SIZE, TEST_SEED);
+        KTypeCustomizedHashSet<KType> refSet2 = createCustomizedMapWithRandomData(TEST_SIZE, TEST_SEED);
 
         Assert.assertEquals(refSet, refSet2);
 
         //b) Clone the above. All sets are now identical.
-        KTypeHashSet<KType> refSetclone = refSet.clone();
-        KTypeHashSet<KType> refSet2clone = refSet2.clone();
+        KTypeCustomizedHashSet<KType> refSetclone = refSet.clone();
+        KTypeCustomizedHashSet<KType> refSet2clone = refSet2.clone();
 
         Assert.assertEquals(refSet, refSetclone);
         Assert.assertEquals(refSetclone, refSet2);
@@ -262,9 +262,9 @@ public class KTypeCustomHashSetTest<KType> extends AbstractKTypeHashSetTest<KTyp
         final int TEST_SIZE = (int) 500e3;
 
         //those following 3  sets behave indeed the same in the test context:
-        final KTypeHashSet<KType> refSet = new KTypeCustomizedHashSet<KType>();
+        final KTypeCustomizedHashSet<KType> refSet = new KTypeCustomizedHashSet<KType>();
 
-        final KTypeHashSet<KType> refSetIdenticalStrategy = new KTypeCustomizedHashSet<KType>();
+        final KTypeCustomizedHashSet<KType> refSetIdenticalStrategy = new KTypeCustomizedHashSet<KType>();
 
         //compute the iterations doing multiple operations
         final Random prng = new Random(TEST_SEED);
