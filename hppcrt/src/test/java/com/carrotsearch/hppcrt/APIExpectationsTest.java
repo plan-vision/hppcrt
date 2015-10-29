@@ -2,6 +2,7 @@ package com.carrotsearch.hppcrt;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import com.carrotsearch.hppcrt.lists.IntArrayDeque;
 import com.carrotsearch.hppcrt.lists.IntArrayList;
@@ -13,12 +14,14 @@ import com.carrotsearch.hppcrt.maps.ObjectIntHashMap;
 import com.carrotsearch.hppcrt.maps.ObjectObjectHashMap;
 import com.carrotsearch.hppcrt.sets.IntHashSet;
 import com.carrotsearch.hppcrt.sets.ObjectHashSet;
+import com.carrotsearch.randomizedtesting.RandomizedRunner;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 
 /**
  * Various API expectations from generated classes.
  */
-public class APIExpectationsTest extends RandomizedTest
+@RunWith(RandomizedRunner.class)
+public class APIExpectationsTest
 {
     public volatile int[] t1;
 

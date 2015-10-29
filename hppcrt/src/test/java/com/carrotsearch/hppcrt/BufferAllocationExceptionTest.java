@@ -1,10 +1,13 @@
 package com.carrotsearch.hppcrt;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
+import com.carrotsearch.randomizedtesting.RandomizedRunner;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 
-public class BufferAllocationExceptionTest extends RandomizedTest
+@RunWith(RandomizedRunner.class)
+public class BufferAllocationExceptionTest
 {
     @Test
     public void testWrongMessageFormat()

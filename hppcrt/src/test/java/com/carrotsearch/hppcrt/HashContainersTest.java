@@ -2,10 +2,13 @@ package com.carrotsearch.hppcrt;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
+import com.carrotsearch.randomizedtesting.RandomizedRunner;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 
-public class HashContainersTest extends RandomizedTest
+@RunWith(RandomizedRunner.class)
+public class HashContainersTest
 {
     /* */
     @Test

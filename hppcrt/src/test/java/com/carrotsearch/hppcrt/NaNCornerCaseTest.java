@@ -6,6 +6,7 @@ import java.util.Random;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import com.carrotsearch.hppcrt.lists.DoubleArrayList;
 import com.carrotsearch.hppcrt.lists.FloatArrayList;
@@ -17,10 +18,12 @@ import com.carrotsearch.hppcrt.sets.DoubleHashSet;
 import com.carrotsearch.hppcrt.sets.FloatHashSet;
 import com.carrotsearch.hppcrt.sorting.DoubleSort;
 import com.carrotsearch.hppcrt.sorting.FloatSort;
+import com.carrotsearch.randomizedtesting.RandomizedRunner;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
 
-public class NaNCornerCaseTest extends RandomizedTest
+@RunWith(RandomizedRunner.class)
+public class NaNCornerCaseTest
 {
     private double[] nanListD;
     private float[] nanListF;
