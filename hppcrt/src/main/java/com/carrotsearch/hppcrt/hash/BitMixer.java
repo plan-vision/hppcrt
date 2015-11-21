@@ -193,7 +193,7 @@ public final class BitMixer
      * Mix an Object instance {@link hashCode()}.
      * 
      * @param key
-     *          an Object instnce.
+     *          an Object instance.
      * @return an int hash value obtained by mixing the bits of {@code key.hashCode()}, or 0 if key is null.
      */
     public static int mix(final Object key) {

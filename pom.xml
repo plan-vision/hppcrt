@@ -73,7 +73,7 @@
 		
 		<version.antlr>4.5.1</version.antlr>
 
-        <version.randomizedtesting>2.2.0</version.randomizedtesting>
+        <version.randomizedtesting>2.3.0</version.randomizedtesting>
        
         <version.maven-clean-plugin>3.0.0</version.maven-clean-plugin>
         <version.maven-compiler-plugin>3.3</version.maven-compiler-plugin>
@@ -82,7 +82,7 @@
         <version.maven-deploy-plugin>2.8.2</version.maven-deploy-plugin>
         <version.maven-install-plugin>2.5.2</version.maven-install-plugin>
         <version.maven-jar-plugin>2.6</version.maven-jar-plugin>
-        <version.maven-shade-plugin>2.4.1</version.maven-shade-plugin>  
+        <version.maven-shade-plugin>2.4.2</version.maven-shade-plugin>  
         <version.maven-resources-plugin>2.7</version.maven-resources-plugin>
         <version.maven-surefire-plugin>2.19</version.maven-surefire-plugin>
         

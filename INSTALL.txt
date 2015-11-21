@@ -48,7 +48,7 @@ java -jar hppcrt-benchmarks/target/benchmarks.jar -l
 # Try to resolve all dependencies to be able to work off the Net
 mvn dependency:go-offline
 
-# Replace -Pquick by -Pquicknodoc to skip Javadoc generation.
+# Replace -Pquick by -Pquicknodoc to also skip Javadoc generation.
 
 
 
