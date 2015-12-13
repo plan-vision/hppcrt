@@ -29,7 +29,7 @@
         <uberjar.name>benchmarks</uberjar.name>
         
         <hppc.version>0.7.1</hppc.version>
-        <fastutil.version>7.0.8</fastutil.version>
+        <fastutil.version>7.0.9</fastutil.version>
         <gs.version>7.0.0</gs.version>
         <koloboke.version>0.6.8</koloboke.version>
         <javolution.version>6.0.0</javolution.version>

@@ -6,11 +6,9 @@ antiquated compatibility, some restrictions must be enforced:
 * hppcrt-template-processor: No particular restriction, the processor classes used for building the runtime jars are Java 7 level.
 * hppcrt-benchmarks: No particular restriction, they are Java 7 level.
 
-* hppcrt: All the runtime sources either templates or generated must be Java 6 level with restrictions on the API. 
-You are indeed limlited to Java 5 API plus the following additions provided by the 'backport-util-concurrent' runtime (integrated in the build process) :   
-java.util.Deque, java.util.ArrayDeque, java.util.Collections.newSetFromMap, java.util.Arrays.copyOf, java.util.Arrays.copyOfRange.
-
-Thanks to these limitations, during the Jar generation the 'retrotranslator' tool is able to generate a Java 5 Jar together with the Java 6 one. 
+* hppcrt: All the runtime sources either templates or generated must use 1.5 API at best, using 1.6 compiler level. 
+The strict API compatibility is checked by the animal-sniffer plugin, before start building the runtime jars.
+Then during the Jar generation phase the 'retrotranslator' generates a Java 5 Jar together with the Java 6 one. 
 
 Maven shortcuts
 ---------------

@@ -44,7 +44,6 @@
 
 	<properties>
 		<version.retrotranslator>1.2.9</version.retrotranslator>
-		<version.backport-util-concurrent>3.1</version.backport-util-concurrent>
 	</properties>
 	
 	<!-- Build tuning. -->
@@ -83,7 +82,7 @@
 								<taskdef name="retrotranslator" classname="net.sf.retrotranslator.transformer.RetrotranslatorTask" classpathref="maven.plugin.classpath" />
 
 								<retrotranslator verbose="true" verify="false"
-												failonwarning="true" target="1.5" embed="com.carrotsearch.hppcrt.backport"
+												failonwarning="true" target="1.5"
 												destjar="${project.build.directory}/${project.build.finalName}-jdk15.jar">
 
 									<jarfileset dir="${project.build.directory}" includes="${project.build.finalName}.jar" />
@@ -127,11 +126,6 @@
 						<version>${version.retrotranslator}</version>
 					</dependency>
 
-					<dependency>
-						<groupId>backport-util-concurrent</groupId>
-						<artifactId>backport-util-concurrent</artifactId>
-						<version>${version.backport-util-concurrent}</version>
-					</dependency>
 				</dependencies>
 			</plugin>
 
@@ -183,7 +177,7 @@
 				</executions>
 			</plugin>
 			
-			<!-- Project in general is Java 7 level while the final lib is still 1.6 -->
+			<!-- Project in general is Java 7 level while the final lib is still 1.5 on api side. -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>animal-sniffer-maven-plugin</artifactId>
@@ -198,7 +192,7 @@
 							<signature>
 								<groupId>org.codehaus.mojo.signature
 								</groupId>
-								<artifactId>java16</artifactId>
+								<artifactId>java15</artifactId>
 								<version>1.0</version>
 							</signature>
 						</configuration>

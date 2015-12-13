@@ -60,7 +60,7 @@
     <!-- Global properties. -->
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!-- Template processor, benchmarks, and lib tests themselves are Java 7 level while the final lib is still 1.6 -->
+        <!-- Template processor, benchmarks, and lib tests themselves are Java 7 level while the final lib is still 1.6, restricted to 1.5 api -->
 		<project.source>1.7</project.source>
         <lib.hppcrt.source>1.6</lib.hppcrt.source>
         
@@ -73,7 +73,7 @@
 		
 		<version.antlr>4.5.1</version.antlr>
 
-        <version.randomizedtesting>2.3.0</version.randomizedtesting>
+        <version.randomizedtesting>2.3.2</version.randomizedtesting>
        
         <version.maven-clean-plugin>3.0.0</version.maven-clean-plugin>
         <version.maven-compiler-plugin>3.3</version.maven-compiler-plugin>
@@ -90,10 +90,10 @@
 		<version.maven-javadoc-plugin>2.10.3</version.maven-javadoc-plugin>
         <version.maven-source-plugin>2.4</version.maven-source-plugin>
 		
-		<version.build-helper-maven-plugin>1.9.1</version.build-helper-maven-plugin>
+		<version.build-helper-maven-plugin>1.10</version.build-helper-maven-plugin>
 		<version.animal-sniffer-maven-plugin>1.14</version.animal-sniffer-maven-plugin>
 		 
-        <version.maven.api>3.2.3</version.maven.api>
+        <version.maven.api>3.3.3</version.maven.api>
         
         <!-- Never deploy automatically -->
         <skip.deployment>true</skip.deployment>

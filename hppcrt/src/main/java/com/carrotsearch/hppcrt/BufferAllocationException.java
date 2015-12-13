@@ -24,7 +24,7 @@ public class BufferAllocationException extends RuntimeException
 
         try {
 
-            formattedMessage = String.format(Locale.ROOT, message, args);
+            formattedMessage = String.format(message, args);
         }
         catch (final IllegalFormatException e) {
 
