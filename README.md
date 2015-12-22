@@ -25,11 +25,11 @@ That means in particular using the enhanced for loop without any dynamic allocat
 
 * [Object|primitives]Arrays as a complement of java.util.Arrays for in-place buffer manipulation : reverse, rotate...etc. 
 
+* Double-linked lists, supporting all operations common to lists and dequeues, with rich bi-directional iterating methods.
+
 * Native and optimized in-place sort methods for ArrayLists, LinkedLists, and ArrayDeques.
 
 * Heaps : Priority queues, and Indexed (a.k.a indirect) priority queues.
-
-* Double linked-lists, supporting all operations common to lists and dequeues, with rich bi-derectional iterating methods.
 
 * Custom default values for methods returning default values in some circumstances. (see Javadoc)
 

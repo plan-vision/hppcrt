@@ -136,7 +136,7 @@ public class SignatureProcessor
      * Step 3-2: Low-level routine that applies replacements to a token stream.
      * Replacements are acting on whole tokens, not characters, replacing a given token by a computed
      * replacement string.
-     * 
+     *
      */
     protected <T extends Writer> T reconstruct(
             final T sw,
@@ -153,7 +153,7 @@ public class SignatureProcessor
                 //so that we can replace stream-like from beginning to end.
                 final ArrayList<Replacement> sorted = Replacement.sortList(replacements);
 
-                //1-2) Control that replacements are consistent, i.e no one must overlap with a neigbour, else something
+                //1-2) Control that replacements are consistent, i.e no one must overlap with a neighbor, else something
                 //has gone wrong, and either way we wouldn't know how to replace that.
                 for (int i = 1; i < sorted.size(); i++) {
 

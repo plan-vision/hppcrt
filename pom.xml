@@ -64,7 +64,7 @@
 		<project.source>1.7</project.source>
         <lib.hppcrt.source>1.6</lib.hppcrt.source>
         
-        <version.guava>18.0</version.guava>
+        <version.guava>19.0</version.guava>
 
         <version.junit>4.12</version.junit>
          
