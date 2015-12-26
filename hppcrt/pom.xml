@@ -229,8 +229,8 @@
 							<failOnError>false</failOnError>
 							<docfilessubdirs>true</docfilessubdirs>
 							<use>false</use>
-							<noindex>true</noindex>
-							<notree>true</notree>
+							<noindex>false</noindex>
+							<notree>false</notree>
 							<groups>
 								<group>
 									<title>HPPC-RT</title>

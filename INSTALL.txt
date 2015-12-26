@@ -3,12 +3,15 @@ Hacking HPPC-RT:
 The project as a whole needs Java 7, although the final runtime jars are still Java 5 and Java 6 compatible. To assure such 
 antiquated compatibility, some restrictions must be enforced:
 
-* hppcrt-template-processor: No particular restriction, the processor classes used for building the runtime jars are Java 7 level.
+* hppcrt (sources) : Runtime sources either templates or hand-coded must use 1.5 API at best, while retaining the 1.6 compiler level for convenience. (ex. @Override allowed on subclasses AND interface implementations)  
+The strict 1.5 API compatibility is checked by the animal-sniffer plugin, before start building the runtime jars,
+then during the Jar generation phase the 'retrotranslator' generates a Java 5 Jar together with the Java 6 one. 
+
+* hppcrt (tests): templates and hand-coded tests are allowed to be fully 1.6 compatible, including the API.
+
+* hppcrt-template-processor: No particular restriction, the processor classes used for generate sources and tests are Java 7 level.
 * hppcrt-benchmarks: No particular restriction, they are Java 7 level.
 
-* hppcrt: All the runtime sources either templates or generated must use 1.5 API at best, using 1.6 compiler level. 
-The strict API compatibility is checked by the animal-sniffer plugin, before start building the runtime jars.
-Then during the Jar generation phase the 'retrotranslator' generates a Java 5 Jar together with the Java 6 one. 
 
 Maven shortcuts
 ---------------
@@ -46,7 +49,8 @@ java -jar hppcrt-benchmarks/target/benchmarks.jar -l
 # Try to resolve all dependencies to be able to work off the Net
 mvn dependency:go-offline
 
-# Replace -Pquick by -Pquicknodoc to also skip Javadoc generation.
+# Use -Pquick to skip tests execution,
+# and replace -Pquick by -Pquicknodoc to also skip Javadoc generation.
 
 
 
