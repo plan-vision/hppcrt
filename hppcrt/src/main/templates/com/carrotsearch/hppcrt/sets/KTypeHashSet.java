@@ -15,7 +15,7 @@ import com.carrotsearch.hppcrt.hash.*;
 /**
  * A hash set of <code>KType</code>s, implemented using using open
  * addressing with linear probing for collision resolution.
- * 
+ *
 #if ($TemplateOptions.KTypeGeneric)
  * <p> In addition, the hashing strategy can be changed
  * by overriding ({@link #equalKeys(Object, Object)} and {@link #hashKey(Object)}) together,
@@ -23,22 +23,22 @@ import com.carrotsearch.hppcrt.hash.*;
  * This is useful to define the equivalence of keys when the user has no control over the keys implementation.
  * </p>
 #end
- * 
+ *
  * <p>
  * The internal buffers of this implementation ({@link #keys}, etc...)
  * are always allocated to the nearest size that is a power of two. When
  * the capacity exceeds the given load factor, the buffer size is doubled.
  * </p>
- * 
+ *
  * <p><b>Important note.</b> The implementation uses power-of-two tables and linear
  * probing, which may cause poor performance (many collisions) if hash values are
  * not properly distributed.
- * 
+ *
 #if ($TemplateOptions.KTypeGeneric)
  * <p>This implementation supports <code>null</code> keys.</p>
 #end
- * 
- * 
+ *
+ *
 #if ($RH)
  *   <p> Robin-Hood hashing algorithm is also used to minimize variance
  *  in insertion and search-related operations, for an all-around smother operation at the cost
@@ -185,9 +185,9 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      * {@inheritDoc}
      */
     @Override
-    public boolean add(KType e) {
+    public boolean add(KType key) {
 
-        if (Intrinsics.<KType> isEmpty(e)) {
+        if (Intrinsics.<KType> isEmpty(key)) {
 
             if (this.allocatedDefaultKey) {
 
@@ -203,7 +203,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
 
-        int slot = REHASH(e) & mask;
+        int slot = REHASH(key) & mask;
         KType existing;
 
         /*! #if ($RH) !*/
@@ -213,10 +213,37 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         int initial_slot = slot;
         int dist = 0;
         int existing_distance = 0;
+
+        /*! #if($DEBUG) !*/
+        final KType originalKey = key;
+        /*! #end !*/
+
         /*! #end !*/
 
         while (!Intrinsics.<KType> isEmpty(existing = keys[slot])) {
-            if (KEYEQUALS(e, existing)) {
+
+            /*! #if ($RH) !*/
+            /*! #if($DEBUG) !*/
+            //When first entering the while loop, then key == original key to search.
+            //So either:
+            //1) key is immediately found and the routine bail out,
+            //or
+            //2) If the Robin-hood criteria of distance is not met, we search the next slot, (usual linear probing)
+            //or
+            //3) else the criteria of distance is met, then (key) is swapped with the ones in
+            //slot position which becomes the new (key) to consider. This is OK because keys are swapped only if dist > existing_distance,
+            //i.e only if the key to add is NOT in the set, see contains(). So we steal the rich (a previously entered key, favored because having being inserted
+            //in a less crowed array) to give to the poor, the now inserted key. Then, we start searching again in the next slot.
+
+            //if the original key been swapped by the Robin-hood process, we actually never enter the following if, so we are fine.
+            if (!KEYEQUALS(key, originalKey)) {
+
+                assert !KEYEQUALS(key, existing);
+            }
+            /*! #end !*/
+            /*! #end !*/
+
+            if (KEYEQUALS(key, existing)) {
                 return false;
             }
 
@@ -225,10 +252,13 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
             existing_distance = probe_distance(slot, cached);
 
             if (dist > existing_distance) {
+
+                //we actually enter here only if the key to add is NOT in the set.
+
                 //swap current (key, value, initial_slot) with slot places
                 tmpKey = keys[slot];
-                keys[slot] = e;
-                e = tmpKey;
+                keys[slot] = key;
+                key = tmpKey;
 
                 tmpAllocated = cached[slot];
                 cached[slot] = initial_slot;
@@ -237,7 +267,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
                 /*! #if($DEBUG) !*/
                 //Check invariants
                 assert cached[slot] == (REHASH(keys[slot]) & mask);
-                assert initial_slot == (REHASH(e) & mask);
+                assert initial_slot == (REHASH(key) & mask);
                 /*! #end !*/
 
                 dist = existing_distance;
@@ -254,14 +284,14 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         // fill in the last element and rehash.
         if (this.assigned == this.resizeAt) {
 
-            expandAndAdd(e, slot);
+            expandAndAdd(key, slot);
         } else {
             this.assigned++;
             /*! #if ($RH) !*/
             cached[slot] = initial_slot;
             /*!  #end !*/
 
-            keys[slot] = e;
+            keys[slot] = key;
 
             /*! #if ($RH) !*/
             /*! #if($DEBUG) !*/
@@ -291,7 +321,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
      * Vararg-signature method for adding elements to this set.
      * <p><b>This method is handy, but costly if used in tight loops (anonymous
      * array passing)</b></p>
-     * 
+     *
      * @return Returns the number of elements that were added to the set
      * (were not present in the set).
      */
@@ -353,7 +383,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         //Variables for adding
         final int mask = this.keys.length - 1;
 
-        KType e = Intrinsics.<KType> empty();
+        KType key = Intrinsics.<KType> empty();
         //adding phase
         int slot = -1;
 
@@ -377,15 +407,17 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         for (int i = oldKeys.length; --i >= 0;) {
 
-            if (!Intrinsics.<KType> isEmpty(e = oldKeys[i])) {
+            //only consider non-empty slots, of course
+            if (!Intrinsics.<KType> isEmpty(key = oldKeys[i])) {
 
-                slot = REHASH2(e, perturb) & mask;
+                slot = REHASH2(key, perturb) & mask;
 
                 /*! #if ($RH) !*/
                 initial_slot = slot;
                 dist = 0;
                 /*! #end !*/
 
+                //similar to add(), except all inserted keys are known to be unique.
                 while (is_allocated(slot, keys)) {
                     /*! #if ($RH) !*/
                     //re-shuffle keys to minimize variance
@@ -394,8 +426,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
                     if (dist > existing_distance) {
                         //swap current (key, value, initial_slot) with slot places
                         tmpKey = keys[slot];
-                        keys[slot] = e;
-                        e = tmpKey;
+                        keys[slot] = key;
+                        key = tmpKey;
 
                         tmpAllocated = cached[slot];
                         cached[slot] = initial_slot;
@@ -404,7 +436,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
                         /*! #if($DEBUG) !*/
                         //Check invariants
                         assert cached[slot] == (REHASH(keys[slot]) & mask);
-                        assert initial_slot == (REHASH(e) & mask);
+                        assert initial_slot == (REHASH(key) & mask);
                         /*! #end !*/
 
                         dist = existing_distance;
@@ -423,7 +455,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
                 cached[slot] = initial_slot;
                 /*! #end !*/
 
-                keys[slot] = e;
+                keys[slot] = key;
 
                 /*! #if ($RH) !*/
                 /*! #if($DEBUG) !*/
@@ -437,7 +469,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
     /**
      * Allocate internal buffers for a given capacity.
-     * 
+     *
      * @param capacity New capacity (must be a power of two).
      */
     @SuppressWarnings("boxing")
@@ -576,6 +608,9 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
                 /*! #if ($RH) !*/
                 cached[gapSlot] = idealSlotModMask;
+                /*! #if($DEBUG) !*/
+                assert cached[gapSlot] == (REHASH(existing) & mask);
+                /*! #end !*/
                 /*! #end !*/
 
                 gapSlot = slot;
@@ -629,7 +664,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * <p>Does not release internal buffers.</p>
      */
     @Override
@@ -797,7 +832,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     @Override
     public EntryIterator iterator() {

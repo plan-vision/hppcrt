@@ -15,7 +15,7 @@ import com.carrotsearch.hppcrt.hash.*;
 /**
  * A hash map of <code>KType</code> to <code>VType</code>, implemented using open
  * addressing with linear probing for collision resolution.
- * 
+ *
 #if ($TemplateOptions.KTypeGeneric)
  * <p> In addition, the hashing strategy can be changed
  * by overriding ({@link #equalKeys(Object, Object)} and {@link #hashKey(Object)}) together,
@@ -32,8 +32,8 @@ import com.carrotsearch.hppcrt.hash.*;
  * <p><b>Important note.</b> The implementation uses power-of-two tables and linear
  * probing, which may cause poor performance (many collisions) if hash values are
  * not properly distributed.
- * 
- * 
+ *
+ *
 #if ($TemplateOptions.KTypeGeneric)
  * <p>This implementation supports <code>null</code> keys. </p>
 #end
@@ -41,7 +41,7 @@ import com.carrotsearch.hppcrt.hash.*;
  * <p>This implementation supports <code>null</code> values.</p>
 #end
  *
- * 
+ *
 #if ($RH)
  *   <p> Robin-Hood hashing algorithm is also used to minimize variance
  *  in insertion and search-related operations, for an all-around smother operation at the cost
@@ -170,7 +170,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     /**
      * Default constructor: Creates a hash map with the default capacity of {@link Containers#DEFAULT_EXPECTED_ELEMENTS},
      * load factor of {@link HashContainers#DEFAULT_LOAD_FACTOR}.
-     * 
+     *
      * <p>See class notes about hash distribution importance.</p>
      */
     public KTypeVTypeHashMap() {
@@ -180,9 +180,9 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     /**
      * Creates a hash map with the given initial capacity, default load factor of
      * {@link HashContainers#DEFAULT_LOAD_FACTOR}.
-     * 
+     *
      * <p>See class notes about hash distribution importance.</p>
-     * 
+     *
      * @param initialCapacity Initial capacity (greater than zero and automatically
      *            rounded to the next power of two).
      */
@@ -250,11 +250,38 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         int initial_slot = slot;
         int dist = 0;
         int existing_distance = 0;
+
+        /*! #if($DEBUG) !*/
+        final KType originalKey = key;
+        /*! #end !*/
+
         /*! #end !*/
 
         while (!Intrinsics.<KType> isEmpty(existing = keys[slot])) {
 
+            /*! #if ($RH) !*/
+            /*! #if($DEBUG) !*/
+            //When first entering the while loop, then key == original key to search.
+            //So either:
+            //1) key is immediately found and the routine bail out,
+            //or
+            //2) If the Robin-hood criteria of distance is not met, we search the next slot, (usual linear probing)
+            //or
+            //3) else the criteria of distance is met, then (key,value) is swapped with the ones in
+            //slot position which becomes the new (key,value) to consider. This is OK because keys are swapped only if dist > existing_distance,
+            //i.e only if the key to add is NOT in the map, containsKey(). So we steal the rich (a previously entered key, favored because having being inserted
+            //in a less crowed array) to give to the poor, the now inserted key. Then, we start searching again in the next slot.
+
+            //if the original key been swapped by the Roobin-hood process, we actually never enter the following if, so we are fine.
+            if (!KEYEQUALS(key, originalKey)) {
+
+                assert !KEYEQUALS(key, existing);
+            }
+            /*! #end !*/
+            /*! #end !*/
+
             if (KEYEQUALS(key, existing)) {
+
                 final VType oldValue = Intrinsics.<VType> cast(this.values[slot]);
                 values[slot] = value;
 
@@ -266,6 +293,9 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             existing_distance = probe_distance(slot, cached);
 
             if (dist > existing_distance) {
+
+                //we actually enter here only if the key to add is NOT in the map.
+
                 //swap current (key, value, initial_slot) with slot places
                 tmpKey = keys[slot];
                 keys[slot] = key;
@@ -357,7 +387,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     /**
      * If <code>key</code> exists, <code>putValue</code> is inserted into the map,
      * otherwise any existing value is incremented by <code>additionValue</code>.
-     * 
+     *
      * @param key
      *          The key of the value to adjust.
      * @param putValue
@@ -387,7 +417,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     /**
      * Adds <code>incrementValue</code> to any existing value for the given <code>key</code>
      * or inserts <code>incrementValue</code> if <code>key</code> did not previously exist.
-     * 
+     *
      * @param key The key of the value to adjust.
      * @param incrementValue The value to put or add to the existing value if <code>key</code> exists.
      * @return Returns the current value associated with <code>key</code> (after changes).
@@ -453,6 +483,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         for (int i = oldKeys.length; --i >= 0;) {
 
+            //only consider non-empty slots, of course
             if (!Intrinsics.<KType> isEmpty(key = oldKeys[i])) {
 
                 value = oldValues[i];
@@ -464,6 +495,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
                 dist = 0;
                 /*! #end !*/
 
+                //similar to put(), except all inserted keys are known to be unique.
                 while (is_allocated(slot, keys)) {
                     /*! #if ($RH) !*/
                     //re-shuffle keys to minimize variance
@@ -519,7 +551,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
     /**
      * Allocate internal buffers for a given capacity.
-     * 
+     *
      * @param capacity New capacity (must be a power of two).
      */
     @SuppressWarnings("boxing")
@@ -664,6 +696,9 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
                 /*! #if ($RH) !*/
                 cached[gapSlot] = idealSlotModMask;
+                /*! #if($DEBUG) !*/
+                assert cached[gapSlot] == (REHASH(existing) & mask);
+                /*! #end !*/
                 /*! #end !*/
 
                 gapSlot = slot;
@@ -928,7 +963,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * <p>Note that an empty container may still contain many deleted keys (that occupy buffer
      * space). Adding even a single element to such a container may cause rehashing.</p>
      */
