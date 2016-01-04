@@ -52,9 +52,9 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
 
     protected abstract KTypeSet<KType> getCopyConstructor(KTypeSet<KType> testSet);
 
-    abstract int getEntryPoolSize(KTypeSet<KType> testSet);
+    protected abstract int getEntryPoolSize(KTypeSet<KType> testSet);
 
-    abstract int getEntryPoolCapacity(KTypeSet<KType> testSet);
+    protected abstract int getEntryPoolCapacity(KTypeSet<KType> testSet);
 
     /**
      * Per-test fresh initialized instance.
@@ -214,13 +214,13 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
         addFromArray(this.set, newArray(this.k0, this.k1, this.k2));
 
         Assert.assertEquals(1, this.set.removeAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return v == AbstractKTypeHashSetTest.this.k1;
             };
-                }));
+        }));
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.k0, this.k2);
     }
@@ -232,13 +232,13 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
         addFromArray(this.set, this.keyE, this.key1, this.key2, this.key4);
 
         Assert.assertEquals(2, this.set.removeAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return (v == AbstractKTypeHashSetTest.this.key1) || (v == AbstractKTypeHashSetTest.this.keyE);
             };
-                }));
+        }));
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.key2, this.key4);
     }
@@ -255,7 +255,7 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
             //the assert below should never be triggered because of the exception
             //so give it an invalid value in case the thing terminates  = initial size + 1
             Assert.assertEquals(10, this.set.removeAll(new KTypePredicate<KType>()
-                    {
+            {
                 @Override
                 public boolean apply(final KType v)
                 {
@@ -264,7 +264,7 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
                     }
                     return v == AbstractKTypeHashSetTest.this.key2 || v == AbstractKTypeHashSetTest.this.key9 || v == AbstractKTypeHashSetTest.this.key5;
                 };
-                    }));
+            }));
 
             Assert.fail();
         } catch (final RuntimeException e)
@@ -289,13 +289,13 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
         addFromArray(this.set, newArray(this.k0, this.k1, this.k2, this.k3, this.k4, this.k5));
 
         Assert.assertEquals(4, this.set.retainAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return v == AbstractKTypeHashSetTest.this.key1 || v == AbstractKTypeHashSetTest.this.key2;
             };
-                }));
+        }));
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.key1, this.key2);
     }
@@ -307,13 +307,13 @@ public abstract class AbstractKTypeHashSetTest<KType> extends AbstractKTypeTest<
         addFromArray(this.set, newArray(this.keyE, this.k1, this.k2, this.k3, this.k4, this.k5));
 
         Assert.assertEquals(4, this.set.retainAll(new KTypePredicate<KType>()
-                {
+        {
             @Override
             public boolean apply(final KType v)
             {
                 return v == AbstractKTypeHashSetTest.this.keyE || v == AbstractKTypeHashSetTest.this.k3;
             };
-                }));
+        }));
 
         TestUtils.assertSortedListEquals(this.set.toArray(), this.keyE, this.k3);
     }

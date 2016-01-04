@@ -260,7 +260,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         while (!Intrinsics.<KType> isEmpty(existing = keys[slot])) {
 
             /*! #if ($RH) !*/
-            /*! #if($DEBUG) !*/
+            existing_distance = probe_distance(slot, cached);
+
             //When first entering the while loop, then key == original key to search.
             //So either:
             //1) key is immediately found and the routine bail out,
@@ -269,9 +270,10 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             //or
             //3) else the criteria of distance is met, then (key,value) is swapped with the ones in
             //slot position which becomes the new (key,value) to consider. This is OK because keys are swapped only if dist > existing_distance,
-            //i.e only if the key to add is NOT in the map, containsKey(). So we steal the rich (a previously entered key, favored because having being inserted
+            //i.e only if the key to add is NOT in the map, see containsKey(). So we steal the rich (a previously entered key, favored because having being inserted
             //in a less crowed array) to give to the poor, the now inserted key. Then, we start searching again in the next slot.
 
+            /*! #if($DEBUG) !*/
             //if the original key been swapped by the Roobin-hood process, we actually never enter the following if, so we are fine.
             if (!KEYEQUALS(key, originalKey)) {
 
@@ -280,21 +282,25 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
             /*! #end !*/
             /*! #end !*/
 
-            if (KEYEQUALS(key, existing)) {
+            /*! #if($RH) !*/
+            // Robin-hood shortcut: if key exists, it can only be found in dist <= existing_distance range.
+            //indeed we should expect to never see an existing element with a shorter probe count (existing_distance)
+            //than our current count (dist): if that had happened, there would’ve been a swap during insertion, see below.
+            //also see containsKey(), get() and remove() for the same trick.
+            /*! #end !*/
+
+            if (/*! #if ($RH) !*/dist <= existing_distance && /*! #end !*/ KEYEQUALS(key, existing)) {
 
                 final VType oldValue = Intrinsics.<VType> cast(this.values[slot]);
-                values[slot] = value;
+                this.values[slot] = value;
 
                 return oldValue;
             }
 
             /*! #if ($RH) !*/
             //re-shuffle keys to minimize variance
-            existing_distance = probe_distance(slot, cached);
-
+            //we actually enter here only if the key to add is NOT in the map.
             if (dist > existing_distance) {
-
-                //we actually enter here only if the key to add is NOT in the map.
 
                 //swap current (key, value, initial_slot) with slot places
                 tmpKey = keys[slot];
@@ -865,7 +871,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
         /*! #end !*/
 
         while (!Intrinsics.<KType> isEmpty(existing = keys[slot])
-                /*! #if ($RH) !*/&& dist <= probe_distance(slot, cached) /*! #end !*/) {
+                /*! #if ($RH) !*/ && dist <= probe_distance(slot, cached) /*! #end !*/) {
 
             if (KEYEQUALS(key, existing)) {
 
@@ -1807,12 +1813,8 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     }
 
     /*! #end !*/
-
-    /*! #if ($TemplateOptions.declareInline("probe_distance(slot, cache)",
-        "<*,*>==>slot < cache[slot] ? slot + cache.length - cache[slot] : slot - cache[slot]")) !*/
-    /**
-     * (actual method is inlined in generated code)
-     */
+    
+    /*! #if ($RH) !*/
     private int probe_distance(final int slot, final int[] cache) {
 
         final int rh = cache[slot];
@@ -1825,13 +1827,12 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         if (slot < rh) {
             //wrap around
-            return slot + cache.length - rh;
+            return slot - rh + cache.length;
         }
 
         return slot - rh;
     }
-
-    /*! #end !*/
+     /*! #end !*/
 
     /*! #if ($TemplateOptions.declareInline("REHASH(value)",
     "<Object,*>==>BitMixer.mix(hashKey(value) , this.perturbation)",

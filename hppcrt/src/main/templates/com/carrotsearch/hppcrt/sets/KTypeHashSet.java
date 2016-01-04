@@ -223,7 +223,8 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
         while (!Intrinsics.<KType> isEmpty(existing = keys[slot])) {
 
             /*! #if ($RH) !*/
-            /*! #if($DEBUG) !*/
+            existing_distance = probe_distance(slot, cached);
+
             //When first entering the while loop, then key == original key to search.
             //So either:
             //1) key is immediately found and the routine bail out,
@@ -235,6 +236,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
             //i.e only if the key to add is NOT in the set, see contains(). So we steal the rich (a previously entered key, favored because having being inserted
             //in a less crowed array) to give to the poor, the now inserted key. Then, we start searching again in the next slot.
 
+            /*! #if($DEBUG) !*/
             //if the original key been swapped by the Robin-hood process, we actually never enter the following if, so we are fine.
             if (!KEYEQUALS(key, originalKey)) {
 
@@ -243,14 +245,18 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
             /*! #end !*/
             /*! #end !*/
 
-            if (KEYEQUALS(key, existing)) {
+            /*! #if($RH) !*/
+            // Robin-hood shortcut: if key exists, it can only be found in dist <= existing_distance range.
+            //indeed we should expect to never see an existing element with a shorter probe count (existing_distance)
+            //than our current count (dist): if that had happened, there would’ve been a swap during insertion, see below.
+            //also see contains() and remove() for the same trick.
+            /*! #end !*/
+            if (/*! #if ($RH) !*/ dist <= existing_distance && /*! #end !*/ KEYEQUALS(key, existing)) {
                 return false;
             }
 
             /*! #if ($RH) !*/
             //re-shuffle keys to minimize variance
-            existing_distance = probe_distance(slot, cached);
-
             if (dist > existing_distance) {
 
                 //we actually enter here only if the key to add is NOT in the set.
@@ -1011,11 +1017,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.declareInline("probe_distance(slot, cached)",
-    "<*>==>slot < cached[slot] ? slot + cached.length - cached[slot] : slot - cached[slot]")) !*/
-    /**
-     * (actual method is inlined in generated code)
-     */
+    /*! #if ($RH) !*/
     private int probe_distance(final int slot, final int[] cached) {
 
         final int rh = cached[slot];
@@ -1028,12 +1030,11 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         if (slot < rh) {
             //wrap around
-            return slot + cached.length - rh;
+            return slot - rh + cached.length;
         }
 
         return slot - rh;
     }
-
     /*! #end !*/
 
     /*! #if ($TemplateOptions.declareInline("REHASH(value)",

@@ -161,13 +161,13 @@ public class KTypeCustomHashSetTest<KType> extends AbstractKTypeHashSetTest<KTyp
     }
 
     @Override
-    int getEntryPoolSize(final KTypeSet<KType> testSet) {
+    protected int getEntryPoolSize(final KTypeSet<KType> testSet) {
         final KTypeCustomizedHashSet<KType> concreteClass = (KTypeCustomizedHashSet<KType>) (testSet);
         return concreteClass.entryIteratorPool.size();
     }
 
     @Override
-    int getEntryPoolCapacity(final KTypeSet<KType> testSet) {
+    protected int getEntryPoolCapacity(final KTypeSet<KType> testSet) {
         final KTypeCustomizedHashSet<KType> concreteClass = (KTypeCustomizedHashSet<KType>) (testSet);
         return concreteClass.entryIteratorPool.capacity();
     }

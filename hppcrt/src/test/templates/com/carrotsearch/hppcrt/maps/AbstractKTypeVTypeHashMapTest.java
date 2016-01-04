@@ -53,17 +53,17 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
 
     protected abstract KTypeVTypeMap<KType, VType> getCopyConstructor(KTypeVTypeMap<KType, VType> testMap);
 
-    abstract int getEntryPoolSize(KTypeVTypeMap<KType, VType> testMap);
+    protected abstract int getEntryPoolSize(KTypeVTypeMap<KType, VType> testMap);
 
-    abstract int getKeysPoolSize(KTypeCollection<KType> testMap);
+    protected abstract int getKeysPoolSize(KTypeCollection<KType> testMap);
 
-    abstract int getValuesPoolSize(KTypeCollection<VType> values);
+    protected abstract int getValuesPoolSize(KTypeCollection<VType> values);
 
-    abstract int getEntryPoolCapacity(KTypeVTypeMap<KType, VType> testMap);
+    protected abstract int getEntryPoolCapacity(KTypeVTypeMap<KType, VType> testMap);
 
-    abstract int getKeysPoolCapacity(KTypeCollection<KType> keys);
+    protected abstract int getKeysPoolCapacity(KTypeCollection<KType> keys);
 
-    abstract int getValuesPoolCapacity(KTypeCollection<VType> values);
+    protected abstract int getValuesPoolCapacity(KTypeCollection<VType> values);
 
     /**
      * Per-test fresh initialized instance.
@@ -2634,7 +2634,13 @@ public abstract class AbstractKTypeVTypeHashMapTest<KType, VType> extends Abstra
         //recreate from scratch
         this.map = createNewMapInstance();
 
-        final int NB_INSERTED_ELEMENTS = 126;
+        /*! #if ($TemplateOptions.isKType("GENERIC", "INT", "LONG", "FLOAT", "DOUBLE")) !*/
+        final int NB_INSERTED_ELEMENTS = 100000;
+        /*! #elseif ($TemplateOptions.isKType("SHORT", "CHAR"))
+             final int NB_INSERTED_ELEMENTS = 32000;
+            #else
+              final int NB_INSERTED_ELEMENTS = 126;
+            #end !*/
 
         // Insert values "not in default set":
         //- Check: get() on  existing key, NEVER returns the default value,

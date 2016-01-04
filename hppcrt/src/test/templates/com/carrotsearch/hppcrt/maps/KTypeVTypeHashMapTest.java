@@ -84,14 +84,14 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeHashM
     }
 
     @Override
-    int getEntryPoolSize(final KTypeVTypeMap<KType, VType> testMap) {
+    protected int getEntryPoolSize(final KTypeVTypeMap<KType, VType> testMap) {
         final KTypeVTypeHashMap<KType, VType> concreteClass = (KTypeVTypeHashMap<KType, VType>) (testMap);
 
         return concreteClass.entryIteratorPool.size();
     }
 
     @Override
-    int getKeysPoolSize(final KTypeCollection<KType> keys) {
+    protected int getKeysPoolSize(final KTypeCollection<KType> keys) {
 
         final KTypeVTypeHashMap<KType, VType>.KeysCollection concreteClass = (KTypeVTypeHashMap<KType, VType>.KeysCollection) (keys);
 
@@ -99,28 +99,28 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeHashM
     }
 
     @Override
-    int getValuesPoolSize(final KTypeCollection<VType> values) {
+    protected int getValuesPoolSize(final KTypeCollection<VType> values) {
         final KTypeVTypeHashMap<KType, VType>.ValuesCollection concreteClass = (KTypeVTypeHashMap<KType, VType>.ValuesCollection) (values);
 
         return concreteClass.valuesIteratorPool.size();
     }
 
     @Override
-    int getEntryPoolCapacity(final KTypeVTypeMap<KType, VType> testMap) {
+    protected int getEntryPoolCapacity(final KTypeVTypeMap<KType, VType> testMap) {
         final KTypeVTypeHashMap<KType, VType> concreteClass = (KTypeVTypeHashMap<KType, VType>) (testMap);
 
         return concreteClass.entryIteratorPool.capacity();
     }
 
     @Override
-    int getKeysPoolCapacity(final KTypeCollection<KType> keys) {
+    protected int getKeysPoolCapacity(final KTypeCollection<KType> keys) {
         final KTypeVTypeHashMap<KType, VType>.KeysCollection concreteClass = (KTypeVTypeHashMap<KType, VType>.KeysCollection) (keys);
 
         return concreteClass.keyIteratorPool.capacity();
     }
 
     @Override
-    int getValuesPoolCapacity(final KTypeCollection<VType> values) {
+    protected int getValuesPoolCapacity(final KTypeCollection<VType> values) {
         final KTypeVTypeHashMap<KType, VType>.ValuesCollection concreteClass = (KTypeVTypeHashMap<KType, VType>.ValuesCollection) (values);
 
         return concreteClass.valuesIteratorPool.capacity();
