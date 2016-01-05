@@ -62,19 +62,19 @@ public class KTypeLinkedListAsIndexedContainerTest<KType> extends AbstractKTypeI
     }
 
     @Override
-    int getValuePoolSize(final KTypeIndexedContainer<KType> testList) {
+    protected int getValuePoolSize(final KTypeIndexedContainer<KType> testList) {
         final KTypeLinkedList<KType> concreteClass = (KTypeLinkedList<KType>) (testList);
         return concreteClass.valueIteratorPool.size();
     }
 
     @Override
-    int getValuePoolCapacity(final KTypeIndexedContainer<KType> testList) {
+    protected int getValuePoolCapacity(final KTypeIndexedContainer<KType> testList) {
         final KTypeLinkedList<KType> concreteClass = (KTypeLinkedList<KType>) (testList);
         return concreteClass.valueIteratorPool.capacity();
     }
 
     @Override
-    void insertAtHead(final KTypeIndexedContainer<KType> testList, final KType value) {
+    protected void insertAtHead(final KTypeIndexedContainer<KType> testList, final KType value) {
         final KTypeLinkedList<KType> concreteClass = (KTypeLinkedList<KType>) (testList);
         concreteClass.addFirst(value);
     }
@@ -93,10 +93,10 @@ public class KTypeLinkedListAsIndexedContainerTest<KType> extends AbstractKTypeI
             int count = 0;
             //check access by get()
             for (/*! #if ($TemplateOptions.KTypeGeneric) !*/final Object
-            /*! #else
+                    /*! #else
             final KType
             #end !*/
-            val : this.list.toArray()) {
+                    val : this.list.toArray()) {
 
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 TestUtils.assertEquals2(val, (Object) this.list.get(count));

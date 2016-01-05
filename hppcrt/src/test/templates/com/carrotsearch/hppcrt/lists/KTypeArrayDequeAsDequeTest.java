@@ -42,13 +42,13 @@ public class KTypeArrayDequeAsDequeTest<KType> extends AbstractKTypeDequeTest<KT
     }
 
     @Override
-    int getDescendingValuePoolSize(final KTypeDeque<KType> testList) {
+    protected int getDescendingValuePoolSize(final KTypeDeque<KType> testList) {
         final KTypeArrayDeque<KType> concreteClass = (KTypeArrayDeque<KType>) (testList);
         return concreteClass.descendingValueIteratorPool.size();
     }
 
     @Override
-    int getDescendingValuePoolCapacity(final KTypeDeque<KType> testList) {
+    protected int getDescendingValuePoolCapacity(final KTypeDeque<KType> testList) {
         final KTypeArrayDeque<KType> concreteClass = (KTypeArrayDeque<KType>) (testList);
         return concreteClass.descendingValueIteratorPool.capacity();
     }
@@ -71,10 +71,10 @@ public class KTypeArrayDequeAsDequeTest<KType> extends AbstractKTypeDequeTest<KT
             int count = 0;
             //check access by get()
             for (/*! #if ($TemplateOptions.KTypeGeneric) !*/final Object
-            /*! #else
+                    /*! #else
             final KType
             #end !*/
-            val : arrayDeque.toArray()) {
+                    val : arrayDeque.toArray()) {
 
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 TestUtils.assertEquals2(val, (Object) arrayDeque.get(count));

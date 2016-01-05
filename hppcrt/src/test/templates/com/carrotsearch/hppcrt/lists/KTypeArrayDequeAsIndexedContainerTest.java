@@ -62,19 +62,19 @@ public class KTypeArrayDequeAsIndexedContainerTest<KType> extends AbstractKTypeI
     }
 
     @Override
-    int getValuePoolSize(final KTypeIndexedContainer<KType> testList) {
+    protected int getValuePoolSize(final KTypeIndexedContainer<KType> testList) {
         final KTypeArrayDeque<KType> concreteClass = (KTypeArrayDeque<KType>) (testList);
         return concreteClass.valueIteratorPool.size();
     }
 
     @Override
-    int getValuePoolCapacity(final KTypeIndexedContainer<KType> testList) {
+    protected int getValuePoolCapacity(final KTypeIndexedContainer<KType> testList) {
         final KTypeArrayDeque<KType> concreteClass = (KTypeArrayDeque<KType>) (testList);
         return concreteClass.valueIteratorPool.capacity();
     }
 
     @Override
-    void insertAtHead(final KTypeIndexedContainer<KType> testList, final KType value) {
+    protected void insertAtHead(final KTypeIndexedContainer<KType> testList, final KType value) {
         final KTypeArrayDeque<KType> concreteClass = (KTypeArrayDeque<KType>) (testList);
         concreteClass.addFirst(value);
 
@@ -96,10 +96,10 @@ public class KTypeArrayDequeAsIndexedContainerTest<KType> extends AbstractKTypeI
             int count = 0;
             //check access by get()
             for (/*! #if ($TemplateOptions.KTypeGeneric) !*/final Object
-            /*! #else
+                    /*! #else
             final KType
             #end !*/
-            val : arrayDeque.toArray()) {
+                    val : arrayDeque.toArray()) {
 
                 /*! #if ($TemplateOptions.KTypeGeneric) !*/
                 TestUtils.assertEquals2(val, (Object) arrayDeque.get(count));

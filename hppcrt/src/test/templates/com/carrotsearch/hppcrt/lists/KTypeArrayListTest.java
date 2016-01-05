@@ -68,19 +68,19 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeIndexedContainerTest
     }
 
     @Override
-    int getValuePoolSize(final KTypeIndexedContainer<KType> testList) {
+    protected int getValuePoolSize(final KTypeIndexedContainer<KType> testList) {
         final KTypeArrayList<KType> concreteClass = (KTypeArrayList<KType>) (testList);
         return concreteClass.valueIteratorPool.size();
     }
 
     @Override
-    int getValuePoolCapacity(final KTypeIndexedContainer<KType> testList) {
+    protected int getValuePoolCapacity(final KTypeIndexedContainer<KType> testList) {
         final KTypeArrayList<KType> concreteClass = (KTypeArrayList<KType>) (testList);
         return concreteClass.valueIteratorPool.capacity();
     }
 
     @Override
-    void insertAtHead(final KTypeIndexedContainer<KType> testList, final KType value) {
+    protected void insertAtHead(final KTypeIndexedContainer<KType> testList, final KType value) {
         final KTypeArrayList<KType> concreteClass = (KTypeArrayList<KType>) (testList);
         concreteClass.insert(0, value);
     }

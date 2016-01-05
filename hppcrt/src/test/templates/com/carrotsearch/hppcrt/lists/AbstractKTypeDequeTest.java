@@ -38,9 +38,9 @@ public abstract class AbstractKTypeDequeTest<KType> extends AbstractKTypeTest<KT
 
     protected abstract KType[] getBuffer(KTypeDeque<KType> testList);
 
-    abstract int getDescendingValuePoolSize(KTypeDeque<KType> testList);
+    protected abstract int getDescendingValuePoolSize(KTypeDeque<KType> testList);
 
-    abstract int getDescendingValuePoolCapacity(KTypeDeque<KType> testList);
+    protected abstract int getDescendingValuePoolCapacity(KTypeDeque<KType> testList);
 
     /**
      * Per-test fresh initialized instance.
