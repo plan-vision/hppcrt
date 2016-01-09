@@ -17,7 +17,7 @@ public class BenchmarkSuiteRunner
     public static final int NB_MEASUREMENTS_DEFAULT = 10;
     public static final int NB_WARMUPS_DEFAULT = 15;
 
-    public static final String USAGE = "Usage : --- [--warmup=[nb of iterations, default 10]] [--measure=[nb of measurements, default 10]] <other specific benchmark args>";
+    public static final String USAGE = "Usage : --- [--warmup=[nb of iterations, default 10]] [--measure=[nb of measurements, default 10]] <overridenJmhParams>\n" + "with overridenJmhParams are in the form of a series of fields 'param=value1,value2...(etc)'\n" + "where param is one @Param of the benchmark, with value1,value2,... replacing the original alternatives.\n";
 
     public static class BenchmarkOptions
     {
@@ -157,13 +157,13 @@ public class BenchmarkSuiteRunner
         final OptionsBuilder optBuilder = new OptionsBuilder();
 
         optBuilder.include(jmhClass.getSimpleName())
-                .forks(1)
-                .mode(Mode.SingleShotTime)
-                .warmupIterations(nbWarmups)
-                .measurementIterations(nbIterations)
-                .verbosity(VerboseMode.NORMAL)
-                .jvmArgsAppend("-Xms" + minHeapSizeMbytes + "m")
-                .jvmArgsAppend("-Xmx" + maxHeapSizeMbytes + "m");
+        .forks(1)
+        .mode(Mode.SingleShotTime)
+        .warmupIterations(nbWarmups)
+        .measurementIterations(nbIterations)
+        .verbosity(VerboseMode.NORMAL)
+        .jvmArgsAppend("-Xms" + minHeapSizeMbytes + "m")
+        .jvmArgsAppend("-Xmx" + maxHeapSizeMbytes + "m");
 
         //overridenJmhParams are in the form "[param]=[value1,value2...etc]
         //where param is one @Param of the benchmark, with value1,value2,... replacing the original alternatives.

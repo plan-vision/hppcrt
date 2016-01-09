@@ -126,4 +126,16 @@ public class GsObjectIntMap extends MapImplementation<ObjectIntHashMap<MapImplem
         //copy constructor
         this.instance = new ObjectIntHashMap<MapImplementation.ComparableInt>((ObjectIntHashMap<MapImplementation.ComparableInt>) toCloneFrom.instance);
     }
+
+    @Override
+    public void reshuffleInsertedKeys(final Random rand) {
+        Util.shuffle(this.insertKeys, rand);
+
+    }
+
+    @Override
+    public void reshuffleInsertedValues(final Random rand) {
+        Util.shuffle(this.insertValues, rand);
+
+    }
 }

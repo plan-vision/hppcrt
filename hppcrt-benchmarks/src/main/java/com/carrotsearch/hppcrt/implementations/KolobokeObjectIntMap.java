@@ -172,4 +172,16 @@ public class KolobokeObjectIntMap extends MapImplementation<HashObjIntMap<MapImp
                 newMutableMap(sourceCopy);
 
     }
+
+    @Override
+    public void reshuffleInsertedKeys(final Random rand) {
+        Util.shuffle(this.insertKeys, rand);
+
+    }
+
+    @Override
+    public void reshuffleInsertedValues(final Random rand) {
+        Util.shuffle(this.insertValues, rand);
+
+    }
 }

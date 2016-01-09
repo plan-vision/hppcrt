@@ -4,6 +4,7 @@ package com.carrotsearch.hppcrt.implementations;
 import java.util.Arrays;
 import java.util.Random;
 
+import com.carrotsearch.hppcrt.Util;
 import com.carrotsearch.hppcrt.XorShift128P;
 import com.gs.collections.impl.map.mutable.primitive.IntIntHashMap;
 
@@ -114,4 +115,15 @@ public class GsIntIntMap extends MapImplementation<IntIntHashMap>
         this.instance = new IntIntHashMap(((IntIntHashMap) toCloneFrom.instance));
     }
 
+    @Override
+    public void reshuffleInsertedKeys(final Random rand) {
+        Util.shuffle(this.insertKeys, rand);
+
+    }
+
+    @Override
+    public void reshuffleInsertedValues(final Random rand) {
+        Util.shuffle(this.insertValues, rand);
+
+    }
 }

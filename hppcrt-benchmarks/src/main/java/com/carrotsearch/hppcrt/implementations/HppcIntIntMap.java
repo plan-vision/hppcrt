@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 import com.carrotsearch.hppc.IntIntHashMap;
+import com.carrotsearch.hppcrt.Util;
 import com.carrotsearch.hppcrt.XorShift128P;
 
 public class HppcIntIntMap extends MapImplementation<com.carrotsearch.hppc.IntIntHashMap>
@@ -104,6 +105,18 @@ public class HppcIntIntMap extends MapImplementation<com.carrotsearch.hppc.IntIn
     public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
 
         this.instance = ((IntIntHashMap) toCloneFrom.instance).clone();
+
+    }
+
+    @Override
+    public void reshuffleInsertedKeys(final Random rand) {
+        Util.shuffle(this.insertKeys, rand);
+
+    }
+
+    @Override
+    public void reshuffleInsertedValues(final Random rand) {
+        Util.shuffle(this.insertValues, rand);
 
     }
 }

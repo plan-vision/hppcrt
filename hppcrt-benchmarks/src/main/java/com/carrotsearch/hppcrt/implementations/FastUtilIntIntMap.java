@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import java.util.Arrays;
 import java.util.Random;
 
+import com.carrotsearch.hppcrt.Util;
 import com.carrotsearch.hppcrt.XorShift128P;
 
 public class FastUtilIntIntMap extends MapImplementation<Int2IntOpenHashMap>
@@ -51,6 +52,18 @@ public class FastUtilIntIntMap extends MapImplementation<Int2IntOpenHashMap>
     public int size() {
 
         return this.instance.size();
+    }
+
+    @Override
+    public void reshuffleInsertedKeys(final Random rand) {
+        Util.shuffle(this.insertKeys, rand);
+
+    }
+
+    @Override
+    public void reshuffleInsertedValues(final Random rand) {
+        Util.shuffle(this.insertValues, rand);
+
     }
 
     @Override

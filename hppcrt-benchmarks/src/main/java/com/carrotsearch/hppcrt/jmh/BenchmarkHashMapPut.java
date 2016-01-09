@@ -7,8 +7,7 @@ import org.openjdk.jmh.runner.RunnerException;
 import com.carrotsearch.hppcrt.BenchmarkSuiteRunner;
 
 /**
- * Benchmark putting a given number of integers / Objects into a hashmap.
- * also the base class for all the other Hash benchmarks.
+ * Benchmark putting a given number of integers / Objects into a hashmap
  */
 public class BenchmarkHashMapPut extends BenchmarkHashMapBase
 {

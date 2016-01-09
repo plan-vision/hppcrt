@@ -126,4 +126,16 @@ public class FastUtilObjectIntMap extends MapImplementation<Object2IntOpenHashMa
         this.instance = ((Object2IntOpenHashMap<MapImplementation.ComparableInt>) toCloneFrom.instance).clone();
 
     }
+
+    @Override
+    public void reshuffleInsertedKeys(final Random rand) {
+        Util.shuffle(this.insertKeys, rand);
+
+    }
+
+    @Override
+    public void reshuffleInsertedValues(final Random rand) {
+        Util.shuffle(this.insertValues, rand);
+
+    }
 }

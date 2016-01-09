@@ -1,5 +1,7 @@
 package com.carrotsearch.hppcrt.implementations;
 
+import java.util.Random;
+
 import org.openjdk.jmh.infra.Blackhole;
 
 /**
@@ -121,6 +123,16 @@ public abstract class MapImplementation<IMPLEM>
     public abstract void clear();
 
     public abstract int size();
+
+    /**
+     * Re-shuffle the keys set, used in put() (existing keys) benchmark.
+     */
+    public abstract void reshuffleInsertedKeys(Random rand);
+
+    /**
+     * Re-shuffle the values set, used in put() (existing keys) benchmark.
+     */
+    public abstract void reshuffleInsertedValues(Random rand);
 
     /**
      * Sort-of clone() the whole implementation of toCloneFrom in its current state, (independent copy !)

@@ -3,6 +3,7 @@ package com.carrotsearch.hppcrt.implementations;
 import java.util.Random;
 
 import com.carrotsearch.hppc.ObjectIntScatterMap;
+import com.carrotsearch.hppcrt.Util;
 import com.carrotsearch.hppcrt.XorShift128P;
 
 public class HppcObjectIntScatterMap extends MapImplementation<com.carrotsearch.hppc.ObjectIntScatterMap<MapImplementation.ComparableInt>>
@@ -120,6 +121,18 @@ public class HppcObjectIntScatterMap extends MapImplementation<com.carrotsearch.
     public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
 
         this.instance = (ObjectIntScatterMap<MapImplementation.ComparableInt>) ((ObjectIntScatterMap<MapImplementation.ComparableInt>) toCloneFrom.instance).clone();
+
+    }
+
+    @Override
+    public void reshuffleInsertedKeys(final Random rand) {
+        Util.shuffle(this.insertKeys, rand);
+
+    }
+
+    @Override
+    public void reshuffleInsertedValues(final Random rand) {
+        Util.shuffle(this.insertValues, rand);
 
     }
 }

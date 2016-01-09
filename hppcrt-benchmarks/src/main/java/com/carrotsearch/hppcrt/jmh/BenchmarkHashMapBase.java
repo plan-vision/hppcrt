@@ -24,8 +24,7 @@ import com.carrotsearch.hppcrt.sets.IntHashSet;
 import com.carrotsearch.hppcrt.sets.ObjectIdentityHashSet;
 
 /**
- * Benchmark putting a given number of integers / Objects into a hashmap.
- * also the base class for all the other Hash benchmarks.
+ * Base class for all the other Hash benchmarks.
  */
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Thread)

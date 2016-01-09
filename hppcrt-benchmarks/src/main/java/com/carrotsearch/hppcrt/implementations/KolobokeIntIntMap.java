@@ -8,6 +8,7 @@ import net.openhft.koloboke.collect.map.hash.HashIntIntMap;
 import net.openhft.koloboke.collect.map.hash.HashIntIntMaps;
 import net.openhft.koloboke.collect.map.hash.HashObjIntMap;
 
+import com.carrotsearch.hppcrt.Util;
 import com.carrotsearch.hppcrt.XorShift128P;
 
 public class KolobokeIntIntMap extends MapImplementation<HashIntIntMap>
@@ -120,6 +121,18 @@ public class KolobokeIntIntMap extends MapImplementation<HashIntIntMap>
         //copy constructor
         this.instance = HashIntIntMaps.getDefaultFactory().
                 withHashConfig(HashConfig.fromLoads(this.loadFactor / 2, this.loadFactor, this.loadFactor)).newMutableMap(sourceCopy);
+
+    }
+
+    @Override
+    public void reshuffleInsertedKeys(final Random rand) {
+        Util.shuffle(this.insertKeys, rand);
+
+    }
+
+    @Override
+    public void reshuffleInsertedValues(final Random rand) {
+        Util.shuffle(this.insertValues, rand);
 
     }
 }

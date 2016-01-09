@@ -3,6 +3,7 @@ package com.carrotsearch.hppcrt.implementations;
 import java.util.Random;
 
 import com.carrotsearch.hppc.ObjectIntIdentityHashMap;
+import com.carrotsearch.hppcrt.Util;
 import com.carrotsearch.hppcrt.XorShift128P;
 
 public class HppcIdentityIntMap extends MapImplementation<com.carrotsearch.hppc.ObjectIntIdentityHashMap<MapImplementation.ComparableInt>>
@@ -126,6 +127,18 @@ public class HppcIdentityIntMap extends MapImplementation<com.carrotsearch.hppc.
     public void setCopyOfInstance(final MapImplementation<?> toCloneFrom) {
 
         this.instance = (ObjectIntIdentityHashMap<MapImplementation.ComparableInt>) ((ObjectIntIdentityHashMap<ComparableInt>) toCloneFrom.instance).clone();
+
+    }
+
+    @Override
+    public void reshuffleInsertedKeys(final Random rand) {
+        Util.shuffle(this.insertKeys, rand);
+
+    }
+
+    @Override
+    public void reshuffleInsertedValues(final Random rand) {
+        Util.shuffle(this.insertValues, rand);
 
     }
 }

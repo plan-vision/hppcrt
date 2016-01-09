@@ -23,7 +23,7 @@ public class BenchmarkHashMapRemove extends BenchmarkHashMapBase
     {
         TRUE,
         MIXED,
-        MOSTLY_FALSE
+        FALSE
     }
 
     @Param
@@ -56,7 +56,7 @@ public class BenchmarkHashMapRemove extends BenchmarkHashMapBase
             {
                 //do nothing, this.removedKeys[ii] will succeed.
             }
-            else if (this.lookupSuccessKind == MAP_LOOKUP_TEST.MOSTLY_FALSE || !isMixedLookupSucceded)
+            else if (this.lookupSuccessKind == MAP_LOOKUP_TEST.FALSE || !isMixedLookupSucceded)
             {
                 //this element may not be in the set: patch the place with a random value,
                 //so that it is very unlikely for the key to be in the map.

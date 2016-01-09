@@ -132,4 +132,16 @@ public class FastUtilIdentityIntMap extends MapImplementation<Reference2IntOpenH
 
     }
 
+    @Override
+    public void reshuffleInsertedKeys(final Random rand) {
+        Util.shuffle(this.insertKeys, rand);
+
+    }
+
+    @Override
+    public void reshuffleInsertedValues(final Random rand) {
+        Util.shuffle(this.insertValues, rand);
+
+    }
+
 }

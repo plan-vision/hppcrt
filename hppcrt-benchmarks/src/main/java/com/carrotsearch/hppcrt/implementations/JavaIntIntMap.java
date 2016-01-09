@@ -123,4 +123,16 @@ public class JavaIntIntMap extends MapImplementation<HashMap<Integer, Integer>>
         this.instance = new HashMap<Integer, Integer>((HashMap<Integer, Integer>) (toCloneFrom.instance));
 
     }
+
+    @Override
+    public void reshuffleInsertedKeys(final Random rand) {
+        Util.shuffle(this.insertKeys, rand);
+
+    }
+
+    @Override
+    public void reshuffleInsertedValues(final Random rand) {
+        Util.shuffle(this.insertValues, rand);
+
+    }
 }
