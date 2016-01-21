@@ -14,7 +14,7 @@
 	<groupId>com.github.vsonnier</groupId>
 	<artifactId>hppcrt</artifactId>
 	<version>0.7.3-SNAPSHOT</version>
-	<packaging>jar</packaging>
+	<packaging>bundle</packaging>
 
 	<name>HPPC-RT Collections</name>
 	<description>High Performance Primitive Collections Realtime
@@ -73,38 +73,6 @@
 							<goal>run</goal>
 						</goals>
 					</execution>
-
-					<execution>
-						<id>antrun-retrotranslate-jdk15</id>
-						<phase>package</phase>
-						<configuration>
-							<target>
-								<taskdef name="retrotranslator" classname="net.sf.retrotranslator.transformer.RetrotranslatorTask" classpathref="maven.plugin.classpath" />
-
-								<retrotranslator verbose="true" verify="false"
-												failonwarning="true" target="1.5"
-												destjar="${project.build.directory}/${project.build.finalName}-jdk15.jar">
-
-									<jarfileset dir="${project.build.directory}" includes="${project.build.finalName}.jar" />
-
-									<classpath>
-										<pathelement location="${basedir}/src/main/retrotranslator" />
-									</classpath>
-									<classpath refid="maven.plugin.classpath" />
-									<classpath refid="maven.compile.classpath" />
-									<classpath>
-										<fileset dir="${java.home}/lib" includes="rt.jar" />
-									</classpath>
-								</retrotranslator>
-
-								<attachartifact file="${project.build.directory}/${project.build.finalName}-jdk15.jar"
-												classifier="jdk15" type="jar" />
-							</target>
-						</configuration>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
 				</executions>
 
 				<dependencies>
@@ -113,19 +81,6 @@
 						<artifactId>hppcrt-template-processor</artifactId>
 						<version>${project.version}</version>
 					</dependency>
-
-					<dependency>
-						<groupId>net.sf.retrotranslator</groupId>
-						<artifactId>retrotranslator-transformer</artifactId>
-						<version>${version.retrotranslator}</version>
-					</dependency>
-
-					<dependency>
-						<groupId>net.sf.retrotranslator</groupId>
-						<artifactId>retrotranslator-runtime</artifactId>
-						<version>${version.retrotranslator}</version>
-					</dependency>
-
 				</dependencies>
 			</plugin>
 
@@ -176,8 +131,27 @@
 					</execution>
 				</executions>
 			</plugin>
+            
+             <!-- Use Retrolamda to translate source classes only (not tests classes) into lib.bytecode.level bytecode -->
+                <plugin>
+                    <groupId>net.orfjackal.retrolambda</groupId>
+                    <artifactId>retrolambda-maven-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>retrolambda-classes</id>
+                            <phase>process-classes</phase>
+                            <goals>
+                                <goal>process-main</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                     <configuration>
+                        <target>${lib.bytecode.level}</target>
+                        <defaultMethods>false</defaultMethods>
+                    </configuration>
+                </plugin>
 			
-			<!-- Project in general is Java 7 level while the final lib is still 1.5 on api side. -->
+			<!-- Project in general is Java 8 level while the final lib is still JDK 1.5 on api side. -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>animal-sniffer-maven-plugin</artifactId>
@@ -192,27 +166,12 @@
 							<signature>
 								<groupId>org.codehaus.mojo.signature
 								</groupId>
-								<artifactId>java15</artifactId>
+								<artifactId>${lib.jdk.level}</artifactId>
 								<version>1.0</version>
 							</signature>
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>
-			
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${version.maven-compiler-plugin}</version>
-				<configuration>
-					<source>${lib.hppcrt.source}</source>
-					<target>${lib.hppcrt.source}</target>
-					<testSource>${lib.hppcrt.source}</testSource>
-					<testTarget>${lib.hppcrt.source}</testTarget>
-					<compilerArgs>
-						<arg>-Xlint</arg>
-					</compilerArgs>
-				</configuration>
 			</plugin>
 
 			<plugin>

@@ -46,12 +46,10 @@ public enum HashMapImplementations
         }
     },
 
-    GS_INT_INT_FACTOR_05
-    {
+    ECOLL_INT_INT_FACTOR_05 {
         @Override
-        public MapImplementation<?> getInstance(final int size, final float loadFactor)
-        {
-            return new GsIntIntMap(size, loadFactor);
+        public MapImplementation<?> getInstance(final int size, final float loadFactor) {
+            return new EclipseCollIntIntMap(size, loadFactor);
         }
     },
 
@@ -136,12 +134,10 @@ public enum HashMapImplementations
         }
     },
 
-    GS_OBJ_INT_FACTOR_05
-    {
+    ECOLL_OBJ_INT_FACTOR_05 {
         @Override
-        public MapImplementation<?> getInstance(final int size, final float loadFactor)
-        {
-            return new GsObjectIntMap(size, loadFactor);
+        public MapImplementation<?> getInstance(final int size, final float loadFactor) {
+            return new EclipseCollObjectIntMap(size, loadFactor);
         }
 
         @Override

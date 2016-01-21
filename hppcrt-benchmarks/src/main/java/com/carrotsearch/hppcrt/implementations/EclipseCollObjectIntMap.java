@@ -2,11 +2,12 @@ package com.carrotsearch.hppcrt.implementations;
 
 import java.util.Random;
 
+import org.eclipse.collections.impl.map.mutable.primitive.ObjectIntHashMap;
+
 import com.carrotsearch.hppcrt.Util;
 import com.carrotsearch.hppcrt.XorShift128P;
-import com.gs.collections.impl.map.mutable.primitive.ObjectIntHashMap;
 
-public class GsObjectIntMap extends MapImplementation<ObjectIntHashMap<MapImplementation.ComparableInt>>
+public class EclipseCollObjectIntMap extends MapImplementation<ObjectIntHashMap<MapImplementation.ComparableInt>>
 {
 
     private ComparableInt[] insertKeys;
@@ -14,7 +15,7 @@ public class GsObjectIntMap extends MapImplementation<ObjectIntHashMap<MapImplem
     private ComparableInt[] removedKeys;
     private int[] insertValues;
 
-    protected GsObjectIntMap(final int size, final float loadFactor)
+    protected EclipseCollObjectIntMap(final int size, final float loadFactor)
     {
         //load factor is fixed to 0.5 !
         super(new ObjectIntHashMap<ComparableInt>(size));

@@ -60,9 +60,17 @@
     <!-- Global properties. -->
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!-- Template processor, benchmarks, and lib tests themselves are Java 7 level while the final lib is still 1.6, restricted to 1.5 api -->
-		<project.source>1.7</project.source>
-        <lib.hppcrt.source>1.6</lib.hppcrt.source>
+        
+        <!-- Because of Retrolambda, the project as a whole requires Java 8, while the final Jar is still Java 1.5 compatible -->
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+       
+        <!-- Retrolambda will generate a 1.5 bytecode -->
+        <lib.bytecode.level>1.5</lib.bytecode.level>
+        <!-- Lib must only contain JDK 1.5 API, checked by animal-sniffer -->
+        <lib.jdk.level>java15</lib.jdk.level>
+        
+        <version.retrolambda>2.1.0</version.retrolambda>
         
         <version.guava>19.0</version.guava>
 
@@ -73,16 +81,17 @@
 		
 		<version.antlr>4.5.1</version.antlr>
 
-        <version.randomizedtesting>2.3.2</version.randomizedtesting>
+        <version.randomizedtesting>2.3.3</version.randomizedtesting>
        
         <version.maven-clean-plugin>3.0.0</version.maven-clean-plugin>
-        <version.maven-compiler-plugin>3.3</version.maven-compiler-plugin>
+        <version.maven-compiler-plugin>3.5</version.maven-compiler-plugin>
         <version.maven-dependency-plugin>2.10</version.maven-dependency-plugin>
-        <version.maven-eclipse-plugin>2.10</version.maven-eclipse-plugin>
         <version.maven-deploy-plugin>2.8.2</version.maven-deploy-plugin>
+        <version.maven-eclipse-plugin>2.10</version.maven-eclipse-plugin>
+       
         <version.maven-install-plugin>2.5.2</version.maven-install-plugin>
         <version.maven-jar-plugin>2.6</version.maven-jar-plugin>
-        <version.maven-shade-plugin>2.4.2</version.maven-shade-plugin>  
+        <version.maven-shade-plugin>2.4.3</version.maven-shade-plugin>  
         <version.maven-resources-plugin>2.7</version.maven-resources-plugin>
         <version.maven-surefire-plugin>2.19.1</version.maven-surefire-plugin>
         
@@ -92,6 +101,8 @@
 		
 		<version.build-helper-maven-plugin>1.10</version.build-helper-maven-plugin>
 		<version.animal-sniffer-maven-plugin>1.14</version.animal-sniffer-maven-plugin>
+        
+        <version.maven-bundle-plugin>3.0.1</version.maven-bundle-plugin>
 		 
         <version.maven.api>3.3.3</version.maven.api>
         
@@ -154,11 +165,13 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${version.maven-compiler-plugin}</version>
-					<configuration>
-						<!-- Default config Java 1.7 -->
-						<source>${project.source}</source>
-						<target>${project.source}</target>
-					</configuration>
+                    <configuration>
+                        <source>${maven.compiler.source}</source>
+                        <target>${maven.compiler.target}</target>
+                        <compilerArgs>
+                          <arg>-Xlint</arg>
+                        </compilerArgs>
+                    </configuration>
                 </plugin>
 	
                 <plugin>
@@ -270,6 +283,13 @@
                     <artifactId>animal-sniffer-maven-plugin</artifactId>
                     <version>${version.animal-sniffer-maven-plugin}</version>
                 </plugin>
+                
+                <!-- Use Retrolamda to translate source classes only (not tests classes) into lib.bytecode.level bytecode -->
+                <plugin>
+                    <groupId>net.orfjackal.retrolambda</groupId>
+                    <artifactId>retrolambda-maven-plugin</artifactId>
+                    <version>${version.retrolambda}</version>
+                </plugin>
 
                 <plugin>
                     <groupId>com.carrotsearch.randomizedtesting</groupId>
@@ -308,9 +328,6 @@
                         </goals>
                         <configuration>
                             <rules>
-                                <requireJavaVersion>
-                                    <version>1.7.0</version>
-                                </requireJavaVersion>
                                 <requireMavenVersion>
                                     <version>${version.maven.api}</version>
                                 </requireMavenVersion>
@@ -318,7 +335,14 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin> 
+            </plugin>
+            <!-- Use maven-bundle-plugin to generate an OSGi bundle -->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>${version.maven-bundle-plugin}</version>
+                <extensions>true</extensions>
+            </plugin>
         </plugins>
     </build>
 

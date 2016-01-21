@@ -1,3 +1,8 @@
+[0.7.3-SNAPSHOT]
+
+** Other changes
+Borrowed from HPPC: PR #5: OSGi descriptors in JAR manifests, bundle packaging. (Guillaume Delafosse)
+
 [0.7.2]
 ** API-breaking changes
 HPPCRT-46: Remove CurstomHash and replace by equals/hashCode overrides in normal hash containers.

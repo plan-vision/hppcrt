@@ -17,28 +17,25 @@
     <name>HPPC-RT Benchmarks</name>
     <description>HPPC-RT benchmarks and comparison against other primitive collections.</description>
 
-    <properties>
-        <libs>${basedir}/lib</libs>
-        
+    <properties>  
         <commons-io.version>2.4</commons-io.version>
         <commons-lang.version>2.6</commons-lang.version>
         
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jmh.version>1.11.2</jmh.version>
+        <jmh.version>1.11.3</jmh.version>
         <javac.target>1.7</javac.target>
         <uberjar.name>benchmarks</uberjar.name>
         
         <hppc.version>0.7.1</hppc.version>
         <fastutil.version>7.0.9</fastutil.version>
-        <gs.version>7.0.1</gs.version>
+        <eclipse.collections.version>7.0.0</eclipse.collections.version>
         <koloboke.version>0.6.8</koloboke.version>
         <javolution.version>6.0.0</javolution.version>
     </properties>
 
     <!-- Dependencies. -->
     <dependencies>
-        
-
+       
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -106,26 +103,26 @@
          <!-- Koloboke -->
         <dependency>
             <groupId>net.openhft</groupId>
-            <artifactId>koloboke-api-jdk6-7</artifactId>
+            <artifactId>koloboke-api-jdk8</artifactId>
             <version>${koloboke.version}</version>
         </dependency>
         <dependency>
             <groupId>net.openhft</groupId>
-            <artifactId>koloboke-impl-jdk6-7</artifactId>
+            <artifactId>koloboke-impl-jdk8</artifactId>
             <version>${koloboke.version}</version>
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Goldman Sachs collections -->
+        <!-- Eclipse Collections, formerly Goldman Sachs collections -->
         <dependency>
-        	<groupId>com.goldmansachs</groupId>
-        	<artifactId>gs-collections-api</artifactId>
-        	<version>${gs.version}</version>
+        	<groupId>org.eclipse.collections</groupId>
+        	<artifactId>eclipse-collections-api</artifactId>
+        	<version>${eclipse.collections.version}</version>
         </dependency>
         <dependency>
-        	<groupId>com.goldmansachs</groupId>
-        	<artifactId>gs-collections</artifactId>
-        	<version>${gs.version}</version>
+        	<groupId>org.eclipse.collections</groupId>
+        	<artifactId>eclipse-collections</artifactId>
+        	<version>${eclipse.collections.version}</version>
         </dependency>
         
         <!-- Javolution -->

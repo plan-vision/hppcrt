@@ -4,18 +4,19 @@ package com.carrotsearch.hppcrt.implementations;
 import java.util.Arrays;
 import java.util.Random;
 
+import org.eclipse.collections.impl.map.mutable.primitive.IntIntHashMap;
+
 import com.carrotsearch.hppcrt.Util;
 import com.carrotsearch.hppcrt.XorShift128P;
-import com.gs.collections.impl.map.mutable.primitive.IntIntHashMap;
 
-public class GsIntIntMap extends MapImplementation<IntIntHashMap>
+public class EclipseCollIntIntMap extends MapImplementation<IntIntHashMap>
 {
     private int[] insertKeys;
     private int[] containsKeys;
     private int[] removedKeys;
     private int[] insertValues;
 
-    public GsIntIntMap(final int size, final float loadFactor)
+    public EclipseCollIntIntMap(final int size, final float loadFactor)
     {
         //load factor is fixed to 0.5 !
         super(new IntIntHashMap(size));
