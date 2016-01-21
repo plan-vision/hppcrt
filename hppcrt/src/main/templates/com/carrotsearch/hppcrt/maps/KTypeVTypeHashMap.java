@@ -1711,11 +1711,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         //We must NOT clone because of independent perturbations seeds
         cloned.putAll(this);
-
-        cloned.allocatedDefaultKeyValue = this.allocatedDefaultKeyValue;
-        cloned.allocatedDefaultKey = this.allocatedDefaultKey;
-        cloned.defaultValue = this.defaultValue;
-
+        
         return cloned;
     }
 

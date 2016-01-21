@@ -1,7 +1,11 @@
 [0.7.3-SNAPSHOT]
-
 ** Other changes
 Borrowed from HPPC: PR #5: OSGi descriptors in JAR manifests, bundle packaging. (Guillaume Delafosse)
+
+HPPCRT-XX: Modernize the build process notably using Retrolambda (https://github.com/orfjackal/retrolambda) to generate a unique Java 5 compatible Jar,
+which is fine since the API was the same between the 1.6 and 1.5 jars previously.
+As a contrast, building the HPPC-RT project now REQUIRES Java 8 due to Retrolambda.
+  
 
 [0.7.2]
 ** API-breaking changes

@@ -100,11 +100,7 @@ extends KTypeVTypeHashMap<KType, VType>
 
         //We must NOT clone because of the independent perturbation seeds
         cloned.putAll(this);
-
-        cloned.allocatedDefaultKeyValue = this.allocatedDefaultKeyValue;
-        cloned.allocatedDefaultKey = this.allocatedDefaultKey;
-        cloned.defaultValue = this.defaultValue;
-
+        
         return cloned;
     }
 

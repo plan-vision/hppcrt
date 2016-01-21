@@ -37,8 +37,7 @@ That means in particular using the enhanced for loop without any dynamic allocat
 
 All these new features are heavily Unit tested, so should work well.
 
-Binaries are provided in 2 flavors : one compatible with Java 1.5, the other with Java 1.6 and beyond.
-Both binaries have no external dependencies, and offer the same API.
+The Jar lib is compatible with Java 1.5 and have no external dependencies.
 
 Stable version is available on Maven:
 ````

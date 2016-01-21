@@ -81,9 +81,7 @@ extends KTypeHashSet<KType>
 
         //We must NOT clone because of the independent perturbation values
         cloned.addAll(this);
-
-        cloned.allocatedDefaultKey = this.allocatedDefaultKey;
-
+        
         return cloned;
     }
 

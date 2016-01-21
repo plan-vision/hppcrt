@@ -906,9 +906,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         //We must NOT clone, because of the independent perturbation seeds
         cloned.addAll(this);
-
-        cloned.allocatedDefaultKey = this.allocatedDefaultKey;
-
+        
         return cloned;
     }
 
