@@ -4,11 +4,14 @@ import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.commons.io.IOUtils;
 
 import com.carrotsearch.hppcrt.maps.IntIntHashMap;
 
@@ -17,11 +20,11 @@ public class BigramCountingBase
     /* Prepare some test data */
     public char[] data;
 
-    public void prepareData() throws IOException
+    public void prepareData() throws IOException, URISyntaxException
     {
-        final byte[] dta = IOUtils.toByteArray(
-                Thread.currentThread().getContextClassLoader().getResourceAsStream("books-polish.txt"));
-        this.data = new String(dta, "UTF-8").toCharArray();
+        final URI resTXT = Thread.currentThread().getContextClassLoader().getResource("books-polish.txt").toURI();
+
+        this.data = new String(Files.readAllBytes(Paths.get(resTXT)), StandardCharsets.UTF_8).toCharArray();
     }
 
     public int hppc()
@@ -128,5 +131,22 @@ public class BigramCountingBase
         }
 
         return benchCount;
+    }
+
+    /**
+     * Teest loading of TXT resource.
+     * @param args
+     * @throws IOException
+     * @throws URISyntaxException
+     */
+    public static void main(final String[] args) throws IOException, URISyntaxException {
+
+        final BigramCountingBase testBase = new BigramCountingBase();
+
+        testBase.prepareData();
+
+        final char[] dataTXT = testBase.data;
+
+        System.out.println(dataTXT);
     }
 }

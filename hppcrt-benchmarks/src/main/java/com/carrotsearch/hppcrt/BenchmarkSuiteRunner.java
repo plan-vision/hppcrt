@@ -152,7 +152,7 @@ public class BenchmarkSuiteRunner
             final int nbWarmups, final int nbIterations,
             final int minHeapSizeMbytes, final int maxHeapSizeMbytes, final String[] overridenJmhParams) throws RunnerException {
 
-        Util.printSystemInfo("Benchmarks for '" + jmhClass.getSimpleName() + "' starting...");
+        Util.printHeader("Benchmarks for '" + jmhClass.getSimpleName() + "' starting...");
 
         final OptionsBuilder optBuilder = new OptionsBuilder();
 
