@@ -41,10 +41,6 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
-	<properties>
-		<version.retrotranslator>1.2.9</version.retrotranslator>
-	</properties>
 	
 	<!-- Build tuning. -->
 	<build>
@@ -54,7 +50,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
-				<version>${version.maven-antrun-plugin}</version>
 				<executions>
 					<execution>
 						<id>generate.sources</id>
@@ -65,7 +60,6 @@
 							<maxmem>512m</maxmem>
 							<target> 
 								<property name="classpath" refid="maven.plugin.classpath" />
-								<echo file="${project.basedir}/.builder.classpath">${classpath}</echo>
 								<ant antfile="${basedir}/build.xml" />
 							</target>
 						</configuration>
@@ -74,12 +68,16 @@
 						</goals>
 					</execution>
 				</executions>
-
 				<dependencies>
 					<dependency>
 						<groupId>com.github.vsonnier</groupId>
 						<artifactId>hppcrt-template-processor</artifactId>
 						<version>${project.version}</version>
+					</dependency>
+                    <dependency>
+						<groupId>org.apache.ant</groupId>
+                        <artifactId>ant</artifactId>
+                        <version>${version.ant}</version>
 					</dependency>
 				</dependencies>
 			</plugin>

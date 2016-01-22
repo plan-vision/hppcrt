@@ -1,18 +1,13 @@
 
 <!-- Source code generation phase is handled by an ANT script, it's simply much easier to do it from ANT. -->
 
-<project name="hppc" default="generate.sources">
+<project name="hppcrt" default="generate.sources">
     
     <!-- Generate code from templates. -->
-    <target name="generate.sources" description="Generate main sources from templates">
-        <loadfile property="builder.classpath" srcfile="${basedir}/.builder.classpath" />
-        <path id="libs">
-            <pathelement path="${builder.classpath}" />
-            <pathelement location="target/builder" />
-        </path>
+    <target name="generate.sources" description="Generate main/test sources from templates">
 
         <taskdef classname="com.carrotsearch.hppcrt.generator.TemplateProcessor" name="generate">
-            <classpath refid="libs" />
+            <classpath path="${classpath}" />
         </taskdef>
 
         <generate

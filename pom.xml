@@ -95,6 +95,7 @@
         <version.maven-resources-plugin>2.7</version.maven-resources-plugin>
         <version.maven-surefire-plugin>2.19.1</version.maven-surefire-plugin>
         
+        <version.maven-enforcer-plugin>1.4.1</version.maven-enforcer-plugin>
 		<version.maven-javadoc-plugin>2.10.3</version.maven-javadoc-plugin>
         <version.maven-source-plugin>2.4</version.maven-source-plugin>
 		
@@ -312,6 +313,29 @@
                     <skip>${skip.deployment}</skip>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${version.maven-enforcer-plugin}</version>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <id>enforce-environment</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>[${version.maven.api},)</version>
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin> 
 
             <!-- Use maven-bundle-plugin to generate an OSGi bundle -->
             <plugin>
