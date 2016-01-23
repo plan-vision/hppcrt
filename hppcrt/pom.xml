@@ -58,8 +58,10 @@
 							<fork>true</fork>
 							<meminitial>256m</meminitial>
 							<maxmem>512m</maxmem>
-							<target> 
-								<property name="classpath" refid="maven.plugin.classpath" />
+							<target>
+                                <!-- Pass the full plugin classpath to the Ant script through the Ant property template_prcessor_classpath -->
+                                <!-- so that TemplateProcessor could find all the classes it needs -->
+								<property name="template_prcessor_classpath" refid="maven.plugin.classpath" />
 								<ant antfile="${basedir}/build.xml" />
 							</target>
 						</configuration>
@@ -74,6 +76,7 @@
 						<artifactId>hppcrt-template-processor</artifactId>
 						<version>${project.version}</version>
 					</dependency>
+                    <!-- force AntRun to use the specified Ant -->
                     <dependency>
 						<groupId>org.apache.ant</groupId>
                         <artifactId>ant</artifactId>
