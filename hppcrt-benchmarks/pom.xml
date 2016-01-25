@@ -20,9 +20,8 @@
     <properties>  
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jmh.version>1.11.3</jmh.version>
-        <javac.target>1.7</javac.target>
         <uberjar.name>benchmarks</uberjar.name>
-        
+
         <hppc.version>0.7.1</hppc.version>
         <fastutil.version>7.0.9</fastutil.version>
         <eclipse.collections.version>7.0.0</eclipse.collections.version>
@@ -32,17 +31,17 @@
 
     <!-- Dependencies. -->
     <dependencies>
-       
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${version.junit}</version>
         </dependency>
-        
+
         <dependency>
-          <groupId>com.carrotsearch.randomizedtesting</groupId>
-          <artifactId>randomizedtesting-runner</artifactId>
-          <version>${version.randomizedtesting}</version>
+            <groupId>com.carrotsearch.randomizedtesting</groupId>
+            <artifactId>randomizedtesting-runner</artifactId>
+            <version>${version.randomizedtesting}</version>
         </dependency>
 
         <dependency>
@@ -50,7 +49,7 @@
             <artifactId>jmh-core</artifactId>
             <version>${jmh.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-generator-annprocess</artifactId>
@@ -64,7 +63,7 @@
             <artifactId>hppcrt</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
         <!-- Original HPPC -->
         <dependency>
             <groupId>com.carrotsearch</groupId>
@@ -78,8 +77,8 @@
             <artifactId>fastutil</artifactId>
             <version>${fastutil.version}</version>
         </dependency>
-        
-         <!-- Koloboke -->
+
+        <!-- Koloboke -->
         <dependency>
             <groupId>net.openhft</groupId>
             <artifactId>koloboke-api-jdk8</artifactId>
@@ -94,23 +93,23 @@
 
         <!-- Eclipse Collections, formerly Goldman Sachs collections -->
         <dependency>
-        	<groupId>org.eclipse.collections</groupId>
-        	<artifactId>eclipse-collections-api</artifactId>
-        	<version>${eclipse.collections.version}</version>
+            <groupId>org.eclipse.collections</groupId>
+            <artifactId>eclipse-collections-api</artifactId>
+            <version>${eclipse.collections.version}</version>
         </dependency>
         <dependency>
-        	<groupId>org.eclipse.collections</groupId>
-        	<artifactId>eclipse-collections</artifactId>
-        	<version>${eclipse.collections.version}</version>
+            <groupId>org.eclipse.collections</groupId>
+            <artifactId>eclipse-collections</artifactId>
+            <version>${eclipse.collections.version}</version>
         </dependency>
-        
+
         <!-- Javolution -->
         <dependency>
             <groupId>org.javolution</groupId>
             <artifactId>javolution-core-java</artifactId>
             <version>${javolution.version}</version>
         </dependency>
-     
+
     </dependencies>
 
     <!-- Build tuning. -->
@@ -134,16 +133,16 @@
                                     <mainClass>org.openjdk.jmh.Main</mainClass>
                                 </transformer>
                             </transformers>
-                             <filters>
-                             <filter>
-                              <artifact>*:*</artifact>
-                              <excludes>
-                                <exclude>META-INF/*.SF</exclude>
-                                <exclude>META-INF/*.DSA</exclude>
-                                <exclude>META-INF/*.RSA</exclude>
-                              </excludes>
-                            </filter>
-                          </filters>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>
