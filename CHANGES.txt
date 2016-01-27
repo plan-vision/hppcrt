@@ -1,4 +1,4 @@
-[0.7.3-SNAPSHOT]
+[0.7.3]
 ** Other changes
 PR #5: OSGi descriptors in JAR manifests, bundle packaging, by Guillaume Delafosse. (Copied from HPPC)
 

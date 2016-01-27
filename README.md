@@ -37,14 +37,14 @@ That means in particular using the enhanced for loop without any dynamic allocat
 
 All these new features are heavily Unit tested, so should work well.
 
-The Jar lib is compatible with Java 1.5 and have no external dependencies.
+The Jar is compatible with Java 1.5 and have no external dependencies.
 
 Stable version is available on Maven:
 ````
 <dependency>
     <groupId>com.github.vsonnier</groupId>
     <artifactId>hppcrt</artifactId>
-    <version>0.7.2</version>
+    <version>0.7.3</version>
 </dependency>
 ````
 
