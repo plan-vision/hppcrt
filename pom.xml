@@ -12,7 +12,7 @@
     <!-- Project info. -->
     <groupId>com.github.vsonnier</groupId>
     <artifactId>hppcrt-parent</artifactId>
-    <version>0.7.3</version>
+    <version>0.7.4-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>HPPC-RT (parent POM)</name>
@@ -111,7 +111,7 @@
     </properties>
 
     <prerequisites>
-        <maven>${version.maven.api}</maven>
+        <maven>[${version.maven.api},)</maven>
     </prerequisites>
 
     <modules>
