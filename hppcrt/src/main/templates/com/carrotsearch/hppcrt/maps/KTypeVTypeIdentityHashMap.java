@@ -21,14 +21,14 @@ import com.carrotsearch.hppcrt.strategies.*;
  * 
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
-public final class KTypeVTypeIdentityHashMap<KType, VType>
+public class KTypeVTypeIdentityHashMap<KType, VType>
 extends KTypeVTypeHashMap<KType, VType>
 {
     /**
      * Hash customization to only consider the identity hash code.
      */
     @Override
-    protected final int hashKey(final KType key) {
+    protected int hashKey(final KType key) {
 
         return System.identityHashCode(key);
     }
@@ -38,7 +38,7 @@ extends KTypeVTypeHashMap<KType, VType>
      * instances directly by ==.
      */
     @Override
-    protected final boolean equalKeys(final KType a, final KType b) {
+    protected boolean equalKeys(final KType a, final KType b) {
 
         return (a == b);
     }
@@ -100,7 +100,7 @@ extends KTypeVTypeHashMap<KType, VType>
 
         //We must NOT clone because of the independent perturbation seeds
         cloned.putAll(this);
-        
+
         return cloned;
     }
 

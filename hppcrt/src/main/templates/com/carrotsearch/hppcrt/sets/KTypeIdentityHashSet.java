@@ -16,14 +16,14 @@ import com.carrotsearch.hppcrt.strategies.*;
  *
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
-public final class KTypeIdentityHashSet<KType>
+public class KTypeIdentityHashSet<KType>
 extends KTypeHashSet<KType>
 {
     /**
      * Hash customization to only consider the identity hash code.
      */
     @Override
-    protected final int hashKey(final KType key) {
+    protected int hashKey(final KType key) {
 
         return System.identityHashCode(key);
     }
@@ -33,7 +33,7 @@ extends KTypeHashSet<KType>
      * instances directly by ==.
      */
     @Override
-    protected final boolean equalKeys(final KType a, final KType b) {
+    protected boolean equalKeys(final KType a, final KType b) {
 
         return (a == b);
     }
@@ -81,7 +81,7 @@ extends KTypeHashSet<KType>
 
         //We must NOT clone because of the independent perturbation values
         cloned.addAll(this);
-        
+
         return cloned;
     }
 
