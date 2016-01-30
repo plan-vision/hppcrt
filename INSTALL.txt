@@ -3,14 +3,14 @@ Hacking HPPC-RT:
 The project as a whole requires Java 8, although the final runtime jar is still Java 5 compatible. To assure such 
 antiquated compatibility, some restrictions must be enforced:
 
-* hppcrt (sources) : Runtime sources either templates or hand-coded must use 1.5 API at best, although the language constructs could be up to Java 8. (lambdas...)
-Then, the Retrolambda plugin translates Java 8 language constructs to 1.5 language ones, and finally
+* hppcrt (sources) : Runtime sources either templates or hand-coded can be up to Java 7 grammar, but have to use Java 5 API at best.
+Then, the Retrolambda plugin translates Java <= 7 language constructs to 1.5 language ones, and finally
 the strict 1.5 API compatibility is checked by the animal-sniffer plugin before building the runtime jar.
 
-* hppcrt (tests): templates and hand-coded tests are allowed to be fully 1.8 compatible, including the API.
+* hppcrt (tests): templates and hand-coded tests are allowed to be fully Java 8 compatible, APIs included.
 
-* hppcrt-template-processor: allowed to be fully Java 8 compatible, including the API.
-* hppcrt-benchmarks: allowed to be fully Java 8 compatible, including the API.
+* hppcrt-template-processor: allowed to be fully Java 8 compatible, APIs included.
+* hppcrt-benchmarks: allowed to be fully Java 8 compatible, APIs included.
 
 
 Maven shortcuts

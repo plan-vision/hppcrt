@@ -26,11 +26,24 @@
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/** A Java 1.7 grammar for ANTLR v4 derived from ANTLR v3 Java grammar.
+ *  Uses ANTLR v4's left-recursive expression notation.
+ *  It parses ECJ, Netbeans, JDK etc...
+ *
+ *  Sam Harwell cleaned this up significantly and updated to 1.7!
+ *
+ *  You can test with
+ *
+ *  $ antlr4 Java.g4
+ *  $ javac *.java
+ *  $ grun Java compilationUnit *.java
+ */
 /*
 Modified Java.g4 from antlr4/grammars-v4,
 separated Lexer an Parser, renamed to Java7Parser.g4/Java7Lexer.g4
-Plus skip tokens are sent instead to CHANNEL_COMMENT
-for HPPC-RT usage.
+because this is the only way to have custom chennels. Here,
+usually skip tokens are sent instead to CHANNEL_COMMENT
+for HPPC. usage.
 */
 
 lexer grammar Java7Lexer;
@@ -409,9 +422,9 @@ Identifier
 
 fragment
 JavaLetter
-    :   [a-zA-Z$_] // these are the "java letters" below 0xFF
-    |   // covers all characters above 0xFF which are not a surrogate
-        ~[\u0000-\u00FF\uD800-\uDBFF]
+    :   [a-zA-Z0-9$_] // these are the "java letters or digits" below 0x7F
+    |   // covers all characters above 0x7F which are not a surrogate
+        ~[\u0000-\u007F\uD800-\uDBFF]
         {Character.isJavaIdentifierStart(_input.LA(-1))}?
     |   // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
         [\uD800-\uDBFF] [\uDC00-\uDFFF]
@@ -420,9 +433,9 @@ JavaLetter
 
 fragment
 JavaLetterOrDigit
-    :   [a-zA-Z0-9$_] // these are the "java letters or digits" below 0xFF
-    |   // covers all characters above 0xFF which are not a surrogate
-        ~[\u0000-\u00FF\uD800-\uDBFF]
+    :   [a-zA-Z0-9$_] // these are the "java letters or digits" below 0x7F
+    |   // covers all characters above 0x7F which are not a surrogate
+        ~[\u0000-\u007F\uD800-\uDBFF]
         {Character.isJavaIdentifierPart(_input.LA(-1))}?
     |   // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
         [\uD800-\uDBFF] [\uDC00-\uDFFF]
@@ -440,8 +453,9 @@ ELLIPSIS : '...';
 // Whitespace and comments
 //
 
-WHITESPACE
-    :  [ \t\r\n\u000C]+ -> channel(HIDDEN)
+//HPPC customization: comments, javadoc are sent to a custom channel CHANNEL_COMMENT
+//so that they are preserved.
+WS  :  [ \t\r\n\u000C]+ -> channel(HIDDEN)
     ;
 
 JAVADOC

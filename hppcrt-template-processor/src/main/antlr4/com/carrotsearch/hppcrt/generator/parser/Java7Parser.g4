@@ -26,6 +26,19 @@
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/** A Java 1.7 grammar for ANTLR v4 derived from ANTLR v3 Java grammar.
+ *  Uses ANTLR v4's left-recursive expression notation.
+ *  It parses ECJ, Netbeans, JDK etc...
+ *
+ *  Sam Harwell cleaned this up significantly and updated to 1.7!
+ *
+ *  You can test with
+ *
+ *  $ antlr4 Java.g4
+ *  $ javac *.java
+ *  $ grun Java compilationUnit *.java
+ */
+
 /*
 Modified Java.g4 from antlr4/grammars-v4,
 separated Lexer an Parser, renamed to Java7Parser.g4/Java7Lexer.g4
@@ -247,12 +260,15 @@ type
     |   primitiveType ('[' ']')*
     ;
 
-classOrInterfaceType
-    :   identifierTypePair ('.' identifierTypePair )*
-    ;
 
+//Adaptation for HPPC: To ease replacements, (Identifier typeArguments?)
+//are packaged in a new rule identifierTypePair.
 identifierTypePair
     :   Identifier typeArguments?
+    ;
+
+classOrInterfaceType
+    :   identifierTypePair ('.' identifierTypePair )*
     ;
 
 primitiveType
@@ -553,15 +569,18 @@ creator
     |   createdName (arrayCreatorRest | classCreatorRest)
     ;
 
+
+//Adaptation for HPPC: To ease replacements, (Identifier typeArgumentsOrDiamond?)
+//are packaged in a new rule identifierTypeOrDiamondPair.
+identifierTypeOrDiamondPair
+    :   Identifier typeArgumentsOrDiamond?
+    ;
+
 createdName
     :   identifierTypeOrDiamondPair ('.' identifierTypeOrDiamondPair)*
     |   primitiveType
     ;
-    
-identifierTypeOrDiamondPair
-    :   Identifier typeArgumentsOrDiamond?
-    ;
-    
+     
 innerCreator
     :   Identifier nonWildcardTypeArgumentsOrDiamond? classCreatorRest
     ;
