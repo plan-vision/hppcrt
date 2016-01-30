@@ -46,21 +46,7 @@
     <build>
         <defaultGoal>install</defaultGoal>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${version.maven-compiler-plugin}</version>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                    <compilerArgs>
-                        <arg>-Xlint</arg>
-                    </compilerArgs>
-                </configuration>
-            </plugin>
-
-
-
+          
             <!-- Generate sources for objects/primitives from template. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -153,8 +139,7 @@
                 <executions>
                     <execution>
                         <id>retrolambda-classes</id>
-                        <phase>none</phase>
-                        <!-- DISABLED, was process-classes -->
+                        <phase>process-classes</phase>
                         <goals>
                             <goal>process-main</goal>
                         </goals>
@@ -164,6 +149,23 @@
                     <target>${lib.bytecode.level}</target>
                     <defaultMethods>false</defaultMethods>
                 </configuration>
+            </plugin>
+            
+            <!-- Add Manifest OSGIs info to the future Jar -->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>${version.maven-bundle-plugin}</version>
+                <executions>
+                    <!-- HPPCRT-48: Prepare OSGI data to be included by the regular maven-jar-plugin, DO NOT use the bundle goal ! -->
+                    <execution>
+                        <id>bundle-manifest</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>manifest</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <!-- Project in general is Java 8 level while the final lib is still JDK 1.5 on api side. -->
@@ -188,21 +190,7 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>jar-bundle</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>bundle</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
+            
             <!-- Apparently, filtering KType*/VType* classes in Jar in global config d'ont work, do it here -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -216,6 +204,10 @@
                             <goal>jar</goal>
                         </goals>
                         <configuration>
+                        <!-- HPPCRT-48: Must "manually" add OSGI manifest to jar data, because bundle packaging apparently cannot filter classes ! -->  
+                        <archive>  
+                            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                        </archive> 
                             <excludes>
                                 <exclude>**/KType*</exclude>
                                 <exclude>**/*KType*</exclude>
@@ -227,7 +219,7 @@
                     </execution>
                 </executions>
             </plugin>
-
+     
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
