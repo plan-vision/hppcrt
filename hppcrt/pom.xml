@@ -6,14 +6,14 @@
     <parent>
         <groupId>com.github.vsonnier</groupId>
         <artifactId>hppcrt-parent</artifactId>
-        <version>0.7.4-SNAPSHOT</version>
+        <version>0.7.4</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <!-- Project info. -->
     <groupId>com.github.vsonnier</groupId>
     <artifactId>hppcrt</artifactId>
-    <version>0.7.4-SNAPSHOT</version>
+    <version>0.7.4</version>
     <packaging>bundle</packaging>
 
     <name>HPPC-RT Collections</name>
@@ -46,6 +46,21 @@
     <build>
         <defaultGoal>install</defaultGoal>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${version.maven-compiler-plugin}</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <compilerArgs>
+                        <arg>-Xlint</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+
+
+
             <!-- Generate sources for objects/primitives from template. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -138,7 +153,8 @@
                 <executions>
                     <execution>
                         <id>retrolambda-classes</id>
-                        <phase>process-classes</phase>
+                        <phase>none</phase>
+                        <!-- DISABLED, was process-classes -->
                         <goals>
                             <goal>process-main</goal>
                         </goals>
@@ -168,6 +184,45 @@
                                 <artifactId>${lib.jdk.level}</artifactId>
                                 <version>1.0</version>
                             </signature>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>jar-bundle</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>bundle</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Apparently, filtering KType*/VType* classes in Jar in global config d'ont work, do it here -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${version.maven-jar-plugin}</version>
+                <executions>
+                    <execution>
+                        <id>default-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/KType*</exclude>
+                                <exclude>**/*KType*</exclude>
+                                <exclude>**/VType*</exclude>
+                                <exclude>**/*VType*</exclude>
+                                <exclude>**/Intrinsics*</exclude>
+                            </excludes>
                         </configuration>
                     </execution>
                 </executions>
