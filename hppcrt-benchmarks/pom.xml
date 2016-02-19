@@ -24,26 +24,13 @@
 
         <hppc.version>0.7.1</hppc.version>
         <fastutil.version>7.0.9</fastutil.version>
-        <eclipse.collections.version>7.0.0</eclipse.collections.version>
+        <eclipse.collections.version>7.0.1</eclipse.collections.version>
         <koloboke.version>0.6.8</koloboke.version>
         <javolution.version>6.0.0</javolution.version>
     </properties>
 
     <!-- Dependencies. -->
     <dependencies>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${version.junit}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.carrotsearch.randomizedtesting</groupId>
-            <artifactId>randomizedtesting-runner</artifactId>
-            <version>${version.randomizedtesting}</version>
-        </dependency>
-
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-core</artifactId>
