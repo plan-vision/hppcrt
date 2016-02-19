@@ -22,7 +22,7 @@ public class BigramCountingBase
 
     public void prepareData() throws IOException, URISyntaxException
     {
-        final URI resTXT = Thread.currentThread().getContextClassLoader().getResource("books-polish.txt").toURI();
+        final URI resTXT = ClassLoader.getSystemResource("books-polish.txt").toURI();
 
         this.data = new String(Files.readAllBytes(Paths.get(resTXT)), StandardCharsets.UTF_8).toCharArray();
     }

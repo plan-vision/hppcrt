@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestInlinedMethodDef
+public class InlinedMethodDefTest
 {
     @Test
     public void testInlinedMethodReplacement() {

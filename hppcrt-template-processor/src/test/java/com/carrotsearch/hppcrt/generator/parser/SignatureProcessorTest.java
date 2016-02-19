@@ -1,6 +1,9 @@
 package com.carrotsearch.hppcrt.generator.parser;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,6 +13,7 @@ import java.util.logging.Level;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -21,9 +25,9 @@ import com.carrotsearch.randomizedtesting.annotations.ThreadLeakLingering;
 @RunWith(RandomizedRunner.class)
 //To be able to display GUI
 @ThreadLeakLingering(linger = Integer.MAX_VALUE)
-public class TestSignatureProcessor
+public class SignatureProcessorTest
 {
-    private static final String TEST_CASE_PATH = "src/test/java/com/carrotsearch/hppcrt/generator/parser/test_cases/";
+    private static final String TEST_CASE_RESOURCE_PATH = "test_cases/";
 
     private boolean displayParseTree = false;
 
@@ -82,7 +86,7 @@ public class TestSignatureProcessor
         final SignatureProcessor sp = new SignatureProcessor(
                 "public class KTypeVTypeClass<KType, VType> " +
                         " extends     KTypeVTypeSuperClass<KType, VType>" +
-                        " implements  KTypeVTypeInterface<KType, VType> {}");
+                " implements  KTypeVTypeInterface<KType, VType> {}");
 
         check(Type.INT, Type.LONG, sp, "public class IntLongClass extends IntLongSuperClass implements IntLongInterface {}");
         check(Type.INT, Type.GENERIC, sp, "public class IntObjectClass<VType> extends IntObjectSuperClass<VType> implements IntObjectInterface<VType> {}");
@@ -94,7 +98,7 @@ public class TestSignatureProcessor
     public void testInterfaceKV() throws IOException {
         final SignatureProcessor sp = new SignatureProcessor(
                 "public interface KTypeVTypeInterface<KType, VType> " +
-                        "         extends KTypeVTypeSuper<KType, VType> {}");
+                "         extends KTypeVTypeSuper<KType, VType> {}");
 
         check(Type.INT, Type.LONG, sp, "public interface IntLongInterface extends IntLongSuper {}");
         check(Type.INT, Type.GENERIC, sp, "public interface IntObjectInterface<VType> extends IntObjectSuper<VType> {}");
@@ -247,13 +251,13 @@ public class TestSignatureProcessor
         check(Type.GENERIC, sp, "/** ObjectFoo Objects */");
     }
 
+
     @Test
     public void testJavaDoc_with_bounds_k() throws IOException {
-        final SignatureProcessor sp = new SignatureProcessor(
-                "/** KTypeComparator<? super KType> */");
+        final SignatureProcessor sp = new SignatureProcessor("/** KTypeFoo KTypes */");
 
-        check(Type.FLOAT, sp, "/** FloatComparator */");
-        check(Type.GENERIC, sp, "/** ObjectComparator<? super KType> */");
+        check(Type.FLOAT, sp, "/** FloatFoo floats */");
+        check(Type.GENERIC, sp, "/** ObjectFoo Objects */");
     }
 
     @Test
@@ -310,18 +314,19 @@ public class TestSignatureProcessor
                         + "} "
                         + "}");
 
-        sp.displayParseTreeGui();
+        //blocking
+        //sp.displayParseTreeGui();
 
     }
 
     @Test
     public void testFullClass() throws IOException {
 
-        final String testedPath = TestSignatureProcessor.TEST_CASE_PATH + "KTypeVTypeClass.java";
+        final String testedPath = "KTypeVTypeClass.test";
 
-        final String expectedLongObjectTest = TestSignatureProcessor.TEST_CASE_PATH + "LongObjectClass.ok";
-        final String expectedLongIntTest = TestSignatureProcessor.TEST_CASE_PATH + "LongIntClass.ok";
-        final String expectedObjectlongTest = TestSignatureProcessor.TEST_CASE_PATH + "ObjectlongClass.ok";
+        final String expectedLongObjectTest = "LongObjectClass.ok";
+        final String expectedLongIntTest = "LongIntClass.ok";
+        final String expectedObjectlongTest = "ObjectlongClass.ok";
 
         compareWithReferenceFile(new TemplateOptions(Type.LONG, Type.GENERIC), testedPath, expectedLongObjectTest);
         compareWithReferenceFile(new TemplateOptions(Type.LONG, Type.INT), testedPath, expectedLongIntTest);
@@ -331,10 +336,10 @@ public class TestSignatureProcessor
     @Test
     public void testFullClassArrays() throws IOException {
 
-        final String testedPath = TestSignatureProcessor.TEST_CASE_PATH + "KTypeArraysClass.test";
+        final String testedPath = "KTypeArraysClass.test";
 
-        final String expectedPathLong = TestSignatureProcessor.TEST_CASE_PATH + "LongArraysClass.ok";
-        final String expectedPathObject = TestSignatureProcessor.TEST_CASE_PATH + "ObjectArraysClass.ok";
+        final String expectedPathLong = "LongArraysClass.ok";
+        final String expectedPathObject = "ObjectArraysClass.ok";
 
         System.out.println(">>>> Converted to Object: \n\n");
         compareWithReferenceFile(new TemplateOptions(Type.GENERIC, null), testedPath, expectedPathObject);
@@ -346,10 +351,10 @@ public class TestSignatureProcessor
     @Test
     public void testFullClassPartialTemplateSpecialization() throws IOException {
 
-        final String testedPath = TestSignatureProcessor.TEST_CASE_PATH + "KTypePartialSpecializationClass.test";
+        final String testedPath = "KTypePartialSpecializationClass.test";
 
-        final String expectedPathLong = TestSignatureProcessor.TEST_CASE_PATH + "LongPartialSpecializationClass.ok";
-        final String expectedPathObject = TestSignatureProcessor.TEST_CASE_PATH + "ObjectPartialSpecializationClass.ok";
+        final String expectedPathLong = "LongPartialSpecializationClass.ok";
+        final String expectedPathObject = "ObjectPartialSpecializationClass.ok";
 
         System.out.println(">>>> Converted to Object: \n\n");
         compareWithReferenceFile(new TemplateOptions(Type.GENERIC, null), testedPath, expectedPathObject);
@@ -361,10 +366,10 @@ public class TestSignatureProcessor
     @Test
     public void testIteratorPoolAllocFull() throws IOException {
 
-        final String testedPath = TestSignatureProcessor.TEST_CASE_PATH + "IteratorPoolAlloc.test";
+        final String testedPath = "IteratorPoolAlloc.test";
 
-        final String expectedPathLong = TestSignatureProcessor.TEST_CASE_PATH + "IteratorPoolAllocLong.ok";
-        final String expectedPathObject = TestSignatureProcessor.TEST_CASE_PATH + "IteratorPoolAllocGeneric.ok";
+        final String expectedPathLong = "IteratorPoolAllocLong.ok";
+        final String expectedPathObject = "IteratorPoolAllocGeneric.ok";
 
         System.out.println(">>>> Converted to Object: \n\n");
         compareWithReferenceFile(new TemplateOptions(Type.GENERIC, null), testedPath, expectedPathObject);
@@ -377,10 +382,10 @@ public class TestSignatureProcessor
     @Test
     public void testIteratorPool() throws IOException {
 
-        final String testedPath = TestSignatureProcessor.TEST_CASE_PATH + "IteratorPool.test";
+        final String testedPath = "IteratorPool.test";
 
-        final String expectedPathLong = TestSignatureProcessor.TEST_CASE_PATH + "IteratorPoolLong.ok";
-        final String expectedPathObject = TestSignatureProcessor.TEST_CASE_PATH + "IteratorPoolGeneric.ok";
+        final String expectedPathLong = "IteratorPoolLong.ok";
+        final String expectedPathObject = "IteratorPoolGeneric.ok";
 
         System.out.println(">>>> Converted to Object: \n\n");
         compareWithReferenceFile(new TemplateOptions(Type.GENERIC, null), testedPath, expectedPathObject);
@@ -396,7 +401,7 @@ public class TestSignatureProcessor
     @Test
     public void testCrashParsing() throws IOException {
 
-        final String testedPath = TestSignatureProcessor.TEST_CASE_PATH + "CrashParser.txt";
+        final String testedPath = "CrashParser.txt";
 
         final SignatureProcessor processor = new SignatureProcessor(loadFile(testedPath));
 
@@ -551,10 +556,20 @@ public class TestSignatureProcessor
      */
     private String loadFile(final String fileName) throws IOException {
 
-        final Path path = Paths.get(fileName);
+        final URL resURL = ClassLoader.getSystemResource(SignatureProcessorTest.TEST_CASE_RESOURCE_PATH + fileName);
 
-        Assert.assertTrue("Not a regular file, or file do not exist : " + path.toString(), Files.isRegularFile(path));
+        URI resURI = null;
+        try {
+            resURI = resURL.toURI();
+        } catch (final URISyntaxException e) {
+            //
+            e.printStackTrace();
+        }
 
-        return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+        final Path resPath = Paths.get(resURI);
+
+        Assert.assertTrue("Not a regular file, or file do not exist : " + resPath.toString(), Files.isRegularFile(resPath));
+
+        return new String(Files.readAllBytes(resPath), StandardCharsets.UTF_8);
     }
 }

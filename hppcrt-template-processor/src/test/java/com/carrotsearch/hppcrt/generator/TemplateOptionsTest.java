@@ -2,7 +2,7 @@ package com.carrotsearch.hppcrt.generator;
 
 import org.junit.Test;
 
-public class TestTemplateOptions
+public class TemplateOptionsTest
 {
     @Test
     public void testInlines() {
