@@ -29,14 +29,15 @@ import com.carrotsearch.hppcrt.hash.*;
  * the capacity exceeds the given load factor, the buffer size is doubled.
  * </p>
  *
+#if ($TemplateOptions.KTypeGeneric)
+ * <p>This implementation supports <code>null</code> keys.</p>
+ * 
  * <p><b>Important note.</b> The implementation uses power-of-two tables and linear
  * probing, which may cause poor performance (many collisions) if hash values are
  * not properly distributed.
- *
- *
-#if ($TemplateOptions.KTypeGeneric)
- * <p>This implementation supports <code>null</code> keys. </p>
 #end
+ * 
+ *
 #if ($TemplateOptions.VTypeGeneric)
  * <p>This implementation supports <code>null</code> values.</p>
 #end
@@ -1711,7 +1712,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         //We must NOT clone because of independent perturbations seeds
         cloned.putAll(this);
-        
+
         return cloned;
     }
 
@@ -1809,7 +1810,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
     }
 
     /*! #end !*/
-    
+
     /*! #if ($RH) !*/
     private int probe_distance(final int slot, final int[] cache) {
 
@@ -1828,7 +1829,7 @@ implements KTypeVTypeMap<KType, VType>, Cloneable
 
         return slot - rh;
     }
-     /*! #end !*/
+    /*! #end !*/
 
     /*! #if ($TemplateOptions.declareInline("REHASH(value)",
     "<Object,*>==>BitMixer.mix(hashKey(value) , this.perturbation)",

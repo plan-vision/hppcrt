@@ -100,7 +100,7 @@
         <version.maven-source-plugin>3.0.0</version.maven-source-plugin>
 
         <version.build-helper-maven-plugin>1.10</version.build-helper-maven-plugin>
-        <version.animal-sniffer-maven-plugin>1.14</version.animal-sniffer-maven-plugin>
+        <version.animal-sniffer-maven-plugin>1.15</version.animal-sniffer-maven-plugin>
 
         <version.maven-bundle-plugin>3.0.1</version.maven-bundle-plugin>
 

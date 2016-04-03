@@ -29,13 +29,14 @@ import com.carrotsearch.hppcrt.hash.*;
  * are always allocated to the nearest size that is a power of two. When
  * the capacity exceeds the given load factor, the buffer size is doubled.
  * </p>
- *
- * <p><b>Important note.</b> The implementation uses power-of-two tables and linear
- * probing, which may cause poor performance (many collisions) if hash values are
- * not properly distributed.
+ * 
  *
 #if ($TemplateOptions.KTypeGeneric)
  * <p>This implementation supports <code>null</code> keys.</p>
+ * 
+ * <p><b>Important note.</b> The implementation uses power-of-two tables and linear
+ * probing, which may cause poor performance (many collisions) if hash values are
+ * not properly distributed.
 #end
  *
  *
@@ -906,7 +907,7 @@ implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 
         //We must NOT clone, because of the independent perturbation seeds
         cloned.addAll(this);
-        
+
         return cloned;
     }
 
