@@ -70,7 +70,7 @@
         <!-- Lib must only contain JDK 1.5 API, checked by animal-sniffer -->
         <lib.jdk.level>java15</lib.jdk.level>
 
-        <version.retrolambda>2.1.0</version.retrolambda>
+        <version.retrolambda>2.3.0</version.retrolambda>
 
         <version.guava>19.0</version.guava>
 
@@ -79,9 +79,9 @@
         <version.maven-antrun-plugin>1.8</version.maven-antrun-plugin>
         <version.ant>1.9.6</version.ant>
 
-        <version.antlr>4.5.2</version.antlr>
+        <version.antlr>4.5.3</version.antlr>
 
-        <version.randomizedtesting>2.3.3</version.randomizedtesting>
+        <version.randomizedtesting>2.3.4</version.randomizedtesting>
 
         <version.maven-clean-plugin>3.0.0</version.maven-clean-plugin>
         <version.maven-compiler-plugin>3.5.1</version.maven-compiler-plugin>
