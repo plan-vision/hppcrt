@@ -77,7 +77,7 @@
         <version.junit>4.12</version.junit>
 
         <version.maven-antrun-plugin>1.8</version.maven-antrun-plugin>
-        <version.ant>1.9.6</version.ant>
+        <version.ant>1.9.7</version.ant>
 
         <version.antlr>4.5.3</version.antlr>
 
@@ -90,9 +90,9 @@
         <version.maven-eclipse-plugin>2.10</version.maven-eclipse-plugin>
 
         <version.maven-install-plugin>2.5.2</version.maven-install-plugin>
-        <version.maven-jar-plugin>2.6</version.maven-jar-plugin>
+        <version.maven-jar-plugin>3.0.0</version.maven-jar-plugin>
         <version.maven-shade-plugin>2.4.3</version.maven-shade-plugin>  
-        <version.maven-resources-plugin>2.7</version.maven-resources-plugin>
+        <version.maven-resources-plugin>3.0.0</version.maven-resources-plugin>
         <version.maven-surefire-plugin>2.19.1</version.maven-surefire-plugin>
 
         <version.maven-enforcer-plugin>1.4.1</version.maven-enforcer-plugin>

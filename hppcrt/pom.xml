@@ -14,7 +14,8 @@
     <groupId>com.github.vsonnier</groupId>
     <artifactId>hppcrt</artifactId>
     <version>0.7.5-SNAPSHOT</version>
-    <packaging>bundle</packaging>
+    <!-- We are indeed building an OSGi bundle at the end by injecting the correct Manifest while building with the Maven Jar plugin -->
+    <packaging>jar</packaging>
 
     <name>HPPC-RT Collections</name>
     <description>High Performance Primitive Collections Realtime
@@ -119,18 +120,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+           
 
             <!-- Use Retrolamda to translate source classes only (not tests classes) into lib.bytecode.level bytecode -->
             <plugin>
@@ -151,23 +141,7 @@
                 </configuration>
             </plugin>
             
-            <!-- Add Manifest OSGIs info to the future Jar -->
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <executions>
-                    <!-- HPPCRT-48: Prepare OSGI data to be included by the regular maven-jar-plugin, DO NOT use the bundle goal ! -->
-                    <execution>
-                        <id>bundle-manifest</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>manifest</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!-- Project in general is Java 8 level while the final lib is still JDK 1.5 on api side. -->
+             <!-- Project in general is Java 8 level while the final lib is still JDK 1.5 on api side. -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>animal-sniffer-maven-plugin</artifactId>
@@ -196,7 +170,23 @@
                 <artifactId>junit4-maven-plugin</artifactId>
             </plugin>
             
-            <!-- Apparently, filtering KType*/VType* classes in Jar in global config d'ont work, do it here -->
+             <!-- Add Manifest OSGIs info to the future Jar -->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <executions>
+                    <!-- HPPCRT-48: Prepare OSGI data to be included by the regular maven-jar-plugin, DO NOT use the bundle goal ! -->
+                    <execution>
+                        <id>bundle-manifest</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>manifest</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <!-- Build main artifact --> 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -208,22 +198,37 @@
                             <goal>jar</goal>
                         </goals>
                         <configuration>
-                        <!-- HPPCRT-48: Must "manually" add OSGI manifest to jar data, because bundle packaging apparently cannot filter classes ! -->  
-                        <archive>  
-                            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
-                        </archive> 
+                            <!-- HPPCRT-48: Must "manually" add OSGI manifest to a regular Jar data, because bundle packaging apparently cannot filter class-wise -->  
+                            <archive>  
+                                <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                            </archive> 
                             <excludes>
-                                <exclude>**/KType*</exclude>
-                                <exclude>**/*KType*</exclude>
-                                <exclude>**/VType*</exclude>
-                                <exclude>**/*VType*</exclude>
-                                <exclude>**/Intrinsics*</exclude>
-                            </excludes>
+                              <exclude>**/KType*</exclude>
+                              <exclude>**/*KType*</exclude>
+                              <exclude>**/VType*</exclude>
+                              <exclude>**/*VType*</exclude>
+                              <exclude>**/Intrinsics*</exclude>
+                             </excludes>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+            
+            <!-- Build source jar -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
      
+            <!-- Build Javadoc jar -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
