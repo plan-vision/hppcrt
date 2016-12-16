@@ -65,49 +65,54 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
+        
         <!-- Retrolambda will generate a 1.5 bytecode -->
         <lib.bytecode.level>1.5</lib.bytecode.level>
         <!-- Lib must only contain JDK 1.5 API, checked by animal-sniffer -->
         <lib.jdk.level>java15</lib.jdk.level>
+		
 
         <version.retrolambda>2.3.0</version.retrolambda>
 
-        <version.guava>19.0</version.guava>
+        <version.guava>20.0</version.guava>
 
         <version.junit>4.12</version.junit>
 
         <version.maven-antrun-plugin>1.8</version.maven-antrun-plugin>
         <version.ant>1.9.7</version.ant>
 
-        <version.antlr>4.5.3</version.antlr>
+        <version.antlr>4.6</version.antlr>
 
-        <version.randomizedtesting>2.3.4</version.randomizedtesting>
+        <version.randomizedtesting>2.4.0</version.randomizedtesting>
 
         <version.maven-clean-plugin>3.0.0</version.maven-clean-plugin>
-        <version.maven-compiler-plugin>3.5.1</version.maven-compiler-plugin>
+        <version.maven-compiler-plugin>3.6.0</version.maven-compiler-plugin>
         <version.maven-dependency-plugin>2.10</version.maven-dependency-plugin>
         <version.maven-deploy-plugin>2.8.2</version.maven-deploy-plugin>
         <version.maven-eclipse-plugin>2.10</version.maven-eclipse-plugin>
 
         <version.maven-install-plugin>2.5.2</version.maven-install-plugin>
-        <version.maven-jar-plugin>3.0.1</version.maven-jar-plugin>
+        <version.maven-jar-plugin>3.0.2</version.maven-jar-plugin>
         <version.maven-shade-plugin>2.4.3</version.maven-shade-plugin>  
-        <version.maven-resources-plugin>3.0.1</version.maven-resources-plugin>
+        <version.maven-resources-plugin>3.0.2</version.maven-resources-plugin>
         <version.maven-surefire-plugin>2.19.1</version.maven-surefire-plugin>
 
         <version.maven-enforcer-plugin>1.4.1</version.maven-enforcer-plugin>
         <version.maven-javadoc-plugin>2.10.4</version.maven-javadoc-plugin>
-        <version.maven-source-plugin>3.0.0</version.maven-source-plugin>
+        <version.maven-source-plugin>3.0.1</version.maven-source-plugin>
 
-        <version.build-helper-maven-plugin>1.10</version.build-helper-maven-plugin>
+        <version.build-helper-maven-plugin>1.12</version.build-helper-maven-plugin>
         <version.animal-sniffer-maven-plugin>1.15</version.animal-sniffer-maven-plugin>
 
-        <version.maven-bundle-plugin>3.0.1</version.maven-bundle-plugin>
+        <version.maven-bundle-plugin>3.2.0</version.maven-bundle-plugin>
 
         <version.maven.api>3.3.3</version.maven.api>
 
         <!-- Never deploy automatically -->
         <skip.deployment>true</skip.deployment>
+		
+		
+		
     </properties>
 
     <prerequisites>

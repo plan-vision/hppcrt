@@ -160,11 +160,6 @@ public final class TemplateProcessor
 
         final ExtendedProperties p = new ExtendedProperties();
 
-        //Velocity 2.0+ will have this option removed,
-        //with the equivalent of SET_NULL_ALLOWED = true set permanently,
-        //so better to get used to.
-        p.setProperty(RuntimeConstants.SET_NULL_ALLOWED, "true");
-
         //Attach a Velocity logger to see internal Velocity log messages on console
         p.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new VelocityLogger());
 
@@ -188,11 +183,11 @@ public final class TemplateProcessor
         p.setProperty("file.resource.loader.cache", "true");
         p.setProperty("file.resource.loader.modificationCheckInterval", "-1");
 
-        //declare "#import" as a user directive:
-        p.setProperty("userdirective", "com.carrotsearch.hppcrt.generator.ImportDirective");
-
         this.velocity = new VelocityEngine();
         this.velocity.setExtendedProperties(p);
+
+        //declare "#import" as a custom directive for us
+        this.velocity.loadDirective("com.carrotsearch.hppcrt.generator.ImportDirective");
 
         this.velocity.init();
     }
@@ -515,7 +510,7 @@ public final class TemplateProcessor
                     log(Level.FINE,
                             "filterInlines(), parsed arguments '%s'"
                                     + ", passed to inlinedMethod.computeInlinedForm(this.genericParameters =  %s)... ",
-                            params, inlinedMethod.getGenericParameters());
+                                    params, inlinedMethod.getGenericParameters());
 
                     //fill-in the arguments depending of the type
                     final String result = inlinedMethod.computeInlinedForm(templateOptions, genericArgs, params);

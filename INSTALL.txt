@@ -40,17 +40,27 @@ mvn clean install
 # Compile all, package all JAR files, builds the benchmarks jar, skip the tests execution, install packages in a local repository.
 mvn clean install -Pquick
 
-# Compile all, create benchmark JAR only
-mvn clean package -Pquicknodoc -am -pl :hppcrt-benchmarks
-
-# List available benchmarks
-java -jar hppcrt-benchmarks/target/benchmarks.jar -l
-
 # Try to resolve all dependencies to be able to work off the Net
 mvn dependency:go-offline
 
 # Use -Pquick to skip tests execution,
 # and replace -Pquick by -Pquicknodoc to also skip Javadoc generation.
 
+# Compile all, create benchmark JAR only
+mvn clean package -Pquicknodoc -am -pl :hppcrt-benchmarks
 
+# List available benchmarks
+java -jar hppcrt-benchmarks/target/benchmarks.jar -l
+
+# Run a particular benchmark:
+java -cp hppcrt-benchmarks/target/benchmarks.jar com.carrotsearch.hppcrt.jmh.[benchmark class, see list above] --- --warmup=[nb of warmups] --measure=[nb of measures after warmups]
+
+# Run a particular benchmark, with overriden @Param values. Add one of more arguments to the command line, such as:
+param=value1,value2[...etc] 
+where param is one of @Param name, with value1,value2,... overriding the alternatives hardcoded in benchmark code.
+That way, @Param numbers can be changed, truncated, added, without recompiling. @Param enum values cannot be changed, 
+but you can restrict the execution to a subset of the existing values, still without recompiling.
+
+Ex: 
+java -cp hppcrt-benchmarks/target/benchmarks.jar com.carrotsearch.hppcrt.jmh.BenchmarkHashMapPut --- --warmup=10 --measure=10 loadFactor=0.5,0.8 targetSize=1000000,2000000 implementation=HPPCRT_INT_INT,HPPC_IDENTITY_INT
 

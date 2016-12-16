@@ -430,6 +430,7 @@ public class SignatureProcessorTest
     @Test
     public void testDoubleGenericWithinGenericWithinGeneric() throws IOException {
 
+
         //generic within generic within generic
         final SignatureProcessor sp = new SignatureProcessor(
                 "class Foo { public void foo() { new KTypeVTypeFoo<KTypeVTypeInner<KTypeVTypeProcecedure<KType, VType>>, A>(); } }");

@@ -62,6 +62,7 @@
             <plugin>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr4-maven-plugin</artifactId>
+				<version>${version.antlr}</version>
                 <executions>
                     <execution>
                         <id>antlr4</id>
