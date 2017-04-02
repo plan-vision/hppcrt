@@ -34,7 +34,7 @@ public class BufferAllocationException extends RuntimeException
             //Problem is, this IllegalFormatException may have masked the originally sent exception t,
             //so be it.
             //We can't use Throwable.setSuppressed() (Java 1.7+) because we want to continue
-            //to accomodate Java 1.5+.
+            //to accommodate Java 1.5+.
         }
 
         return formattedMessage;

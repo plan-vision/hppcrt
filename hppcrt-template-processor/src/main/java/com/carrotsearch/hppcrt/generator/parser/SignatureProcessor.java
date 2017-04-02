@@ -9,12 +9,11 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 
 import org.antlr.v4.gui.Trees;
-import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BufferedTokenStream;
+import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.antlr.v4.runtime.Lexer;
@@ -59,7 +58,7 @@ public class SignatureProcessor
         //Step 1: Lex and parse the inuput
 
         //1) create the Lexer to decompose into Tokens
-        final Lexer lexer = new Java7Lexer(new ANTLRInputStream(input));
+        final Lexer lexer = new Java7Lexer(CharStreams.fromString(input));
         //2) make a token stream of them for the Parser
         this.tokenStream = new CommonTokenStream(lexer);
         //3) Parse the tokens

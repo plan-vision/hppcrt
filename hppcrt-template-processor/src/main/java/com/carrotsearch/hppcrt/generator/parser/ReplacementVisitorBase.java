@@ -21,8 +21,8 @@ import com.carrotsearch.hppcrt.generator.parser.Java7Parser.ClassOrInterfaceType
 import com.carrotsearch.hppcrt.generator.parser.Java7Parser.IdentifierTypePairContext;
 import com.carrotsearch.hppcrt.generator.parser.Java7Parser.TypeArgumentContext;
 import com.carrotsearch.hppcrt.generator.parser.Java7Parser.TypeArgumentsContext;
-import com.carrotsearch.hppcrt.generator.parser.Java7Parser.TypeContext;
 import com.carrotsearch.hppcrt.generator.parser.Java7Parser.TypeParameterContext;
+import com.carrotsearch.hppcrt.generator.parser.Java7Parser.TypeTypeContext;
 import com.google.common.base.Preconditions;
 
 public class ReplacementVisitorBase extends Java7ParserBaseVisitor<List<Replacement>>
@@ -42,7 +42,7 @@ public class ReplacementVisitorBase extends Java7ParserBaseVisitor<List<Replacem
         this.processor = processor;
         this.logger = traceLogger;
 
-        this.terminalTypeIdentifierPath = new XPath(this.processor.parser, "//typeArgument/type/classOrInterfaceType/identifierTypePair/*");
+        this.terminalTypeIdentifierPath = new XPath(this.processor.parser, "//typeArgument/typeType/classOrInterfaceType/identifierTypePair/*");
 
         TemplateProcessor.setLoggerlevel(traceLogger, this.templateOptions.verbose);
     }
@@ -66,7 +66,7 @@ public class ReplacementVisitorBase extends Java7ParserBaseVisitor<List<Replacem
             return new TypeBound(wildcards.removeFirst(), c.getText());
         }
 
-        final TypeBound t = typeBoundOf(c.type());
+        final TypeBound t = typeBoundOf(c.typeType());
 
         if (t.isTemplateType()) {
             return new TypeBound(t.templateBound(), getSourceText(c));
@@ -79,7 +79,7 @@ public class ReplacementVisitorBase extends Java7ParserBaseVisitor<List<Replacem
         return this.processor.tokenStream.getText(c.getSourceInterval());
     }
 
-    protected TypeBound typeBoundOf(final TypeContext c) {
+    protected TypeBound typeBoundOf(final TypeTypeContext c) {
 
         if (c.primitiveType() != null) {
             return new TypeBound(null, c.getText());

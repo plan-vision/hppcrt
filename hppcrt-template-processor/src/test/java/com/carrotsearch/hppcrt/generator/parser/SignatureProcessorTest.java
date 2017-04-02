@@ -34,6 +34,7 @@ public class SignatureProcessorTest
     @Before
     public void setUp() {
 
+        // set to true to launch the GUI for the tests.
         this.displayParseTree = false;
     }
 

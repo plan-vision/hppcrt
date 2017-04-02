@@ -3,10 +3,10 @@ package com.carrotsearch.hppcrt.implementations;
 import java.util.Random;
 import java.util.function.ObjIntConsumer;
 
-import net.openhft.koloboke.collect.Equivalence;
-import net.openhft.koloboke.collect.hash.HashConfig;
-import net.openhft.koloboke.collect.map.hash.HashObjIntMap;
-import net.openhft.koloboke.collect.map.hash.HashObjIntMaps;
+import com.koloboke.collect.Equivalence;
+import com.koloboke.collect.hash.HashConfig;
+import com.koloboke.collect.map.hash.HashObjIntMap;
+import com.koloboke.collect.map.hash.HashObjIntMaps;
 
 import com.carrotsearch.hppcrt.Util;
 import com.carrotsearch.hppcrt.XorShift128P;

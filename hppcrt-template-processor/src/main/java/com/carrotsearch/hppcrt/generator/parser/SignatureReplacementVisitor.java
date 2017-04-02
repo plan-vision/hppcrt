@@ -26,8 +26,8 @@ import com.carrotsearch.hppcrt.generator.parser.Java7Parser.QualifiedNameContext
 import com.carrotsearch.hppcrt.generator.parser.Java7Parser.TypeArgumentContext;
 import com.carrotsearch.hppcrt.generator.parser.Java7Parser.TypeArgumentsContext;
 import com.carrotsearch.hppcrt.generator.parser.Java7Parser.TypeBoundContext;
-import com.carrotsearch.hppcrt.generator.parser.Java7Parser.TypeContext;
 import com.carrotsearch.hppcrt.generator.parser.Java7Parser.TypeParameterContext;
+import com.carrotsearch.hppcrt.generator.parser.Java7Parser.TypeTypeContext;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
@@ -203,13 +203,13 @@ public class SignatureReplacementVisitor extends ReplacementVisitorBase
             default:
                 final TypeBoundContext tbc = c.typeBound();
                 if (tbc != null) {
-                    Preconditions.checkArgument(tbc.type().size() == 1, "Expected exactly one type bound: " + c.getText());
+                    Preconditions.checkArgument(tbc.typeType().size() == 1, "Expected exactly one type bound: " + c.getText());
 
-                    final TypeContext tctx = tbc.type().get(0);
+                    final TypeTypeContext tctx = tbc.typeType().get(0);
                     final Interval sourceInterval = tbc.getSourceInterval();
 
                     final StringWriter sw = this.processor.reconstruct(new StringWriter(), this.processor.tokenStream,
-                            sourceInterval.a, sourceInterval.b, visitType(tctx), this.templateOptions);
+                            sourceInterval.a, sourceInterval.b, visitTypeType(tctx), this.templateOptions);
 
                     bounds.add(c.Identifier() + " extends " + sw.toString());
 
@@ -243,8 +243,8 @@ public class SignatureReplacementVisitor extends ReplacementVisitorBase
 
         final List<Replacement> replacements = new ArrayList<>();
 
-        if (ctx.type() != null) {
-            replacements.addAll(visitType(ctx.type()));
+        if (ctx.typeType() != null) {
+            replacements.addAll(visitTypeType(ctx.typeType()));
         }
         replacements.addAll(processIdentifier(ctx.Identifier(), ReplacementVisitorBase.NONE));
 

@@ -4,10 +4,10 @@ import java.util.Random;
 
 import org.openjdk.jmh.infra.Blackhole;
 
-import net.openhft.koloboke.collect.StatelessEquivalence;
-import net.openhft.koloboke.collect.hash.HashConfig;
-import net.openhft.koloboke.collect.map.hash.HashObjIntMap;
-import net.openhft.koloboke.collect.map.hash.HashObjIntMaps;
+import com.koloboke.collect.StatelessEquivalence;
+import com.koloboke.collect.hash.HashConfig;
+import com.koloboke.collect.map.hash.HashObjIntMap;
+import com.koloboke.collect.map.hash.HashObjIntMaps;
 
 import com.carrotsearch.hppcrt.Util;
 import com.carrotsearch.hppcrt.XorShift128P;
