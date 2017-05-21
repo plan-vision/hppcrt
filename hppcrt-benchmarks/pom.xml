@@ -23,7 +23,7 @@
         <uberjar.name>benchmarks</uberjar.name>
 
         <hppc.version>0.7.2</hppc.version>
-        <fastutil.version>7.1.0</fastutil.version>
+        <fastutil.version>7.2.0</fastutil.version>
         <eclipse.collections.version>8.1.0</eclipse.collections.version>
         <koloboke.version>1.0.0</koloboke.version>
         <javolution.version>6.0.0</javolution.version>
