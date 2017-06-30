@@ -1,4 +1,4 @@
-##HPPC-RT: High Performance Primitive Collections "RealTime"
+## HPPC-RT: High Performance Primitive Collections "RealTime"
 
 This is a fork of HPPC from CarrotSearch, see JavaDoc and documentation at: https://github.com/carrotsearch/hppc/wiki for more info.
 
@@ -11,7 +11,7 @@ adding, tweaking, and even modifiying some features, for the goal of improving H
 Most of the internal modifications were done to effectively remove any temporary Objects creation at runtime, provided 
 the containers are correctly pre-sized initially. 
 
-###List of changes:
+### List of changes:
 * Tweaked internal implementation to remove any allocation of temporary Objects at runtime.
 
 * Ability to pre-allocate any container with a strong guarantee to neither reallocate, nor generating garbage as long as the container 
@@ -27,7 +27,7 @@ That means in particular using the enhanced for loop without any dynamic allocat
 
 * Double-linked lists, supporting all operations common to lists and dequeues, with rich bi-directional iterating methods.
 
-* Native and optimized in-place sort methods for ArrayLists, LinkedLists, and ArrayDeques.
+* Dedicated in-place sort methods for ArrayLists, LinkedLists, and ArrayDeques.
 
 * Heaps : Priority queues, and Indexed (a.k.a indirect) priority queues.
 
