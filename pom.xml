@@ -12,7 +12,7 @@
     <!-- Project info. -->
     <groupId>com.github.vsonnier</groupId>
     <artifactId>hppcrt-parent</artifactId>
-    <version>0.7.5-SNAPSHOT</version>
+    <version>0.7.5</version>
     <packaging>pom</packaging>
 
     <name>HPPC-RT (parent POM)</name>
@@ -73,7 +73,7 @@
 		
         <version.retrolambda>2.5.1</version.retrolambda>
 
-        <version.guava>21.0</version.guava>
+        <version.guava>22.0</version.guava>
 
         <version.junit>4.12</version.junit>
 
@@ -82,7 +82,7 @@
 
         <version.antlr>4.7</version.antlr>
 
-        <version.randomizedtesting>2.5.1</version.randomizedtesting>
+        <version.randomizedtesting>2.5.2</version.randomizedtesting>
 
         <version.maven-clean-plugin>3.0.0</version.maven-clean-plugin>
         <version.maven-compiler-plugin>3.6.1</version.maven-compiler-plugin>

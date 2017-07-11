@@ -82,19 +82,9 @@ implements KTypePriorityQueue<KType>, Cloneable
         @Override
         public final boolean apply(final KType value) {
 
-            if (KTypeHeapPriorityQueue.this.comparator == null) {
+            if (Intrinsics.<KType> equals(value, KTypeHeapPriorityQueue.this.currentOccurenceToBeRemoved)) {
 
-                if (Intrinsics.<KType> isCompEqualUnchecked(value, KTypeHeapPriorityQueue.this.currentOccurenceToBeRemoved)) {
-
-                    return true;
-                }
-            } else {
-
-                if (KTypeHeapPriorityQueue.this.comparator.compare(value,
-                        KTypeHeapPriorityQueue.this.currentOccurenceToBeRemoved) == 0) {
-
-                    return true;
-                }
+                return true;
             }
 
             return false;
@@ -246,14 +236,6 @@ implements KTypePriorityQueue<KType>, Cloneable
 
     /**
      * {@inheritDoc}
-     * <p><b>Note : </b> The comparison criteria for
-     * identity test is based on
-     * #if ($TemplateOptions.KTypeGeneric)
-     * {@link Comparable} compareTo() if no
-     * #else
-     * natural ordering if no
-     * #end
-     * custom comparator is given, else it uses the {@link #comparator()} criteria.
      */
     @Override
     public int removeAll(final KType e1) {
@@ -361,14 +343,6 @@ implements KTypePriorityQueue<KType>, Cloneable
 
     /**
      * {@inheritDoc}
-     * <p><b>Note : </b> The comparison criteria for
-     * identity test is based on
-     * #if ($TemplateOptions.KTypeGeneric)
-     * {@link Comparable} compareTo() if no
-     * #else
-     * natural ordering if no
-     * #end
-     * custom comparator is given, else it uses the {@link #comparator()} criteria.
      */
     @Override
     public boolean contains(final KType element) {
@@ -376,27 +350,11 @@ implements KTypePriorityQueue<KType>, Cloneable
         final int size = this.elementsCount;
         final KType[] buff = Intrinsics.<KType[]> cast(this.buffer);
 
-        if (this.comparator == null) {
-
-            for (int i = 1; i <= size; i++) {
-                if (Intrinsics.<KType> isCompEqualUnchecked(element, buff[i])) {
-                    return true;
-                }
-            } //end for
-        } else {
-
-            /*! #if ($TemplateOptions.KTypeGeneric) !*/
-            final Comparator<? super KType> comp = this.comparator;
-            /*! #else
-            KTypeComparator<? super KType> comp = this.comparator;
-            #end !*/
-
-            for (int i = 1; i <= size; i++) {
-                if (comp.compare(element, buff[i]) == 0) {
-                    return true;
-                }
-            } //end for
-        }
+        for (int i = 1; i <= size; i++) {
+            if (Intrinsics.<KType> equals(element, buff[i])) {
+                return true;
+            }
+        } //end for
 
         return false;
     }
@@ -625,8 +583,7 @@ implements KTypePriorityQueue<KType>, Cloneable
      * (both don't have set comparators)
      * or
      * (both have equal comparators defined by {@link #comparator()}.equals(obj.comparator))</pre>
-     * then, both heaps are compared as follows: <pre>
-     * {@inheritDoc}</pre>
+     * then, both heap elements are compared with {@link #equals(Object)} iterating their {@link #buffer}.
      */
     @Override
     /* #if ($TemplateOptions.KTypeGeneric) */
@@ -651,7 +608,8 @@ implements KTypePriorityQueue<KType>, Cloneable
                 return false;
             }
 
-            //If one comparator is null, and the other not, we cannot compare them.
+            //If one comparator is null, and the other not, we cannot compare them, same if
+            //both comparators are different because the heap behavior will be different, even elements are equal.
             if (!((this.comparator == null && other.comparator == null) || (this.comparator != null && this.comparator.equals(other.comparator)))) {
 
                 return false;
@@ -665,21 +623,11 @@ implements KTypePriorityQueue<KType>, Cloneable
                 final KType myVal = it.next().value;
                 final KType otherVal = itOther.next().value;
 
-                if (this.comparator == null) {
-
-                    if (!Intrinsics.<KType> equals(myVal, otherVal)) {
-                        //recycle
-                        it.release();
-                        itOther.release();
-                        return false;
-                    }
-                } else {
-                    if (this.comparator.compare(myVal, otherVal) != 0) {
-                        //recycle
-                        it.release();
-                        itOther.release();
-                        return false;
-                    }
+                if (!Intrinsics.<KType> equals(myVal, otherVal)) {
+                    //recycle
+                    it.release();
+                    itOther.release();
+                    return false;
                 }
             } //end while
             itOther.release();

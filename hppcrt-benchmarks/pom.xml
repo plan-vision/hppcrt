@@ -5,13 +5,13 @@
     <parent>
         <groupId>com.github.vsonnier</groupId>
         <artifactId>hppcrt-parent</artifactId>
-        <version>0.7.5-SNAPSHOT</version>
+        <version>0.7.5</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <!-- Project info. -->
     <artifactId>hppcrt-benchmarks</artifactId>
-    <version>0.7.5-SNAPSHOT</version>
+    <version>0.7.5</version>
     <packaging>jar</packaging>
 
     <name>HPPC-RT Benchmarks</name>
@@ -23,8 +23,8 @@
         <uberjar.name>benchmarks</uberjar.name>
 
         <hppc.version>0.7.2</hppc.version>
-        <fastutil.version>7.2.0</fastutil.version>
-        <eclipse.collections.version>8.1.0</eclipse.collections.version>
+        <fastutil.version>8.1.0</fastutil.version>
+        <eclipse.collections.version>8.2.0</eclipse.collections.version>
         <koloboke.version>1.0.0</koloboke.version>
         <javolution.version>6.0.0</javolution.version>
     </properties>

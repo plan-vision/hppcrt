@@ -1,7 +1,7 @@
 ACKNOWLEDGEMENT
 ===============
 HPPC-RT ("Realtime")
-Copyright 2013-2015 Vincent Sonnier
+Copyright 2013-2017 Vincent Sonnier
 
 HPPC-RT borrowed code, ideas or both from:
 

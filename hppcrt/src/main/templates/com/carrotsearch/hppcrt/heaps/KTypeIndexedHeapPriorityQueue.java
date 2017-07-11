@@ -47,8 +47,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
           KType []
           #else !*/
     Object[]
-    /*! #end !*/
-    buffer;
+            /*! #end !*/
+            buffer;
 
     /**
      * Internal array for storing index to buffer position matching
@@ -138,7 +138,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
      * @see BoundedProportionalArraySizingStrategy
      */
     public KTypeIndexedHeapPriorityQueue(/*! #if ($TemplateOptions.KTypeGeneric) !*/final Comparator<? super KType> comp
-    /*! #else
+            /*! #else
     KTypeComparator<? super KType> comp
     #end !*/)
     {
@@ -772,8 +772,7 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
      * (both don't have set comparators)
      * or
      * (both have equal comparators defined by {@link #comparator()}.equals(obj.comparator))</pre>
-     * then, both heaps are compared as follows: <pre>
-     * {@inheritDoc}</pre>
+     * then the indexed heaps are considered equal as IntKTypeMap<KType> are.
      */
     @Override
     /* #if ($TemplateOptions.KTypeGeneric) */
@@ -798,7 +797,8 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
                 return false;
             }
 
-            //If one comparator is null, and the other not, we cannot compare them.
+            //If one comparator is null, and the other not, we cannot compare them, same if
+            //both comparators are different because the heap behavior will be different, even elements are equal.
             if (!((this.comparator == null && other.comparator == null) || (this.comparator != null && this.comparator.equals(other.comparator)))) {
 
                 return false;
@@ -819,20 +819,10 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
                 final KType mineValue = c.value;
                 final KType otherValue = other.get(c.key);
 
-                if (this.comparator == null) {
-
-                    if (!Intrinsics.<KType> equals(mineValue, otherValue)) {
-                        //recycle
-                        it.release();
-                        return false;
-                    }
-                } else {
-
-                    if (this.comparator.compare(mineValue, otherValue) != 0) {
-                        //recycle
-                        it.release();
-                        return false;
-                    }
+                if (!Intrinsics.<KType> equals(mineValue, otherValue)) {
+                    //recycle
+                    it.release();
+                    return false;
                 }
             } //end while
             return true;
@@ -1084,19 +1074,9 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
             @Override
             public final boolean apply(final KType value) {
 
-                if (ValuesCollection.this.owner.comparator == null) {
+                if (Intrinsics.<KType> equals(value, ValuesCollection.this.currentOccurenceToBeRemoved)) {
 
-                    if (Intrinsics.<KType> isCompEqualUnchecked(value, ValuesCollection.this.currentOccurenceToBeRemoved)) {
-
-                        return true;
-                    }
-
-                } else {
-
-                    if (ValuesCollection.this.owner.comparator.compare(value, ValuesCollection.this.currentOccurenceToBeRemoved) == 0) {
-
-                        return true;
-                    }
+                    return true;
                 }
 
                 return false;
@@ -1121,43 +1101,17 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
 
         /**
          * {@inheritDoc}
-         * <p><b>Note : </b> The comparison criteria for
-         * identity test is based on
-         * #if ($TemplateOptions.KTypeGeneric)
-         * {@link Comparable} compareTo() if no
-         * #else
-         * natural ordering if no
-         * #end
-         * custom comparator is given, else it uses the {@link #comparator()} criteria.
          */
         @Override
         public boolean contains(final KType value) {
             final KType[] buffer = Intrinsics.<KType[]> cast(this.owner.buffer);
             final int size = this.owner.elementsCount;
 
-            if (this.owner.comparator == null) {
-
-                //iterate the heap buffer, use the natural comparison criteria
-                for (int pos = 1; pos <= size; pos++) {
-                    if (Intrinsics.<KType> isCompEqualUnchecked(buffer[pos], value)) {
-                        return true;
-                    }
+            for (int pos = 1; pos <= size; pos++) {
+                if (Intrinsics.<KType> equals(buffer[pos], value)) {
+                    return true;
                 }
-            } else {
-
-                //use the dedicated comparator
-                /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                final Comparator<? super KType> comp = this.owner.comparator;
-                /*! #else
-                        KTypeComparator<? super KType> comp = this.owner.comparator;
-                        #end !*/
-                for (int pos = 1; pos <= size; pos++) {
-                    if (comp.compare(Intrinsics.<KType> cast(KTypeIndexedHeapPriorityQueue.this.buffer[pos]), value) == 0) {
-                        return true;
-                    }
-                }
-            } //end else
-
+            }
             return false;
         }
 
@@ -1199,14 +1153,6 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
          * {@inheritDoc}
          * Indeed removes all the (key,value) pairs matching
          * (key ? ,  e) with the  same  e,  from  the map.
-         * <p><b>Note : </b> The comparison criteria for
-         * identity test is based on
-         * !#if ($TemplateOptions.KTypeGeneric)
-         * {@link Comparable} compareTo() if no
-         *  #else
-         * natural ordering if no
-         *  #end
-         * custom comparator is given, else it uses the {@link #comparator()} criteria.
          */
         @Override
         public int removeAll(final KType e) {
@@ -1359,10 +1305,10 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
      */
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     public Comparator<? super KType>
-            /*! #else
+    /*! #else
                                                                                                                                                             public KTypeComparator<? super KType>
                                                                                                                                                             #end !*/
-            comparator() {
+    comparator() {
 
         return this.comparator;
     }
@@ -1518,22 +1464,22 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
             //swap k and its parent
             parent = k >> 1;
 
-            //swap k and parent
-            tmp = buffer[k];
-            buffer[k] = buffer[parent];
-            buffer[parent] = tmp;
+        //swap k and parent
+        tmp = buffer[k];
+        buffer[k] = buffer[parent];
+        buffer[parent] = tmp;
 
-            //swap references
-            indexK = qp[k];
-            indexParent = qp[parent];
+        //swap references
+        indexK = qp[k];
+        indexParent = qp[parent];
 
-            pq[indexK] = parent;
-            pq[indexParent] = k;
+        pq[indexK] = parent;
+        pq[indexParent] = k;
 
-            qp[k] = indexParent;
-            qp[parent] = indexK;
+        qp[k] = indexParent;
+        qp[parent] = indexK;
 
-            k = parent;
+        k = parent;
         }
     }
 
@@ -1561,22 +1507,22 @@ public class KTypeIndexedHeapPriorityQueue<KType> implements IntKTypeMap<KType>,
             //swap k and its parent
             parent = k >> 1;
 
-            //swap k and parent
-            tmp = buffer[k];
-            buffer[k] = buffer[parent];
-            buffer[parent] = tmp;
+        //swap k and parent
+        tmp = buffer[k];
+        buffer[k] = buffer[parent];
+        buffer[parent] = tmp;
 
-            //swap references
-            indexK = qp[k];
-            indexParent = qp[parent];
+        //swap references
+        indexK = qp[k];
+        indexParent = qp[parent];
 
-            pq[indexK] = parent;
-            pq[indexParent] = k;
+        pq[indexK] = parent;
+        pq[indexParent] = k;
 
-            qp[k] = indexParent;
-            qp[parent] = indexK;
+        qp[k] = indexParent;
+        qp[parent] = indexK;
 
-            k = parent;
+        k = parent;
         }
     }
 
