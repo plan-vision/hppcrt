@@ -13,8 +13,11 @@ the strict 1.5 API compatibility is checked by the animal-sniffer plugin before 
 * hppcrt-benchmarks: allowed to be fully Java 8 compatible, APIs included.
 
 
-Maven shortcuts
+Maven shortcuts:
 ---------------
+
+Note: While executing targets 'compile', 'test', 'package' 
+Maven console ouputs #parse ERRORs by the logger 'org.slf4j.simpleLogger.log.TemplateProcessor.directive.import'. Those errors denote normal operation.
 
 # Clean everything
 mvn clean

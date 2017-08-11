@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.Set;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Formatter;
@@ -27,15 +28,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.misc.ParseCancellationException;
-import org.apache.commons.collections.ExtendedProperties;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.MethodInvocationException;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.RuntimeConstants;
-import org.apache.velocity.runtime.RuntimeServices;
-import org.apache.velocity.runtime.log.LogChute;
 
 import com.carrotsearch.hppcrt.generator.TemplateOptions.DoNotGenerateTypeException;
 import com.carrotsearch.hppcrt.generator.parser.SignatureProcessor;
@@ -67,43 +65,6 @@ public final class TemplateProcessor
     private Path outputPath;
 
     private VelocityEngine velocity;
-
-    /**
-     * Logger handler for Velocity
-     *
-     */
-    private class VelocityLogger implements LogChute
-    {
-        @Override
-        public void init(final RuntimeServices rs) throws Exception {
-            // nothing strange here
-        }
-
-        @Override
-        public void log(final int level, final String message) {
-
-            if (level <= 2) {
-
-                logConf("[VELOCITY]-" + level + " : " + message);
-            }
-        }
-
-        @Override
-        public void log(final int level, final String message, final Throwable t) {
-
-            if (level <= 2) {
-
-                logConf("[VELOCITY]-" + level + "-!!EXCEPTION!! : " + message + " , exception msg: "
-                        + t.getMessage());
-            }
-        }
-
-        @Override
-        public boolean isLevelEnabled(final int level) {
-            //let it  talk
-            return true;
-        }
-    }
 
     /**
      * java.util.Logger formatter to be used throughout the whole template-processor tool.
@@ -158,17 +119,17 @@ public final class TemplateProcessor
 
     private void initVelocity() {
 
-        final ExtendedProperties p = new ExtendedProperties();
+        final Properties p = new Properties();
 
-        //Attach a Velocity logger to see internal Velocity log messages on console
-        p.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new VelocityLogger());
+        //use a specific name as Velocity logger backend.
+        p.setProperty(RuntimeConstants.RUNTIME_LOG_NAME, "TemplateProcessor");
 
         //Set resource path to be templatesDir + dependenciesDir, using Resource Loader:
         //log something when a resource is found
         p.setProperty(RuntimeConstants.RESOURCE_MANAGER_LOGWHENFOUND, "true");
 
+        //enforce encoding
         p.setProperty(RuntimeConstants.INPUT_ENCODING, "UTF-8");
-        p.setProperty(RuntimeConstants.OUTPUT_ENCODING, "UTF-8");
 
         //set the templatesDir to search for the '#import'ed  files....
 
@@ -177,14 +138,13 @@ public final class TemplateProcessor
             this.dependenciesDir = this.templatesDir;
         }
 
-        p.setProperty("file.resource.loader.path", ". , " + Paths.get(this.templatesDir.getAbsolutePath()) + " , "
-                + Paths.get(this.dependenciesDir.getAbsolutePath()));
+        p.setProperty("file.resource.loader.path", ". , " + Paths.get(this.templatesDir.getAbsolutePath()) + " , " + Paths.get(this.dependenciesDir.getAbsolutePath()));
 
-        p.setProperty("file.resource.loader.cache", "true");
+        p.setProperty(RuntimeConstants.FILE_RESOURCE_LOADER_CACHE, "true");
         p.setProperty("file.resource.loader.modificationCheckInterval", "-1");
 
         this.velocity = new VelocityEngine();
-        this.velocity.setExtendedProperties(p);
+        this.velocity.setProperties(p);
 
         //declare "#import" as a custom directive for us
         this.velocity.loadDirective("com.carrotsearch.hppcrt.generator.ImportDirective");
