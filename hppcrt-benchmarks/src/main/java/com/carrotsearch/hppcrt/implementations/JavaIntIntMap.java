@@ -21,6 +21,7 @@ public class JavaIntIntMap extends MapImplementation<HashMap<Integer, Integer>>
     /**
      * Setup
      */
+    @SuppressWarnings("boxing")
     @Override
     public void setup(final int[] keysToInsert, final MapImplementation.HASH_QUALITY hashQ, final int[] keysForContainsQuery, final int[] keysForRemovalQuery) {
 
@@ -35,20 +36,21 @@ public class JavaIntIntMap extends MapImplementation<HashMap<Integer, Integer>>
         //Auto box into Integers
         for (int ii = 0; ii < keysToInsert.length; ii++) {
 
-            this.insertKeys[ii] = new Integer(keysToInsert[ii]);
-            this.insertValues[ii] = new Integer(prng.nextInt());
+            //autoboxing occurs here
+            this.insertKeys[ii] = keysToInsert[ii];
+            this.insertValues[ii] = prng.nextInt();
         }
 
         //Auto box into Integers
         for (int ii = 0; ii < keysForContainsQuery.length; ii++) {
-
-            this.containsKeys[ii] = new Integer(keysForContainsQuery[ii]);
+            //autoboxing occurs here
+            this.containsKeys[ii] = keysForContainsQuery[ii];
         }
 
         //Auto box into Integers
         for (int ii = 0; ii < keysForRemovalQuery.length; ii++) {
-
-            this.removedKeys[ii] = new Integer(keysForRemovalQuery[ii]);
+            //autoboxing occurs here
+            this.removedKeys[ii] = keysForRemovalQuery[ii];
         }
     }
 
