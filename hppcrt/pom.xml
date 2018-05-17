@@ -42,13 +42,6 @@
             <scope>test</scope>
         </dependency>
 		
-		<!-- Provided for Javadoc generation on Java 9 -->
-		<dependency>
-			<groupId>javax.annotation</groupId>
-			<artifactId>javax.annotation-api</artifactId>
-			<version>${version.javax-annotation-api}</version>
-			<scope>provided</scope>
-		</dependency>	
     </dependencies>
 	
     <!-- Build tuning. -->
@@ -67,7 +60,7 @@
                         <configuration>
                             <fork>true</fork>
                             <meminitial>256m</meminitial>
-                            <maxmem>512m</maxmem>
+                            <maxmem>2G</maxmem>
                             <target>
                                 <!-- Pass the full plugin classpath to the Ant script through the Ant property template_prcessor_classpath -->
                                 <!-- so that TemplateProcessor could find all the classes it needs -->
@@ -131,7 +124,7 @@
            
 
             <!-- Use Retrolamda to translate source classes only (not tests classes) into lib.bytecode.level bytecode -->
-            <plugin>
+			 <plugin>
                 <groupId>net.orfjackal.retrolambda</groupId>
                 <artifactId>retrolambda-maven-plugin</artifactId>
                 <executions>
@@ -146,7 +139,7 @@
                 <configuration>
                     <target>${lib.bytecode.level}</target>
                     <defaultMethods>false</defaultMethods>
-					<fork>false</fork>
+					<fork>true</fork>
                 </configuration>
             </plugin>
             

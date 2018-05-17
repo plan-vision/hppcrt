@@ -65,5 +65,5 @@ That way, @Param numbers can be changed, truncated, added, without recompiling. 
 but you can restrict the execution to a subset of the existing values, still without recompiling.
 
 Ex: 
-java -cp hppcrt-benchmarks/target/benchmarks.jar com.carrotsearch.hppcrt.jmh.BenchmarkHashMapPut --- --warmup=10 --measure=10 loadFactor=0.5,0.8 targetSize=1000000,2000000 implementation=HPPCRT_INT_INT,HPPC_IDENTITY_INT
+java -cp hppcrt-benchmarks/target/benchmarks.jar com.carrotsearch.hppcrt.jmh.BenchmarkHashMapPut --- --warmup=10 --measure=10 loadFactor=0.5,0.8 targetSize=1000000,2000000 implementation=HPPCRT_INT_INT,HPPC_INT_INT,HPPC_SCATTER_INT_INT
 

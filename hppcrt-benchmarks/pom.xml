@@ -19,11 +19,11 @@
 
     <properties>  
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jmh.version>1.19</jmh.version>
+        <jmh.version>1.21</jmh.version>
         <uberjar.name>benchmarks</uberjar.name>
 
-        <hppc.version>0.7.2</hppc.version>
-        <fastutil.version>8.1.0</fastutil.version>
+        <hppc.version>0.8.1</hppc.version>
+        <fastutil.version>8.2.0</fastutil.version>
         <eclipse.collections.version>8.2.0</eclipse.collections.version>
         <koloboke.version>1.0.0</koloboke.version>
         <javolution.version>6.0.0</javolution.version>

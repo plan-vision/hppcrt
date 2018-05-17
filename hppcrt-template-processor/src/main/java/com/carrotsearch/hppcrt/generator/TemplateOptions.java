@@ -260,14 +260,14 @@ public class TemplateOptions
         return this.templateFile.getFileName().toString();
     }
 
-    public String getGeneratedAnnotation() {
-        return String.format(Locale.ROOT,
-                "@javax.annotation.Generated(\n" +
-                        "    date = \"%s\",\n" +
-                        "    value = \"%s\")",
-                getTimeNow(),
-                TemplateOptions.TEMPLATE_FILE_TOKEN);
-    }
+     public String getGeneratedAnnotation() {
+    return String.format(Locale.ROOT, 
+        "@com.carrotsearch.hppcrt.Generated(\n" + 
+        "    date = \"%s\",\n" +
+        "    value = \"%s\")",
+        getTimeNow(),
+        TemplateOptions.TEMPLATE_FILE_TOKEN);
+  }
 
     @Override
     public String toString() {
