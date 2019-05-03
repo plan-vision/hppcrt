@@ -208,8 +208,8 @@ public class KTypeLinkedListTest<KType> extends AbstractKTypeTest<KType>
 
         for (int ii = 0; ii < NB_ITERATIONS; ii++) {
 
-            final int upperRange = RandomizedTest.randomInt(TEST_SIZE);
-            final int lowerRange = RandomizedTest.randomInt(upperRange);
+            final int upperRange = RandomizedTest.between(0, TEST_SIZE);
+            final int lowerRange = RandomizedTest.between(0, upperRange);
 
             //A) Sort an array of random values of primitive types
 

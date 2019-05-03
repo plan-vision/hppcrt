@@ -192,7 +192,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
             }
         };
 
-        final int TEST_SIZE = (int) 50;
+        final int TEST_SIZE = 50;
         final int NB_ITERATIONS = (int) 1e5;
 
         //get a new seed for the current iteration
@@ -200,8 +200,8 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
 
         for (int ii = 0; ii < NB_ITERATIONS; ii++) {
 
-            final int upperRange = RandomizedTest.randomInt(TEST_SIZE);
-            final int lowerRange = RandomizedTest.randomInt(upperRange);
+            final int upperRange = RandomizedTest.between(0, TEST_SIZE);
+            final int lowerRange = RandomizedTest.between(0, upperRange);
 
             //A) Sort a deque of random values of primitive types
 

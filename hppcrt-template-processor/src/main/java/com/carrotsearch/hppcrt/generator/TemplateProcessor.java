@@ -128,9 +128,6 @@ public final class TemplateProcessor
         //log something when a resource is found
         p.setProperty(RuntimeConstants.RESOURCE_MANAGER_LOGWHENFOUND, "true");
 
-        //enforce encoding
-        p.setProperty(RuntimeConstants.INPUT_ENCODING, "UTF-8");
-
         //set the templatesDir to search for the '#import'ed  files....
 
         //if the dependencies are not set, make them the same as the templates.

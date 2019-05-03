@@ -19,7 +19,7 @@
     <description>Template Processor and Code Generation for HPPC-RT.</description>
 
     <properties>
-        <version.velocity>2.0</version.velocity>
+        <version.velocity>2.1</version.velocity>
     </properties>
 
     <!-- Dependencies. -->

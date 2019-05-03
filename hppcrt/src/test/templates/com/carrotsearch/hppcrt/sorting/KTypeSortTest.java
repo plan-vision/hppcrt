@@ -67,7 +67,7 @@ public class KTypeSortTest<KType> extends AbstractKTypeTest<KType>
             }
         };
 
-        final int TEST_SIZE = (int) 50;
+        final int TEST_SIZE = 50;
         final int NB_ITERATIONS = (int) 1e6;
 
         //get a new seed for the current iteration
@@ -75,8 +75,8 @@ public class KTypeSortTest<KType> extends AbstractKTypeTest<KType>
 
         for (int ii = 0; ii < NB_ITERATIONS; ii++) {
 
-            final int upperRange = RandomizedTest.randomInt(TEST_SIZE);
-            final int lowerRange = RandomizedTest.randomInt(upperRange);
+            final int upperRange = RandomizedTest.between(0, TEST_SIZE);
+            final int lowerRange = RandomizedTest.between(0, upperRange);
 
             //A) Sort an array of random values of primitive types
 
@@ -115,7 +115,7 @@ public class KTypeSortTest<KType> extends AbstractKTypeTest<KType>
     {
         final int[] n_values =
             {
-                100, 1023, 1024, 1025, 1024 * 32
+                    100, 1023, 1024, 1025, 1024 * 32
             };
 
         for (final int n : n_values)

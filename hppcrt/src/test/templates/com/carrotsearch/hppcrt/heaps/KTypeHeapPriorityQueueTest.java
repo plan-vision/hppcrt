@@ -1959,7 +1959,7 @@ public class KTypeHeapPriorityQueueTest<KType> extends AbstractKTypeTest<KType>
         final int refCapacity = refContainer.capacity();
 
         //3) Fill with random values, random number of elements below preallocation
-        final int nbElements = RandomizedTest.randomInt(PREALLOCATED_SIZE);
+        final int nbElements = RandomizedTest.between(0, PREALLOCATED_SIZE);
 
         for (int i = 0; i < nbElements; i++) {
 

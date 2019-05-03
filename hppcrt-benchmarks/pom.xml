@@ -26,7 +26,6 @@
         <fastutil.version>8.2.0</fastutil.version>
         <eclipse.collections.version>8.2.0</eclipse.collections.version>
         <koloboke.version>1.0.0</koloboke.version>
-        <javolution.version>6.0.0</javolution.version>
     </properties>
 
     <!-- Dependencies. -->
@@ -88,13 +87,6 @@
             <groupId>org.eclipse.collections</groupId>
             <artifactId>eclipse-collections</artifactId>
             <version>${eclipse.collections.version}</version>
-        </dependency>
-
-        <!-- Javolution -->
-        <dependency>
-            <groupId>org.javolution</groupId>
-            <artifactId>javolution-core-java</artifactId>
-            <version>${javolution.version}</version>
         </dependency>
 
     </dependencies>
