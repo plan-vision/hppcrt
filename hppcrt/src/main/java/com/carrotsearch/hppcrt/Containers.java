@@ -9,7 +9,8 @@ import com.carrotsearch.hppcrt.hash.MurmurHash3;
 
 public final class Containers
 {
-    public final static int NB_OF_PROCESSORS = Runtime.getRuntime().availableProcessors();
+    //return Runtime.getRuntime().availableProcessors();
+    public final static int NB_OF_PROCESSORS = 4; // hardcoded default due support for TeaVM 
 
     /**
      * The default number of expected elements for containers.
